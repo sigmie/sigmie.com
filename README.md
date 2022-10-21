@@ -22,4 +22,3 @@ The available callout types are:
 * `info`
 * `warning`
 * `danger`
-# lib-docs

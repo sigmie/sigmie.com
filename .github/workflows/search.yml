@@ -1,0 +1,33 @@
+name: Index Search
+
+on: push
+  # pull_request:
+  #   types: [closed]
+  #   branches:
+  #     - master
+  # workflow_dispatch:
+
+jobs:
+  index:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
+          coverage: none
+
+      - name: Install system packages
+        run: sudo apt-get update && sudo apt-get install -y curl libssl1.1 zip
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Index 
+        run: php index.php 'https://skiukk4yaxfg8vkoj.sigmie.app' 'skiukk4yaxfg8vkoj' ${{ secrets.SIGMIE_ADMIN_API_KEY }}

@@ -1,13 +1,53 @@
 import { Fragment, createElement, useRef, useState, useEffect } from 'react'
+import remark from 'remark'
+import torchlight from 'remark-torchlight'
+import {unified} from 'unified'
+import remarkParse from 'remark-parse'
+import remarkRehype from 'remark-rehype'
+import rehypeSanitize from 'rehype-sanitize'
+import rehypeStringify from 'rehype-stringify'
+
+
 
 export function Fence({ children, language }) {
+  const [code, setCode] = useState(children.trimEnd());
+
+  useEffect(() => {
+    // React advises to declare the async function directly inside useEffect
+    async function getToken() {
+
+    const code = await unified()
+    .use(remarkParse)
+    .use(remarkRehype)
+    .use(rehypeSanitize)
+    .use(rehypeStringify)
+        .use(torchlight,{
+            // All API configuration goes under `config`.
+            config: {
+                token: 'torch_yI6tX9DXX3maZWxoTd03SXVgDyG41uMUUHXpGsQI',
+                theme: 'material-theme-palenight'
+            }
+        })
+    .process('```php $foo = false ```')
+    // .process(children.trimEnd());
+        //  let code = await unified()
+        // .use(html)
+        //  .use(remarkParse)
+        // .process('---\nlayout: home\n---\n\n# Hi ~~Mars~~Venus!')
+        // .toString()
+
+        setCode(String(code));
+    };
+
+    getToken();
+
+  }, []);
+
   return (
-  <StaticContent>
     <pre><code data-language='php'>
-    {children.trimEnd()}
+    {code}
     </code>
     </pre>
-  </StaticContent>
   )
 }
 

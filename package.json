@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && npx torchlight",
     "start": "next start",
     "lint": "next lint"
   },
@@ -17,6 +17,7 @@
     "@markdoc/next.js": "^0.1.5",
     "@sindresorhus/slugify": "^2.1.0",
     "@tailwindcss/typography": "^0.5.2",
+    "@torchlight-api/torchlight-cli": "^0.1.7",
     "autoprefixer": "^10.4.7",
     "axios": "^0.27.2",
     "clsx": "^1.2.0",

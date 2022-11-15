@@ -1,44 +1,45 @@
 ---
 title: Quick start 
-description: Authentications keys for API usage.
+description: empty
 ---
 
-Generate authentication keys to authenticate your API.
-
 ---
 
-## Types
+```php
+$users = $users->map(fn($user) => $user->toArray());
 
-There are 2 API Key types that you have to use to **authenticate** with your
-Sigmie Application.
+$sigmie->collect(index:'users')->merge($users);
+```
 
-Each type has different permission and is intended for different use.
+```php
+$response = $sigmie->newSearch('users')
+                   ->fields(['name'])
+                   ->queryString($query)
+                   ->get();
 
-### Admin
+$result = $response->json();
+```
 
-Admin token has full power over your Sigmie Application documents, meaning that using
-an **Admin** token, you can create, update or delete any Documents.
-
-This API Token is intended to be used on the Server-Side of your application.
-
-To generate such Key choose **Admin** in the `Type` dropdown selection when
-creating an API Key.
-
- 
-
-{% callout type="danger" title="Secret" %}
-Never expose the Admin Keys to the user.
-{% /callout %}
-
-### Search
-
-Using **Search** tokens you can make [Search Request](/docs/api/search) to your
-**Sigmie Application**.
-
-To generate such Key choose **Search** in the `Type` dropdown selection when
-creating an API Key.
-
-{% callout type="info" title="Frontend" %}
-You can safely expose this Key in the frontend part of
-your application.
-{% /callout %}
+```json
+{
+    "took": 2,
+        //
+    "hits": {
+        //
+        "hits": [
+            {
+                "_index": "636cf7730ba43_20221110130659053736",
+                "_type": "_doc",
+                "_id": "mA6mYYQBxEY4zeoFmp4P",
+                "_score": 0.9808291,
+                "_source": {
+                    "id": "93",
+                    "name": "John Doe",
+                    "email": "johny_99@gmai.com",
+                    "active": true
+                }
+            }
+        ]
+    }
+}
+```

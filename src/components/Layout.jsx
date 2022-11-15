@@ -17,10 +17,88 @@ const navigation = [
     links: [
       { title: 'Introduction', href: '/docs/getting-started/introduction' },
       { title: 'Quick Start', href: '/docs/getting-started/quick-start' },
+      { title: 'Philosophy', href: '/docs/getting-started/quick-start' },
     ],
   },
   {
     title: 'Index',
+    links: [
+      { title: 'Conzept', href: '/docs/index/update' },
+      { title: 'Analyzer', href: '/docs/index/update' },
+      { title: 'Char Filters', href: '/docs/index/char-filters' },
+      { title: 'Tokenizers', href: '/docs/index/tokenizers' },
+      { title: 'Token Filters', href: '/docs/index/update' },
+    ],
+  },
+  {
+    title: 'Mappings',
+    links: [
+      { title: 'Boolean', href: '/docs/index/update' },
+      { title: 'Date', href: '/docs/index/update' },
+      { title: 'Text', href: '/docs/index/update' },
+      { title: 'Number', href: '/docs/index/update' },
+      { title: 'Keyword', href: '/docs/index/update' },
+    ],
+  },
+  {
+    title: 'Query',
+    links: [
+      { title: 'Search', href: '/docs/index/update' },
+      { title: 'Boolean', href: '/docs/index/update' },
+      { title: 'Term', href: '/docs/index/update' },
+      { title: 'Match', href: '/docs/index/update' },
+    ],
+  },
+  {
+    title: 'Search',
+    links: [
+      { title: 'Template', href: '/docs/index/update' },
+      { title: 'Query', href: '/docs/index/update' },
+      { title: 'Typo Tolerance', href: '/docs/index/update' },
+      { title: 'Highlighting', href: '/docs/index/update' },
+      { title: 'Retrievable attributes', href: '/docs/index/update' },
+      { title: 'Searchable attributes', href: '/docs/index/update' },
+    ],
+  },
+  {
+    title: 'Parse',
+    links: [
+      { title: 'Filter Parser', href: '/docs/parse/filter-parser.md' },
+      { title: 'Sort', href: '/docs/index/update' },
+      { title: 'Properties', href: '/docs/index/update' },
+    ],
+  },
+  {
+    title: 'Document',
+    links: [
+      { title: 'Update', href: '/docs/index/update' },
+      { title: 'Create', href: '/docs/index/update' },
+      { title: 'Delete', href: '/docs/index/update' },
+      { title: 'Upsert', href: '/docs/index/update' },
+    ],
+  },
+  {
+    title: 'Testing',
+    links: [
+      { title: 'Update', href: '/docs/index/update' },
+    ],
+  },
+  {
+    title: 'Languages',
+    links: [
+      { title: 'English', href: '/docs/index/update' },
+      { title: 'German', href: '/docs/index/update' },
+      { title: 'Greek', href: '/docs/index/update' },
+    ],
+  },
+  {
+    title: 'Http',
+    links: [
+      { title: 'Update', href: '/docs/index/update' },
+    ],
+  },
+  {
+    title: 'Analytics',
     links: [
       { title: 'Update', href: '/docs/index/update' },
     ],
@@ -164,7 +242,7 @@ export function Layout({ children, title, tableOfContents }) {
 
       <div className="relative mx-auto flex max-w-8xl justify-center sm:px-2 lg:px-8 xl:px-12">
         <div className="hidden lg:relative lg:block lg:flex-none">
-          <div className="absolute inset-y-0 right-0 w-[50vw] bg-slate-50 dark:hidden" />
+          <div className="absolute inset-y-0 right-0 w-[50vw] dark:hidden" />
           <div className="sticky top-[4.5rem] -ml-0.5 h-[calc(100vh-4.5rem)] overflow-y-auto py-16 pl-0.5">
             <div className="absolute top-16 bottom-0 right-0 hidden h-12 w-px bg-gradient-to-t from-slate-800 dark:block" />
             <div className="absolute top-28 bottom-0 right-0 hidden w-px bg-slate-800 dark:block" />

@@ -32,10 +32,10 @@ export default function StaticContent({ children, element = 'div', ...props }) {
 
   // if we're in the server or a spa navigation, just render it
   if (render) {
-    return createElement(element, {
-      ...props,
+    return createElement(element,
+      props,
       children,
-    })
+    )
   }
 
   // avoid re-render on the client

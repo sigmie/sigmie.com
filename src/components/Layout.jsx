@@ -15,7 +15,7 @@ const navigation = [
   {
     title: 'Getting Started',
     links: [
-      { title: 'Introduction', href: '/docs/getting-started/introduction' },
+      { title: 'Introduction', href: '/docs/getting-started/quick-start' },
       { title: 'Quick Start', href: '/docs/getting-started/quick-start' },
       { title: 'Philosophy', href: '/docs/getting-started/quick-start' },
     ],
@@ -47,60 +47,6 @@ const navigation = [
       { title: 'Boolean', href: '/docs/index/update' },
       { title: 'Term', href: '/docs/index/update' },
       { title: 'Match', href: '/docs/index/update' },
-    ],
-  },
-  {
-    title: 'Search',
-    links: [
-      { title: 'Template', href: '/docs/index/update' },
-      { title: 'Query', href: '/docs/index/update' },
-      { title: 'Typo Tolerance', href: '/docs/index/update' },
-      { title: 'Highlighting', href: '/docs/index/update' },
-      { title: 'Retrievable attributes', href: '/docs/index/update' },
-      { title: 'Searchable attributes', href: '/docs/index/update' },
-    ],
-  },
-  {
-    title: 'Parse',
-    links: [
-      { title: 'Filter Parser', href: '/docs/parse/filter-parser.md' },
-      { title: 'Sort', href: '/docs/index/update' },
-      { title: 'Properties', href: '/docs/index/update' },
-    ],
-  },
-  {
-    title: 'Document',
-    links: [
-      { title: 'Update', href: '/docs/index/update' },
-      { title: 'Create', href: '/docs/index/update' },
-      { title: 'Delete', href: '/docs/index/update' },
-      { title: 'Upsert', href: '/docs/index/update' },
-    ],
-  },
-  {
-    title: 'Testing',
-    links: [
-      { title: 'Update', href: '/docs/index/update' },
-    ],
-  },
-  {
-    title: 'Languages',
-    links: [
-      { title: 'English', href: '/docs/index/update' },
-      { title: 'German', href: '/docs/index/update' },
-      { title: 'Greek', href: '/docs/index/update' },
-    ],
-  },
-  {
-    title: 'Http',
-    links: [
-      { title: 'Update', href: '/docs/index/update' },
-    ],
-  },
-  {
-    title: 'Analytics',
-    links: [
-      { title: 'Update', href: '/docs/index/update' },
     ],
   },
 ]

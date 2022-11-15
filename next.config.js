@@ -13,4 +13,4 @@ const nextConfig = {
   },
 }
 
-module.exports = withMarkdoc()(nextConfig)
+module.exports = withMarkdoc({ mode: 'static' })(nextConfig)

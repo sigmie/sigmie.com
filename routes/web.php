@@ -24,31 +24,31 @@ use Torchlight\Commonmark\V2\TorchlightExtension;
 
 Route::get('/', function () {
 
-    // $environment = Environment::createCommonMarkEnvironment([
-    //     'html_input' => 'strip',
-    //     'allow_unsafe_links' => false,
-    // ]);
+    return Inertia::render('Welcome', []);
+});
 
-    $environment = new Environment();
-    $environment->addExtension(new CommonMarkCoreExtension);
-    $environment->addExtension(new TorchlightExtension);
+Route::any('/{endpoint?}', function ($endpoint, MarkdownConverter $converter) {
 
-    $converter = new MarkdownConverter($environment);
+    $path = base_path("docs/{$endpoint}.md");
 
-    $html = $converter->convert('```php $var = false; ```');
+    abort_if(!file_exists($path), 404);
 
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'html' => $html->getContent(),
+    $markdown = file_get_contents($path);
+
+    $line = preg_split('#\r?\n#', $markdown, 2)[0];
+
+    $title = str_replace('# ', '', $line);
+
+    $markdown = preg_replace('/^.+\n/', '', $markdown);
+
+    $html = $converter->convert($markdown);
+
+    $html = str_replace('¶', '#', $html->getContent());
+
+    return Inertia::render('Document', [
+        'navigation' => config('docs.navigation'),
+        'title' => $title,
+        'html' => $html,
     ]);
-});
-
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
-});
+})
+    ->where('endpoint', '.*');

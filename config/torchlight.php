@@ -23,7 +23,7 @@ return [
     // ],
 
     // Your API token from torchlight.dev.
-    'token' => env('TORCHLIGHT_TOKEN', 'torch_LACxZIwHp6sAYN49fn7wM9m0SnAoWofnQWhhisFL'),
+    'token' => env('TORCHLIGHT_TOKEN', ''),
 
     // If you want to register the blade directives, set this to true.
     'blade_components' => true,

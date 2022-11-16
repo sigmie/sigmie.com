@@ -172,7 +172,7 @@ navigation: Object,
                     </svg>
                 </button>
             </div>
-            <main class="prose mx-auto w-full max-w-5xl py-10">
+            <main class="prose mx-auto w-full max-w-2xl py-10">
                 <h1>{{ title }}</h1>
                 <div v-html="html"></div>
             </main>

@@ -1,13 +1,15 @@
----
-title: Filter parser
-description: SQL like Boolean queries
----
+# Filter parser
 
-Generate authentication keys to authenticate your API.
+```php
+return [
+    'extensions' => [
+        SomeOtherHighlighter::class, // [tl! remove]
+        TorchlightExtension::class,
+    ]
+]
+```
 
----
-
-```sql
+```bash
 category:action OR category:horror
 ```
 

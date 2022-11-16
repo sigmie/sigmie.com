@@ -1,11 +1,6 @@
----
-title: Quick start 
-description: Authentications keys for API usage.
----
+# Quick start
 
 Generate authentication keys to authenticate your API.
-
----
 
 ## Types
 

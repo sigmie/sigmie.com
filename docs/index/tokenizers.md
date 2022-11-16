@@ -1,15 +1,8 @@
----
-title: Tokenizers
-description: empty
----
-
-Generate authentication keys to authenticate your API.
-
----
+# Tokenizers
 
 
 ## Word Boundaries
-```
+```php
 use Sigmie\Index\Analysis\Tokenizers\WordBoundaries;
 
 $this->sigmie->newIndex($alias)

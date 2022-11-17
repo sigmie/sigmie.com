@@ -24,7 +24,8 @@ use Torchlight\Commonmark\V2\TorchlightExtension;
 
 Route::get('/', function () {
 
-    return Inertia::render('Welcome', []);
+    return redirect('/v1/introduction');
+    // return Inertia::render('Welcome', []);
 });
 
 Route::any('/{version}/{endpoint?}', function ($version, $endpoint, MarkdownConverter $converter) {

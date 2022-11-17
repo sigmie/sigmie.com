@@ -13,3 +13,12 @@ $this->newIndex($alias)
         ->patternReplace('/foo/','$1')
         ->create();
 ```
+
+<div class="mermaid mx-auto h-auto" style="width: 24rem">
+    graph TD;
+    Document1-->Index;
+    Document2-->Index;
+    Document3-->Index;
+    Search-->Index;
+    Index-->Search;
+</div>

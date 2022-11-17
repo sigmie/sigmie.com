@@ -2,25 +2,27 @@
 
 
 ```php
-$sigmie->newQuery('')->bool(function (QueriesCompoundBoolean $boolean) {
-            $boolean->filter->matchAll();
-            $boolean->filter->matchNone();
-            $boolean->filter->fuzzy('bar', 'baz');
-            $boolean->filter()->multiMatch('baz', ['foo', 'bar']);
+$sigmie->newQuery(index: 'disney-movies')
+        ->bool(function (Boolean $boolean) {
 
-            $boolean->must->term('foo', 'bar');
-            $boolean->must->exists('bar');
-            $boolean->must->terms('foo', ['bar', 'baz']);
+            $boolean->filter->matchAll();
+
+            $boolean->filter()->multiMatch('goofy', ['name', 'description']);
+
+            $boolean->must->term('is_active', true);
+
+            $boolean->mustNot->term('is_active', false);
 
             $boolean->mustNot->wildcard('foo', '**/*');
-            $boolean->mustNot->ids(['unqie']);
 
-            $boolean->should->bool(fn (QueriesCompoundBoolean $boolean) => $boolean->must->match('foo', 'bar'));
-        })->sort('title.raw', 'asc')
-            ->fields(['title'])
-            ->from(0)
-            ->size(2)
-            ->getDSL();
+            $boolean->should->bool(fn (Boolean $boolean) => $boolean->must->match('name', 'Mickey'));
+
+        })
+        ->sort('name.keyword', 'asc')
+        ->fields(['name','description', 'stock', 'rating'])
+        ->from(0)
+        ->size(15)
+        ->getDSL();
 ```
 
 ```php

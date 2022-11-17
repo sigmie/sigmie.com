@@ -1,40 +1,43 @@
 # Filter parser
 
+What you write
+
 ```bash
 category:action OR category:horror
 ```
 
+What you get
 ```json
-{
-    "bool": {
+{ 
+    "bool": { 
         "should": [
             {
-                "match": {
-                    "category": {
-                        "value": "action",
+                "term": { // [tl! highlight:1]
+                    "category.keyword": { // [tl! highlight:1]
+                        "value": "action", // [tl! highlight:1]
                         "boost": 1
                     }
-                }
+                } // [tl! collapse:start] 
             },
-            {
+            { // [tl! collapse:end] 
                 "bool": {
                     "should": [
                         {
-                            "term": {
-                                "category": {
-                                    "value": "horror",
-                                    "boost": 1
+                            "term": { // [tl! highlight:1]
+                                "category.keyword": { // [tl! highlight:1]
+                                    "value": "horror", // [tl! highlight:1]
+                                    "boost": 1 
                                 }
                             }
-                        }
+                        } // [tl! collapse:start] 
                     ],
                     "boost": 1
-                }
+                } 
             }
         ],
         "boost": 1
-    }
-}
+    } 
+} // [tl! collapse:end] 
 ```
 
 

@@ -9,44 +9,75 @@ navigation: Object,
 </script>
 
 <template>
-    <div class="flex flex-row">
-        <div class="w-[400px] bg-slate-100 min-h-screen lg:block hidden">
-            <div class="block w-[300px] float-right pt-5 pb-4">
-                <Link class="flex flex-shrink-0 items-center px-4 mb-16 mt-10">
-                    <img
-                        class="h-12 w-auto"
-                        src="https://res.cloudinary.com/markos-nikolaos-orfanos/image/upload/v1668604010/logo-text_unvbgf.svg"
-                        alt="Sigmie"
-                    />
-                </Link>
-                <nav class="mt-5 flex-1 space-y-1 px-2 flex-col flex space-y-5">
-                    <div v-for="(section, index) in navigation" :key="index">
-                        <h4 class="font-semibold mb-1">
-                            {{ section.title }}
-                        </h4>
-                        <div class="flex flex-col space-y-2">
-                            <Link
-                                v-for="(link, index) in section.links"
-                                :key="index"
-                                :class="
-                                    $page.url === link.href
-                                        ? 'text-orange-500'
-                                        : 'text-slate-500 hover:text-slate-600 hover:before:block'
-                                "
-                                class="block w-full pl-3.5 before:pointer-events-none before:absolute before:-left-1 before:top-1/2 before:h-1.5 before:w-1.5 before:-translate-y-1/2 before:rounded-full before:hidden before:bg-slate-300"
-                                :href="link.href"
-                            >
-                                {{ link.title }}
-                            </Link>
-                        </div>
+    <div class="pt-20">
+        <div class="flex flex-col font-display relative">
+            <div
+                class="flex flex-row h-20 fixed top-0 left-0 right-0 shadow-slate-900/5 z-50 shadow-md bg-white border-b"
+            >
+                <div
+                    class="flex flex-row h-full w-full justify-between items-center mx-auto px-10"
+                >
+                    <Link class="flex flex-shrink-0 items-center px-4">
+                        <img
+                            class="h-12 w-auto"
+                            src="https://res.cloudinary.com/markos-nikolaos-orfanos/image/upload/v1668604010/logo-text_unvbgf.svg"
+                            alt="Sigmie"
+                        />
+                    </Link>
+
+                    <div class="flex flex-row space-x-3">
+                        <a
+                            target="_blank"
+                            href="https://github.com/sigmie"
+                            class="cursor-pointer"
+                        >
+                            Github
+                        </a>
                     </div>
-                </nav>
+                </div>
+            </div>
+
+            <div class="flex flex-row">
+                <div
+                    class="w-[400px] max-h-screen overflow-y-scroll fixed left-0 top-0 pt-20 pb-5 z-10 min-h-screen lg:block hidden"
+                >
+                    <div class="block w-[300px] float-right pt-5 pb-4">
+                        <nav
+                            class="mt-5 flex-1 space-y-1 px-2 flex-col flex space-y-5"
+                        >
+                            <div
+                                v-for="(section, index) in navigation"
+                                :key="index"
+                            >
+                                <h4 class="font-semibold mb-2 text-sm ">
+                                    {{ section.title }}
+                                </h4>
+                                <div class="flex flex-col border-l
+                                ">
+                                    <Link
+                                        v-for="(link, index) in section.links"
+                                        :key="index"
+                                        :class="
+                                            $page.url === link.href
+                                                ? 'text-orange-500 border-orange-500 border-l'
+                                                : 'text-slate-500 hover:text-slate-600 hover:before:block hover:border-gray-400 hover:border-l'
+                                        "
+                                        class="w-full pl-3.5 my-1 -ml-[1px] text-sm"
+                                        :href="link.href"
+                                    >
+                                        {{ link.title }}
+                                    </Link>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+                <main class="prose mx-auto w-full max-w-2xl py-10">
+                    <h1>{{ title }}</h1>
+                    <div v-html="html"></div>
+                </main>
             </div>
         </div>
-        <main class="prose mx-auto w-full max-w-2xl py-10">
-            <h1>{{ title }}</h1>
-            <div v-html="html"></div>
-        </main>
     </div>
 </template>
 

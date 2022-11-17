@@ -53,10 +53,6 @@ return [
                         'href' => '/v1/char-filters'
                     ],
                     [
-                        'title' => 'Shards',
-                        'href' => '/v1/shards'
-                    ],
-                    [
                         'title' => 'Token filters',
                         'href' => '/v1/token-filters'
                     ],

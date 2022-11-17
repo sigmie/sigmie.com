@@ -66,3 +66,12 @@
             ], name: 'sigmie_one_way_synonyms',)
             ->create();
 ```
+
+### Custom filters
+
+```php
+        TokenFilter::filterMap([
+            'skroutz_greeklish' => SkroutzGreeklish::class,
+            'skroutz_stem_greek' => SkroutzGreekStemmer::class,
+        ]);
+```

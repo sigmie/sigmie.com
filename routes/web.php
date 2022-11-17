@@ -27,9 +27,9 @@ Route::get('/', function () {
     return Inertia::render('Welcome', []);
 });
 
-Route::any('/{endpoint?}', function ($endpoint, MarkdownConverter $converter) {
+Route::any('/{version}/{endpoint?}', function ($version, $endpoint, MarkdownConverter $converter) {
 
-    $path = base_path("docs/{$endpoint}.md");
+    $path = base_path("docs/{$version}/{$endpoint}.md");
 
     abort_if(!file_exists($path), 404);
 
@@ -46,7 +46,7 @@ Route::any('/{endpoint?}', function ($endpoint, MarkdownConverter $converter) {
     $html = str_replace('¶', '#', $html->getContent());
 
     return Inertia::render('Document', [
-        'navigation' => config('docs.navigation'),
+        'navigation' => config("docs.{$version}.navigation"),
         'title' => $title,
         'html' => $html,
     ]);

@@ -1,97 +1,146 @@
 # Search
 
+```php
+$index->merge([
+    new Document([
+        'name' => 'Mickey',
+        'description' => 'Adventure in the woods'
+    ]),
+    new Document([
+        'name' => 'Goofy',
+        'description' => 'Mickey and his friends'
+    ]),
+    new Document([
+        'name' => 'Donald',
+        'description' => 'Chasing Goofy'
+    ]),
+]);
+
+$sigmie->newSearch($indexName)
+    ->queryString('mickey')
+    ->fields(['name'])
+    ->retrieve(['name','description'])
+    ->get()
+    ->json('hits');
+
+$hits = $search->response()->json('hits.hits');
+
+        $this->assertEquals('Mickey', $hits[0]['_source']['name']);
+        $this->assertCount(2, $hits);
+
+        $search = $this->sigmie->newSearch($indexName)
+            ->queryString('Mickey')
+            ->fields(['name', 'description'])
+            ->sort('_score')
+            ->weight([
+                'name' => 1,
+                'description' => 5
+            ])
+            ->get();
+
+        $hits = $search->response()->json('hits.hits');
+
+        $this->assertEquals('Goofy', $hits[0]['_source']['name']);
+        $this->assertCount(2, $hits);
+```
+
 
 ```php
-$sigmie->newQuery('')->bool(function (QueriesCompoundBoolean $boolean) {
-            $boolean->filter->matchAll();
-            $boolean->filter->matchNone();
-            $boolean->filter->fuzzy('bar', 'baz');
-            $boolean->filter()->multiMatch('baz', ['foo', 'bar']);
+$sigmie->newSearch($indexName)
+        ->queryString('Mickey')
+        ->fields(['name', 'description'])
+        ->sort('_score')
+        ->get();
+```
 
-            $boolean->must->term('foo', 'bar');
-            $boolean->must->exists('bar');
-            $boolean->must->terms('foo', ['bar', 'baz']);
 
-            $boolean->mustNot->wildcard('foo', '**/*');
-            $boolean->mustNot->ids(['unqie']);
-
-            $boolean->should->bool(fn (QueriesCompoundBoolean $boolean) => $boolean->must->match('foo', 'bar'));
-        })->sort('title.raw', 'asc')
-            ->fields(['title'])
-            ->from(0)
-            ->size(2)
-            ->getDSL();
+```php
+$sigmie->newSearch($indexName)
+        ->queryString('Mickey')
+        ->get();
+```
+```php
+$sigmie->newSearch($indexName)
+        ->queryString('Mickey')
+        ->sort('_score')
+        ->get();
+```
+```php
+$sigmie->newSearch($indexName)
+        ->queryString('Mickey')
+        ->fields(['name','category'])
+        ->sort('_score')
+        ->get();
 ```
 
 ```php
-$sigmie->newQuery($name)
-    ->range('count', ['>=' => 233])
-    ->response();
+$sigmie->newSearch($indexName)
+        ->queryString('Mickey')
+        ->get();
 ```
 
 
 ```php
-$sigmie->newQuery($name)
-    ->term('is_active', true)
-    ->response();
+$sigmie->newSearch($indexName)
+        ->queryString('Mickey')
+        ->filter('is:active')
+        ->get();
 ```
 
 ```php
-$sigmie->newQuery($name)
-    ->matchAll()
-    ->response();
+$sigmie->newSearch($indexName)
+        ->queryString('Mickey')
+        ->properties($properties)
+        ->sort('name:asc')
+        ->get();
+```
+
+
+```php
+$sigmie->newSearch($indexName)
+        ->fields('Mickey')
+        ->get();
+```
+
+
+```php
+$sigmie->newSearch($indexName)
+        ->typoTolerantAttributes('Mickey')
+        ->get();
+```
+```php
+$sigmie->newSearch($indexName)
+        ->highlighting(['category',], '<span class="font-bold">', '</span>')
+        ->get();
 ```
 
 ```php
-$sigmie->newQuery($name)
-    ->matchAll(boost: 5)
-    ->response();
+$sigmie->newSearch($indexName)
+        ->retrieve([])
+        ->get();
 ```
 
 ```php
-$sigmie->newQuery($name)
-    ->matchNone()
-    ->response();
+$sigmie->newSearch($indexName)
+        ->weight([ 'name'=> 1, 'surname'=> 10])
+        ->get();
 ```
 
 ```php
-$sigmie->newQuery($name)
-    ->multiMatch()
-    ->response();
+$sigmie->newSearch($indexName)
+        ->minCharsForTwoTypo(1)
+        ->minCharsForOneTypo()
+        ->get();
 ```
 
 ```php
-$sigmie->newQuery($name)
-    ->exists()
-    ->response();
+$sigmie->newSearch($indexName)
+        ->size(10)
+        ->get();
 ```
 
 ```php
-$sigmie->newQuery($name)
-    ->ids(['','',''])
-    ->response();
-```
-
-```php
-$sigmie->newQuery($name)
-    ->fuzzy('name','lion')
-    ->response();
-```
-
-```php
-$sigmie->newQuery($name)
-    ->terms(field:'category', values:['horror','action'])
-    ->response();
-```
-
-```php
-$sigmie->newQuery($name)
-    ->regex('category','/(horror|action)/')
-    ->response();
-```
-
-```php
-$sigmie->newQuery($name)
-    ->wildcard('name','john*')
-    ->response();
+$sigmie->newSearch($indexName)
+        ->typoTolerance(oneTypoChars: 3, twoTypoChars: 6)
+        ->get();
 ```

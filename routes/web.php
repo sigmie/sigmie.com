@@ -42,6 +42,12 @@ Route::any('/{version}/{endpoint?}', function ($version, $endpoint, MarkdownConv
 
     $markdown = preg_replace('/^.+\n/', '', $markdown);
 
+    $markdown = preg_replace('/@danger((.|\n)*?)@enddanger/', '<div class="callout danger">$1</div>', $markdown);
+
+    $markdown = preg_replace('/@info((.|\n)*?)@endinfo/', '<div class="callout info">$1</div>', $markdown );
+
+    $markdown = preg_replace('/@warning((.|\n)*?)@endwarning/', '<div class="callout warning">$1</div>', $markdown, 1);
+
     $html = $converter->convert($markdown);
 
     $html = str_replace('¶', '#', $html->getContent());

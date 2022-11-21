@@ -120,6 +120,15 @@ return [
                         'href' => '/v1/changelog'
                     ],
                 ]
+            ],
+            [
+                'title' => 'Laravel Scount',
+                'links' => [
+                    [
+                        'title' => 'Installation',
+                        'href' => '/v1/scount-installation'
+                    ],
+                ]
             ]
         ]
     ]

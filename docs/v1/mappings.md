@@ -21,3 +21,10 @@ $sigmie->newIndex($alias)
     })
     ->create();
 ```
+
+```php
+    $blueprint->name();
+    $blueprint->email();
+    $blueprint->active();
+    $blueprint->searchableNumber('year_of_birth');
+```

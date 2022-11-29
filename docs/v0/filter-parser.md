@@ -1,6 +1,21 @@
 # Filter parser
 
+## Introduction
+
+```php
+$boolean = new Boolean;
+$boolean->filter()->bool(function (Boolean $boolean) {
+    $boolean->should()->term('category', 'thriller'); 
+    $boolean->should()->term('category', 'horror'); 
+);
+```
+
+```php
+$parser->parse('category:thriller OR category:horror');
+```
+
 What you write
+
 
 ```bash
 category:action OR category:horror

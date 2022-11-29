@@ -24,7 +24,7 @@ use Torchlight\Commonmark\V2\TorchlightExtension;
 
 Route::get('/', function () {
 
-    return redirect('/v1/introduction');
+    return redirect('/v0/introduction');
     // return Inertia::render('Welcome', []);
 });
 

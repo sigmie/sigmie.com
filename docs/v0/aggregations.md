@@ -1,5 +1,7 @@
 # Aggregations
 
+## Introduction
+
 ```php
 $this->sigmie->newIndex($name)->create();
 
@@ -63,6 +65,29 @@ $sigmie->newQuery()->matchAll()->
 
 ```
 
+## Bucket
+
+### Stats
+```php
+$aggregation->stats('stats', 'count');
+```
+
+### Terms
+```php
+$aggregation->terms('genders', 'type')->missing('N/A');
+```
+
+### Date Histogram
+```php
+$aggregation->dateHistogram('histogram', 'date', CalendarInterval::Year)
+            ->aggregate(function (SearchAggregation $aggregation) {
+                        $aggregation->dateHistogram('histogram_nested', 'date', CalendarInterval::Day)
+                            ->missing('2021-01-01');
+                })
+            ->missing('2021-01-01');
+```
+
+### Range
 ```php
 $aggregation->range('price_ranges', 'price', [
     ['to' => 100],
@@ -70,6 +95,28 @@ $aggregation->range('price_ranges', 'price', [
     ['from' => 300],
 ]);
 ```
+
+### Significant Text
+```php
+$aggregation->significantText('significant', 'title');
+```
+
+### Sum
+```php
+$aggregation->sum('count_sum', 'count');
+```
+
+### Max
+```php
+$aggregation->max('maxCount', 'count');
+```
+
+
+### Percentiles
+```php
+$aggregation->percentiles('percentile', 'type', [1, 2]);
+```
+
 ```php
         $res = $this->sigmie->newQuery($name)
             ->matchAll()
@@ -81,47 +128,24 @@ $aggregation->range('price_ranges', 'price', [
         $res->aggregation('percentile_rank.values');
 ```
 
-```php
-$aggregation->significantText('significant', 'title');
-```
+## Metrics
 
-```php
-$aggregation->percentiles('percentile', 'type', [1, 2]);
-```
 
+### Cardinality
 ```php
 $aggregation->cardinality('type_count', 'type');
 ```
-```php
-$aggregation->valueCount('type_count', 'type');
-```
-```php
-$aggregation->sum('count_sum', 'count');
-```
-```php
-$aggregation->max('maxCount', 'count');
-```
-
-```php
-$aggregation->stats('stats', 'count');
-```
-
-```php
-$aggregation->terms('genders', 'type')->missing('N/A');
-```
+### Min
 ```php
 $aggregation->min('minCount', 'count');
 ```
-
+### Avg
 ```php
 $aggregation->avg('averageCount', 'count');
 ```
 
+
+### Value Count
 ```php
-$aggregation->dateHistogram('histogram', 'date', CalendarInterval::Year)
-            ->aggregate(function (SearchAggregation $aggregation) {
-                        $aggregation->dateHistogram('histogram_nested', 'date', CalendarInterval::Day)
-                            ->missing('2021-01-01');
-                })
-            ->missing('2021-01-01');
+$aggregation->valueCount('type_count', 'type');
 ```

@@ -1,5 +1,13 @@
 # Sort parser
 
+## Introduction
+```php
+$newQuery->sort('_score')->sort('name.keyword', 'asc');
+```
+```php
+$parser->parse('_score name:asc');
+```
+
 ```bash
 _score rating:desc name:asc
 ```
@@ -33,7 +41,7 @@ $parser->parse('_score rating:desc name:asc');
         "rating": "desc"
     },
     {
-        "name": "asc" // [tl! remove]
+        "name": "asc", // [tl! remove]
         "name.keyword": "asc" // [tl! add]
     }
 ]

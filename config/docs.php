@@ -1,22 +1,18 @@
 <?php
 
 return [
-    'v1' => [
+    'v0' => [
         'navigation' => [
             [
                 'title' => 'Getting Started',
                 'links' => [
                     [
-                        'title' => 'Introcution',
-                        'href' => '/v1/introduction'
-                    ],
-                    [
-                        'title' => 'Quickstart',
-                        'href' => '/v1/quick-start'
+                        'title' => 'Introdution',
+                        'href' => '/v0/introduction'
                     ],
                     [
                         'title' => 'Installation',
-                        'href' => '/v1/installation'
+                        'href' => '/v0/installation'
                     ]
                 ]
             ],
@@ -24,46 +20,42 @@ return [
                 'title' => 'Basics',
                 'links' => [
                     [
-                        'title' => 'Client',
-                        'href' => '/v1/client'
-                    ],
-                    [
                         'title' => 'Index',
-                        'href' => '/v1/index'
+                        'href' => '/v0/index'
                     ],
                     [
                         'title' => 'Document',
-                        'href' => '/v1/document'
+                        'href' => '/v0/document'
                     ],
                     [
                         'title' => 'Search',
-                        'href' => '/v1/search'
+                        'href' => '/v0/search'
+                    ],
+                    [
+                        'title' => 'Mappings',
+                        'href' => '/v0/mappings'
                     ],
                 ]
             ],
             [
-                'title' => 'Indices',
+                'title' => 'Analysis',
                 'links' => [
                     [
-                        'title' => 'Shards',
-                        'href' => '/v1/shards'
+                        'title' => 'Analyisis',
+                        'href' => '/v0/analysis'
                     ],
                     [
                         'title' => 'Char filters',
-                        'href' => '/v1/char-filters'
-                    ],
-                    [
-                        'title' => 'Token filters',
-                        'href' => '/v1/token-filters'
-                    ],
-                    [
-                        'title' => 'Mappings',
-                        'href' => '/v1/mappings'
+                        'href' => '/v0/char-filters'
                     ],
                     [
                         'title' => 'Tokenizer',
-                        'href' => '/v1/tokenizers'
-                    ]
+                        'href' => '/v0/tokenizers'
+                    ],
+                    [
+                        'title' => 'Token filters',
+                        'href' => '/v0/token-filters'
+                    ],
                 ]
             ],
             [
@@ -71,19 +63,15 @@ return [
                 'links' => [
                     [
                         'title' => 'Query builder',
-                        'href' => '/v1/query'
-                    ],
-                    [
-                        'title' => 'Search',
-                        'href' => '/v1/search'
+                        'href' => '/v0/query'
                     ],
                     [
                         'title' => 'Aggregations',
-                        'href' => '/v1/aggregations'
+                        'href' => '/v0/aggregations'
                     ],
                     [
-                        'title' => 'Template',
-                        'href' => '/v1/template'
+                        'title' => 'Search Template',
+                        'href' => '/v0/template'
                     ],
                 ]
             ],
@@ -92,32 +80,32 @@ return [
                 'links' => [
                     [
                         'title' => 'Fitler parser',
-                        'href' => '/v1/filter-parser'
+                        'href' => '/v0/filter-parser'
                     ],
                     [
                         'title' => 'Sort parser',
-                        'href' => '/v1/sort-parser'
+                        'href' => '/v0/sort-parser'
                     ]
                 ]
             ],
             [
                 'title' => 'More',
                 'links' => [
-                    [
-                        'title' => 'Testing',
-                        'href' => '/v1/testing'
-                    ],
-                    [
-                        'title' => 'Packages',
-                        'href' => '/v1/packages'
-                    ],
+                    // [
+                    //     'title' => 'Testing',
+                    //     'href' => '/v0/testing'
+                    // ],
+                    // [
+                    //     'title' => 'Packages',
+                    //     'href' => '/v0/packages'
+                    // ],
                     [
                         'title' => 'Docker',
-                        'href' => '/v1/docker'
+                        'href' => '/v0/docker'
                     ],
                     [
                         'title' => 'Changelog',
-                        'href' => '/v1/changelog'
+                        'href' => '/v0/changelog'
                     ],
                 ]
             ],
@@ -126,7 +114,11 @@ return [
                 'links' => [
                     [
                         'title' => 'Installation',
-                        'href' => '/v1/scount-installation'
+                        'href' => '/v0/scout-installation'
+                    ],
+                    [
+                        'title' => 'Nova',
+                        'href' => '/v0/scout-nova'
                     ],
                 ]
             ]

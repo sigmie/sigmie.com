@@ -41,9 +41,6 @@
     {{-- Fonts  --}}
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
-    {{-- Styles --}}
-    <link href="{{ mix('css/app.css') }}" rel="stylesheet">
-
     <!-- Fonts -->
     <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap">
 

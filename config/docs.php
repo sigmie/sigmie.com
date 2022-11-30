@@ -88,27 +88,27 @@ return [
                     ]
                 ]
             ],
-            [
-                'title' => 'More',
-                'links' => [
-                    // [
-                    //     'title' => 'Testing',
-                    //     'href' => '/v0/testing'
-                    // ],
-                    // [
-                    //     'title' => 'Packages',
-                    //     'href' => '/v0/packages'
-                    // ],
-                    [
-                        'title' => 'Docker',
-                        'href' => '/v0/docker'
-                    ],
-                    [
-                        'title' => 'Changelog',
-                        'href' => '/v0/changelog'
-                    ],
-                ]
-            ],
+            // [
+            //     'title' => 'More',
+            //     'links' => [
+            //         [
+            //             'title' => 'Testing',
+            //             'href' => '/v0/testing'
+            //         ],
+            //         [
+            //             'title' => 'Packages',
+            //             'href' => '/v0/packages'
+            //         ],
+            //         [
+            //             'title' => 'Docker',
+            //             'href' => '/v0/docker'
+            //         ],
+            //         [
+            //             'title' => 'Changelog',
+            //             'href' => '/v0/changelog'
+            //         ],
+            //     ]
+            // ],
             [
                 'title' => 'Laravel Scount',
                 'links' => [

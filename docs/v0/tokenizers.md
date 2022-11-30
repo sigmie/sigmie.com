@@ -24,19 +24,19 @@ $newAnalyer->tokenizeOnWordBoundaries(maxTokenLength: 255);
 ```
 
 ```php
-| "Aw shucks, pluto. I can’t be mad at ya!" |
-| ------------------------------------------|
-| Word Boundaries                           |
-| ------------------------------------------|
-| "Aw"                                      |
-| "shucks"                                  |
-| "pluto"                                   |
-| "I"                                       |
-| "can’t"                                   |
-| "be"                                      |
-| "mad"                                     |
-| "at"                                      |
-| "ya"                                      |
+ "Aw shucks, pluto. I can’t be mad at ya!"
+ -----------------------------------------
+ Word Boundaries                          
+ -----------------------------------------
+ "Aw"                                     
+ "shucks"                                 
+ "pluto"                                  
+ "I"                                      
+ "can’t"                                  
+ "be"                                     
+ "mad"                                    
+ "at"                                     
+ "ya"                                     
 ```
 
 ### Whitespace
@@ -52,19 +52,19 @@ $newAnalyer->tokenizeOnWordBoundaries();
 ```
 
 ```php
-| "Aw shucks, pluto. I can’t be mad at ya!" |
-| ----------------------------------------- |
-| Whitespace                                |
-| ----------------------------------------- |
-| "Aw"                                      |
-| "shucks,"                                 | // [tl! highlight]
-| "pluto."                                  | // [tl! highlight]
-| "I"                                       |
-| "can’t"                                   |
-| "be"                                      |
-| "mad"                                     |
-| "at"                                      |
-| "ya!"                                     | // [tl! highlight]
+ "Aw shucks, pluto. I can’t be mad at ya!" 
+ -----------------------------------------
+ Whitespace                               
+ -----------------------------------------
+ "Aw"                                     
+ "shucks,"                                 // [tl! highlight]
+ "pluto."                                  // [tl! highlight]
+ "I"                                      
+ "can’t"                                  
+ "be"                                     
+ "mad"                                    
+ "at"                                     
+ "ya!"                                     // [tl! highlight]
 ```
 
 ### Noop
@@ -80,11 +80,11 @@ $newAnalyzer->dontTokenize();
 ```
 
 ```php
-| "If you ain’t scared, you ain’t alive." |
-|----------------------------------------|
-| Noop                                   |
-| ---------------------------------------|
-| "If you ain’t scared, you ain’t alive." |
+ "If you ain’t scared, you ain’t alive." 
+ --------------------------------------- 
+ Noop                                    
+ --------------------------------------- 
+ "If you ain’t scared, you ain’t alive." 
 ```
 
 ### Pattern
@@ -101,13 +101,13 @@ $newAnalyzer->tokenizeOnPattern(',')
 
 ### Simple pattern
 ```php
-| "Though at times it may feel like the sky is falling around you, never give up, for every day is a new day" |
-| ----------------------------------------------------------------------------------------------------------- |
-| Pattern  ","                                                                                                |
-| ----------------------------------------------------------------------------------------------------------- |
-| "Though at times it may feel like the sky is falling around you"                                            |
-| " never give up"                                                                                            |
-| " for every day is a new day"                                                                               |
+ "Though at times it may feel like the sky is falling around you, never give up, for every day is a new day" 
+ ----------------------------------------------------------------------------------------------------------- 
+ Pattern  ","                                                                                                
+ ----------------------------------------------------------------------------------------------------------- 
+ "Though at times it may feel like the sky is falling around you"                                            
+ " never give up"                                                                                            
+ " for every day is a new day"                                                                               
 ```
 
 ### Pattern match
@@ -127,34 +127,54 @@ Makes sense here to trim whitespaces
 @endinfo
 
 ```php
-|"I remember daddy told me 'Fairytales can come true'."|
-| ---------------------------------------------------- |
-| Pattern Match  "'.*'"                                |
-| ---------------------------------------------------- |
-| "'Fairytales can come true'"                         |
+ "I remember daddy told me 'Fairytales can come true'." 
+ ------------------------------------------------------ 
+ Pattern Match  "'.*'"                                  
+ ------------------------------------------------------ 
+ "'Fairytales can come true'"                           
 ```
 
 ### Path hierarchy
 
 ```php
+use Sigmie\Index\Analysis\Tokenizers\PathHierarchy;
+
+$newAnalyzer->tokenizer(new PathHierarchy(delimiter: '/'))
+
+// OR
+
+$newAnalyzer->tokenizePathHierarchy(delimiter: '/');
 ```
 
 ```php
-|""|
-| ---------------------------------------------------- |
-| Path hierarchy                                   |
-| ---------------------------------------------------- |
-| "                         |
+ "Disney\Movies\Musical\Sleeping Beauty" 
+ --------------------------------------- 
+ Path hierarchy                          
+ --------------------------------------- 
+ "Disney"                                
+ "Disney/Movies"                         
+ "Disney/Movies/Musical"                 
+ "Disney/Movies/Musical/Sleeping Beauty" 
 ```
 
 ### Non Letter
 
 ```php
+use Sigmie\Index\Analysis\Tokenizers\NonLetter;
+
+$newAnalyzer->tokenizer(new NonLetter)
+
+// OR
+
+$newAnalyzer->tokenizeOnNonLetter();
 ```
 
 ```php
-|""|
-| ---------------------------------------------------- |
-| Non Letter |
-| ---------------------------------------------------- |
-| "                         |
+ "To infinity … and beyond!" 
+ --------------------------- 
+ Non Letter                  
+ --------------------------- 
+ "To"                        
+ "infinity"                  
+ "and"                       
+ "beyond"

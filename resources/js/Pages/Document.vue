@@ -124,7 +124,7 @@ code {
     @apply mr-2 no-underline text-orange-500;
 }
 
-.prose :where(ul > li):not(:where([class~="not-prose"] *))::marker {
+.table-of-contents  li::marker {
     content: '#';
     @apply text-orange-500;
 }

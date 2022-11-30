@@ -54,7 +54,7 @@ $properties->text()->keyword();
 $properties->keyword();
 ```
 
-## Number
+### Number
 
 #### Float
 ```php
@@ -75,7 +75,7 @@ $properties->boolean();
 $properties->date(); 
 ```
 
-#### Format
+PHP Format
 ```php
 $date->format->('Y-m-d H:i:s.u');
 ```

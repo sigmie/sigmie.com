@@ -62,7 +62,7 @@ return [
                 'title' => 'Query',
                 'links' => [
                     [
-                        'title' => 'Query builder',
+                        'title' => 'Query',
                         'href' => '/v0/query'
                     ],
                     [

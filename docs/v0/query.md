@@ -43,16 +43,45 @@ $newQuery->bool(function (Boolean $boolean) {
 ```php
     $boolean->must()->term('is_active', true);
 ```
+
+```sql
+SELECT * FROM movies WHERE is_active = TRUE;
+```
+
 #### Must Not
 
 ```php
-    $boolean->mustNot()->term('is_active', true);
+use Sigmie\Query\Queries\Compound\Boolean;
+
+$sigmie->newQuery(index: 'movies')
+        ->bool(function (Boolean $boolean) {
+ 
+            $boolean->mustNot()->term('is_active', true);
+
+        });
+```
+
+```sql
+SELECT * FROM movies WHERE is_active != TRUE;
 ```
 
 #### Should
 
 ```php
-    $boolean->should()->term('is_active', true);
+use Sigmie\Query\Queries\Compound\Boolean;
+
+$sigmie->newQuery(index: 'movies')
+        ->bool(function (Boolean $boolean) {
+ 
+            $boolean->should()->term('category', 'fantasy');
+
+            $boolean->should()->term('category', 'musical');
+
+        });
+```
+
+```sql
+SELECT * FROM movies WHERE category = 'fantasy' OR category = 'musical';
 ```
 
 #### Filter
@@ -60,6 +89,9 @@ $newQuery->bool(function (Boolean $boolean) {
 ```php
     $boolean->filter()->term('is_active', true);
 ```
+@info
+Filter ignores scorring
+@endinfo
 
 ### Range
 ```php
@@ -69,6 +101,15 @@ $newQuery->range('count', ['>=' => 233]);
 ### Term
 ```php
 $newQuery->term('is_active', true);
+```
+
+#### Keyword
+```php
+$properties->text()->keyword(); 
+```
+
+```php
+$newQuery->term('is_active.keyword', true);
 ```
 
 ### Match All
@@ -98,7 +139,7 @@ $newQuery->ids(['','','']);
 ### Fuzzy
 
 ```php
-$newQuery($name)->fuzzy('name','lion');
+$newQuery->fuzzy('name','lion');
 ```
 
 ### Terms
@@ -116,6 +157,11 @@ $newQuery->regex('category','/(horror|action)/');
 $newQuery->wildcard('name','john*');
 ```
 
+### Boosting
+```php
+$newQuery->matchAll(boost: 5)->get();
+```
+
 ## Sort
 ```php
 $newQuery->sort('name.keyword', 'asc')
@@ -129,9 +175,4 @@ $newQuery->from(0);
 ## Size
 ```php
 $newQuery->size(15);
-```
-
-## Boost
-```php
-$newQuery->matchAll(boost: 5)->get();
 ```

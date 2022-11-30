@@ -37,7 +37,6 @@ $docs = [
             ->matchAll()
             ->aggregate(function (SearchAggregation $aggregation) {
                 $aggregation->dateHistogram('histogram', 'date', CalendarInterval::Year)
-
                     ->aggregate(function (SearchAggregation $aggregation) {
                         $aggregation->dateHistogram('histogram_nested', 'date', CalendarInterval::Day)
                             ->missing('2021-01-01');
@@ -46,31 +45,68 @@ $docs = [
             })
             ->get();
 
-        $value = $res->aggregation('histogram');
-
+$value = $res->aggregation('histogram');
 ```
 
+## Metrics
+
+### Sum
 ```php
-$sigmie->newQuery()->matchAll()->
-    ->aggregate(function (SearchAggregation $aggregation) {
-                $aggregation->dateHistogram('histogram', 'date', CalendarInterval::Year)
+$aggregation->sum(name:'stock_sum', field:'stock');
+```
 
-                    ->aggregate(function (SearchAggregation $aggregation) {
-                        $aggregation->dateHistogram('histogram_nested', 'date', CalendarInterval::Day)
-                            ->missing('2021-01-01');
-                    })
-                    ->missing('2021-01-01');
-            })
-            ->get();
+```sql
+SELECT SUM(stock) AS stock_sum FROM movies;
+```
 
+### Max
+```php
+$aggregation->max('max_stock', 'count');
+```
+
+```sql
+SELECT MAX(stock) AS max_stock FROM movies;
+```
+
+### Min
+```php
+$aggregation->min(name:'min_stock', field:'count');
+```
+```sql
+SELECT MIN(stock) AS min_stock FROM movies;
+```
+
+### Avg
+```php
+$aggregation->avg(name:'avg_ranting', field:'count');
+```
+
+```sql
+SELECT AVG(rating) AS avg_rating FROM movies;
+```
+
+### Value Count
+
+```php
+$aggregation->valueCount(name:'categories_count', field:'category');
+```
+
+```sql
+SELECT COUNT(DISTINCT category) AS categories_count FROM movies;
 ```
 
 ## Bucket
+
+### Significant Text
+```php
+$aggregation->significantText('significant', 'title');
+```
 
 ### Stats
 ```php
 $aggregation->stats('stats', 'count');
 ```
+
 
 ### Terms
 ```php
@@ -96,22 +132,6 @@ $aggregation->range('price_ranges', 'price', [
 ]);
 ```
 
-### Significant Text
-```php
-$aggregation->significantText('significant', 'title');
-```
-
-### Sum
-```php
-$aggregation->sum('count_sum', 'count');
-```
-
-### Max
-```php
-$aggregation->max('maxCount', 'count');
-```
-
-
 ### Percentiles
 ```php
 $aggregation->percentiles('percentile', 'type', [1, 2]);
@@ -126,26 +146,4 @@ $aggregation->percentiles('percentile', 'type', [1, 2]);
             ->get();
 
         $res->aggregation('percentile_rank.values');
-```
-
-## Metrics
-
-
-### Cardinality
-```php
-$aggregation->cardinality('type_count', 'type');
-```
-### Min
-```php
-$aggregation->min('minCount', 'count');
-```
-### Avg
-```php
-$aggregation->avg('averageCount', 'count');
-```
-
-
-### Value Count
-```php
-$aggregation->valueCount('type_count', 'type');
 ```

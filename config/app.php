@@ -15,7 +15,9 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => 'Sigmie - A different PHP library for Elasticsearch',
+
+    'description' => 'Sigmie is a PHP library for Elasticsearch focused on creating a Search experience.',
 
     /*
     |--------------------------------------------------------------------------

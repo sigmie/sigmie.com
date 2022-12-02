@@ -110,10 +110,10 @@ return [
             //     ]
             // ],
             [
-                'title' => 'Laravel Scount',
+                'title' => 'Integrations',
                 'links' => [
                     [
-                        'title' => 'Installation',
+                        'title' => 'Laravel Scout',
                         'href' => '/v0/scout-installation'
                     ],
                     [

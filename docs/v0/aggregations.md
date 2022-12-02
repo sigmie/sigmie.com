@@ -3,49 +3,14 @@
 ## Introduction
 
 ```php
-$this->sigmie->newIndex($name)->create();
+$res = $sigmie->newQuery('orders')
+    ->matchAll()
+    ->aggregate(function (SearchAggregation $aggregation) {
+        $aggregation->sum(name:'turnover', field: 'price');
+    })
+    ->get();
 
-$collection = $this->sigmie->collect($name, refresh: true);
-
-$docs = [
-    new Document([
-        'date' => '2020-01-01',
-    ]),
-    new Document([
-        'date' => '2019-01-01',
-    ]),
-    new Document([
-        'date' => '2018-01-01',
-    ]),
-    new Document([
-        'date' => '2018-01-01',
-    ]),
-    new Document([
-        'name' => 'nico',
-    ]),
-    new Document([
-        'date' => '2016-01-01',
-    ]),
-    new Document([
-        'date' => '1999-01-01',
-    ]),
-];
-
-        $collection->merge($docs);
-
-        $res = $this->sigmie->newQuery($name)
-            ->matchAll()
-            ->aggregate(function (SearchAggregation $aggregation) {
-                $aggregation->dateHistogram('histogram', 'date', CalendarInterval::Year)
-                    ->aggregate(function (SearchAggregation $aggregation) {
-                        $aggregation->dateHistogram('histogram_nested', 'date', CalendarInterval::Day)
-                            ->missing('2021-01-01');
-                    })
-                    ->missing('2021-01-01');
-            })
-            ->get();
-
-$value = $res->aggregation('histogram');
+$res->aggregation('turnover.value'); // 54.403 [tl! highlight]
 ```
 
 ## Metrics
@@ -56,24 +21,38 @@ $aggregation->sum(name:'stock_sum', field:'stock');
 ```
 
 ```sql
-SELECT SUM(stock) AS stock_sum FROM movies;
+SELECT SUM(stock) AS stock_sum;
+```
+
+```php
+$res->aggregation('stock_sum.value');
 ```
 
 ### Max
 ```php
-$aggregation->max('max_stock', 'count');
+$aggregation->max(name:'max_price', field:'price');
 ```
 
 ```sql
-SELECT MAX(stock) AS max_stock FROM movies;
+SELECT MAX(stock) AS max_price;
+```
+
+```php
+$res->aggregation('max_price.value');
 ```
 
 ### Min
+
 ```php
-$aggregation->min(name:'min_stock', field:'count');
+$aggregation->min(name:'min_price', field:'price');
 ```
+
 ```sql
-SELECT MIN(stock) AS min_stock FROM movies;
+SELECT MIN(price) AS min_price;
+```
+
+```php
+$res->aggregation('min_stock.value');
 ```
 
 ### Avg
@@ -82,7 +61,11 @@ $aggregation->avg(name:'avg_ranting', field:'count');
 ```
 
 ```sql
-SELECT AVG(rating) AS avg_rating FROM movies;
+SELECT AVG(rating) AS avg_rating;
+```
+
+```php
+$res->aggregation('avg_ranting.value');
 ```
 
 ### Value Count
@@ -92,58 +75,121 @@ $aggregation->valueCount(name:'categories_count', field:'category');
 ```
 
 ```sql
-SELECT COUNT(DISTINCT category) AS categories_count FROM movies;
+SELECT COUNT(DISTINCT category) AS categories_count;
+```
+
+```php
+$res->aggregation('categories_count.value');
 ```
 
 ## Bucket
 
-### Significant Text
+### Stats
+
 ```php
-$aggregation->significantText('significant', 'title');
+| Key          | Stat            |
+| ------------ | --------------- |
+| "Count"      | 133             |
+| "Min"        | 5.33            |
+| "Max"        | 128.58          |
+| "Average"    | 73.53           |
+| "Sum"        | 9779.49         |
 ```
 
-### Stats
 ```php
-$aggregation->stats('stats', 'count');
+$aggregation->stats(name:'sales_stats', field:'count');
+```
+
+```php
+$res->aggregation('sales_stats');
+```
+
+```php
+[
+   "count" => 133,
+   "min"   => 5.33,
+   "max"   => 128.58,
+   "avg"   => 73.53,
+   "sum"   => 9779.49,
+]
 ```
 
 
 ### Terms
+
 ```php
-$aggregation->terms('genders', 'type')->missing('N/A');
+| Key          | Document Count  |
+| ------------ | --------------- |
+| "Musical"    | 18              |
+| "Adventure"  | 13              |
+| "Fantasy"    | 20              |
+| "N/A"        | 7               |
+```
+```php
+$aggregation->terms(name:'category_terms', field: 'type')->missing('N/A');
 ```
 
-### Date Histogram
 ```php
-$aggregation->dateHistogram('histogram', 'date', CalendarInterval::Year)
-            ->aggregate(function (SearchAggregation $aggregation) {
-                        $aggregation->dateHistogram('histogram_nested', 'date', CalendarInterval::Day)
-                            ->missing('2021-01-01');
-                })
-            ->missing('2021-01-01');
+$res->aggregation('category_terms.buckets');
+```
+
+```php
+[
+    [
+      "key"=> "Misical",
+      "doc_count"=> 18 
+    ],
+    [
+      "key"=> "Adventure",
+      "doc_count"=> 13 
+    ],
+    [
+      "key"=> "Fantasy",
+      "doc_count"=> 20 
+    ],
+    [
+      "key"=> "N/A",
+      "doc_count"=> 7 
+    ]
+]
 ```
 
 ### Range
+
 ```php
-$aggregation->range('price_ranges', 'price', [
-    ['to' => 100],
-    ['from' => 200, 'to' => 400],
-    ['from' => 300],
+| Key          | Document Count  |
+| ------------ | --------------- |
+| "0-100"      | 803             |
+| "100-200"    | 422             |
+| "200+"       | 343             |
+```
+
+```php
+$aggregation->range(name: 'price_ranges', field: 'price', [
+    ['key' => '0-100', 'to' => 100 ],
+    ['key' => '100-200', 'from'=> 100, 'to' => 200 ],
+    ['key' => '200+', 'from' => 200 ],
 ]);
 ```
 
-### Percentiles
 ```php
-$aggregation->percentiles('percentile', 'type', [1, 2]);
+$res->aggregation('price_ranges.buckets');
 ```
 
 ```php
-        $res = $this->sigmie->newQuery($name)
-            ->matchAll()
-            ->aggregate(function (SearchAggregation $aggregation) {
-                $aggregation->percentileRanks('percentile_rank', 'type', [3, 2]);
-            })
-            ->get();
-
-        $res->aggregation('percentile_rank.values');
+[
+    "0-100" => [
+      "to"=> 100.0,
+      "doc_count"=> 803
+    ],
+    "100-200"=> [
+      "from"=> 100.0,
+      "to"=> 200.0,
+      "doc_count"=> 422
+    ],
+    "200+" => [
+      "from"=> 200.0,
+      "doc_count"=> 343
+    ],
+]
 ```

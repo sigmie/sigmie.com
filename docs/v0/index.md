@@ -105,9 +105,15 @@ case `Mary`  becomeds `mary`.
 Now the search returns the Documents that contains this term.
 
 ```php
-| Query        | Document 1  | Document 2  | Document 3 |
+| Term         | Document 1  | Document 2  | Document 3 |
 | -----------  | ----------- | ------------|------------|
 | "mary"       | x           |             |            |
+```
+
+```php
+| Term         | Freq   | Occurrences |
+| -----------  | ------ | ----------- |
+| "mary"       | 1      | Document 1  |
 ```
 
 You can find more information in the **Analysis** section about in detail
@@ -138,6 +144,15 @@ You need to add all the analysis methods since they are not merged.
 ```php
 $sigmie->index('movies')->delete();
 ```
+
+## Settings
+
+```php
+$newIndex->config('index.max_ngram_diff', 3);
+```
+
+You can find the available index settings for Elasticsearch [here](
+https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html).
 
 ## How update works
 

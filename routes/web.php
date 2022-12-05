@@ -2,6 +2,7 @@
 
 use App\Services\Documentation;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -24,6 +25,10 @@ use League\CommonMark\MarkdownConverter;
 use Torchlight\Commonmark\V2\TorchlightExtension;
 
 Route::get('/', function () {
+
+    Log::info('Test logs', []);
+
+    dd(env('LOG_CHANNEL'));
 
     return redirect('/v0/introduction');
     // return Inertia::render('Welcome', []);

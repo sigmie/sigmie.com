@@ -53,8 +53,16 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['single', 'elastic'],
             'ignore_exceptions' => false,
+        ],
+
+        'elastic' => [
+            'driver' => 'custom',
+            'via'    => \App\Logging\ElasticLogger::class,
+            'cloud_id' => env('ELASTIC_CLOUD_ID', null),
+            'password' => env('ELASTIC_PASSWORD', null),
+            'prefix' => env('ELASTIC_INDEX_PREFIX', 'sigmie-com'),
         ],
 
         'single' => [
@@ -85,7 +93,7 @@ return [
             'handler_with' => [
                 'host' => env('PAPERTRAIL_URL'),
                 'port' => env('PAPERTRAIL_PORT'),
-                'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
+                'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
             ],
         ],
 

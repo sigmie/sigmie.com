@@ -61,12 +61,6 @@ class Documentation
 
         $markdown = file_get_contents($path);
 
-        $line = preg_split('#\r?\n#', $markdown, 2)[0];
-
-        $title = str_replace('# ', '', $line);
-
-        $markdown = preg_replace('/^.+\n/', '', $markdown);
-
         $markdown = preg_replace('/@danger((.|\n)*?)@enddanger/', '<div class="callout danger">$1</div>', $markdown);
 
         $markdown = preg_replace('/@info((.|\n)*?)@endinfo/', '<div class="callout info">$1</div>', $markdown);

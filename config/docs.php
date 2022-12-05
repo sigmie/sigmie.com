@@ -116,10 +116,6 @@ return [
                         'title' => 'Laravel Scout',
                         'href' => '/v0/scout-installation'
                     ],
-                    [
-                        'title' => 'Nova',
-                        'href' => '/v0/scout-nova'
-                    ],
                 ]
             ]
         ]

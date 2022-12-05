@@ -26,10 +26,6 @@ use Torchlight\Commonmark\V2\TorchlightExtension;
 
 Route::get('/', function () {
 
-    Log::info('Test logs', []);
-
-    dd(env('LOG_CHANNEL'));
-
     return redirect('/v0/introduction');
     // return Inertia::render('Welcome', []);
 });

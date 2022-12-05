@@ -19,5 +19,7 @@ class DocumentationCache extends Command
         $documentation = new Documentation($converter);
 
         $documentation->cache();
+
+        $this->output->success('Documentation was cached.');
     }
 }

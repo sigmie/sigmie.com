@@ -19,5 +19,7 @@ class DocumentationCacheClear extends Command
         $documentation = new Documentation($converter);
 
         $documentation->cacheClear();
+
+        $this->output->success('Documentation cache was cleared.');
     }
 }

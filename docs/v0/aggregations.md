@@ -1,7 +1,5 @@
 # Aggregations
 
-## Introduction
-
 ```php
 $res = $sigmie->newQuery('orders')
     ->matchAll()

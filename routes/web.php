@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Documentation;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -30,31 +31,13 @@ Route::get('/', function () {
 
 Route::any('/{version}/{endpoint?}', function ($version, $endpoint, MarkdownConverter $converter) {
 
-    $path = base_path("docs/{$version}/{$endpoint}.md");
+    $documentation = new Documentation($converter);
 
-    abort_if(!file_exists($path), 404);
-
-    $markdown = file_get_contents($path);
-
-    $line = preg_split('#\r?\n#', $markdown, 2)[0];
-
-    $title = str_replace('# ', '', $line);
-
-    $markdown = preg_replace('/^.+\n/', '', $markdown);
-
-    $markdown = preg_replace('/@danger((.|\n)*?)@enddanger/', '<div class="callout danger">$1</div>', $markdown);
-
-    $markdown = preg_replace('/@info((.|\n)*?)@endinfo/', '<div class="callout info">$1</div>', $markdown );
-
-    $markdown = preg_replace('/@warning((.|\n)*?)@endwarning/', '<div class="callout warning">$1</div>', $markdown, 1);
-
-    $html = $converter->convert($markdown);
-
-    $html = str_replace('¶', '#', $html->getContent());
+    $html = $documentation->get($version, $endpoint);
 
     return Inertia::render('Document', [
         'navigation' => config("docs.{$version}.navigation"),
-        'title' => $title,
+        'title' => ucwords($endpoint),
         'html' => $html,
     ]);
 })

@@ -41,8 +41,11 @@
     {{-- Fonts  --}}
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
-    <!-- Fonts -->
-    <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap">
+    @if ( config('app.env') === 'production')
+    <!-- Fathom - beautiful, simple website analytics -->
+    <script src="https://cdn.usefathom.com/script.js" data-site="KZAGYEMG" defer></script>
+    <!-- / Fathom -->
+    @endif
 
     <!-- Scripts -->
     @routes

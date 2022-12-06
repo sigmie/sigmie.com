@@ -151,7 +151,7 @@ If we send the Query string `Mary` it will become `mary`  because of the `lowerc
 ```php
 | Query        | Analyzed Query |
 | -----------  | -------------- |
-| "Mary"       | "mary"          |
+| "Mary"       | "mary"         |
 ```
 
 The logic is that now it doesn’t matter if the search user types `Mary`, `MARY`, or even `mArY` once the string is analyzed it will be `mary`.

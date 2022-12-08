@@ -3,7 +3,11 @@ Let’s say you want to save a **Movie** in an SQL database. You first need to c
 
 **Then and only then** you can insert a movie to the table.
 
-In Elasticsearch you just add the movie to the **Movies Index**. You don’t need to create an Index, if it doesn’t exist it will be created. Also as long as you keep the movie’s attributes under [1000](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/mapping-settings-limit.html#mapping-settings-limit) you can have as many attributes as you want and you **don’t** need to define them first.
+In Elasticsearch you just add the movie to the **Movies Index**.
+
+You don’t need to create an Index, if it doesn’t exist it will be created.
+
+Also as long as you keep the movie’s attributes under [1000](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/mapping-settings-limit.html#mapping-settings-limit) you can have as many attributes as you want and you **don’t** need to define them first.
 
 ### What is an Index?
 In a kid’s room, it’s a drawer that contains all the toys, in a database, it’s a table and in Elasticsearch it’s an **Index**.
@@ -43,10 +47,10 @@ use Sigmie\Document\Document;
 new Document(['name' => 'Mary Poppins']),
 ```
 
-## First Index
+## Create an Index
+
 Let’s create our first index using Sigmie. 
 
-### Create an Index
 While there are a lot of options in the `NewIndex` builder class,
 this is the simplest way to create an Index.
 
@@ -144,7 +148,7 @@ This is because we added the 2 following steps to the Index **Analysis** procces
 
 **These steps are done during indexing so they will be ready once a query hits our index.**
 
-## How is the Query string analyzed?
+### How is the Query string analyzed?
 Any incoming **Query string** is analyzed with the exact same filters as our Document **text** fields.
 
 If we send the Query string `Mary` it will become `mary`  because of the `lowercase` token filter that we specified when creating our Index.
@@ -156,7 +160,7 @@ If we send the Query string `Mary` it will become `mary`  because of the `lowerc
 
 The logic is that now it doesn’t matter if the search user types `Mary`, `MARY`, or even `mArY` once the string is analyzed it will be `mary`.
 
-## How does matching happen?
+### How does matching happen?
 Now Elasticsearch looks into the analyzed values of the **Documents** to find which Documents contain the analyzed **query term**.
 
 ```php
@@ -184,7 +188,7 @@ an `array` containing the **tokens**.
 $tokens = $index->analyze('Mary Poppings'); // [ "mary", "poppings"]
 ```
 
-### Index Update
+## Index Update
 
 Even though an Index update function doesn’t exist in Elasticsearch, we created an `update` function that you can use the **update** your Index.
 
@@ -196,10 +200,10 @@ $sigmie->index('movies')->update(function(UpdateIndex $updateIndex){
 });
 ```
 
-## How does the update work?
+### How does the update work?
 It’s important for you to understand the the `update` function does in the background. But before let’s see why an **Index update isn’t natively possible in Elasticsearch**.
 
-## Why an Index update isn’t possible?
+### Why an Index update isn’t possible?
 
 The reason is the **Analysis** process that makes the Index immutable. If an Index could be updated Elasticsearch would need to **analyze** the Documents all over again and there are too many risks and implications with this.
 
@@ -212,7 +216,7 @@ When we create a `movies` Index like before. In the background, we create an Ind
 
 Then once the **Index** is created we assign it a `movies` alias that we can use instead of using the `movies_20221122210823379774`.
 
-## How does Index update work?
+### How does Index update work?
 In an update, we do the following 4 steps:
 1. Create a new Index with a **different timestamp suffix**.
 2. We **reindex** the Documents.
@@ -282,17 +286,18 @@ You can delete an Index by calling the **delete** method on the Index instance.
 $sigmie->index('movies')->delete();
 ```
 
-## Settings
+## Advanced
+### Settings
 Use the `config` method to add Index configurations from the [Index modules](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html).
 
 ```php
 $newIndex->config('index.max_ngram_diff', 3);
 ```
 
-## Shards
+### Shards
 An advanced but commonly used term when speaking about Elasticsearch indices is **Shards**. There are thousands of resources on the Internet about **How many shards** you should pick for your Elasticsearch Index.
 
-### Defining shards
+#### Defining shards
 
 You can use the `shards` and `replicas` methods on the `NewIndex` builder class to pick your desired amount of shards.
 
@@ -303,7 +308,7 @@ $sigmie->newIndex('movies')
 ```
 
 
-### What is a shard?
+#### What is a shard?
 
 The best way to think of **Shards** is like **Smaller Search Engines inside an Index**. If you have an Index with **3 shards** and **8 Documents** they will be split like this.
 
@@ -323,10 +328,10 @@ movies
 
 ```
 
-### How many Shards?
+#### How many Shards?
 Typically keeping your shards size around 25-30 GB should be fine for most use cases.
 
-## Replicas
+### Replicas
 **Replicas** or **Shard Replicas** are copies of your shards.
 
 You can set the number of replicas with the `replicas` method.
@@ -338,14 +343,14 @@ $sigmie->newIndex('movies')
     ->create();
 ```
 
-### Why do we need replicas?
+#### Why do we need replicas?
 Typically in a production environment, you will have an **Elasticsearch Cluster** with multiple nodes. Replica shards are required to keep failure tolerance.
 
 Elasticsearch is smart and keeps shards distributed across the Cluster. 
 
 Take a look at the following example with a 3-Node Cluster, having an Index with **3 Primary** shards and **2 Replicas**.
 
-### Shards behavior
+#### Shards behavior
 ```bash
 cluster
 ├─ server 1

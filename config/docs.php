@@ -28,12 +28,12 @@ return [
                         'href' => '/v0/document'
                     ],
                     [
-                        'title' => 'Search',
-                        'href' => '/v0/search'
-                    ],
-                    [
                         'title' => 'Mappings',
                         'href' => '/v0/mappings'
+                    ],
+                    [
+                        'title' => 'Search',
+                        'href' => '/v0/search'
                     ],
                 ]
             ],
@@ -59,7 +59,7 @@ return [
                 ]
             ],
             [
-                'title' => 'Query',
+                'title' => 'Deeper',
                 'links' => [
                     [
                         'title' => 'Query',

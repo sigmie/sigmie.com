@@ -16,7 +16,7 @@ navigation: Object,
             <Navbar></Navbar>
             <div class="flex flex-row">
                 <Sidebar :navigation="navigation"></Sidebar>
-                <main class="prose mx-auto w-full max-w-3xl px-1 py-10">
+                <main class="prose mx-auto w-full max-w-3xl pl-52 py-10">
                     <h1>{{ title }}</h1>
                     <div v-html="html"></div>
                 </main>

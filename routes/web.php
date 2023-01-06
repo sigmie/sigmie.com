@@ -30,7 +30,7 @@ Route::get('/', function () {
     // return Inertia::render('Welcome', []);
 });
 
-Route::any('/{version}/{endpoint?}', function ($version, $endpoint, MarkdownConverter $converter) {
+Route::any('/docs/{version}/{endpoint?}', function ($version, $endpoint, MarkdownConverter $converter) {
 
     $documentation = new Documentation($converter);
 

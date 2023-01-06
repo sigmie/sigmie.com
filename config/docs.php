@@ -8,11 +8,11 @@ return [
                 'links' => [
                     [
                         'title' => 'Introdution',
-                        'href' => '/v0/introduction'
+                        'href' => '/docs/v0/introduction'
                     ],
                     [
                         'title' => 'Installation',
-                        'href' => '/v0/installation'
+                        'href' => '/docs/v0/installation'
                     ]
                 ]
             ],
@@ -21,19 +21,19 @@ return [
                 'links' => [
                     [
                         'title' => 'Index',
-                        'href' => '/v0/index'
+                        'href' => '/docs/v0/index'
                     ],
                     [
                         'title' => 'Document',
-                        'href' => '/v0/document'
+                        'href' => '/docs/v0/document'
                     ],
                     [
                         'title' => 'Mappings',
-                        'href' => '/v0/mappings'
+                        'href' => '/docs/v0/mappings'
                     ],
                     [
                         'title' => 'Search',
-                        'href' => '/v0/search'
+                        'href' => '/docs/v0/search'
                     ],
                 ]
             ],
@@ -42,19 +42,19 @@ return [
                 'links' => [
                     [
                         'title' => 'Analyisis',
-                        'href' => '/v0/analysis'
+                        'href' => '/docs/v0/analysis'
                     ],
                     [
                         'title' => 'Char filters',
-                        'href' => '/v0/char-filters'
+                        'href' => '/docs/v0/char-filters'
                     ],
                     [
                         'title' => 'Tokenizer',
-                        'href' => '/v0/tokenizers'
+                        'href' => '/docs/v0/tokenizers'
                     ],
                     [
                         'title' => 'Token filters',
-                        'href' => '/v0/token-filters'
+                        'href' => '/docs/v0/token-filters'
                     ],
                 ]
             ],
@@ -63,15 +63,15 @@ return [
                 'links' => [
                     [
                         'title' => 'Query',
-                        'href' => '/v0/query'
+                        'href' => '/docs/v0/query'
                     ],
                     [
                         'title' => 'Aggregations',
-                        'href' => '/v0/aggregations'
+                        'href' => '/docs/v0/aggregations'
                     ],
                     [
                         'title' => 'Search Template',
-                        'href' => '/v0/template'
+                        'href' => '/docs/v0/template'
                     ],
                 ]
             ],
@@ -80,11 +80,11 @@ return [
                 'links' => [
                     [
                         'title' => 'Fitler parser',
-                        'href' => '/v0/filter-parser'
+                        'href' => '/docs/v0/filter-parser'
                     ],
                     [
                         'title' => 'Sort parser',
-                        'href' => '/v0/sort-parser'
+                        'href' => '/docs/v0/sort-parser'
                     ]
                 ]
             ],
@@ -114,7 +114,7 @@ return [
                 'links' => [
                     [
                         'title' => 'Laravel Scout',
-                        'href' => '/v0/scout-installation'
+                        'href' => '/docs/v0/scout-installation'
                     ],
                 ]
             ]

@@ -8,15 +8,15 @@ defineProps({
 
 <template>
     <div
-        class="flex bg-black flex-row h-[70px] fixed top-0 left-0 right-0 z-50 shadow-md"
+        class="flex bg-white flex-row h-[70px] fixed top-0 left-0 right-0 z-50 shadow"
     >
         <div
-            class="flex flex-row h-full w-full justify-between items-center mx-auto px-10"
+            class="flex flex-row h-full w-full justify-between items-center mx-auto px-5"
         >
             <Link class="flex flex-shrink-0 items-center px-4">
                 <img
                     class="h-10 w-auto"
-                    src="https://res.cloudinary.com/markos-nikolaos-orfanos/image/upload/v1585732959/white_na5bw6.png"
+                    src="https://res.cloudinary.com/markos-nikolaos-orfanos/image/upload/v1668772676/logo_nikmmj.svg"
                     alt="Sigmie"
                 />
             </Link>
@@ -25,19 +25,19 @@ defineProps({
 
             <div class="flex flex-row space-x-3">
                 <nav
-                    class="text-sm leading-6 font-semibold text-slate-300 flex flex-row space-x-10 mr-10"
+                    class="text-sm leading-6 font-semibold text-slate-800 flex flex-row space-x-10 mr-10"
                 >
                     <a
                         target="_blank"
                         href="https://app.sigmie.com"
-                        class="cursor-pointer hover:text-slate-400"
+                        class="cursor-pointer hover:text-slate-500"
                         >Application</a
                     >
 
                     <a
                         target="_blank"
                         href="https://blog.sigmie.com"
-                        class="cursor-pointer hover:text-slate-400"
+                        class="cursor-pointer hover:text-slate-500"
                         >Blog</a
                     >
                 </nav>

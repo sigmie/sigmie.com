@@ -11,12 +11,12 @@ defineProps({
         class="flex bg-white flex-row h-[70px] fixed top-0 left-0 right-0 z-50 shadow"
     >
         <div
-            class="flex flex-row h-full w-full justify-between items-center mx-auto px-5"
+            class="flex flex-row h-full w-full justify-between items-center mx-auto px-10"
         >
             <Link class="flex flex-shrink-0 items-center px-4">
                 <img
                     class="h-10 w-auto"
-                    src="https://res.cloudinary.com/markos-nikolaos-orfanos/image/upload/v1668772676/logo_nikmmj.svg"
+                    src="https://res.cloudinary.com/markos-nikolaos-orfanos/image/upload/v1673012063/sigmie-com-image_zpzfsm.svg"
                     alt="Sigmie"
                 />
             </Link>
@@ -34,12 +34,30 @@ defineProps({
                         >Application</a
                     >
 
-                    <a
-                        target="_blank"
-                        href="https://blog.sigmie.com"
-                        class="cursor-pointer hover:text-slate-500"
-                        >Blog</a
+<!--                     <Link
+                        :class="
+                        true
+                                ? 'text-orange-500 border-orange-500 border-l'
+                                : 'text-slate-500 hover:text-slate-600 hover:before:block hover:border-gray-400 hover:border-l'
+                        "
+                        class="w-full pl-3.5 my-1 -ml-[1px] text-sm"
+                        href="/docs/v0/introduction"
                     >
+                        Docs
+                    </Link>
+
+                    <Link
+                        :class="
+                        true
+                                ? 'text-orange-500 border-orange-500 border-l'
+                                : 'text-slate-500 hover:text-slate-600 hover:before:block hover:border-gray-400 hover:border-l'
+                        "
+                        class="w-full pl-3.5 my-1 -ml-[1px] text-sm"
+                        href="/blog/all"
+                    >
+                        Blog
+                    </Link>
+ -->
                 </nav>
                 <a
                     target="_blank"

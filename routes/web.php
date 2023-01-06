@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Blog;
 use App\Services\Documentation;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Log;
@@ -29,6 +30,20 @@ Route::get('/', function () {
     return redirect('/v0/introduction');
     // return Inertia::render('Welcome', []);
 });
+
+Route::any('/blog/{endpoint?}', function ($endpoint, MarkdownConverter $converter) {
+
+    $blog = new Blog($converter);
+
+    $html = $blog->get($endpoint);
+
+    return Inertia::render('Post', [
+        'navigation' => config("blog.navigation"),
+        'title' => ucwords($endpoint),
+        'html' => $html,
+    ]);
+})
+    ->where('endpoint', '.*');
 
 Route::any('/docs/{version}/{endpoint?}', function ($version, $endpoint, MarkdownConverter $converter) {
 

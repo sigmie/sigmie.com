@@ -1,83 +1,158 @@
 <script setup>
 import { Head, Link } from '@inertiajs/inertia-vue3';
 import Search from './Search.vue';
+import Banner from './Banner.vue'
+import { onMounted, ref } from 'vue'
+import { Inertia } from '@inertiajs/inertia'
+
+
+let showMenu = ref(false);
+const toggleNav = () => (showMenu.value = !showMenu.value);
+const hideNav = () => (showMenu.value = true);
+
+onMounted(() => {
+  hideNav()
+})
+
+let visit = (url) => {
+    showMenu.value = true
+    Inertia.visit(url)
+}
 
 defineProps({
+    navigation: Object,
 });
 </script>
 
 <template>
-    <div
-        class="flex bg-white flex-row h-[70px] fixed top-0 left-0 right-0 z-50 shadow"
+    <nav
+        class="bg-white border-gray-200 fixed sm:px-4 py-2.5 rounded dark:bg-gray-900 flex bg-white flex-row h-[70px] fixed top-0 left-0 right-0 z-50 md:shadow shadow-none"
     >
         <div
-            class="flex flex-row h-full w-full justify-between items-center mx-auto px-10"
+            class="container flex flex-wrap items-center justify-between mx-auto"
         >
-            <Link class="flex flex-shrink-0 items-center px-4">
+            <Link href="/" class="flex items-center pl-2">
                 <img
                     class="h-10 w-auto"
                     src="https://res.cloudinary.com/markos-nikolaos-orfanos/image/upload/v1673012063/sigmie-com-image_zpzfsm.svg"
-                    alt="Sigmie"
+                    alt="Sigmie Logo"
                 />
             </Link>
 
-            <!-- <Search></Search> -->
-
-            <div class="flex flex-row space-x-3">
-                <nav
-                    class="text-sm leading-6 font-semibold text-slate-800 flex flex-row space-x-10 mr-10"
+            <button
+                @click="toggleNav"
+                type="button"
+                class="inline-flex items-center p-2 mr-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                aria-controls="navbar-default"
+                aria-expanded="false"
+            >
+                <span class="sr-only">Open main menu</span>
+                <svg
+                    class="w-6 h-6"
+                    aria-hidden="true"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
                 >
-                    <a
-                        target="_blank"
-                        href="https://app.sigmie.com"
-                        class="cursor-pointer hover:text-slate-500"
-                        >Application</a
-                    >
-
-<!--                     <Link
-                        :class="
-                        true
-                                ? 'text-orange-500 border-orange-500 border-l'
-                                : 'text-slate-500 hover:text-slate-600 hover:before:block hover:border-gray-400 hover:border-l'
-                        "
-                        class="w-full pl-3.5 my-1 -ml-[1px] text-sm"
-                        href="/docs/v0/introduction"
-                    >
-                        Docs
-                    </Link>
-
-                    <Link
-                        :class="
-                        true
-                                ? 'text-orange-500 border-orange-500 border-l'
-                                : 'text-slate-500 hover:text-slate-600 hover:before:block hover:border-gray-400 hover:border-l'
-                        "
-                        class="w-full pl-3.5 my-1 -ml-[1px] text-sm"
-                        href="/blog/all"
-                    >
-                        Blog
-                    </Link>
- -->
-                </nav>
-                <a
-                    target="_blank"
-                    href="https://github.com/sigmie"
-                    class="cursor-pointer"
+                    <path
+                        fill-rule="evenodd"
+                        d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                        clip-rule="evenodd"
+                    ></path>
+                </svg>
+            </button>
+            <div
+                :class="{
+                    'hidden md:block': showMenu,
+                }"
+                class="w-full md:w-auto bg-white px-2"
+            >
+                <ul
+                    class="flex flex-col mt-4 h-screen overflow-y-scroll md:h-auto bg-slate-50 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700 pb-20 md:pb-0"
                 >
-                    <svg
-                        class="h-5 w-5 fill-slate-400 hover:fill-slate-500"
-                        viewBox="0 0 16 16"
-                        fill="currentColor"
-                        aria-hidden="true"
+                    <li
+                        class="md:hidden pt-3 px-5"
+                        v-for="(section, index) in navigation"
+                        :key="index"
                     >
-                        <path
-                            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
-                        ></path>
-                    </svg>
-                </a>
+                        <h4 class="font-semibold mb-2 text-sm">
+                            {{ section.title }}
+                        </h4>
+                        <button
+                            @click.prevent="() => visit(link.href)"
+                            v-for="(link, index) in section.links"
+                            :key="index"
+                            :class="{
+                                'bg-orange-100/40 text-orange-500':
+                                    $page.url === link.href,
+                                'text-gray-700': !$page.url.startsWith('/docs'),
+                            }"
+                            class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-orange-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                        >
+                            {{ link.title }}
+                        </button>
+                    </li>
+
+                    <span class="w-full border-b py-3"></span>
+
+                    <li>
+                        <a
+                            href="https://app.sigmie.com"
+                            class="block py-2 pl-3 pr-4 text-gray-700 md:font-normal rounded md:bg-transparent md:p-0 dark:text-white"
+                            aria-current="page"
+                            >Application</a
+                        >
+                    </li>
+
+                    <li>
+                        <Link
+                            :class="{
+                                'text-orange-500':
+                                    $page.url.startsWith('/docs'),
+                                'text-gray-700': !$page.url.startsWith('/docs'),
+                            }"
+                            href="/"
+                            class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-orange-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                            aria-current="page"
+                            >Documentation</Link
+                        >
+                    </li>
+                    <li>
+                        <Link
+                            href="/blog"
+                            :class="{
+                                'md:text-orange-500':
+                                    $page.url.startsWith('/blog'),
+                                'md:text-gray-700':
+                                    !$page.url.startsWith('/blog'),
+                            }"
+                            class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-orange-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                            >Blog</Link
+                        >
+                    </li>
+                    <li>
+                        <a
+                            target="_blank"
+                            href="https://github.com/sigmie"
+                            class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-orange-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                        >
+                            <svg
+                                class="h-5 w-5 hidden md:block fill-slate-400 hover:fill-slate-500"
+                                viewBox="0 0 16 16"
+                                fill="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+                                ></path>
+                            </svg>
+                            <span class="md:hidden">Github</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
-    </div>
+    </nav>
 </template>
 
 <style type="text/css"></style>

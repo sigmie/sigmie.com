@@ -1,3 +1,4 @@
+# High level properties
 
 For every problem out there, there exist many solutions. Not all solutions are the same.
 

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\Blog;
 use App\Services\Documentation;
 use Illuminate\Console\Command;
 use League\CommonMark\MarkdownConverter;
@@ -20,6 +21,10 @@ class DocumentationCache extends Command
 
         $documentation->cache();
 
-        $this->output->success('Documentation was cached.');
+        $blog = new Blog();
+
+        $blog->cache();
+
+        $this->output->success('sigmie.com was cached.');
     }
 }

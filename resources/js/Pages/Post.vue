@@ -13,11 +13,10 @@ navigation: Object,
 <template>
     <div class="pt-20">
         <div class="flex flex-col font-display relative">
-            <Navbar></Navbar>
+            <Navbar :navigation="navigation"></Navbar>
             <div class="flex flex-row">
                 <Sidebar :navigation="navigation"></Sidebar>
-                <main class="prose mx-auto w-full max-w-3xl pl-52 py-10">
-                    <h1>{{ title }}</h1>
+                <main class="prose mx-auto w-full max-w-3xl md:pl-52 px-2 py-10">
                     <div v-html="html"></div>
                 </main>
             </div>

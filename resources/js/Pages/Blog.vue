@@ -2,11 +2,12 @@
 import { Head, Link } from '@inertiajs/inertia-vue3';
 import Sidebar from '../Sidebar.vue';
 import Navbar from '../Navbar.vue';
+import Banner from '../Banner.vue';
 
 defineProps({
-html: String,
 title: String,
-navigation: Object,
+posts: Object,
+navigation: Object
 });
 </script>
 
@@ -15,10 +16,43 @@ navigation: Object,
         <div class="flex flex-col font-display relative">
             <Navbar :navigation="navigation"></Navbar>
             <div class="flex flex-row">
-                <Sidebar :navigation="navigation"></Sidebar>
-                <main class="prose mx-auto w-full max-w-3xl md:pl-52 px-2 py-10">
-                    <h1>{{ title }}</h1>
-                    <div v-html="html"></div>
+                <div
+                    class="w-[500px] max-h-screen overflow-y-scroll fixed left-0 top-0 pt-20 pb-5 z-10 min-h-screen lg:block hidden"
+                >
+                    <div class="block w-[400px] float-right pt-5 pb-4">
+                        <nav
+                            class="mt-5 flex-1 space-y-1 px-2 flex-col flex space-y-5 mx-auto"
+                        >
+                            <Banner />
+                        </nav>
+                    </div>
+                </div>
+                <main class="mx-auto w-full max-w-3xl md:pl-52 px-2 py-10">
+                    <h1 class="text-4xl font-bold mb-5">{{ title }}</h1>
+                    <!-- <div v-html="html"></div> -->
+
+                    <div
+                        class="flex flex-col space-y-1"
+                        v-for="(section, index) in posts"
+                        :key="index"
+                    >
+                        <ul :key="index" v-for="(link, index) in section.links">
+                            <li>
+                                <Link
+                                    :href="link.href"
+                                    class="flex flex-row space-x-2 items-center p-1 text-md no-underline text-gray-700"
+                                >
+                                    <span class="text-orange-500 text-2xl"
+                                        >#</span
+                                    >
+                                    <span
+                                        class="w-full text-md font-semibold"
+                                        >{{ link.title }}</span
+                                    >
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
                 </main>
             </div>
         </div>

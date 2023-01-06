@@ -27,7 +27,17 @@ use Torchlight\Commonmark\V2\TorchlightExtension;
 
 Route::get('/', function () {
 
-    return redirect('/v0/introduction');
+    return redirect('/docs/v0/introduction');
+    // return Inertia::render('Welcome', []);
+});
+
+Route::get('/blog', function () {
+
+    return Inertia::render('Blog', [
+        'title' => 'Posts',
+        'posts' => config("blog.navigation")
+    ]);
+
     // return Inertia::render('Welcome', []);
 });
 
@@ -39,7 +49,6 @@ Route::any('/blog/{endpoint?}', function ($endpoint, MarkdownConverter $converte
 
     return Inertia::render('Post', [
         'navigation' => config("blog.navigation"),
-        'title' => ucwords($endpoint),
         'html' => $html,
     ]);
 })

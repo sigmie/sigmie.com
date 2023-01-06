@@ -1,4 +1,4 @@
-
+# You do NOT need to know Elasticsearch to use Elasticsearch
 High-level mapping properties that are optimized for the data that they are representing.
 
 In programming you have field types called **strings**, that can be any possible text combination in the world.

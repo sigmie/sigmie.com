@@ -1,3 +1,4 @@
+# Elasticsearch shards rules
 
 About some time ago, I took a deep look into Elasticsearch shards trying to simplify
 the **shards** word. 

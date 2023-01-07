@@ -1,5 +1,3 @@
-# Mappings
-
 ## Introduction
 
 ## Properties

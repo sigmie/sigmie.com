@@ -37,8 +37,6 @@ Route::get('/blog', function () {
         'title' => 'Posts',
         'posts' => config("blog.navigation")
     ]);
-
-    // return Inertia::render('Welcome', []);
 });
 
 Route::any('/blog/{endpoint?}', function ($endpoint, MarkdownConverter $converter) {
@@ -54,8 +52,9 @@ Route::any('/blog/{endpoint?}', function ($endpoint, MarkdownConverter $converte
     return Inertia::render('Post', [
         'navigation' => config("blog.navigation"),
         'html' => $html,
-        'card' => $link['card'],
-        'title' => $link['title']
+        'card' => config('app.url') .$link['card'],
+        'title' => $link['title'],
+        'href' => $link['href']
     ]);
 })
     ->where('endpoint', '.*');
@@ -66,9 +65,15 @@ Route::any('/docs/{version}/{endpoint?}', function ($version, $endpoint, Markdow
 
     $html = $documentation->get($version, $endpoint);
 
+    $link = collect(config("docs.{$version}.navigation"))
+        ->flatten(2)
+        ->filter(fn ($link)  => isset($link['href']))
+        ->filter(fn ($link)  => $link['href'] === "/docs/{$version}/{$endpoint}")
+        ->first();
+
     return Inertia::render('Document', [
         'navigation' => config("docs.{$version}.navigation"),
-        'title' => ucwords($endpoint),
+        'title' => $link['title'],
         'html' => $html,
     ]);
 })

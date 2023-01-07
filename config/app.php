@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'name' => 'Sigmie - A different PHP library for Elasticsearch',
+    'name' => 'Sigmie',
 
     'description' => 'Sigmie is a PHP library for Elasticsearch focused on creating a Search experience.',
 

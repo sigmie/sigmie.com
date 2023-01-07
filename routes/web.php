@@ -47,9 +47,15 @@ Route::any('/blog/{endpoint?}', function ($endpoint, MarkdownConverter $converte
 
     $html = $blog->get($endpoint);
 
+    $link = collect(config('blog.navigation.0.links'))
+        ->filter(fn ($link)  => $link['href'] === "/blog/{$endpoint}")
+        ->first();
+
     return Inertia::render('Post', [
         'navigation' => config("blog.navigation"),
         'html' => $html,
+        'card' => $link['card'],
+        'title' => $link['title']
     ]);
 })
     ->where('endpoint', '.*');

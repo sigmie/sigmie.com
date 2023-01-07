@@ -11,6 +11,7 @@ navigation: Object,
 </script>
 
 <template>
+    <Head :title="title" />
     <div class="pt-20">
         <div class="flex flex-col font-display relative">
             <Navbar :navigation="navigation"></Navbar>

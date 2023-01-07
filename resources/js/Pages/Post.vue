@@ -6,17 +6,53 @@ import Navbar from '../Navbar.vue';
 defineProps({
 html: String,
 title: String,
+card: String,
 navigation: Object,
 });
 </script>
 
 <template>
+    <Head>
+        <title>{{ title }}</title>
+        <meta
+            head-key="description"
+            name="description"
+            :content="description"
+        />
+
+        <title>Nico Orfanos</title>
+        <meta name="title" content="Nico Orfanos" />
+        <meta
+            name="description"
+            content="Software Developer living in Greece."
+        />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://nico.orfanos.dev/" />
+        <meta property="og:title" content="Nico Orfanos" />
+        <meta
+            property="og:description"
+            content="Software Developer living in Greece."
+        />
+        <!-- <meta property="og:image" content={`https://nico.orfanos.dev/${image}`}/> -->
+
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://nico.orfanos.dev/" />
+        <meta property="twitter:title" content="Nico Orfanos" />
+        <meta
+            property="twitter:description"
+            content="Software Developer living in Greece."
+        />
+        <meta property="twitter:image" :content="card" />
+    </Head>
     <div class="pt-20">
         <div class="flex flex-col font-display relative">
             <Navbar :navigation="navigation"></Navbar>
             <div class="flex flex-row">
                 <Sidebar :navigation="navigation"></Sidebar>
-                <main class="prose mx-auto w-full max-w-3xl md:pl-52 px-2 py-10">
+                <main
+                    class="prose mx-auto w-full max-w-3xl md:pl-52 px-2 py-10"
+                >
                     <div v-html="html"></div>
                 </main>
             </div>

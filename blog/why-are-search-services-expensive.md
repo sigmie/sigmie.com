@@ -1,4 +1,4 @@
-# Why are Search services expensive?
+# Why are Search services expensive
 
 Before diving deep into the Search world, I always wondered why services like Algolia and Enterprise Search by Elastic are so expensive.
 

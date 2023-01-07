@@ -52,9 +52,10 @@ Route::any('/blog/{endpoint?}', function ($endpoint, MarkdownConverter $converte
     return Inertia::render('Post', [
         'navigation' => config("blog.navigation"),
         'html' => $html,
-        'card' => config('app.url') .$link['card'],
+        'card' => config('app.url') . $link['card'],
         'title' => $link['title'],
-        'href' => $link['href']
+        'href' => config('app.url') . $link['href'],
+        'description' => $link['description']
     ]);
 })
     ->where('endpoint', '.*');

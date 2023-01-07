@@ -97,6 +97,7 @@ defineProps({
 
                     <li>
                         <a
+                            target="_blank"
                             href="https://app.sigmie.com"
                             class="block py-2 pl-3 pr-4 text-gray-700 md:font-normal rounded md:bg-transparent md:p-0 dark:text-white"
                             aria-current="page"

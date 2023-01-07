@@ -6,6 +6,8 @@ import Navbar from '../Navbar.vue';
 defineProps({
 html: String,
 title: String,
+description: String,
+href: String,
 card: String,
 navigation: Object,
 });
@@ -28,7 +30,7 @@ navigation: Object,
         <meta property="og:title" :content="title" />
         <meta
             property="og:description"
-            content="Software Developer living in Greece."
+            :content="description"
         />
         <meta property="og:image" :content="card" />
 

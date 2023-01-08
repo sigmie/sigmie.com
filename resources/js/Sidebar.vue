@@ -2,6 +2,7 @@
 
 import { Head, Link } from '@inertiajs/inertia-vue3';
 import Banner from './Banner.vue';
+import Twitter from './Twitter.vue';
 
 defineProps({
 navigation: Object,
@@ -33,11 +34,11 @@ navigation: Object,
                             :href="link.href"
                         >
                             {{ link.title }}
-                        </Link>
-                    </div>
+                        </Link> </div>
                 </div>
 
                 <Banner />
+                <Twitter />
             </nav>
         </div>
     </div>

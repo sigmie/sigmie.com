@@ -114,7 +114,7 @@ return [
                 'links' => [
                     [
                         'title' => 'Laravel Scout',
-                        'href' => '/docs/v0/scout-installation'
+                        'href' => '/docs/v0/laravel-scout'
                     ],
                 ]
             ]

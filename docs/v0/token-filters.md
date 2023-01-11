@@ -111,9 +111,7 @@ $newAnalyzer->trim();
 ```
 
 
-### Synonyms
-
-#### One-Way
+### One-Way Synonym
 
 ```php
 $newAnalyzer->oneWaySynonyms([
@@ -150,7 +148,7 @@ $newAnalyzer->synonyms([
  "impossible"
 ```
 
-#### Two-Way
+### Two-Way Synonyms
 
 ```php
 $newAnalyzer->synonyms([

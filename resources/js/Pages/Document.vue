@@ -18,6 +18,8 @@ card: String,
         <meta name="title" :content="title" />
         <meta name="description" :content="description" />
 
+        <script src="https://cdn.usefathom.com/script.js" data-site="KZAGYEMG" defer></script>
+
         <meta property="og:type" content="website" />
         <meta property="og:url" :content="href" />
         <meta property="og:title" :content="title" />

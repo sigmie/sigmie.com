@@ -15,13 +15,6 @@ navigation: Object,
 
 <template>
     <Head>
-        <title>{{ title }}</title>
-        <meta
-            head-key="description"
-            name="description"
-            :content="description"
-        />
-
         <meta name="title" :content="title" />
         <meta name="description" :content="description" />
 

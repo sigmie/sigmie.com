@@ -76,6 +76,9 @@ Route::any('/docs/{version}/{endpoint?}', function ($version, $endpoint, Markdow
         'navigation' => config("docs.{$version}.navigation"),
         'title' => $link['title'],
         'html' => $html,
+        'card' => config('app.url').'/twitter-card.png',
+        'href' => config('app.url'),
+        'description' => config('app.description'),
     ]);
 })
     ->where('endpoint', '.*');

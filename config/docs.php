@@ -114,7 +114,8 @@ return [
                 'links' => [
                     [
                         'title' => 'Laravel Scout',
-                        'href' => '/docs/v0/laravel-scout'
+                        'href' => '/docs/v0/laravel-scout',
+                        'card'=> config('app.url').'/cards/elasticsearch-scout.png'
                     ],
                 ]
             ]

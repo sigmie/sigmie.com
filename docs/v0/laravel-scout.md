@@ -5,6 +5,7 @@ Elasticsearch Scout by Sigmie is a [Laravel Scout](https://laravel.com/docs/9.x/
 
 Since this is **only a driver for Laravel Scout** you need to have **Laravel Scout** installed beforehand.
 
+To install Laravel Scout run:
 ```bash
 composer require laravel/scout
 ```
@@ -15,21 +16,21 @@ Once you have **Laravel Scout** installed, you need to publish its configuration
 php artisan vendor:publish --provider="Laravel\Scout\ScoutServiceProvider"
 ```
 
-This will publish the `scout.php` configuration file into  `config/scount.php`.
+This will publish the `scout.php` configuration file into your  `config/scount.php`.
 
-After you can install the **Sigmie Elasticsearch Scout** package by running:
+Then you can install the **Sigmie Elasticsearch Scout** package by running:
 
 ```php
 composer require sigmie/elasticsearch-scout
 ```
 
-The last step is to tell Laravel to use the `elasticsearch-scout` driver. You can do this by changing the `SCOUT_DRIVER` in your `.env` file or directly in the published scout config file in `config/scout.php`.
+The next step is to tell Laravel to use the `elasticsearch` driver. You can do this by changing the `SCOUT_DRIVER` in your `.env` file or you can change it directly in the published scout configuration file in `config/scout.php`.
 
 ```php
-'driver' => env('SCOUT_DRIVER', 'elasticsearch-scout'),
+'driver' => env('SCOUT_DRIVER', 'elasticsearch'),
 ```
 
-If you need to can **optionally** publish the `elasticsearch-scout.php` file by running:
+**Optionally** you can also publish the `elasticsearch-scout.php` file by running:
 
 ```bash
 php artisan vendor:publish --provider="Sigmie\ElasticsearchScout\ElasticsearchScoutServiceProvider"
@@ -41,16 +42,20 @@ This will publish the following config file into `config/elasticsearch-scout.php
 return [
     'hosts' => ENV('ELASTICSEARCH_HOSTS', '127.0.0.1:9200'),
     'auth' => [
-        'type' => env('ELASTICSEARCH_AUTH_TYPE','none'),
+        'type' => env('ELASTICSEARCH_AUTH_TYPE', 'none'),
         'user' => env('ELASTICSEARCH_USER', ''),
-        'password' => env('ELASTICSEARCH_PASSWORD',''),
-        'token' => env('ELASTICSEARCH_TOKEN',''),
+        'password' => env('ELASTICSEARCH_PASSWORD', ''),
+        'token' => env('ELASTICSEARCH_TOKEN', ''),
         'headers' => [],
     ],
     'guzzle_config' => [
         'allow_redirects' => false,
         'http_errors' => false,
         'connect_timeout' => 15,
+    ],
+    'index-settings' => [
+        'shards' => env('ELASTICSEARCH_INDEX_SHARDS', 1),
+        'replicas' => env('ELASTICSEARCH_INDEX_REPLICAS', 2),
     ]
 ];
 ```
@@ -59,15 +64,17 @@ return [
 Once Elasticsearch Scout is properly installed you are ready to start using it. To do so first you have to set up the Elasticsearch connection.
 
 ## Local
-It’s common that for **local** development you will have Elasticsearch running on post `9200` under the `127.0.0.1` IP address. In this case, you don’t any further configuration. 
+It’s common for **local development** to have Elasticsearch running at  `127.0.0.1`  and listening on port `9200`. In this case, you won’t need any further configuration. 
 
-You can start an Elasticsearch docker container for **local** development by running:
+If you haven’t an Elasticsearch running locally, you can start an Elasticsearch docker container for **local** development by running:
 ```bash
 docker run -p 127.0.0.1:9200:9200 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2-amd64
 ```
 
+This command will start Elasticsearch on your **local** machine and listen for connections at `9200`.
+
 ## Production
-For **production** environment you will need to specify a different Elasticsearch IP Address. You can use the `ELASTICSEARCH_HOSTS` environmental variable for this.
+In **production** use the `ELASTICSEARCH_HOSTS` environmental variable to tell scout where to find your Elasticsearch hosts.
 
 ```
 ELASTICSEARCH_HOSTS=10.0.0.1:9200
@@ -121,14 +128,18 @@ return [
           // [tl! collapse:end]
         'headers' => [
           // eg. 'X-App-Token' => "token"
-           ], 
+         ], 
      // [tl! collapse:start]
     ],
     'guzzle_config' => [
         'allow_redirects' => false,
         'http_errors' => false,
         'connect_timeout' => 15,
-    ]
+    ],
+      'index-settings' => [
+        'shards' => env('ELASTICSEARCH_INDEX_SHARDS', 1),
+        'replicas' => env('ELASTICSEARCH_INDEX_REPLICAS', 2),
+     ]
 // [tl! collapse:end]
 ];
 ```
@@ -158,7 +169,7 @@ return [
 
 
 # Indexing
-If you are installing Elasticsearch Scout into an existing project, that already uses a different scount driver you will need to **replace** the native `Laravel\Scount\Searchable` trait with `Sigmie\Elasticsearch\Searchable`.
+If you are installing Elasticsearch Scout into an existing project, that already uses a different scout driver you will need to **replace** the native `Laravel\Scount\Searchable` trait with `Sigmie\Elasticsearch\Searchable`.
 ```php
 use Laravel\Scout\Searchable;  // [tl! remove]
 use Sigmie\ElasticsearchScout\Searchable;  // [tl! add]
@@ -172,7 +183,7 @@ class Movie extends Model
 
 The Sigmie `Searchable` trait contains the `elasticsearchProperties` that is used to define your Models mappings.
 
-You can find more information in the [Mapping](https://sigmie.com/docs/v0/mappings) section of this documentation, but here’s an example of a `Movies` model mapping.
+You can find more information in this documentation’s [Mapping](https://sigmie.com/docs/v0/mappings) section, but here’s an example of a `Movies` model mapping.
 
 ```php
 // [tl! collapse:start]
@@ -197,7 +208,7 @@ class Movie extends Model
 // [tl! collapse:end]
 ```
 
-After defining your mappings you need to run the following command for Sigmie to build you model’s search index.
+After defining your mappings you need to run the following command for Sigmie to build your model’s search index.
 ```bash
 php artisan scout:index "App\Models\Movie" 
 ```
@@ -211,13 +222,9 @@ php artisan scout:import "App\Models\Movie"
 ```
 
 ## Updating mappings
-Every time you change some fields mapping you need to call the following commands in this concrete order for changes to take effect.
+Every time you change some **fields mappings** or **Index configurations** you need to call the `sync-index-settings` scout command for changes to take effect.
 ```bash
-php artisan scout:delete "App\Models\Movie" 
-
-php artisan scout:index  "App\Models\Movie" 
-
-php artisan scout:import "App\Models\Movie"
+php artisan scout:sync-index-settings "App\Models\ Movie"
 ```
 
 # Searching
@@ -268,7 +275,7 @@ In the above code, we are telling Laravel Scout to
 You can find all possible Search options in the [Search](https://sigmie.com/docs/v0/search) section.
 
 # Analysis
-The default Searchable configuration will tokenize text fields on **Word Boundaries**,**trim** and **lowercase** all tokens.
+The default Searchable configuration will tokenize text fields on **Word Boundaries**, and then**trim** and **lowercase** all tokens.
 
 It’s recommended to override the `elasticsearchIndex` method to create a suitable analysis process Index for your Models. 
 
@@ -308,14 +315,56 @@ class Movie extends Model
     { // [tl! highlight]
         $newIndex->tokenizeOnWordBoundaries() // [tl! highlight]
              ->lowercase()  // [tl! highlight]
-               ->trim() // [tl! highlight]
-             ->shards(3) // [tl! highlight]
-             ->replicas(3); // [tl! highlight]
+             ->trim(); // [tl! highlight]
     } // [tl! highlight]
 } 
 ```
 
 Visit the [Analysis section](http://sigmie.test/docs/v0/analysis) you find more information about the Index analysis process.
+
+The default Index **Shards** and **Replicas** are defined inside the `elasticsearch-scout.php`  config file in the `index-settings` key. You can change those setting by calling the `shards` and `replicas` methods inside the `elasticsearchIndex` method on the `NewIndex` instance.
+```php
+use Sigmie\ElasticsearchScout\Searchable;
+use Sigmie\Mappings\NewProperties;
+use Sigmie\Search\NewSearch;
+use Sigmie\Index\NewIndex; // [tl! highlight]
+
+class Movie extends Model
+{
+    use Searchable;  
+
+    public function elasticsearchProperties(NewProperties $properties) // [tl! collapse:start]
+    {
+        $properties->title('title');
+        $properties->name('director');
+        $properties->category();
+        $properties->date('created_at');
+        $properties->date('updated_at');
+    } // [tl! collapse:end]
+
+    public function elasticsearchSearch(NewSearch $newSearch) // [tl! collapse:start]
+    {
+        $newSearch->typoTolerance();
+        $newSearch->typoTolerantAttributes(['name', 'title']);
+        $newSearch->retrieve(['name', 'title']);
+        $newSearch->fields(['name', 'title']);
+        $newSearch->highlighting(
+            ['name', 'title'],
+            '<span class="font-bold">',
+            '</span>'
+        );
+    } // [tl! collapse:end]
+
+    public function elasticsearchIndex(NewIndex $newIndex)
+    { 
+        $newIndex->tokenizeOnWordBoundaries()
+             ->lowercase()
+             ->trim()
+             ->shards(3) // [tl! highlight]
+             ->replicas(3); // [tl! highlight]
+    }
+} 
+```
 
 # Timestamps
 The default supported DateTime format in Sigmie is `Y-m-d H:i:s.u`. Sigmie uses the Laravel native `toSearchableArray` method to convert the values of your `created_at` and `updated_at` fields to match the ones expected by Elasticsearch.
@@ -328,7 +377,7 @@ use Sigmie\Index\NewIndex;
 
 class Movie extends Model
 {
-    // [tl! collapse:start]
+// [tl! collapse:start]
     use Searchable;  
 
     public function elasticsearchProperties(NewProperties $properties)
@@ -352,13 +401,7 @@ class Movie extends Model
             '</span>'
         );
     }
-
-    public function elasticsearchIndex(NewIndex $index)
-    { 
-        $index->shards(3)->replicas(3); 
-    } 
     // [tl! collapse:end]
-
     public function toSearchableArray()
     {
         $array = $this->toArray();
@@ -368,7 +411,9 @@ class Movie extends Model
 
         return $array;
     }
+// [tl! collapse:start]
 } 
+// [tl! collapse:end]
 ```
 
 In case the Model uses the `toSearchableArray` method, you need to either define those fields yourself or pass the **Elasticsearch Java Date format** in the `elasticsearchProperties` method.
@@ -396,7 +441,7 @@ $movie->hit['highlight']['name'][0] // <span class="font-bold">Start Wars</span>
 
 
 # Nova
-Of course, the Elasticsearch Scout package is fully compatible with Laravel Nova.
+The Elasticsearch Scout package is fully compatible with Laravel Nova.
 
 ## Score
 If you want to debug your Searches and you are using Laravel Nova, you can create a resource field like this:

@@ -1,5 +1,4 @@
-# Query
-## Introduction
+# Introduction
 If you are familiar with Elasticsearch and the Search functionality doesn’t cover your needs, you can of course send any query that you wish to Elasticsearch using the `newQuery` method on the Sigmie client instance.
 
 Below is an example of some of the available options:
@@ -33,10 +32,10 @@ The above example uses the `getDLS` method to get the underlying JSON query. You
 $newQuery->get();
 ```
 
-## Queries
+# Queries
 Let’s have a look at the query builder’s possible options, and how their corresponding SQL would be.
 
-### Boolean
+## Boolean
 The `boolean`  query is probably the most powerful of the queries available. It allows you to combine queries when searching for documents, and it can be nested multiple times.
 
 You can define a `boolean` query using a callback function as a parameter to the `bool` method like this:
@@ -59,7 +58,7 @@ Those are:
 * Should
 
 
-#### Must
+### Must
 For a Document to match the query clause inside of a `must`, it has to match **all** the must’s nested queries.
 
 Look at the following example:
@@ -87,7 +86,7 @@ In an SQL example, the above query would look like this:
 SELECT * FROM movies WHERE is_active = TRUE AND stock >= 0;
 ```
 
-#### Must Not
+### Must Not
 The **Must Not** occurrence type is the opposite of  `must`. This means that **all** queries of the `must_not` occurrence need to be evaluated as `false` for a Document to match the query.
 
 We could convert the above into a `not_must` example like this:
@@ -112,7 +111,7 @@ And here is an example of the reverted SQL query that the `must_not` example cor
 SELECT * FROM movies WHERE is_active != FALSE AND stock != 0;
 ```
 
-#### Should
+### Should
 Unlike the `must` and `must_not` the `should`  needs **at least one** query to be true for the Document to match the query. 
 
 In `must` and `must_not` the queries inside them are combined with the **AND** logical operator, and in the `should` they are combined with **OR**.
@@ -141,7 +140,7 @@ The above example in an SQL query looks like this:
 SELECT * FROM movies WHERE category = 'fantasy' OR category = 'musical';
 ```
 
-#### Filter
+### Filter
 The `filter`  behaves exactly like `must` with one key difference, it **doesn’t affect** scoring.
 
 Unless specified otherwise the Documents that match a query are sorted by **“How well they match the query”**. For this Elasticsearch assigns a float `_score` attribute that indicates the answer to this question.
@@ -162,7 +161,7 @@ $sigmie->newQuery(index: 'movies')
 // [tl! collapse:end]
 ```
 
-## Queries
+# Queries
 You can use the supported queries as part of a `Boolean` query, or standalone.
 
 In simple scenarios is simple to directly call your query instead of putting it inside of a `Boolean` one.
@@ -180,7 +179,7 @@ $sigmie->newQuery(index: 'movies')->term('active', true);  // [tl! collapse:add]
 
 Now let’s have a look at all Elasticsearch queries supported in Sigmie.
 
-### Range
+## Range
 Using the `range` query you can filter `numbers` and `dates` by range. 
 ```php
 $newQuery->range('count', ['>=' => 233]);
@@ -200,7 +199,7 @@ $newQuery->range('price', ['>=' => 30.00, '<='=> 130.00]);
 ```
 
 
-### Term
+## Term
 The     `term` Query finds exact values of the Document’s attributes.
 
 For example, if we were to find all **active** Documents we would use it as follow: 
@@ -230,21 +229,21 @@ Using this key the `term` query will bring us the expected results.
 $newQuery->term('category', 'drama');
 ```
 
-### Match All
+## Match All
 The `matchAll` Query matches **all** the Documents.
 
 ```php
 $newQuery->matchAll();
 ```
 
-### Match None
+## Match None
 The `matchAll` Query matches **none** of the Documents.
 
 ```php
 $newQuery->matchNone();
 ```
 
-### Match
+## Match
 The `match`  Query accepts as the first argument the Document field and as second argument the query value.
 
 Unlike the `term` query passed value is **analyzed**, which makes this the preferred way for searching Text attributes.
@@ -253,33 +252,33 @@ Unlike the `term` query passed value is **analyzed**, which makes this the prefe
 $newQuery->match('name', 'mickey');
 ```
 
-### Multi Match
+## Multi Match
 The `multiMatch` Query is the same as the `match` Query with the difference that the first argument is an array of the Document’s fields.
 
 ```php
 $newQuery->multiMatch(['name', 'username'], 'mickey');
 ```
 
-### Exists
+## Exists
 The `exists` Query checks if the passed field exists on the Document.
 ```php
 $newQuery->exists();
 ```
 
-### Ids
+## Ids
 The `ids` Query returns the Documents whose `_id` field is passed in the array parameter.
 ```php
 $newQuery->ids(['dkKwMe4UBAUb2dMteRe2','wd6Me4UBAUb2dMJT');
 ```
 
-### Terms
+## Terms
 The `terms` Query is the same as the `term` Query with the difference that the second argument accepts an array of values.
 
 ```php
 $newQuery->terms(field:'category', values:['horror','action']);
 ```
 
-### Regex
+## Regex
 The `regex`  Query accepts the **field name** as the first argument and a **Regular Expression expression** pattern as a second.
 
 Then it returns the Documents whose attribute matches the Regular Expression.
@@ -287,13 +286,13 @@ Then it returns the Documents whose attribute matches the Regular Expression.
 $newQuery->regex('category','(horror|action)');
 ```
 
-### Wildcard
+## Wildcard
 The `wildcard` Query accepts the wildcard operator `*` in the value parameter.
 ```php
 $newQuery->wildcard('name','john*');
 ```
 
-### Boosting
+## Boosting
 You can use the `boost` parameter to increase the Query importance when the `_score` is calculated.
 ```php
 $newQuery->matchAll(boost: 5);
@@ -301,7 +300,7 @@ $newQuery->matchAll(boost: 5);
 
 This is useful to say that a match in the `title` attribute is more important than a match in the `tags` attribute.
 
-## Sort
+# Sort
 By default, the returned Documents are sorted by the `_score` attribute. You can change this behavior using the `sort` method like below:
 ```php
 $newQuery->sort('name.keyword', 'asc')
@@ -312,15 +311,15 @@ In this example, the matched Documents are first **sorted by** the `name.keyword
 
 **It’s important to note here, that sorting on Text fields is only possible if they are mapped as Keywords**.
 
-## Pagination
+# Pagination
 To paginate over your Query results you can use the `from` and `size` methods, which correspond to the SQL `LIMIT` and `OFFSET`.
-### From
+## From
 From is the SQL like `OFFSET`  that defines how many Documents should be skipped when returning the Search results.
 ```php
 $newQuery->from(0);
 ```
 
-## Size
+# Size
 Size is the SQL  `LIMIT` that defines how many Documents you get when you run your Query.
 ```php
 $newQuery->size(15);

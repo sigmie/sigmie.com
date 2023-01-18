@@ -289,7 +289,7 @@ The `wildcard` Query accepts the wildcard operator `*` in the value parameter.
 $newQuery->wildcard('name','john*');
 ```
 
-## Boosting
+# Boosting
 You can use the `boost` parameter to increase the Query importance when the `_score` is calculated.
 ```php
 $newQuery->matchAll(boost: 5);
@@ -309,6 +309,7 @@ In this example, the matched Documents are first **sorted by** the `name.keyword
 **It’s important to note here, that sorting on Text fields is only possible if they are mapped as Keywords**.
 
 # Pagination
+
 To paginate over your Query results you can use the `from` and `size` methods, which correspond to the SQL `LIMIT` and `OFFSET`.
 ## From
 From is the SQL like `OFFSET`  that defines how many Documents should be skipped when returning the Search results.
@@ -316,7 +317,7 @@ From is the SQL like `OFFSET`  that defines how many Documents should be skipped
 $newQuery->from(0);
 ```
 
-# Size
+## Size
 Size is the SQL  `LIMIT` that defines how many Documents you get when you run your Query.
 ```php
 $newQuery->size(15);

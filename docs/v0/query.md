@@ -65,9 +65,9 @@ use Sigmie\Query\Queries\Compound\Boolean;
 
 $newQuery->bool(function (Boolean $boolean) {
 // [tl! collapse:end]
-         $boolean->must()->term('is_active', true);
+    $boolean->must()->term('is_active', true);
 
-         $boolean->must()->range('stock', ['>' => 0 ]); 
+    $boolean->must()->range('stock', ['>' => 0 ]); 
 // [tl! collapse:start]
 });
 // [tl! collapse:end]
@@ -93,9 +93,9 @@ use Sigmie\Query\Queries\Compound\Boolean;
 
 $newQuery->bool(function (Boolean $boolean) {
  // [tl! collapse:end]
-         $boolean->mustNot()->term('is_active', false);
+    $boolean->mustNot()->term('is_active', false);
 
-         $boolean->mustNot()->term('stock', 0);
+    $boolean->mustNot()->term('stock', 0);
 // [tl! collapse:start]
  });
 // [tl! collapse:end]
@@ -119,14 +119,14 @@ Look at the example below:
 use Sigmie\Query\Queries\Compound\Boolean;
 
 $sigmie->newQuery(index: 'movies')
-        ->bool(function (Boolean $boolean) {
+    ->bool(function (Boolean $boolean) {
 // [tl! collapse:end] 
-            $boolean->should()->term('category', 'fantasy');
+    $boolean->should()->term('category', 'fantasy');
 
-            $boolean->should()->term('category', 'musical');
+    $boolean->should()->term('category', 'musical');
 // [tl! collapse:start]
 
-        });
+    });
 // [tl! collapse:end]
 ```
 
@@ -150,11 +150,11 @@ Simply: **Filter queries do NOT affect the order in which the hits are returned*
 use Sigmie\Query\Queries\Compound\Boolean;
 
 $sigmie->newQuery(index: 'movies')
-        ->bool(function (Boolean $boolean) {
+    ->bool(function (Boolean $boolean) {
 // [tl! collapse:end] 
-              $boolean->filter()->term('is_active', true);
+    $boolean->filter()->term('is_active', true);
 // [tl! collapse:start]
-        });
+    });
 // [tl! collapse:end]
 ```
 
@@ -167,9 +167,9 @@ In simple scenarios is simple to directly call your query instead of putting it 
 use Sigmie\Query\Queries\Compound\Boolean;
 
 $sigmie->newQuery(index: 'movies') // [tl! collapse:remove]
-        ->bool(function (Boolean $boolean) { // [tl! collapse:remove]
-              $boolean->filter()->term('active', true); // [tl! collapse:remove]
-        }); // [tl! collapse:remove]
+    ->bool(function (Boolean $boolean) { // [tl! collapse:remove]
+        $boolean->filter()->term('active', true); // [tl! collapse:remove]
+    }); // [tl! collapse:remove]
 
 $sigmie->newQuery(index: 'movies')->term('active', true);  // [tl! collapse:add]
 ```

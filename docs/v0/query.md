@@ -32,10 +32,7 @@ The above example uses the `getDLS` method to get the underlying JSON query. You
 $newQuery->get();
 ```
 
-# Queries
-Let’s have a look at the query builder’s possible options, and how their corresponding SQL would be.
-
-## Boolean
+# Boolean
 The `boolean`  query is probably the most powerful of the queries available. It allows you to combine queries when searching for documents, and it can be nested multiple times.
 
 You can define a `boolean` query using a callback function as a parameter to the `bool` method like this:

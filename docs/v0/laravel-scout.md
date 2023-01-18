@@ -224,7 +224,7 @@ php artisan scout:import "App\Models\Movie"
 ## Updating mappings
 Every time you change some **fields mappings** or **Index configurations** you need to call the `sync-index-settings` scout command for changes to take effect.
 ```bash
-php artisan scout:sync-index-settings "App\Models\ Movie"
+php artisan scout:sync-index-settings "App\Models\Movie"
 ```
 
 # Searching

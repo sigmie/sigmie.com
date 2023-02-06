@@ -23,8 +23,9 @@
         "vue": "^3.2.31"
     },
     "dependencies": {
-        "@headlessui/vue": "^1.7.4",
-        "@heroicons/vue": "^2.0.13",
+        "@headlessui/vue": "^1.7.9",
+        "@heroicons/vue": "^2.0.14",
+        "@sigmie/vue": "^1.0.1",
         "flowbite": "^1.6.0"
     }
 }

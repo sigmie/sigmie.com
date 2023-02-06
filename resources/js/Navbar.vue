@@ -4,6 +4,7 @@ import Search from './Search.vue';
 import Banner from './Banner.vue'
 import { onMounted, ref } from 'vue'
 import { Inertia } from '@inertiajs/inertia'
+import { SigmieSearch } from '@sigmie/vue'
 
 
 let showMenu = ref(false);
@@ -38,6 +39,8 @@ defineProps({
                     alt="Sigmie Logo"
                 />
             </Link>
+
+            <Search></Search>
 
             <button
                 @click="toggleNav"

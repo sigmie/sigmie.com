@@ -108,7 +108,7 @@ onUnmounted(() => {
         <div class="fixed inset-0 bg-black bg-opacity-25" />
       </TransitionChild>
 
-      <div class="fixed inset-0 overflow-y-auto">
+      <div class="fixed inset-x-0 top-20 overflow-y-auto">
         <div
           class="flex min-h-full items-center justify-center p-4 text-center"
         >
@@ -124,7 +124,7 @@ onUnmounted(() => {
             <DialogPanel
               class="
                 w-full
-                max-w-md
+                max-w-xl
                 transform
                 overflow-hidden
                 shadow-xl
@@ -135,7 +135,7 @@ onUnmounted(() => {
                 <SigmieSearch
                   apiKey="Dw4cThA9iGZwPw0r8VFMEiZwWGzroKFg6C0nb39D"
                   :query="query"
-                  :perPage="5"
+                  :perPage="10"
                   :filter="''"
                   search="testing"
                   applicationId="svvhug7c38lsrznsn"
@@ -150,6 +150,7 @@ onUnmounted(() => {
                         }"
                         class="
                           relative
+                          border-b
                           w-full
                           cursor-default
                           text-left
@@ -167,8 +168,8 @@ onUnmounted(() => {
                           class="
                             focus:ring-0
                             w-full
-                            border-none
                             outline-none
+                            border-none
                             focus:outline-none
                             py-3
                             pl-10
@@ -315,7 +316,7 @@ onUnmounted(() => {
                             </div>
 
                             <ComboboxOption
-                              v-for="hit in hits"
+                              v-for="(hit, index) in Object.values(hits)"
                               :key="hit._id"
                               as="template"
                               v-slot="{ selected, active }"
@@ -326,16 +327,16 @@ onUnmounted(() => {
                                   relative
                                   cursor-default
                                   select-none
-                                  pt-2
-                                  pb-4
+                                  py-3
                                   px-4
                                   flex flex-col
                                   items-center
-                                  border-t border-slate-100
                                 "
                                 :class="{
-                                  'bg-slate-100 text-white': active,
+                                  'bg-slate-100 text-black': active,
                                   'text-slate-800': !active,
+                                  'border-b border-slate-100':
+                                    index !== hits.length - 1,
                                 }"
                               >
                                 <div
@@ -360,27 +361,9 @@ onUnmounted(() => {
                                       p-1
                                     "
                                   >
-                                    {{ hit.color }}
-                                  </div>
-
-                                  <div
-                                    class="text-sm text-slate-700"
-                                    :class="{
-                                      'font-semibold': selected,
-                                      'font-medium': !selected,
-                                    }"
-                                  >
-                                    {{ hit.brand }}
-                                  </div>
-
-                                  <div class="text-sm text-slate-300">
-                                    — {{ hit.price }} $
+                                    {{ hit }}
                                   </div>
                                 </div>
-                                <div
-                                  class="w-full"
-                                  v-html="hit._highlight.name[0]"
-                                ></div>
                               </li>
                             </ComboboxOption>
                           </ComboboxOptions>

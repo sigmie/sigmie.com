@@ -173,7 +173,7 @@ You can also chain multiple filter clauses to create more complex filters. For e
 $sigmie->newSearch(index:'disney-movies') // [tl! collapse:start]
        ->properties($properties) 
        ->queryString('Donald') // [tl! collapse:end]
-       ->filter('stock>0 AND is:active AND NOT category:Drama') // [tl! highlight]
+       ->filter('stock>0 AND is:active AND NOT category:"Drama"') // [tl! highlight]
        ->get();
 ```
 

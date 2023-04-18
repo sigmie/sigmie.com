@@ -27,7 +27,7 @@ defineProps({
 
 <template>
     <nav
-        class="bg-white border-gray-200 fixed sm:px-4 py-2.5 rounded dark:bg-gray-900 flex bg-white flex-row h-[70px] fixed top-0 left-0 right-0 z-50 md:shadow shadow-none"
+        class="border-gray-200 fixed sm:px-4 py-2.5 rounded dark:bg-gray-900 flex bg-white flex-row h-[70px] fixed top-0 left-0 right-0 z-50 md:shadow shadow-none"
     >
         <div
             class="container flex flex-wrap items-center justify-between mx-auto"

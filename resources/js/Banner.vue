@@ -8,17 +8,14 @@ defineProps({
             <a
                 target="_blank"
                 href="https://app.sigmie.com"
-                class="w-[300px] shadow flex flex-col p-6 rounded-3xl mb-10 bg-slate-50/25 relative cursor-pointer"
+                class="w-[300px] border flex flex-col p-6 rounded-md mb-10 bg-slate-50/25 relative cursor-pointer"
             >
-                <span class="text-orange-500 font-bold mb-2 text-sm"
-                    >Sigmie Application</span
-                >
                 <h2 class="text-black font-semibold text-lg mb-2">
-                    Looking for a quickly and easy search solution?
+                    You need a Search as a Service ?
                 </h2>
                 <p class="text-gray-400 text-sm mb-10">
-                    Try our application and enjoy only the good parts without
-                    the hassle and frustration. Leave the rest to us!
+                    Try our application and enjoy only the good parts.
+                    Leave the rest to us!
                 </p>
 
                 <svg
@@ -64,7 +61,7 @@ defineProps({
                 </svg>
 
                 <button
-                    class="bg-orange-600 hover:bg-orange-600/90 w-[180px] py-2 font-bold rounded-full text-white"
+                    class="bg-zinc-900 hover:bg-zinc-900/90 w-[180px] py-1.5 rounded-md px-4 text-white"
                 >
                     <div
                         class="flex flex-row mx-auto w-28 items-center space-x-2"

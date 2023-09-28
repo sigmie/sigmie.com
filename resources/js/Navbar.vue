@@ -1,24 +1,23 @@
 <script setup>
-import { Head, Link } from '@inertiajs/inertia-vue3';
-import Search from './Search.vue';
-import Banner from './Banner.vue'
-import { onMounted, ref } from 'vue'
-import { Inertia } from '@inertiajs/inertia'
-import { SigmieSearch } from '@sigmie/vue'
-
+import { Head, Link } from "@inertiajs/inertia-vue3";
+import Search from "./Search.vue";
+import Banner from "./Banner.vue";
+import { onMounted, ref } from "vue";
+import { Inertia } from "@inertiajs/inertia";
+import { SigmieSearch } from "@sigmie/vue";
 
 let showMenu = ref(false);
 const toggleNav = () => (showMenu.value = !showMenu.value);
 const hideNav = () => (showMenu.value = true);
 
 onMounted(() => {
-  hideNav()
-})
+    hideNav();
+});
 
 let visit = (url) => {
-    showMenu.value = true
-    Inertia.visit(url)
-}
+    showMenu.value = true;
+    Inertia.visit(url);
+};
 
 defineProps({
     navigation: Object,
@@ -33,11 +32,7 @@ defineProps({
             class="container flex flex-wrap items-center justify-between mx-auto"
         >
             <Link href="/" class="flex items-center pl-2">
-                <img
-                    class="h-10 w-auto"
-                    src="https://res.cloudinary.com/markos-nikolaos-orfanos/image/upload/v1673012063/sigmie-com-image_zpzfsm.svg"
-                    alt="Sigmie Logo"
-                />
+                <img class="h-10 w-auto" src="/logo.png" alt="Sigmie Logo" />
             </Link>
 
             <Search></Search>
@@ -71,7 +66,7 @@ defineProps({
                 class="w-full md:w-auto bg-white px-2"
             >
                 <ul
-                    class="flex flex-col mt-4 h-screen overflow-y-scroll md:h-auto bg-slate-50 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700 pb-20 md:pb-0"
+                    class="flex flex-col mt-4 h-screen md:h-auto bg-slate-50 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700 pb-20 md:pb-0"
                 >
                     <li
                         class="md:hidden pt-3 px-5"
@@ -86,59 +81,22 @@ defineProps({
                             v-for="(link, index) in section.links"
                             :key="index"
                             :class="{
-                                'bg-orange-100/40 text-orange-500':
+                                'bg-zinc-100/40 text-zinc-500':
                                     $page.url === link.href,
                                 'text-gray-700': !$page.url.startsWith('/docs'),
                             }"
-                            class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-orange-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                            class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-zinc-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
                         >
                             {{ link.title }}
                         </button>
                     </li>
 
                     <span class="w-full border-b py-3"></span>
-
-                    <li>
-                        <a
-                            target="_blank"
-                            href="https://app.sigmie.com"
-                            class="block py-2 pl-3 pr-4 text-gray-700 md:font-normal rounded md:bg-transparent md:p-0 dark:text-white"
-                            aria-current="page"
-                            >Application</a
-                        >
-                    </li>
-
-                    <li>
-                        <Link
-                            :class="{
-                                'text-orange-500':
-                                    $page.url.startsWith('/docs'),
-                                'text-gray-700': !$page.url.startsWith('/docs'),
-                            }"
-                            href="/"
-                            class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-orange-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-                            aria-current="page"
-                            >Documentation</Link
-                        >
-                    </li>
-                    <li>
-                        <Link
-                            href="/blog"
-                            :class="{
-                                'md:text-orange-500':
-                                    $page.url.startsWith('/blog'),
-                                'md:text-gray-700':
-                                    !$page.url.startsWith('/blog'),
-                            }"
-                            class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-orange-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-                            >Blog</Link
-                        >
-                    </li>
                     <li>
                         <a
                             target="_blank"
                             href="https://github.com/sigmie"
-                            class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-orange-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                            class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-zinc-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
                         >
                             <svg
                                 class="h-5 w-5 hidden md:block fill-slate-400 hover:fill-slate-500"

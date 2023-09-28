@@ -42,7 +42,7 @@ navigation: Object
                                     :href="link.href"
                                     class="flex flex-row space-x-2 items-center p-1 text-md no-underline text-gray-700"
                                 >
-                                    <span class="text-orange-500 text-2xl"
+                                    <span class="text-zinc-500 text-2xl"
                                         >#</span
                                     >
                                     <span
@@ -74,12 +74,12 @@ code {
 }
 
 .heading-permalink {
-    @apply mr-2 no-underline text-orange-500;
+    @apply mr-2 no-underline text-zinc-500;
 }
 
 .table-of-contents li::marker {
     content: "#";
-    @apply text-orange-500;
+    @apply text-zinc-500;
 }
 
 .table-of-contents > li > a {

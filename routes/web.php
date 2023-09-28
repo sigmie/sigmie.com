@@ -27,8 +27,8 @@ use Torchlight\Commonmark\V2\TorchlightExtension;
 
 Route::get('/', function () {
 
-    return redirect('/docs/v0/introduction');
-    // return Inertia::render('Welcome', []);
+    // return redirect('/docs/v0/introduction');
+    return Inertia::render('Welcome', []);
 });
 
 Route::get('/blog', function () {

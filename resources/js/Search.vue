@@ -36,7 +36,8 @@ function handleKeyDown(e) {
   }
 
   // On CMD + K
-  if (e.keyCode === 75 && e.metaKey) {
+  if ((e.keyCode === 75 && e.metaKey) || (e.keyCode === 75 && e.ctrlKey)) {
+    e.preventDefault();
     openModal(true);
     input?.value?.focus();
     input?.value?.click();
@@ -127,7 +128,6 @@ onUnmounted(() => {
                 max-w-xl
                 transform
                 overflow-hidden
-                shadow-xl
                 transition-all
               "
             >

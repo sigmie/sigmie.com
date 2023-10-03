@@ -1,22 +1,19 @@
 <script setup>
-
-import { Head, Link } from '@inertiajs/inertia-vue3';
-import Banner from './Banner.vue';
-import Twitter from './Twitter.vue';
+import { Head, Link } from "@inertiajs/inertia-vue3";
+import Banner from "./Banner.vue";
+import Twitter from "./Twitter.vue";
 
 defineProps({
-navigation: Object,
+    navigation: Object,
 });
 </script>
 
 <template>
     <div
-        class="w-[500px] max-h-screen overflow-y-scroll fixed left-0 top-0 pt-20 pb-5 z-10 min-h-screen lg:block hidden"
+        class="z-10 min-h-screen lg:block hidden max-w-xl"
     >
-        <div class="block w-[400px] float-right pt-5 pb-4">
-            <nav
-                class="mt-5 flex-1 space-y-1 px-2 flex-col flex space-y-5 mx-auto"
-            >
+        <div class="block mx-auto pt-5 pb-4 max-h-screen overflow-y-scroll">
+            <nav class="mt-5 flex-1 px-2 flex-col flex space-y-5 mx-auto">
                 <div v-for="(section, index) in navigation" :key="index">
                     <h4 class="font-semibold mb-2 text-sm">
                         {{ section.title }}
@@ -34,7 +31,8 @@ navigation: Object,
                             :href="link.href"
                         >
                             {{ link.title }}
-                        </Link> </div>
+                        </Link>
+                    </div>
                 </div>
 
                 <Banner />

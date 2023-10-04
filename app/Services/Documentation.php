@@ -18,11 +18,9 @@ class Documentation
         array_map('unlink', glob("{$path}/**/*.html"));
 
         array_map('rmdir', glob("{$path}/*", GLOB_ONLYDIR));
-
-        rmdir($path);
     }
 
-    public function cache()
+    public function eachPage(callable $callback)
     {
         $docsPath = base_path("docs/");
 
@@ -33,6 +31,13 @@ class Documentation
         $files = [...$filesSubdir, ...$filesDir];
 
         foreach ($files as $file) {
+            $callback($file);
+        }
+    }
+
+    public function cache()
+    {
+        $this->eachPage(function ($file) {
 
             $html = $this->buildPage($file);
 
@@ -50,9 +55,7 @@ class Documentation
             touch($path);
 
             file_put_contents($path, $html);
-        }
-
-        return;
+        });
     }
 
     public function buildPage(string $path)

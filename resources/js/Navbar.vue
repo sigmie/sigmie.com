@@ -28,32 +28,36 @@ defineProps({
     <div>
         <div
             v-if="showMenu"
-            class="w-full md:hidden block md:w-auto bg-white px-2"
+            class="w-full lg:hidden block md:w-auto bg-white px-2"
         >
             <ul
-                class="fixed bg-white left-0 right-0 max-h-screen overflow-scroll flex flex-col h-screen md:h-auto md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700 pb-20 md:pb-0 -mt-3"
+                class="fixed bg-white left-0 right-0 max-h-screen overflow-scroll flex flex-col h-screen lg:h-auto lg:flex-row lg:space-x-8 lg:mt-0 lg:text-sm lg:font-medium lg:border-0 lg:bg-white dark:bg-gray-800 lg:dark:bg-gray-900 dark:border-gray-700 pb-20 lg:pb-0 -mt-3"
             >
                 <li
-                    class="md:hidden pt-3 px-5"
+                    class="lg:hidden pt-3 px-5"
                     v-for="(section, index) in navigation"
                     :key="index"
                 >
-                    <h4 class="font-semibold mb-2 text-sm">
+                    <h4
+                        class="mb-4 mt-6 font-semibold text-slate-900 dark:text-slate-200"
+                    >
                         {{ section.title }}
                     </h4>
-                    <button
-                        @click.prevent="() => visit(link.href)"
-                        v-for="(link, index) in section.links"
-                        :key="index"
-                        :class="{
-                            'bg-zinc-100/40 text-zinc-500':
-                                $page.url === link.href,
-                            'text-gray-700': !$page.url.startsWith('/docs'),
-                        }"
-                        class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-zinc-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-                    >
-                        {{ link.title }}
-                    </button>
+                    <div class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-700">
+                        <button
+                            @click.prevent="() => visit(link.href)"
+                            v-for="(link, index) in section.links"
+                            :key="index"
+                            :class="{
+                                'bg-zinc-100/40 text-zinc-500':
+                                    $page.url === link.href,
+                                'text-gray-700': !$page.url.startsWith('/docs'),
+                            }"
+                            class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                        >
+                            {{ link.title }}
+                        </button>
+                    </div>
                 </li>
             </ul>
         </div>

@@ -1,0 +1,44 @@
+<h1>Elasticsearch shards rules</h1>
+<p>About some time ago, I took a deep look into Elasticsearch shards trying to simplify
+the <strong>shards</strong> word.</p>
+<p>After some digging into this topic I came up with some basic
+rules for the <strong>Elasticsearch shards</strong> question.</p>
+<h2>Logical Rule</h2>
+<p>If we assume that Elasticsearch is a search engine, then we can say that shards are smaller
+self-contained search engines within Elasticsearch.</p>
+<p>With that said it’s logical to think that the <strong>more</strong> search engines / shards working at the same time <strong>the faster</strong> the results.</p>
+<p>But there are move thing to take into consideration when choosing the amount of shards for your index.</p>
+<p>From the <a href="https://www.elastic.co/blog/how-many-shards-should-i-have-in-my-elasticsearch-cluster">Elasticsearch Blog</a>:</p>
+<blockquote>
+<p>In Elasticsearch, each query is executed in a single thread per shard. Multiple shards can however be processed in parallel, as can multiple queries and aggregations against the same shard.</p>
+</blockquote>
+<blockquote>
+<p>Querying lots of small shards will make the processing per shard faster, but as many more tasks need to be queued up and processed in sequence, it is not necessarily going to be faster than querying a smaller number of larger shards. Having lots of small shards can also reduce the query throughput if there are multiple concurrent queries.</p>
+</blockquote>
+<h2>Heap Rule</h2>
+<p>Without going in details, let’s just say that your heap size should be 50% of your available memory,
+which is beneficial for the <strong>Search</strong> and <strong>Indexing</strong> operations, and the other 50% should remain available
+for caching.</p>
+<p><strong>The number of shards should be below 20 per GB heap.</strong></p>
+<p>For example if your node has 8 GB of memory you should set your heap size to 4 GB. And the total number
+of your shards shouldn’t be more than 80.</p>
+<p>But if you have 2 GB of memory on your machine, and a heap size of 1 GB.
+In this case having <strong>20 indices</strong> with <strong>1 primary shard</strong> would be the maximum recommended shards / heap size, and the same goes to <strong>10 indices</strong> with <strong>2 primary shards</strong>.</p>
+<h2>Size rule</h2>
+<p>Depending on your index size,</p>
+<p><strong>It’s preffered to keep your shard size between a few GB and 40 GB.</strong></p>
+<p>Considering that each shard uses some amount of CPU and memory, having too many small shards can place needless
+strain on the hardware.</p>
+<p>Keeping in mind that the on-disk size of an index is around 10% larger than it’s source data.</p>
+<p><strong>So in a case where we have some data around 60 GB in an index.</strong></p>
+<p>We should specify <strong>2 primary shards</strong> when creating our index, because we want each shard to be
+<strong>30 GB</strong> and also we have 10 GB available for the 10% indexing overhead.</p>
+<p><strong>In another case where our data is around 2 GB.</strong></p>
+<p>It’s good to have 1 primary shard and avoid spliting our hardware resources between small shards.</p>
+<p><strong>And if our data is 40 GB.</strong></p>
+<p>It’s preffered to have 2 primary shards around 20 GB than having 1 shard which will exceeed the 40 GB rule.</p>
+<h2>Deeper</h2>
+<p>You can find deeper and more detailed explanations about shard in the following links.</p>
+<p><a href="https://www.elastic.co/blog/how-many-shards-should-i-have-in-my-elasticsearch-cluster">Elasticsearch Blog</a></p>
+<p><a href="https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/sizing-domains.html">AWS Docs</a></p>
+<p><a href="https://opster.com/elasticsearch-glossary/elasticsearch-heap-size-usage/">Opster</a></p>

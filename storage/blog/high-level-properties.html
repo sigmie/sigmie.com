@@ -1,0 +1,23 @@
+<h1>High level Elasticsearch properties</h1>
+<p>High-level mapping properties that are optimized for the data that they are representing.</p>
+<p>In programming you have field types called <strong>strings</strong>, that can be any possible text combination in the world.</p>
+<ul>
+<li>A Product Color</li>
+<li>A Country Name</li>
+<li>An Address</li>
+<li>Tags</li>
+</ul>
+<p>String is simply too generic, especially in a business context.</p>
+<p>Take for example the <strong>name</strong> field of a product data structure from an online shop.</p>
+<p>The same <strong>name</strong> field has a customer in an insurance company database.</p>
+<p>So since strings can mean many things, we decided to narrow <code>string</code> types down to more expressive fields.</p>
+<p>Instead of using <code>string</code>  or <code>text</code>, we created the following:</p>
+<ul>
+<li>Name</li>
+<li>Address</li>
+<li>HTML</li>
+<li>Category</li>
+</ul>
+<p>Take <strong>Category</strong> for example, in an E-Shop, it can be the product <strong>Color</strong> or <strong>Type</strong> like shoes, jeans, or hats.</p>
+<p>Where in an Insurance company database it can be a <strong>Contract Type</strong>.</p>
+<p>This way we can know how a specific attribute of your indexed Documents should be queried for the best results.</p>

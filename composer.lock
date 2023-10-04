@@ -4,8 +4,61 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "38e7c6f547b39baf54387d596649c298",
+    "content-hash": "e66bbeff325aafc351ca84b04ccf111b",
     "packages": [
+        {
+            "name": "adbario/php-dot-notation",
+            "version": "2.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/adbario/php-dot-notation.git",
+                "reference": "081e2cca50c84bfeeea2e3ef9b2c8d206d80ccae"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/adbario/php-dot-notation/zipball/081e2cca50c84bfeeea2e3ef9b2c8d206d80ccae",
+                "reference": "081e2cca50c84bfeeea2e3ef9b2c8d206d80ccae",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": "^5.5 || ^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8|^5.7|^6.6|^7.5|^8.5|^9.5",
+                "squizlabs/php_codesniffer": "^3.6"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Adbar\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Riku Särkinen",
+                    "email": "riku@adbar.io"
+                }
+            ],
+            "description": "PHP dot notation access to arrays",
+            "homepage": "https://github.com/adbario/php-dot-notation",
+            "keywords": [
+                "ArrayAccess",
+                "dotnotation"
+            ],
+            "support": {
+                "issues": "https://github.com/adbario/php-dot-notation/issues",
+                "source": "https://github.com/adbario/php-dot-notation/tree/2.5.0"
+            },
+            "time": "2022-10-14T20:31:46+00:00"
+        },
         {
             "name": "bacon/bacon-qr-code",
             "version": "2.0.7",
@@ -3735,6 +3788,111 @@
                 }
             ],
             "time": "2022-11-05T23:03:38+00:00"
+        },
+        {
+            "name": "sigmie/app-sdk",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sigmie/app-sdk.git",
+                "reference": "07f384bfa5e4ee00187f8ebf1436dfe4ff72d963"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sigmie/app-sdk/zipball/07f384bfa5e4ee00187f8ebf1436dfe4ff72d963",
+                "reference": "07f384bfa5e4ee00187f8ebf1436dfe4ff72d963",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "sigmie/http": "^0.38.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=8.0",
+                "spatie/ray": "^1.38",
+                "squizlabs/php_codesniffer": "^3.0",
+                "symfony/var-dumper": "^6.3",
+                "vlucas/phpdotenv": "^5.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Sigmie\\Application\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nico Orfanos",
+                    "email": "nico@sigmie.com",
+                    "homepage": "https://nico.orfanos.dev",
+                    "role": "Developer"
+                }
+            ],
+            "description": "The official Sigmie Application PHP SDK.",
+            "homepage": "https://github.com/sigmie/app-sdk",
+            "keywords": [
+                "app-sdk",
+                "sigmie"
+            ],
+            "support": {
+                "issues": "https://github.com/sigmie/app-sdk/issues",
+                "source": "https://github.com/sigmie/app-sdk/tree/v1.0.0"
+            },
+            "time": "2023-09-26T07:29:38+00:00"
+        },
+        {
+            "name": "sigmie/http",
+            "version": "0.38.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sigmie/http.git",
+                "reference": "ce83555f5ef25fe66eea8672998d9e831e419772"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sigmie/http/zipball/ce83555f5ef25fe66eea8672998d9e831e419772",
+                "reference": "ce83555f5ef25fe66eea8672998d9e831e419772",
+                "shasum": ""
+            },
+            "require": {
+                "adbario/php-dot-notation": "^2.2",
+                "elastic/transport": "^8.5",
+                "guzzlehttp/guzzle": "^7.2",
+                "guzzlehttp/psr7": "^2.4",
+                "php": "^8.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Sigmie\\Http\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nico Orfi",
+                    "email": "nico@sigmie.com"
+                }
+            ],
+            "description": "The Sigmie HTTP package.",
+            "homepage": "https://sigmie.com",
+            "support": {
+                "issues": "https://github.com/sigmie/sigmie/issues",
+                "source": "https://github.com/sigmie/sigmie"
+            },
+            "time": "2023-09-18T06:33:13+00:00"
         },
         {
             "name": "symfony/console",

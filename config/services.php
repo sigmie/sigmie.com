@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'sigmie' => [
+        'application_id' => env('SIGMIE_APPLICATION_ID', ''),
+        'admin_api_key' => env('SIGMIE_ADMIN_KEY', ''),
+        'search_api_key' => env('SIGMIE_SEARCH_KEY', ''),
+    ],
 ];

@@ -133,11 +133,11 @@ onUnmounted(() => {
             >
               <div class="">
                 <SigmieSearch
-                  apiKey="Dw4cThA9iGZwPw0r8VFMEiZwWGzroKFg6C0nb39D"
+                  apiKey="Rs0ObcGis8YUOdukfL4MkswAlgLt8IqiMRGvsYpd"
                   :query="query"
                   :perPage="10"
                   :filter="''"
-                  search="testing"
+                  search="sigmie-com-docs"
                   applicationId="svvhug7c38lsrznsn"
                   v-slot="{ hits, total, loading }"
                 >

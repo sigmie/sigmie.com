@@ -22,7 +22,7 @@ class Documentation
 
     public function eachPage(callable $callback)
     {
-        $docsPath = base_path("docs/");
+        $docsPath = base_path("docs");
 
         $filesSubdir = glob("{$docsPath}/**/*.{md}", GLOB_BRACE);
 

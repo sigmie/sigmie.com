@@ -13,6 +13,7 @@ import {
   ComboboxOptions,
   ComboboxOption,
 } from "@headlessui/vue";
+import { router } from '@inertiajs/vue3'
 
 import {
   ArrowUpIcon,
@@ -26,7 +27,7 @@ let input = ref(null);
 let isOpen = ref(false);
 
 function visit(value) {
-  console.log(value);
+  router.get(value.href)
 }
 
 function handleKeyDown(e) {
@@ -76,10 +77,10 @@ onUnmounted(() => {
       class="
         flex flex-row
         justify-between
-        text-slate-400
+        text-zinc-400
         w-full
-        border border-slate-100
-        bg-slate-50
+        border border-zinc-100
+        bg-zinc-50
         rounded-lg
         items-center
         px-4
@@ -89,7 +90,7 @@ onUnmounted(() => {
       <div>Search...</div>
       <div class="flex flex-row items-center space-x-2">
         <ShortcutButton> CMD/CTR </ShortcutButton>
-        <div class="font-semibold text-xs text-slate-500">+</div>
+        <div class="font-semibold text-xs text-zinc-500">+</div>
         <ShortcutButton>K</ShortcutButton>
       </div>
     </button>
@@ -111,7 +112,7 @@ onUnmounted(() => {
 
       <div class="fixed inset-x-0 top-20 overflow-y-auto">
         <div
-          class="flex min-h-full items-center justify-center p-4 text-center"
+          class="flex min-h-full items-center justify-center p-4"
         >
           <TransitionChild
             as="template"
@@ -176,7 +177,7 @@ onUnmounted(() => {
                             pr-10
                             text-sm
                             leading-5
-                            text-slate-700
+                            text-zinc-700
                           "
                           @change="query = $event.target.value"
                         />
@@ -189,7 +190,7 @@ onUnmounted(() => {
                             flex flex-row
                             items-center
                             pl-3
-                            text-slate-300 text-sm
+                            text-zinc-300 text-sm
                           "
                         >
                           <div v-if="loading">
@@ -220,7 +221,7 @@ onUnmounted(() => {
                           </div>
                           <div v-else>
                             <MagnifyingGlassIcon
-                              class="h-5 w-5 text-slate-300"
+                              class="h-5 w-5 text-zinc-300"
                             ></MagnifyingGlassIcon>
                           </div>
                         </ComboboxButton>
@@ -232,7 +233,7 @@ onUnmounted(() => {
                             flex
                             items-center
                             pr-4
-                            text-slate-300 text-sm
+                            text-zinc-300 text-sm
                           "
                         >
                           <div v-if="open">
@@ -243,7 +244,7 @@ onUnmounted(() => {
                             class="flex flex-row items-center space-x-2"
                           >
                             <ShortcutButton>CMD/CTR</ShortcutButton>
-                            <div class="font-semibold text-xs text-slate-500">
+                            <div class="font-semibold text-xs text-zinc-500">
                               +
                             </div>
                             <ShortcutButton>K</ShortcutButton>
@@ -275,13 +276,13 @@ onUnmounted(() => {
                             <div
                               v-if="query !== '' && total === 0"
                               class="
-                                border-t border-slate-100
+                                border-t border-zinc-100
                                 relative
                                 cursor-default
                                 select-none
                                 py-2
                                 px-4
-                                text-slate-400
+                                text-zinc-400
                                 h-40
                                 flex flex-row
                                 items-center
@@ -308,7 +309,7 @@ onUnmounted(() => {
                               <div class="mx-auto">
                                 <div class="w-56 text-center">
                                   No results for "<span
-                                    class="text-slate-400 font-medium"
+                                    class="text-zinc-400 font-medium"
                                     >{{ query }}</span
                                   >"
                                 </div>
@@ -333,9 +334,9 @@ onUnmounted(() => {
                                   items-center
                                 "
                                 :class="{
-                                  'bg-slate-100 text-black': active,
-                                  'text-slate-800': !active,
-                                  'border-b border-slate-100':
+                                  'bg-zinc-100 text-black': active,
+                                  'text-zinc-800': !active,
+                                  'border-b border-zinc-100':
                                     index !== hits.length - 1,
                                 }"
                               >
@@ -354,14 +355,21 @@ onUnmounted(() => {
                                 >
                                   <div
                                     class="
-                                      border
-                                      rounded-lg
-                                      border-slate-200
+                                      rounded-md
                                       text-xs text-
-                                      p-1
+                                      p-4
+                                      border
+                                      border-zinc-200
+                                      w-full
                                     "
                                   >
-                                    {{ hit }}
+                                    <h3 class="font-bold text-xl">
+                                      {{  hit.title }}
+                                    </h3>
+                                    <div class="mt-4" v-for="(text, index) in hit._highlight.body" :key="index">
+                                      <p class="prose prose-sm" v-html="text"></p>
+                                    </div>
+
                                   </div>
                                 </div>
                               </li>
@@ -374,14 +382,14 @@ onUnmounted(() => {
                               rounded-b-lg
                               bottom-0
                               h-12
-                              bg-slate-50
+                              bg-zinc-50
                               w-full
                               px-4
                               py-2
                               flex flex-row
                               justify-between
                               items-center
-                              border-t border-slate-200
+                              border-t border-zinc-200
                             "
                           >
                             <div class="flex flex-row space-x-1 items-center">
@@ -395,21 +403,21 @@ onUnmounted(() => {
                                   class="text-black h-3 w-3"
                                 ></ArrowDownIcon>
                               </ShortcutButton>
-                              <div className="text-slate-500 pl-1 text-sm">
+                              <div className="text-zinc-500 pl-1 text-sm">
                                 to navigate
                               </div>
                             </div>
 
                             <div class="flex flex-row items-center space-x-2">
                               <ShortcutButton>ESC</ShortcutButton>
-                              <div className="text-slate-500 pl-1 text-sm">
+                              <div className="text-zinc-500 pl-1 text-sm">
                                 to close
                               </div>
                             </div>
 
                             <div class="flex flex-row items-center space-x-2">
                               <ShortcutButton>ENTER</ShortcutButton>
-                              <div className="text-slate-500 pl-1 text-sm">
+                              <div className="text-zinc-500 pl-1 text-sm">
                                 to visit
                               </div>
                             </div>

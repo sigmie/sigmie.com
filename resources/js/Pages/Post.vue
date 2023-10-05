@@ -159,7 +159,7 @@ code {
 }
 
 .callout.warning {
-    @apply bg-slate-700/90 text-white;
+    @apply bg-zinc-700/90 text-white;
 }
 
 .callout.warning::before {

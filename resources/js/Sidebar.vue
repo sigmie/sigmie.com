@@ -25,7 +25,7 @@ defineProps({
                             :class="
                                 $page.url === link.href
                                     ? 'text-zinc-500 border-zinc-500 border-l'
-                                    : 'text-slate-500 hover:text-slate-600 hover:before:block hover:border-gray-400 hover:border-l'
+                                    : 'text-zinc-500 hover:text-zinc-600 hover:before:block hover:border-gray-400 hover:border-l'
                             "
                             class="w-full pl-3.5 my-1 -ml-[1px] text-sm"
                             :href="link.href"

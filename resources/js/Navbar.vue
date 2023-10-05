@@ -39,11 +39,11 @@ defineProps({
                     :key="index"
                 >
                     <h4
-                        class="mb-4 mt-6 font-semibold text-slate-900 dark:text-slate-200"
+                        class="mb-4 mt-6 font-semibold text-zinc-900 dark:text-zinc-200"
                     >
                         {{ section.title }}
                     </h4>
-                    <div class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-700">
+                    <div class="space-y-6 lg:space-y-2 border-l border-zinc-100 dark:border-zinc-700">
                         <button
                             @click.prevent="() => visit(link.href)"
                             v-for="(link, index) in section.links"
@@ -53,7 +53,7 @@ defineProps({
                                     $page.url === link.href,
                                 'text-gray-700': !$page.url.startsWith('/docs'),
                             }"
-                            class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                            class="block border-l pl-4 -ml-px border-transparent hover:border-zinc-400 dark:hover:border-zinc-500 text-zinc-700 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-300"
                         >
                             {{ link.title }}
                         </button>

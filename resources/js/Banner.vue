@@ -8,7 +8,7 @@ defineProps({
             <a
                 target="_blank"
                 href="https://app.sigmie.com"
-                class="w-[300px] border flex flex-col p-6 rounded-md mb-10 bg-slate-50/25 relative cursor-pointer"
+                class="w-[300px] border flex flex-col p-6 rounded-md mb-10 bg-zinc-50/25 relative cursor-pointer"
             >
                 <h2 class="text-black font-semibold text-lg mb-2">
                     You need a Search as a Service ?

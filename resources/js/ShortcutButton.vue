@@ -7,8 +7,8 @@
       px-2
       py-1
       rounded-md
-      text-slate-700
-      border-slate-300
+      text-zinc-700
+      border-zinc-300
       font-semibold
       text-xs
       shadow

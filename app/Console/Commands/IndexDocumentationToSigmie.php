@@ -9,6 +9,8 @@ use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\MarkdownConverter;
 use Sigmie\Application\Client;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Throwable;
+use Masterminds\HTML5;
 
 class IndexDocumentationToSigmie extends Command
 {
@@ -34,31 +36,52 @@ class IndexDocumentationToSigmie extends Command
 
         $documentation->eachPage(function ($file) use ($sigmie, $converter, $documentation, $progress) {
 
+            $page = str_replace('.md', '', basename($file));
+
             $progress->advance();
 
-            $markdown = file_get_contents($file);
-            $document = $converter->convert($markdown);
+            $fileContent = file_get_contents($file);
+            $document = $converter->convert($fileContent);
 
-            $dom = new \DOMDocument();
-            $dom->loadHTML($document);
+            $html5 = new HTML5(['encode_entities' => true]);
+            $dom = $html5->loadHTML(mb_encode_numericentity($document, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
 
             $headings = [];
             $body = [];
+            $version = 'v0';
+
+            $link = collect(config("docs.{$version}.navigation"))
+                ->flatten(2)
+                ->filter(fn ($link)  => isset($link['href']))
+                ->filter(fn ($link)  => $link['href'] === "/docs/{$version}/{$page}")
+                ->first();
+
+            if (is_null($link)) {
+                return;
+            }
 
             foreach ($dom->getElementsByTagName('h1') as $node) {
                 $headings[] = $node->nodeValue;
             }
 
             foreach ($dom->getElementsByTagName('p') as $node) {
-                $body[] = $node->nodeValue;
+                $value = $node->nodeValue;
+                $value = str_replace('@info', '', $value);
+                $value = str_replace('@endinfo', '', $value);
+
+                $body[] = $value;
+            }
+
+            if (count($body) === 0) {
+                return;
             }
 
             $sigmie->upsertDocument(
                 index: 'sigmie-com-docs',
                 body: [
-                    'path' => $file,
                     'headings' => $headings,
                     'body' => $body,
+                    ...$link
                 ],
                 _id: md5($file)
             );

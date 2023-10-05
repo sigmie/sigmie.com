@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link } from "@inertiajs/inertia-vue3";
+import { Head, Link } from "@inertiajs/vue3";
 import Banner from "./Banner.vue";
 import Twitter from "./Twitter.vue";
 

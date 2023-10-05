@@ -1,9 +1,8 @@
 <script setup>
-import { Head, Link } from "@inertiajs/inertia-vue3";
+import { Head, Link, router as Inertia  } from "@inertiajs/vue3";
 import Search from "./Search.vue";
 import Banner from "./Banner.vue";
 import { onMounted, ref } from "vue";
-import { Inertia } from "@inertiajs/inertia";
 import { SigmieSearch } from "@sigmie/vue";
 
 let showMenu = ref(false);
@@ -27,7 +26,7 @@ defineProps({
 <template>
     <div>
         <div
-            v-if="showMenu"
+            v-if="!showMenu"
             class="w-full lg:hidden block md:w-auto bg-white px-2"
         >
             <ul

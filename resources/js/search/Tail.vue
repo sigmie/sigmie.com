@@ -7,7 +7,7 @@ import ShortcutButton from "./ShortcutButton.vue";
 
 <template>
     <div
-        class="absolute rounded-b-lg bottom-0 h-21 w-full px-4 py-2 flex flex-row justify-between items-center border-t border-zinc-300"
+        class="absolute rounded-b-lg  bottom-0 h-21 w-full px-4 py-2 flex flex-row justify-between items-center border-t border-zinc-300"
     >
         <TailItem>
             <div class="flex flex-row space-x-2">

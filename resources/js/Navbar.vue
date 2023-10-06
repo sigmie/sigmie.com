@@ -69,7 +69,7 @@ defineProps({
             >
                 <Link href="/" class="flex items-center pl-2">
                     <img
-                        class="h-10 w-auto"
+                        class="h-10 w-10"
                         src="/logo.png"
                         alt="Sigmie Logo"
                     />

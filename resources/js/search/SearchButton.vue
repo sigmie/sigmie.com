@@ -33,13 +33,13 @@ onUnmounted(() => {
 <template>
     <button
         @click="() => emit('openSearch')"
-        class="border-transparent focus:border-transparent focus:ring-0 max-w-lg mx-auto flex flex-row justify-between text-zinc-400 w-full border border-zinc-200 backdrop-filter backdrop-blur bg-zinc-100/70 rounded-lg items-center px-3 py-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400"
+        class="border-transparent focus:border-transparent focus:ring-0 max-w-md mx-auto flex flex-row justify-between text-zinc-400 w-full border border-zinc-200 backdrop-filter backdrop-blur bg-zinc-100/70 rounded-lg items-center px-3 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400"
     >
         <div class="text-zinc-600 text-sm">Search documentation...</div>
         <ShortcutButton>
             <CommandIcon v-if="!isWindows"></CommandIcon>
-            <span class="text-md text-zinc-400 font-normal" v-else> Ctrl </span>
-            <span class="text-base"> K </span>
+            <span v-else> Ctrl </span>
+            <span> K </span>
         </ShortcutButton>
     </button>
 </template>

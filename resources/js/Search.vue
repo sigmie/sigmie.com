@@ -1,4 +1,5 @@
 <script setup>
+import { router } from "@inertiajs/vue3";
 import SearchButton from "./search/SearchButton.vue";
 import NoResults from "./search/NoResults.vue";
 import QueryInput from "./search/QueryInput.vue";
@@ -13,6 +14,7 @@ import {
     Combobox,
     ComboboxOptions,
     ComboboxOption,
+    ComboboxButton,
 } from "@headlessui/vue";
 
 import {
@@ -28,7 +30,7 @@ let hiddenButton = ref(null);
 let isOpen = ref(false);
 
 function visit(value) {
-    console.log(value);
+    router.get(value.href);
 }
 
 function closeModal() {
@@ -110,14 +112,24 @@ function openModal() {
                                                     :open="open"
                                                     :loading="loading"
                                                     v-model="query"
-                                                ></QueryInput>
+                                                >
+                                                    <ComboboxButton
+                                                        class="hidden"
+                                                    >
+                                                        <button
+                                                            ref="hiddenButton"
+                                                        ></button>
+                                                    </ComboboxButton>
+                                                </QueryInput>
                                                 <TransitionRoot
                                                     leave="transition ease-in duration-100"
                                                     leaveFrom="opacity-100"
                                                     leaveTo="opacity-0"
                                                     @after-leave="query = ''"
                                                 >
-                                                    <div class="h-full pb-12 rounded-b-md bg-white border-t border-zinc-200">
+                                                    <div
+                                                        class="h-full pb-12 rounded-b-md bg-white border-t border-zinc-200"
+                                                    >
                                                         <ComboboxOptions
                                                             class="relative max-h-[700px] w-full overflow-auto text-zinc-100 py-1 text-base focus:ring-0 focus:outline-none sm:text-sm"
                                                         >

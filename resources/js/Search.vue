@@ -128,7 +128,7 @@ function openModal() {
                                                     @after-leave="query = ''"
                                                 >
                                                     <div
-                                                        class="h-full pb-12 rounded-b-md bg-white border-t border-zinc-200"
+                                                        class="h-full pb-24 rounded-b-md bg-white border-t border-zinc-200"
                                                     >
                                                         <ComboboxOptions
                                                             class="relative max-h-[700px] w-full overflow-auto text-zinc-100 py-1 text-base focus:ring-0 focus:outline-none sm:text-sm"

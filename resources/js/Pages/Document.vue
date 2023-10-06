@@ -14,7 +14,7 @@ defineProps({
 </script>
 
 <template>
-    <Head>
+    <Head :title="title">
         <meta name="title" :content="title" />
         <meta name="description" :content="description" />
 

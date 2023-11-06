@@ -14,7 +14,7 @@ In a kid’s room, it’s a drawer that contains all the toys, in a database, it
 
 The following is a simple representation of a `movies` **Index**. It’s **just a place where the movie records are stored** so that we can search for them in the future. 
 ```bash
-movies
+Index
 ├─ Document 1
 ├─ Document 2
 ├─ Document 3
@@ -22,6 +22,8 @@ movies
 ```
 
 The records in an Index are called **Documents**.
+
+
 
 ### What is a Document?
 
@@ -31,11 +33,27 @@ Document is just a JSON stored in an Index.
 Document = JSON
 ```
 
+```php
+Index = Collection of related Documents 
+```
+
 Here’s an example of how a document may look like.
 
 ```json
 {
-   "name": "Mary Poppings"
+   "name": "Alice in Wonderland"
+}
+```
+
+```json
+{
+   "name": "Peter Pan"
+}
+```
+
+```json
+{
+   "name": "Pinocchio"
 }
 ```
 
@@ -61,7 +79,7 @@ $index = $sigmie->newIndex('movies')->create();
 Once the above code is executed we have an **empty**  `movies` Index ready to get some Documents.
 
 ```bash
-movies
+fantasy_characters
 ├─ # empty
 ```
 
@@ -92,10 +110,10 @@ $sigmie->collect('movies')->merge($documents);
 
 Here is what the Index looks like once we merge the Movie Documents.
 ```bash
-movies
-├─ "Mary Poppins"
-├─ "The Mighty Ducks"
-├─ "The Parent Trap"
+fantasy_characters
+├─ "Alice in Wonderland"
+├─ "Peter Pan"
+├─ "Pinocchio"
 ```
 
 The process of adding Documents to an Index is called **Indexing**.

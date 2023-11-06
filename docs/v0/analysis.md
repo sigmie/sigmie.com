@@ -20,7 +20,7 @@ The Document Text field either has its own **Analyzer** or uses the Index **defa
 Let’s see an example of how this HTML Text
 
 ```php
-"<span>Some people are worth melting for.</span>"
+"<span>Some people are worth melting for</span>"
 ```
 
 is analyzed by the below **Analyzer**.
@@ -29,17 +29,18 @@ Analyzer
 ├─ Char filters
 │  ├─ Strip HTML
 ├─ Tokenizer
-│  ├─ Word Boundaries
+│  ├─ Whitespace
 ├─ Token filters
 │  ├─ Lowercase
+│  ├─ Stopwords
 ```
 
 
 ### Char filter
 The first step in the Analysis is to apply the configured **Char Filters**. In our case, the `Strip HTML` char filter removes all HTML from the text.
 ```php
-"<span>Some people are worth melting for.</span>"  // [tl! remove]
-"Some people are worth melting for."               // [tl! add]
+"<span>Some people are worth melting for</span>"  // [tl! remove]
+"Some people are worth melting for"               // [tl! add]
 ```
 
 ### Tokenize
@@ -47,7 +48,7 @@ After the **Char Filters** the resulting string is passed to the **Tokenizer** t
 
 In our example, we have the **Word Boundaries** tokenizer. This means that the tokenizer will produce a token every time it encounters a **word boundary** like this.
 ```php
-"Some people are worth melting for."               // [tl! remove]
+"Some people are worth melting for"               // [tl! remove]
 "Some"                                             // [tl! add]
 "people"                                           // [tl! add]
 "are"                                              // [tl! add]
@@ -62,23 +63,40 @@ The last step in the **Analysis** is to apply the **Token Filters** to all **tok
 "Some"                                             // [tl! remove]
 "some"                                             // [tl! add]
 "people"                                          
-"are"                                             
+"are"                                              // [tl! remove]
 "worth"                                           
 "melting"                                         
-"for"                                             
+"for"                                             // [tl! remove]
+```
+
+```php
+"some"                                            
+"people"                                          
+"worth"                                           
+"melting"                                         
 ```
 
 ## Query
 Every time a query hits the Index, the **query string** goes through the same analysis process.
 
+```php
+"Some people worth melting" 
+```
+
+```php
+"Some people worth melting"                        // [tl! remove]
+"some"                                             // [tl! add]
+"people"                                           // [tl! add]
+"worth"                                            // [tl! add]
+"melting"                                          // [tl! add]
+```
+
 Once both the **Query String** and the **Document** attribute are analyzed in the same way, it’s easier for Elasticsearch to find where the incoming terms appear. 
 ```php
-| Term         | Document 1  | Document 2  |
+| Query Term   | Document 1  | Document 2  |
 | -----------  | ----------- | ------------|
 | "some"       | x           | x           |
 | "people"     | x           | x           |
-| "are"        | x           | x           |
-| "worth"      | x           | x           |
-| "melting"    |             | x           | // [tl! highlight]
-| "for"        | X           | x           |
+| "worth"      |             | x           | // [tl! highlight]
+| "melting"    | x           | x           | 
 ```

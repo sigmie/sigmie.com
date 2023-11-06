@@ -1,48 +1,48 @@
 # Introduction
 
-Elasticsearch Scout by Sigmie is a [Laravel Scout](https://laravel.com/docs/9.x/scout) driver for Elasticsearch. It provides a quick and easy way for adding a full-text search to your [Eloquent models](https://laravel.com/docs/9.x/eloquent) using Elasticsearch.
+Elasticsearch Scout by Sigmie is a driver for Elasticsearch that integrates with [Laravel Scout](https://laravel.com/docs/9.x/scout). It provides a simple and efficient way to add full-text search to your [Eloquent models](https://laravel.com/docs/9.x/eloquent) using Elasticsearch.
 
 # Installation
 
-Since this is **only a driver for Laravel Scout** you need to have **Laravel Scout** installed beforehand.
+As this package is a driver for Laravel Scout, you must have Laravel Scout installed first.
 
-To install Laravel Scout run:
+To install Laravel Scout, run:
 
 ```bash
 composer require laravel/scout
 ```
 
-Once you have **Laravel Scout** installed, you need to publish its configuration file using:
+After installing Laravel Scout, publish its configuration file using the following command:
 
 ```bash
 php artisan vendor:publish --provider="Laravel\Scout\ScoutServiceProvider"
 ```
 
-This will publish the `scout.php` configuration file into your `config/scount.php`.
+This command will publish the `scout.php` configuration file to your `config/scout.php` directory.
 
-Then you can install the **Sigmie Elasticsearch Scout** package by running:
+Next, install the Sigmie Elasticsearch Scout package by running:
 
-```php
+```bash
 composer require sigmie/elasticsearch-scout
 ```
 
-The next step is to tell Laravel to use the `elasticsearch` driver. You can do this by changing the `SCOUT_DRIVER` in your `.env` file or you can change it directly in the published scout configuration file in `config/scout.php`.
+The final step is to instruct Laravel to use the `elasticsearch` driver. You can do this by modifying the `SCOUT_DRIVER` in your `.env` file or directly in the published scout configuration file at `config/scout.php`.
 
 ```php
 'driver' => env('SCOUT_DRIVER', 'elasticsearch'),
 ```
 
-**Optionally** you can also publish the `elasticsearch-scout.php` file by running:
+Optionally, you can also publish the `elasticsearch-scout.php` file by running:
 
 ```bash
 php artisan vendor:publish --provider="Sigmie\ElasticsearchScout\ElasticsearchScoutServiceProvider"
 ```
 
-This will publish the following config file into `config/elasticsearch-scout.php`.
+This command will publish the following config file to `config/elasticsearch-scout.php`.
 
 ```php
 return [
-    'hosts' => ENV('ELASTICSEARCH_HOSTS', '127.0.0.1:9200'),
+    'hosts' => env('ELASTICSEARCH_HOSTS', '127.0.0.1:9200'),
     'auth' => [
         'type' => env('ELASTICSEARCH_AUTH_TYPE', 'none'),
         'user' => env('ELASTICSEARCH_USER', ''),
@@ -64,127 +64,25 @@ return [
 
 # Connection
 
-Once Elasticsearch Scout is properly installed you are ready to start using it. To do so first you have to set up the Elasticsearch connection.
+Once you have properly installed Elasticsearch Scout, you are ready to start using it. First, you need to set up the Elasticsearch connection.
 
 ## Local
 
-It’s common for **local development** to have Elasticsearch running at `127.0.0.1` and listening on port `9200`. In this case, you won’t need any further configuration.
+For local development, it's common to have Elasticsearch running at `127.0.0.1` and listening on port `9200`. In this case, no further configuration is required.
 
-If you haven’t an Elasticsearch running locally, you can start an Elasticsearch docker container for **local** development by running:
+If you don't have Elasticsearch running locally, you can start an Elasticsearch docker container for local development by running:
 
 ```bash
 docker run -p 127.0.0.1:9200:9200 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2-amd64
 ```
 
-This command will start Elasticsearch on your **local** machine and listen for connections at `9200`.
+This command will start Elasticsearch on your local machine and listen for connections at port `9200`.
 
-## Production
 
-In **production** use the `ELASTICSEARCH_HOSTS` environmental variable to tell scout where to find your Elasticsearch hosts.
-
-```
-ELASTICSEARCH_HOSTS=10.0.0.1:9200
-```
-
-It’s also common that in **production** you will have an Elasticsearch Cluster with more than 1 node. You can multiple Elasticsearch nodes by separating them with a comma `,`.
-
-```
-ELASTICSEARCH_HOSTS=10.0.0.1:9200,10.0.0.2:9200,10.0.0.3:9200
-```
-
-# Authentication
-
-You can authenticate the Elasticsearch using one of the supported methods or by using your own custom headers.
-
-By default, no authentication method is used.
-
-## Basic
-
-To use the Basic Authentication the environment variable `ELASTICSEARCH_AUTH_TYPE` to `basic` and use the `ELASTICSEARCH_USER` and `ELASTICSEARCH_PASSWORD` to fill your user’s credentials.
-
-```php
-ELASTICSEARCH_AUTH_TYPE=basic
-ELASTICSEARCH_USER=user
-ELASTICSEARCH_PASSWORD=password
-```
-
-## Token
-
-For Bearer Token authentication set `ELASTICSEARCH_AUTH_TYPE` to `token` and assign your token to the `ELASTICSEARCH_TOKEN` variable.
-
-```php
-ELASTICSEARCH_AUTH_TYPE=token
-ELASTICSEARCH_TOKEN=eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
-```
-
-## Headers
-
-If no build-in authentication method is fitting you, you can publish the `elasticsearch-config.php` file, and pass any custom headers with each Elasticsearch request.
-
-To publish the `elasticsearch-config.php` use:
-
-```bash
-php artisan vendor:publish --provider="Sigmie\ElasticsearchScout\ElasticsearchScoutServiceProvider"
-```
-
-Then populate the `headers` section with your desired values.
-
-```php
-return [
-     // [tl! collapse:start]
-    'hosts' => ENV('ELASTICSEARCH_HOSTS', '127.0.0.1:9200'),
-    'auth' => [
-        'type' => env('ELASTICSEARCH_AUTH_TYPE','none'),
-        'user' => env('ELASTICSEARCH_USER', ''),
-        'password' => env('ELASTICSEARCH_PASSWORD',''),
-        'token' => env('ELASTICSEARCH_TOKEN',''),
-          // [tl! collapse:end]
-        'headers' => [
-          // eg. 'X-App-Token' => "token"
-         ],
-     // [tl! collapse:start]
-    ],
-    'guzzle_config' => [
-        'allow_redirects' => false,
-        'http_errors' => false,
-        'connect_timeout' => 15,
-    ],
-      'index-settings' => [
-        'shards' => env('ELASTICSEARCH_INDEX_SHARDS', 1),
-        'replicas' => env('ELASTICSEARCH_INDEX_REPLICAS', 2),
-     ]
-// [tl! collapse:end]
-];
-```
-
-# Guzzle Configs
-
-Sigmie uses the [Guzzle HTTP Client](https://docs.guzzlephp.org/en/stable/) for communicating with Elasticsearch. Use the `guzzle_config` to change the Guzzle configuration to your needs.
-
-```php
-return [
-     // [tl! collapse:start]
-    'hosts' => ENV('ELASTICSEARCH_HOSTS', '127.0.0.1:9200'),
-    'auth' => [
-        'type' => env('ELASTICSEARCH_AUTH_TYPE','none'),
-        'user' => env('ELASTICSEARCH_USER', ''),
-        'password' => env('ELASTICSEARCH_PASSWORD',''),
-        'token' => env('ELASTICSEARCH_TOKEN',''),
-        'headers' => [],
-// [tl! collapse:end]
-    ],
-    'guzzle_config' => [
-        'allow_redirects' => false,
-        'http_errors' => false,
-        'connect_timeout' => 15,
-    ]
-// [tl! collapse:end]
-];
-```
 
 # Indexing
 
-If you are installing Elasticsearch Scout into an existing project, that already uses a different scout driver you will need to **replace** the native `Laravel\Scount\Searchable` trait with `Sigmie\Elasticsearch\Searchable`.
+When integrating Elasticsearch Scout into your project, it's important to note that we won't be using the native Laravel `Searchable` trait. Instead, we will use the `Sigmie\ElasticsearchScout\Searchable` trait.
 
 ```php
 use Laravel\Scout\Searchable;  // [tl! remove]
@@ -197,9 +95,11 @@ class Movie extends Model
 }
 ```
 
-The Sigmie `Searchable` trait contains the `elasticsearchProperties` that is used to define your Models mappings.
+The `Searchable` trait from Sigmie includes an `abstract` method named `elasticsearchProperties`. This method must be defined in your model.
 
-You can find more information in this documentation’s [Mapping](https://sigmie.com/docs/v0/mappings) section, but here’s an example of a `Movies` model mapping.
+You can find more information in the [Mapping](https://sigmie.com/docs/v0/mappings) section of this documentation.
+
+Here's an example of a `Movies` mapping.
 
 ```php
 // [tl! collapse:start]
@@ -224,25 +124,25 @@ class Movie extends Model
 // [tl! collapse:end]
 ```
 
-After defining your mappings you need to run the following command for Sigmie to build your model’s search index.
+After defining your mappings, run the following command to build your model's search Index.
 
 ```bash
 php artisan scout:index "App\Models\Movie"
 ```
 
-Now are ready to start using Laravel Scout like you are used to.
+Now you are ready to start using Laravel Scout as usual.
 
 ## Indexing existing database records
 
-Remember that if you are installing Laravel Scout into an existing project, you need to import your existing database records by running.
+If you are integrating Laravel Scout into an existing project, you need to import your existing database records by running:
 
 ```bash
 php artisan scout:import "App\Models\Movie"
 ```
 
-## Updating mappings
+## Updating Mappings
 
-Every time you change some **fields mappings** or **Index configurations** you need to call the `sync-index-settings` scout command for changes to take effect.
+When you modify field mappings or index configurations, it's necessary to update the index settings for the changes to be applied. Unlike other Scout drivers, with Sigmie you need to specify the model for which you want to update the index. You can do this by running the `sync-index-settings` scout command as shown below:
 
 ```bash
 php artisan scout:sync-index-settings "App\Models\Movie"
@@ -250,9 +150,9 @@ php artisan scout:sync-index-settings "App\Models\Movie"
 
 # Searching
 
-The default search is searching **all** your Model’s attributes, without any typo tolerance of match highlighting.
+The default search queries all of your model's attributes, without any typo tolerance or match highlighting.
 
-You can get the most out of the search by defining the `elasticsearchSearch` method on each model instance. There you can use all the Sigmie searching options available.
+You can optimize the search by defining the `elasticsearchSearch` method on each model instance. This method allows you to use all the Sigmie search options available.
 
 For example:
 
@@ -289,20 +189,20 @@ class Movie extends Model
 }
 ```
 
-In the above code, we are telling Laravel Scout to
+In the above code, we are instructing Laravel Scout to:
 
--   Search **only** the `name` and `director` attributes
--   Retrieve **only** the `name` and `director` attributes from the Search engine
--   Allow some **Typo Tolerance** for the `name` and `director` attributes
+-   Search only the `name` and `director` attributes
+-   Retrieve only the `name` and `director` attributes from the search engine
+-   Allow some typo tolerance for the `name` and `director` attributes
 -   Add the Tailwind `font-bold` class to the matching terms
 
-You can find all possible Search options in the [Search](https://sigmie.com/docs/v0/search) section.
+You can find all possible search options in the [Search](https://sigmie.com/docs/v0/search) section.
 
 # Analysis
 
-The default Searchable configuration will tokenize text fields on **Word Boundaries**, and then**trim** and **lowercase** all tokens.
+The default Searchable configuration tokenizes text fields on word boundaries, and then trims and lowercases all tokens.
 
-It’s recommended to override the `elasticsearchIndex` method to create a suitable analysis process Index for your Models.
+It's recommended to override the `elasticsearchIndex` method to create a suitable analysis process index for your models.
 
 ```php
 use Sigmie\ElasticsearchScout\Searchable;
@@ -467,41 +367,6 @@ $movie->hit['_score']; // 32.343453
 $movie->hit['highlight']['name'][0] // <span class="font-bold">Start Wars</span>
 ```
 
-# Nova
-
-The Elasticsearch Scout package is fully compatible with Laravel Nova.
-
-## Score
-
-If you want to debug your Searches and you are using Laravel Nova, you can create a resource field like this:
-
-```php
-Text::make('Score', function () {
-
-    $score = $this->hit['_score'] ?? '0';
-
-    return $score;
-})
-->showOnPreview()
-->readonly(true)
-->asHtml(),
-```
-
-This will add a `Score` field to your Nova Resource, that shows how well the Model matched the given query.
-
-## Highlight
-
-Also here is how you can use the **Highlighting** feature for your Model attributes in Laravel Nova.
-
-```php
-Text::make('Name', function () {
-
-    return $this->hit['highlight']['name'][0] ?? $this->name;
-})
-->showOnPreview()
-->asHtml();
-```
-
 ## Customizing the Search
 
 You can pass a callback as a second argument to the `search` method, that
@@ -512,7 +377,111 @@ use Sigmie\Search\NewSearch;
 
 Movie::search($query, function (NewSearch $newSearch) {
 
-    // Customize the Engine Search 
+    // customize the search
 
 });
+```
+
+# Authentication
+
+You can authenticate with Elasticsearch using one of the supported methods or by using your own custom headers.
+
+By default, no authentication method is used.
+
+## Basic
+
+To use Basic Authentication, set the environment variable `ELASTICSEARCH_AUTH_TYPE` to `basic` and use the `ELASTICSEARCH_USER` and `ELASTICSEARCH_PASSWORD` to provide your user credentials.
+
+```php
+ELASTICSEARCH_AUTH_TYPE=basic
+ELASTICSEARCH_USER=user
+ELASTICSEARCH_PASSWORD=password
+```
+
+## Token
+
+For Bearer Token authentication, set `ELASTICSEARCH_AUTH_TYPE` to `token` and assign your token to the `ELASTICSEARCH_TOKEN` variable.
+
+```php
+ELASTICSEARCH_AUTH_TYPE=token
+ELASTICSEARCH_TOKEN=eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
+```
+
+## Headers
+
+If none of the built-in authentication methods suit your needs, you can publish the `elasticsearch-config.php` file and pass any custom headers with each Elasticsearch request.
+
+To publish the `elasticsearch-config.php` file, use:
+
+```bash
+php artisan vendor:publish --provider="Sigmie\ElasticsearchScout\ElasticsearchScoutServiceProvider"
+```
+
+Then populate the `headers` section with your desired values.
+
+```php
+return [
+     // [tl! collapse:start]
+    'hosts' => env('ELASTICSEARCH_HOSTS', '127.0.0.1:9200'),
+    'auth' => [
+        'type' => env('ELASTICSEARCH_AUTH_TYPE','none'),
+        'user' => env('ELASTICSEARCH_USER', ''),
+        'password' => env('ELASTICSEARCH_PASSWORD',''),
+        'token' => env('ELASTICSEARCH_TOKEN',''),
+          // [tl! collapse:end]
+        'headers' => [
+          // eg. 'X-App-Token' => "token"
+         ],
+     // [tl! collapse:start]
+    ],
+    'guzzle_config' => [
+        'allow_redirects' => false,
+        'http_errors' => false,
+        'connect_timeout' => 15,
+    ],
+      'index-settings' => [
+        'shards' => env('ELASTICSEARCH_INDEX_SHARDS', 1),
+        'replicas' => env('ELASTICSEARCH_INDEX_REPLICAS', 2),
+     ]
+// [tl! collapse:end]
+];
+```
+
+# Guzzle Configs
+
+Sigmie uses the [Guzzle HTTP Client](https://docs.guzzlephp.org/en/stable/) to communicate with Elasticsearch. You can modify the Guzzle configuration to suit your needs using the `guzzle_config` key.
+
+```php
+return [
+     // [tl! collapse:start]
+    'hosts' => env('ELASTICSEARCH_HOSTS', '127.0.0.1:9200'),
+    'auth' => [
+        'type' => env('ELASTICSEARCH_AUTH_TYPE','none'),
+        'user' => env('ELASTICSEARCH_USER', ''),
+        'password' => env('ELASTICSEARCH_PASSWORD',''),
+        'token' => env('ELASTICSEARCH_TOKEN',''),
+        'headers' => [],
+// [tl! collapse:end]
+    ],
+    'guzzle_config' => [
+        'allow_redirects' => false,
+        'http_errors' => false,
+        'connect_timeout' => 15,
+    ]
+// [tl! collapse:end]
+];
+```
+
+## Production
+
+In a production environment, use the `ELASTICSEARCH_HOSTS` environmental variable to specify the location of your Elasticsearch hosts.
+
+```
+ELASTICSEARCH_HOSTS=10.0.0.1:9200
+```
+
+It's also common in production to have an Elasticsearch Cluster with more than one node. You can specify multiple Elasticsearch nodes by separating them with a comma `,`.
+
+```
+ELASTICSEARCH_HOSTS=10.0.0.1:9200,10.0.0.2:9200,10.0.0.3:9200
 ```

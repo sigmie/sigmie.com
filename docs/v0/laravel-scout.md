@@ -108,9 +108,8 @@ use Sigmie\Mappings\NewProperties;
 
 class Movie extends Model
 {
-    use Searchable;
+    use Searchable; // [tl! highlight]
 
-// [tl! collapse:end]
     public function elasticsearchProperties(NewProperties $properties)
     {
         $properties->title('title');
@@ -119,9 +118,7 @@ class Movie extends Model
         $properties->date('created_at');
         $properties->date('updated_at');
     }
-// [tl! collapse:start]
 }
-// [tl! collapse:end]
 ```
 
 After defining your mappings, run the following command to build your model's search Index.

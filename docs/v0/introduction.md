@@ -1,75 +1,81 @@
 ## What is Sigmie?
 
-Sigmie is an opinionated Elasticsearch PHP library focused on creating **Searches** for your applications.
+Sigmie is a PHP library for Elasticsearch that simplifies the creation of **Searches** for your applications.
 
 ## Why use Sigmie?
-Elasticsearch is an awesome tool with everything you need to create a fast and relevant search for your application. Unfortunately, there is a deep learning curve to get the most out of it. 
+While Elasticsearch is a powerful tool for creating fast and relevant searches for your application, it can be complex to learn and use effectively. 
 
-Sigmie is taking away the learning pain and making the use of Elasticsearch **easy**.  Also, it includes years of experience building **Searches** packed in easy-to-use code abstractions. 
+Sigmie aims to alleviate this complexity, making Elasticsearch **easy** to use. It encapsulates years of experience in building **Searches** into simple, easy-to-use code abstractions. 
 
-If you are anything like me, seeing a code example will make you understand faster what Sigmie is about, than thousands of words.
-
-Let’s have a look at a simple example. 
+To better understand what Sigmie offers, let's look at a simple example.
 
 ## Basic Usage
 
-Let’s assume that we have a `users` table in our database that we want to make searchable.
+Suppose we have a `books` table in our database that we want to make searchable.
 
-Image an SQL table like this.
+Consider an SQL table like this.
 
 ```php
-|                           users                           |
-| ----------------- | -------------------- | -------------- |
-| name              | email                | year_of_birth  |
-| ----------------- | -------------------- | -------------- |
-| "Walt Disney"     | "walt@disney.com"    | 1901           |
-| "Roy O. Disney"   | "roy.o@disney.com"   | 1893           |
-| "Lillian Disney"  | "lillian@disney.com" | 1899           |
+|                                books                                   |
+| --------------------- | --------------------------- | ---------------- |
+| title                 | author                      | publication_year |
+| --------------------- | --------------------------- | ---------------- |
+| "Moby Dick"           | "Herman Melville"           | 1851             |
+| "War and Peace"       | "Leo Tolstoy"               | 1869             |
+| "Pride and Prejudice" | "Jane Austen"               | 1813             |
+```
+
+```php
+$sigmie->newSearch('books')
+       ->properties($properties) // [tl! highlight]
+       ->queryString('war')
+       ->get()
+       ->json();
 ```
 
 There are four steps required
-1. Define the `users`  properties.
-2. Create a Search **Index** that will contain the `users`.
-3. Add the users to the **Index**.
+1. Define the `books` properties.
+2. Create a Search **Index** that will contain the `books`.
+3. Add the books to the **Index**.
 4. Search for a **Query String**.
 
-The simplest implementation of the above looks like this: 
+Here's a simple implementation of the above steps: 
 
 ```php
 
-$user = new NewProperties;
-$user->name();
-$user->email();
-$user->searchableNumber('year_of_birth');
+$book = new NewProperties;
+$book->title();
+$book->author();
+$book->searchableNumber('publication_year');
 
-$sigmie->newIndex(name:'users')->properties($user)->create();
+$sigmie->newIndex(name:'books')->properties($book)->create();
 
-$sigmie->collect(index:'users', refresh: true)->merge([
+$sigmie->collect(index:'books', refresh: true)->merge([
     new Document([
-        'name' => 'Walt Disney',
-        'email' => 'walt@disney.com'
-        'year_of_birth' => '1901'
+        'title' => 'Moby Dick',
+        'author' => 'Herman Melville',
+        'publication_year' => '1851'
     ]),
     new Document([
-        'name' => 'Roy O. Disney',
-        'email' => 'roy.o@disney.com'
-        'year_of_birth' => '1893'
+        'title' => 'War and Peace',
+        'author' => 'Leo Tolstoy',
+        'publication_year' => '1869'
     ]),
     new Document([
-        'name' => 'Lillian Disney',
-        'email' => 'lillian@disney.com'
-        'year_of_birth' => '1899'
+        'title' => 'Pride and Prejudice',
+        'author' => 'Jane Austen',
+        'publication_year' => '1813'
     ]),
 ]);
 
-$sigmie->newSearch(index:'disney')
-    ->queryString('lilian')
-    ->fields(['name'])
-    ->retrieve(['name','email', 'year_of_birth'])
+$sigmie->newSearch(index:'books')
+    ->queryString('war')
+    ->fields(['title'])
+    ->retrieve(['title','author', 'publication_year'])
     ->get()
     ->json('hits');
 ```
-We can find the records that matched our **Query String**  called **Hits** in the response array.
+The records that match our **Query String** are called **Hits** and can be found in the response array.
 
 ```php
 [ // [tl! collapse:start]
@@ -80,14 +86,14 @@ We can find the records that matched our **Query String**  called **Hits** in th
     'max_score' => 0.9808291, // [tl! collapse:end]
     'hits' => [
         0 => [
-            '_index' => 'users_20221118135236605861',
+            '_index' => 'books_20221118135236605861',
             '_type' => '_doc',
             '_id' => 'rYwDi4QBZcx7VxtuP11z',
             '_score' => 0.9808291,
             '_source' => [
-                'name' => 'Lillian Disney', // [tl! focus]
-                'email' => 'lillian@disney.com' // [tl! focus]
-                'year_of_birth' => '1899' // [tl! focus]
+                'title' => 'War and Peace', // [tl! focus]
+                'author' => 'Leo Tolstoy' // [tl! focus]
+                'publication_year' => '1869' // [tl! focus]
             ],
         ],
     ],

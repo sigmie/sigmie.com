@@ -27,8 +27,19 @@ use Torchlight\Commonmark\V2\TorchlightExtension;
 
 Route::get('/', function () {
 
-    // return redirect('/docs/v0/introduction');
-    return Inertia::render('Welcome', []);
+    $environment = new Environment();
+    $environment->addExtension(new CommonMarkCoreExtension);
+    $environment->addExtension(new TorchlightExtension);
+
+    $converter = new MarkdownConverter($environment);
+    // $converter = app(MarkdownConverter::class);
+
+    $snippet1Path = base_path("resources/markdown/snippet1.md");
+    $snippet1Content = file_get_contents($snippet1Path);
+
+    return Inertia::render('Welcome', [
+        'snippet1' => $converter->convert($snippet1Content)->getContent()
+    ]);
 });
 
 Route::get('/blog', function () {
@@ -76,7 +87,7 @@ Route::any('/docs/{version}/{endpoint?}', function ($version, $endpoint, Markdow
         'navigation' => config("docs.{$version}.navigation"),
         'title' => $link['title'],
         'html' => $html,
-        'card' => $link['card'] ?? config('app.url').'/twitter-card.png',
+        'card' => $link['card'] ?? config('app.url') . '/twitter-card.png',
         'href' => config('app.url'),
         'description' => config('app.description'),
     ]);

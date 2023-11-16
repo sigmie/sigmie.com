@@ -9,8 +9,18 @@ module.exports = {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
         './resources/js/**/*.vue',
+        './app/Services/Documentation.php'
     ],
-
+    purge: {
+        options: {
+            safelist: [
+                    'p-4', 'mb-4', 'text-sm', 'rounded-lg',
+                    'text-yellow-500',
+                    'text-blue-500',
+                    'text-red-500',
+            ],
+        },
+    },
     theme: {
         extend: {
             fontFamily: {
@@ -34,6 +44,6 @@ module.exports = {
     },
 
     plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography'),
-             require('flowbite/plugin')
-        ],
+    require('flowbite/plugin')
+    ],
 };

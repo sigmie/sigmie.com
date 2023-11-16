@@ -64,11 +64,20 @@ class Documentation
 
         $markdown = file_get_contents($path);
 
-        $markdown = preg_replace('/@danger((.|\n)*?)@enddanger/', '<div class="callout danger">$1</div>', $markdown);
+        foreach ([
+            'danger' => 'text-red-500 font-medium',
+            'info' => 'text-blue-500 font-medium',
+            'warning' => 'text-yellow-500 font-medium'
+        ] as $value => $classes) {
+            preg_match_all('/@' . $value . '((.|\n)*?)@end' . $value . '/', $markdown, $matches);
 
-        $markdown = preg_replace('/@info((.|\n)*?)@endinfo/', '<div class="callout info">$1</div>', $markdown);
+            $title = ucfirst($value);
 
-        $markdown = preg_replace('/@warning((.|\n)*?)@endwarning/', '<div class="callout warning">$1</div>', $markdown, 1);
+            foreach ($matches[0] ?? [] as $index => $match) {
+                $replacement = $this->converter->convert($matches[1][$index]);
+                $markdown = str_replace($match, "<div class=\"p-4 mb-4 text-sm rounded-lg bg-gray-50  prose border prose-xl min-w-full\"><div class=\"{$classes}\">{$title}</div>{$replacement}</div>", $markdown);
+            }
+        }
 
         $html = $this->converter->convert($markdown);
 

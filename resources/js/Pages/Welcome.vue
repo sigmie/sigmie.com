@@ -8,7 +8,6 @@ defineProps({
     title: String,
     posts: Object,
     navigation: Object,
-    snippet1: String,
 });
 </script>
 
@@ -43,7 +42,7 @@ defineProps({
                     "
                 ></div>
             </div>
-            <div class="mx-auto max-w-5xl pt-32 pb-32 sm:pb-48 lg:pb-56">
+            <div class="mx-auto max-w-5xl py-32 sm:py-48 lg:py-56">
                 <img
                     class="mx-auto h-36 mb-10"
                     src="https://github.com/sigmie/art/blob/main/logo/png/logo-icon-black.png?raw=true"
@@ -63,7 +62,7 @@ defineProps({
                     <div class="mt-10 flex items-center justify-center gap-x-6">
                         <Link
                             href="/docs/v0/introduction"
-                            class="rounded-md bg-zinc-900 px-4 py-1.5 text-lg text-white shadow-sm hover:bg-zinc-900/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
+                            class="rounded-full bg-zinc-900 px-5 py-1.5 text-lg text-white shadow-sm hover:bg-zinc-900/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
                             >Get started</Link
                         >
                     </div>
@@ -88,16 +87,6 @@ defineProps({
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="z-50">
-        <h2
-            class="text-center text-4xl font-bold tracking-tight text-gray-900 sm:text-4xl"
-        >
-            What is the difference?
-        </h2>
-        <div class="max-w-xl mx-auto py-20">
-            <div class="bg-[#292d3e] p-5 rounded-md" v-html="snippet1"></div>
         </div>
     </div>
 </template>

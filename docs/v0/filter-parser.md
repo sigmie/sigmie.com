@@ -1,67 +1,66 @@
-## Introduction
+## Filtering 
 
-Writing boolean queries is daunting when all that you want is to filter.
-That's why we created our own Elasticsearch filtering language
-that servers as syntactical sugar for constructing boolean queries.
+Creating boolean queries can be complex, especially when your primary goal is to filter results.
+To simplify this process, we've developed our own filtering language.
 
-It's a abstraction for writing complex **boolean** queries using a sympler syntax
-that aims to make the proceess more intuitive and less error-prone.
+This language serves as a developer-friendly interface for constructing boolean queries, with goal to reduce the likelihood of errors.
 
-For example, you can filter search for  movies that are **active**, **in stock** and have the category
-**action** or **horror** simply writing:
+For instance, if you want to search for movies that are currently active, in stock, and belong to either the `action` or `horror` category, you can write:
 
 ```sql
 is:active AND (category:"action" OR category:"horror") AND NOT stock:0
 ```
 
-**It's important to note here, filtering isn't possible on mapping types. Visit the Mapping section of this documentation for more.**
+@warning
+It’s important to note here, filtering isn’t possible on **all** mapping types.
 
-Let's have a deeper look on the available syntax
 
-## Syntax
+Visit the [Mapping](/docs/v0/mappings) section of this documentation for more.
+@endwarning
 
-The filter clauses are combined using the below logical operators to create complicated queries.
-* `AND`
-* `OR`
-* `AND NOT`
+Now, let's delve deeper into the syntax and understand how to use it effectively.
 
-The `AND` operator is used to combine two or more filers so that only documents that satisfy all the conditions are matches.
+### Syntax
 
-The `AND NOT` operator is used to exclude documents that match a certain condition.
+Filter clauses can be combined using logical operators to create complex queries.
 
-The `OR` operator is used to match documents that satisfy at least one of the conditions.
+Here are the operators you can use:
+* `AND`: This operator is used to **combine two or more** filters. **Only documents that meet all the conditions will be matched**.
+* `OR`: This operator is used to match documents that meet **at least one of the conditions**.
+* `AND NOT`: This operator is used to **exclude** documents that meet a certain condition.
 
-Logical operators and filter clauses are separated with a space.
+Using these operators effectively will help you create precise and powerful filter queries.
+
+Spaces are used to separate logical operators and filter clauses.
 
 ```bash
 {filter_clause} AND {filter_clause}
 ```
 
-You can use **parentheses** to group clauses in a filter query, to specify the order in which they are executed.
+To specify the order of execution, **parentheses** can be used to group clauses in a filter query.
 
-For example:
+Consider this example:
 
 ```sql
 is:active AND (category:"action" OR category:"horror") AND NOT stock:0
 ```
-the **AND** operator is used to join tree separate clauses
+Here, the **AND** operator is used to join three distinct clauses:
 * `is:active`
 * `(category:"action" OR category:"horror")`
-* `stock:0`
+* `NOT stock:0`
 
-The parentheses indicate that the **OR** operator applies to the category field
-clauses and not to the entire query.
+The parentheses indicate that the **OR** operator is applicable to the category field clauses, not the entire query.
 
-This query will return all items that are active, belong to either the "action" or the "horror" categories, and have a stock greater than zero.
+This query will return all items that are active, belong to either the "action" or "horror" categories, and are not out of stock.
 
-## NOT
+### Negative Filtering
 
-To create a **negative** filter you can prefix the filter value with `NOT`.
+To construct a **negative** filter, prefix the filter value with `NOT`.
 
 ```bash
 NOT {filter_clause}
 ```
-with this in mind if you want to filter out let's say documents that are in the "Sports" category you will write a filter like this:
+For instance, if you wish to exclude documents in the "Sports" category, you would construct a filter as follows:
 ```sql
 NOT category:'Sports'
 ```
@@ -71,55 +70,55 @@ NOT category:'Sports'
 ```bash
 {field}:"{value}"
 ``` 
-The above syntax is used to filter for concrete values. This operator is useful when you want to filter your search absed on a particular field value.
+The syntax above is used to filter for specific values. This operator is beneficial when you need to narrow down your search based on a specific field value.
 
 The `{field}` placeholder represents the field name. 
 
-Imagine this document structure:
+Consider this document structure:
 ```json
 {
  "color": "..."
 }
 ```
 
-To filter for the documents, which color is red you will use
+To filter for documents with the color red, you would use:
 
 ```sql
 color:'red'
 ``` 
-For strings the `{value}` needs to be enclosed inside of double `"` or single quotes `'`.
+For strings, the `{value}` must be enclosed in double `"` or single quotes `'`.
 You can escape quotes inside of the `{value}` using a **backslash** `\`.
 
 ### is & is_not
 
-To filter `boolean` fields use the `is:` and `is_not:`
+The `is:` and `is_not:` operators are used to filter `boolean` fields.
 
-The `is` operator is used to find documents where the **boolean** field value is `true`.
+The `is` operator matches documents where the specified **boolean** field value is `true`.
 
 ```bash
 is:{field}
 ```
 
-The `is_not` operator is used the filter documents where the **boolean value is** `false`.
+Conversely, the `is_not` operator matches documents where the specified **boolean** field value is `false`.
 
 ```bash
 is_not:{field}
 ```
 
-In the documents stucture
+For instance, consider the following document structure:
 ```json
 {
   "active": true
 }
 ```
 
-we will use
+In this case, you can use:
 
 ```sql
 is:active
 ```
 
-to match documents that are **active** and the
+to match documents that are **active**, and:
 
 ```sql
 is_not:active
@@ -129,107 +128,77 @@ to match documents that **are NOT** active.
 
 ### In
 
-You can use the `in` operator if you need to filter for multiple values in a field.
+The `in` operator is useful when you need to filter a field for multiple values.
 
 ```bash
 {field}:[{value1}, {value2}]
 ```
 
-Consider for the document structure from above that to find documents, that
-have the **color** `red` and `blue` you can use:
+For instance, given the previous document structure, if you want to find documents with the **color** `red` or `blue`, you can use:
 
 ```bash
 category:['red', 'blue']
 ```
 
-### Range
+### Range Filtering
 
-It's common that you will need to filter various ranges. You can accomplish
-this using the **range operators**.
+Often, you may need to filter data within a certain range. This can be achieved using the **range operators**.
 
-This is the list with the **valid** range operators and their
-meaning.
-*  `>` **greater than**.
-* `<` **less than**.
-* `<=` **less or equal** to.
-* `>=` **greater or equal** to.
+Here is a list of **valid** range operators and their corresponding meanings:
+*  `>` - **greater than**.
+* `<` - **less than**.
+* `<=` - **less than or equal to**.
+* `>=` - **greater than or equal to**.
 
-You can use **range operators** with the following syntax.
+The syntax for using **range operators** is as follows:
 
 ```bash
 {field}{operator}{value} 
 ```
 
-It's possible use the **range operators** for **Dates** and for **Numbers**.
+**Range operators** can be used for both **Dates** and **Numbers**.
 
-For example, think of the following structure
+For instance, consider the following document structure:
 ```php
 {
  "created_at": "2023-08-01",
  "price": 199
 }
 ```
-using the filter
+By using the filter:
 ```sql
 created_at>="2023-05-01" AND created_at<="2023-10-01"
 ```
-you can filter documents that the `created_at` date field is **greater or equal** to `2023-05-01` and **less or equal** to `2023-10-01`.
+you can filter documents where the `created_at` date field is **greater than or equal to** `2023-05-01` and **less than or equal to** `2023-10-01`.
 
-You can use the same syntax for filtering the **price range**.
+The same syntax can be used to filter within a specific **price range**.
 
 ```sql
 price>=100 AND price<=200
 ```
 
-To use the above syntax call the `filter` method on the **search builder** instance.
 
+## Sorting
 
-## Parser
+To further refine your search results, you can use our intuitive sorting language.
 
-You can also use the filter parser wihout the search builder, by creating an instance oof the `FilterParser`.
+Here's how you can use it:
 
-To initialize the `FilterParser` you need to pass and instance of your `Properties` class to the constructor. The parser need this to correctly determindate the property types and if they are filterable.
-
-Once you have an instance of the `FilterParser` you can call the `parse` method and pass the filter string to it.
-
-Consider the following example:
-
-```php
-$props = new Properties();
-$props->category();
-
-$parser = new FilterParser($props);
-
-$jsonFilters== (object) $parser->parse('category:'Action')->toRaw();
+```bash
+_score rating:desc name:asc
 ```
 
-the resulting JSON variable will look like this:
+In this example, the results are first sorted by the relevance score, then by rating in a descending order,
+and lastly by name in an ascending order.
 
-```json
-{
-    "bool": {
-        "must": [
-            {
-                "term": { // [tl! add]
-                    "category.raw": { // [tl! add]
-                        "value": "action", // [tl! add]
-                        "boost": 1 // [tl! add]
-                    } // [tl! add]
-                } // [tl! add]
-            }
-        ],
-        "boost": 1
-    }
-}
+@info
+The `_score` is a unique sorting attribute that arranges the results in a descending order,
+based on their computed relevance score.
+@endinfo
+
+Sorting clauses are divided by spaces, and follow this syntax:
+```sql
+{attribute}:{direction}
 ```
 
-The above can be nicely combined with the query templates like this
-
-```php
-$response = $sigmie->template(id: $search)->run($index, [
-  'filters' => $jsonFilters,
-  'query_string' => $query,
-]);
-
-```
-
+The `direction` can be either `asc` for ascending order or `desc` for descending order.

@@ -70,24 +70,24 @@ return [
                         'href' => '/docs/v0/aggregations'
                     ],
                     [
-                        'title' => 'Search Template',
-                        'href' => '/docs/v0/template'
-                    ],
-                ]
-            ],
-            [
-                'title' => 'Parse',
-                'links' => [
-                    [
-                        'title' => 'Fitler parser',
+                        'title' => 'Filter & Sorting',
                         'href' => '/docs/v0/filter-parser'
                     ],
-                    [
-                        'title' => 'Sort parser',
-                        'href' => '/docs/v0/sort-parser'
-                    ]
+                    // [
+                    //     'title' => 'Search Template',
+                    //     'href' => '/docs/v0/template'
+                    // ],
                 ]
             ],
+            // [
+            //     'title' => 'Parse',
+            //     'links' => [
+            //         [
+            //             'title' => 'Sort parser',
+            //             'href' => '/docs/v0/sort-parser'
+            //         ]
+            //     ]
+            // ],
             // [
             //     'title' => 'More',
             //     'links' => [

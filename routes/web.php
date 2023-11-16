@@ -26,20 +26,7 @@ use League\CommonMark\MarkdownConverter;
 use Torchlight\Commonmark\V2\TorchlightExtension;
 
 Route::get('/', function () {
-
-    $environment = new Environment();
-    $environment->addExtension(new CommonMarkCoreExtension);
-    $environment->addExtension(new TorchlightExtension);
-
-    $converter = new MarkdownConverter($environment);
-    // $converter = app(MarkdownConverter::class);
-
-    $snippet1Path = base_path("resources/markdown/snippet1.md");
-    $snippet1Content = file_get_contents($snippet1Path);
-
-    return Inertia::render('Welcome', [
-        'snippet1' => $converter->convert($snippet1Content)->getContent()
-    ]);
+    return Inertia::render('Welcome', []);
 });
 
 Route::get('/blog', function () {

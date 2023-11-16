@@ -67,9 +67,9 @@ defineProps({
             <div
                 class="max-w-6xl w-full flex flex-row items-center justify-between mx-auto"
             >
-                <Link href="/" class="flex items-center pl-2">
+                <Link href="/" class="flex items-center">
                     <img
-                        class="h-10 w-10"
+                        class="h-12"
                         src="/logo.png"
                         alt="Sigmie Logo"
                     />

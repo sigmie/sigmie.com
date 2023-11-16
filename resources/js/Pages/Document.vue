@@ -36,7 +36,7 @@ defineProps({
             <Navbar :navigation="navigation"></Navbar>
             <div class="flex flex-row lg:space-x-40 justify-center max-w-7xl mx-auto">
                 <Sidebar :navigation="navigation"></Sidebar>
-                <main class="prose py-10">
+                <main class="prose prose-base prose-zinc py-10">
                     <h1>{{ title }}</h1>
                     <div v-html="html"></div>
                 </main>

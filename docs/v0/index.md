@@ -1,9 +1,9 @@
 ## Introduction
-Suppose you want to store a **Movie** in an SQL database. You would first need to create a `users` table, then define columns like **name** and **category**.  
+Suppose you want to store a **Fairy Tale** in an SQL database. You would first need to create a `users` table, then define columns like **name** and **category**.  
 
 **Only after these steps** can you insert a movie into the table.
 
-In Elasticsearch, you simply add the movie to the **Movies Index**.
+In Elasticsearch, you simply add the movie to the **Fairy Tales Index**.
 
 There's no need to create an Index beforehand, it will be created if it doesn't exist.
 
@@ -41,19 +41,19 @@ Here’s an example of what a document might look like.
 
 ```json
 {
-   "name": "Alice in Wonderland"
+   "name": "Cinderella"
 }
 ```
 
 ```json
 {
-   "name": "Peter Pan"
+   "name": "Snow White"
 }
 ```
 
 ```json
 {
-   "name": "Pinocchio"
+   "name": "Sleeping Beauty"
 }
 ```
 
@@ -62,7 +62,7 @@ And this is how we translate this Document into PHP code so that we can work wit
 ```php
 use Sigmie\Document\Document;
 
-new Document(['name' => 'Mary Poppins']),
+new Document(['name' => 'Cinderella']),
 ```
 
 ## Create an Index
@@ -94,9 +94,9 @@ Below is an example of how we add 3 Movies to the `movies` Index that we created
 use Sigmie\Document\Document;
 
 $documents = [
-    new Document(['name' => 'Mary Poppins']),
-    new Document(['name' => 'The Mighty Ducks']),
-    new Document(['name' => 'The Parent Trap']),
+    new Document(['name' => 'Cinderella']),
+    new Document(['name' => 'Snow White']),
+    new Document(['name' => 'Sleeping Beauty']),
 ];
 
 $index->collect()->merge($documents);
@@ -111,9 +111,9 @@ $sigmie->collect('movies')->merge($documents);
 Here is what the Index looks like once we merge the Movie Documents.
 ```bash
 fantasy_characters
-├─ "Alice in Wonderland"
-├─ "Peter Pan"
-├─ "Pinocchio"
+├─ "Cinderella"
+├─ "Snow White"
+├─ "Sleeping Beauty"
 ```
 
 The process of adding Documents to an Index is known as **Indexing**.
@@ -144,9 +144,9 @@ and index the below Documents
 
 ```php
 [
-    new Document(['name' => 'Mary Poppins']),
-    new Document(['name' => 'The Mighty Ducks']),
-    new Document(['name' => 'The Parent Trap']),
+    new Document(['name' => 'Cinderella']),
+    new Document(['name' => 'Snow White']),
+    new Document(['name' => 'Sleeping Beauty']),
 ]
 ```
 
@@ -155,9 +155,8 @@ The `name` attribute of the Documents will look like this after it’s been **an
 ```php
 | Document 1   | Document 2  | Document 3  |
 | -----------  | ----------- | ------------|
-| "mary"       | "the"       | "the"       |
-| "poppings"   | "mighty"    | "parent"    |
-|              | "ducks"     | "trap"      |
+| "cinderella" | "snow"      | "sleeping"  |
+|              | "white"     | "beauty"    |
 ```
 
 This is because we added the 2 following steps to the Index **Analysis** process.
@@ -169,14 +168,14 @@ This is because we added the 2 following steps to the Index **Analysis** process
 ### How is the Query string analyzed?
 Any incoming **Query string** is analyzed with the exact same filters as our Document **text** fields.
 
-If we send the Query string `Mary`, it will become `mary`  because of the `lowercase` token filter that we specified when creating our Index.
+If we send the Query string `Cinderella`, it will become `cinderella`  because of the `lowercase` token filter that we specified when creating our Index.
 ```php
 | Query        | Analyzed Query |
 | -----------  | -------------- |
-| "Mary"       | "mary"         |
+| "Cinderella" | "cinderella"   |
 ```
 
-The logic is that now it doesn’t matter if the search user types `Mary`, `MARY`, or even `mArY` once the string is analyzed it will be `mary`.
+The logic is that now it doesn’t matter if the search user types `Cinderella`, `CINDERELLA`, or even `cInDeReLlA` once the string is analyzed it will be `cinderella`.
 
 ### How does matching happen?
 Now Elasticsearch looks into the analyzed values of the **Documents** to find which Documents contain the analyzed **query term**.
@@ -184,7 +183,7 @@ Now Elasticsearch looks into the analyzed values of the **Documents** to find wh
 ```php
 | Term         | Document 1  | Document 2  | Document 3 |
 | -----------  | ----------- | ------------|------------|
-| "mary"       | x           |             |            |
+| "cinderella" | x           |             |            |
 ```
 
 Elasticsearch also keeps track of **How many times a term appears in a Document**, so the below table is a more accurate representation of the **matching** process.
@@ -192,7 +191,7 @@ Elasticsearch also keeps track of **How many times a term appears in a Document*
 ```php
 | Term         | Freq   | Occurrences |
 | -----------  | ------ | ----------- |
-| "mary"       | 1      | Document 1  |
+| "cinderella" | 1      | Document 1  |
 ```
 
 You can find a detailed explanation of the **Analysis** process in the **Analysis** section.
@@ -203,7 +202,7 @@ You can use the `analyze` method to find out how a given text is `analyzed` by y
 an `array` containing the **tokens**.
 
 ```php
-$tokens = $index->analyze('Mary Poppings'); // [ "mary", "poppings"]
+$tokens = $index->analyze('Cinderella'); // [ "cinderella"]
 ```
 
 ## Index Update
@@ -245,9 +244,9 @@ Here is a showcase of the 4 steps necessary for updating the `movies` Index.
 #### Step 1 - Create a new index
 ```bash
 movies (movies_20221122210823379774)
-├─ "Mary Poppins"
-├─ "The Mighty Ducks"
-├─ "The Parent Trap"
+├─ "Cinderella"
+├─ "Snow White"
+├─ "Sleeping Beauty"
 
 movies_20221222210823379774 # [tl! add]
 ├─ # empty
@@ -256,40 +255,40 @@ movies_20221222210823379774 # [tl! add]
 #### Phase 2 - Reindex documents
 ```bash
 movies (movies_20221122210823379774)
-├─ "Mary Poppins"
-├─ "The Mighty Ducks"
-├─ "The Parent Trap"
+├─ "Cinderella"
+├─ "Snow White"
+├─ "Sleeping Beauty"
 
 movies_20221222210823379774
-├─ "Mary Poppins" # [tl! add]
-├─ "The Mighty Ducks" # [tl! add]
-├─ "The Parent Trap" # [tl! add]
+├─ "Cinderella" # [tl! add]
+├─ "Snow White" # [tl! add]
+├─ "Sleeping Beauty" # [tl! add]
 ```
 
 #### Phase 3 - Swap Alias
 ```bash
 movies_20221122210823379774
-├─ "Mary Poppins"
-├─ "The Mighty Ducks"
-├─ "The Parent Trap"
+├─ "Cinderella"
+├─ "Snow White"
+├─ "Sleeping Beauty"
 
 movies (movies_20221222210823379774) # [tl! add]
-├─ "Mary Poppins"
-├─ "The Mighty Ducks"
-├─ "The Parent Trap"
+├─ "Cinderella"
+├─ "Snow White"
+├─ "Sleeping Beauty"
 ```
 
 #### Phase 4 - Delete old index
 ```bash
 movies_20221122210823379774 # [tl! remove]
-├─ "Mary Poppins" # [tl! remove]
-├─ "The Mighty Ducks" # [tl! remove]
-├─ "The Parent Trap" # [tl! remove]
+├─ "Cinderella" # [tl! remove]
+├─ "Snow White" # [tl! remove]
+├─ "Sleeping Beauty" # [tl! remove]
 
 movies (movies_20221222210823379774) # [tl! add] 
-├─ "Mary Poppins"
-├─ "The Mighty Ducks"
-├─ "The Parent Trap"
+├─ "Cinderella"
+├─ "Snow White"
+├─ "Sleeping Beauty"
 ```
 
 

@@ -1,18 +1,18 @@
 ## Introduction
-Let’s say you want to save a **Movie** in an SQL database. You first need to create a `users` table, then define columns like name **name** and **category**.  
+Suppose you want to store a **Movie** in an SQL database. You would first need to create a `users` table, then define columns like **name** and **category**.  
 
-**Then and only then** you can insert a movie to the table.
+**Only after these steps** can you insert a movie into the table.
 
-In Elasticsearch you just add the movie to the **Movies Index**.
+In Elasticsearch, you simply add the movie to the **Movies Index**.
 
-You don’t need to create an Index, if it doesn’t exist it will be created.
+There's no need to create an Index beforehand, it will be created if it doesn't exist.
 
-Also as long as you keep the movie’s attributes under [1000](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/mapping-settings-limit.html#mapping-settings-limit) you can have as many attributes as you want and you **don’t** need to define them first.
+As long as you keep the movie’s attributes under [1000](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/mapping-settings-limit.html#mapping-settings-limit), you can have as many attributes as you want without needing to define them first.
 
 ### What is an Index?
-In a kid’s room, it’s a drawer that contains all the toys, in a database, it’s a table and in Elasticsearch it’s an **Index**.
+An Index can be thought of as a drawer in a kid’s room that contains all the toys, a table in a database, or an **Index** in Elasticsearch.
 
-The following is a simple representation of a `movies` **Index**. It’s **just a place where the movie records are stored** so that we can search for them in the future. 
+Below is a simple representation of a `movies` **Index**. It’s essentially a storage space for movie records, allowing us to search for them in the future. 
 ```bash
 Index
 ├─ Document 1
@@ -21,13 +21,13 @@ Index
 ├─ ...
 ```
 
-The records in an Index are called **Documents**.
+The records in an Index are referred to as **Documents**.
 
 
 
 ### What is a Document?
 
-Document is just a JSON stored in an Index.
+A Document is simply a JSON stored in an Index.
 
 ```php
 Document = JSON
@@ -37,7 +37,7 @@ Document = JSON
 Index = Collection of related Documents 
 ```
 
-Here’s an example of how a document may look like.
+Here’s an example of what a document might look like.
 
 ```json
 {
@@ -57,7 +57,7 @@ Here’s an example of how a document may look like.
 }
 ```
 
-and this is how we translate this Document into PHP code so that we can work with it.
+And this is how we translate this Document into PHP code so that we can work with it.
 
 ```php
 use Sigmie\Document\Document;
@@ -69,14 +69,14 @@ new Document(['name' => 'Mary Poppins']),
 
 Let’s create our first index using Sigmie. 
 
-While there are a lot of options in the `NewIndex` builder class,
+While there are many options in the `NewIndex` builder class,
 this is the simplest way to create an Index.
 
 ```php
 $index = $sigmie->newIndex('movies')->create();
 ```
 
-Once the above code is executed we have an **empty**  `movies` Index ready to get some Documents.
+Once the above code is executed, we have an **empty**  `movies` Index ready to receive some Documents.
 
 ```bash
 fantasy_characters
@@ -84,11 +84,11 @@ fantasy_characters
 ```
 
 ### Add Documents
-To add Documents to our Index we need to **collect** the Index. 
+To add Documents to our Index, we need to **collect** the Index. 
 
-To do this we call the `collect` method on the Index instance returned from the Index builder `create` method. Then we pass an `array` of the Documents that we wish to add to the `merge` method.
+This is done by calling the `collect` method on the Index instance returned from the Index builder `create` method. Then we pass an `array` of the Documents that we wish to add to the `merge` method.
 
-Below is a showcase of how we add 3 Movies to the `movies` Index that we created before.
+Below is an example of how we add 3 Movies to the `movies` Index that we created earlier.
 
 ```php
 use Sigmie\Document\Document;
@@ -102,7 +102,7 @@ $documents = [
 $index->collect()->merge($documents);
 ```
 
-Usually, you won’t have an instance of the `Index` class. You can also `collect` an existing Index by calling the `collect` method on the Sigmie facade and passing the Index name.
+Typically, you won’t have an instance of the `Index` class. You can also `collect` an existing Index by calling the `collect` method on the Sigmie facade and passing the Index name.
 
 ```php
 $sigmie->collect('movies')->merge($documents);
@@ -116,18 +116,18 @@ fantasy_characters
 ├─ "Pinocchio"
 ```
 
-The process of adding Documents to an Index is called **Indexing**.
+The process of adding Documents to an Index is known as **Indexing**.
 
 ## Analysis
 The truth is that the Index doesn’t store the **Documents** in the exact form that we indexed them. All Documents in an Index are **Analyzed** according to the Index settings.
 
-This process is called **Analysis**. Let’s have a deeper look.
+This process is known as **Analysis**. Let’s delve deeper.
 
 ### What is Analysis?
 
-The goal of Search Engines is to return **relevant** information **fast**. This is only possible if they do some work in advance. 
+The goal of Search Engines is to return **relevant** information **quickly**. This is only possible if they do some work in advance. 
 
-All **Text** fields of a Document are going through pre-defined **filters** that transform their texts.
+All **Text** fields of a Document are processed through pre-defined **filters** that transform their texts.
 
 ### How are Documents analyzed?
 
@@ -140,7 +140,7 @@ $sigmie->newIndex('movies')
     ->create();
 ```
 
-and index the bellow Documents
+and index the below Documents
 
 ```php
 [
@@ -160,16 +160,16 @@ The `name` attribute of the Documents will look like this after it’s been **an
 |              | "ducks"     | "trap"      |
 ```
 
-This is because we added the 2 following steps to the Index **Analysis** proccess.
+This is because we added the 2 following steps to the Index **Analysis** process.
 1. We called the `tokenizeOnWhitespaces` method. This caused the strings to split into **Tokens** each time a `whitespace` was encountered.
-2. Next the `lowercase` method **changed all uppercase letters to lowercase**.
+2. Next, the `lowercase` method **converted all uppercase letters to lowercase**.
 
-**These steps are done during indexing so they will be ready once a query hits our index.**
+**These steps are performed during indexing so they will be ready once a query hits our index.**
 
 ### How is the Query string analyzed?
 Any incoming **Query string** is analyzed with the exact same filters as our Document **text** fields.
 
-If we send the Query string `Mary` it will become `mary`  because of the `lowercase` token filter that we specified when creating our Index.
+If we send the Query string `Mary`, it will become `mary`  because of the `lowercase` token filter that we specified when creating our Index.
 ```php
 | Query        | Analyzed Query |
 | -----------  | -------------- |
@@ -187,7 +187,7 @@ Now Elasticsearch looks into the analyzed values of the **Documents** to find wh
 | "mary"       | x           |             |            |
 ```
 
-Elasticsearch keeps also track of **How many times a term appears in a Document**, so the bellow table is a more accurate representation of the **matching** process.
+Elasticsearch also keeps track of **How many times a term appears in a Document**, so the below table is a more accurate representation of the **matching** process.
 
 ```php
 | Term         | Freq   | Occurrences |
@@ -195,7 +195,7 @@ Elasticsearch keeps also track of **How many times a term appears in a Document*
 | "mary"       | 1      | Document 1  |
 ```
 
-You can find a deep explanation of the **Analysis** process in the **Analysis** section.
+You can find a detailed explanation of the **Analysis** process in the **Analysis** section.
 
 ### How to test Analysis?
 
@@ -208,7 +208,7 @@ $tokens = $index->analyze('Mary Poppings'); // [ "mary", "poppings"]
 
 ## Index Update
 
-Even though an Index update function doesn’t exist in Elasticsearch, we created an `update` function that you can use the **update** your Index.
+Even though an Index update function doesn’t exist in Elasticsearch, we created an `update` function that you can use to **update** your Index.
 
 ```php
 use Sigmie\Index\UpdateIndex;
@@ -219,23 +219,23 @@ $sigmie->index('movies')->update(function(UpdateIndex $updateIndex){
 ```
 
 ### How does the update work?
-It’s important for you to understand the the `update` function does in the background. But before let’s see why an **Index update isn’t natively possible in Elasticsearch**.
+It’s important for you to understand what the `update` function does in the background. But before that, let’s see why an **Index update isn’t natively possible in Elasticsearch**.
 
 ### Why an Index update isn’t possible?
 
-The reason is the **Analysis** process that makes the Index immutable. If an Index could be updated Elasticsearch would need to **analyze** the Documents all over again and there are too many risks and implications with this.
+The reason is the **Analysis** process that makes the Index immutable. If an Index could be updated, Elasticsearch would need to **analyze** the Documents all over again and there are too many risks and implications with this.
 
 The only safe solution is to **create a new Index** and **reindex the Documents**.
 
 ### How is an Index created?
-Luckily Elasticsearch supports Index **aliases** that allow us to update an Index without needing anyone to notice. 
+Fortunately, Elasticsearch supports Index **aliases** that allow us to update an Index without anyone noticing. 
 
 When we create a `movies` Index like before. In the background, we create an Index with the name `movies` and a timestamp **suffix**. For example `movies_20221122210823379774`.
 
-Then once the **Index** is created we assign it a `movies` alias that we can use instead of using the `movies_20221122210823379774`.
+Then once the **Index** is created, we assign it a `movies` alias that we can use instead of using the `movies_20221122210823379774`.
 
 ### How does Index update work?
-In an update, we do the following 4 steps:
+In an update, we perform the following 4 steps:
 1. Create a new Index with a **different timestamp suffix**.
 2. We **reindex** the Documents.
 3. Remove the `movies` alias from the old Index.

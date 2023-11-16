@@ -1,17 +1,17 @@
-## What is Sigmie?
+## Introduction to Sigmie
 
-Sigmie is a PHP library for Elasticsearch that simplifies the creation of **Searches** for your applications.
+Sigmie is a PHP library designed to simplify the process of creating **Searches** for your applications using Elasticsearch.
 
-## Why use Sigmie?
-While Elasticsearch is a powerful tool for creating fast and relevant searches for your application, it can be complex to learn and use effectively. 
+## Why Choose Sigmie?
+Elasticsearch is a powerful tool that enables the creation of fast and relevant searches for your application. However, it can be complex and challenging to learn and use effectively. 
 
-Sigmie aims to alleviate this complexity, making Elasticsearch **easy** to use. It encapsulates years of experience in building **Searches** into simple, easy-to-use code abstractions. 
+Sigmie is designed to alleviate this complexity, making Elasticsearch **easy** to use. It encapsulates years of experience in building **Searches** into simple, easy-to-use code abstractions. 
 
-To better understand what Sigmie offers, let's look at a simple example.
+To better understand the benefits of Sigmie, let's consider a simple example.
 
 ## Basic Usage
 
-Suppose we have a `books` table in our database that we want to make searchable.
+Let's assume we have a `books` table in our database that we want to make searchable.
 
 Consider an SQL table like this.
 
@@ -106,13 +106,13 @@ The documentation aims to not only show you the Sigmie functionalities but also 
 
 Explore the documentation to learn about all the possible options for the above example.
 
-## Requirements
+## System Requirements
 
-The Sigmie system requirements:
+To use Sigmie, the following system requirements must be met:
 
 * PHP >= **8.1**
 * Elasticsearch **^7**
 
-## Security Vulnerabilities
+## Reporting Security Vulnerabilities
 
 If you discover a security vulnerability within Sigmie, please send an email to nico@sigmie.com. All security vulnerabilities will be promptly addressed.

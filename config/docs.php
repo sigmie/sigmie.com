@@ -35,6 +35,10 @@ return [
                         'title' => 'Search',
                         'href' => '/docs/v0/search'
                     ],
+                    [
+                        'title' => 'Filter & Sorting',
+                        'href' => '/docs/v0/filter-parser'
+                    ],
                 ]
             ],
             [
@@ -68,10 +72,6 @@ return [
                     [
                         'title' => 'Aggregations',
                         'href' => '/docs/v0/aggregations'
-                    ],
-                    [
-                        'title' => 'Filter & Sorting',
-                        'href' => '/docs/v0/filter-parser'
                     ],
                     // [
                     //     'title' => 'Search Template',

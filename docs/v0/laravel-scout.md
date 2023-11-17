@@ -102,7 +102,6 @@ You can find more information in the [Mapping](https://sigmie.com/docs/v0/mappin
 Here's an example of a `Movies` mapping.
 
 ```php
-// [tl! collapse:start]
 use Sigmie\ElasticsearchScout\Searchable;
 use Sigmie\Mappings\NewProperties;
 

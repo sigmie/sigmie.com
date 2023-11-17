@@ -1,34 +1,39 @@
 ## Introduction
-Documents are JSON objects stored in an Index. If we change our perspective, an Index is a multidimensional array.
+Documents are JSON objects stored within an Index. You can think of an Index as a multidimensional array.
 
-Sigmie handles an Index as a **Collection** containing instances of `Document\Document`.
+Sigmie treats an Index as a **Collection** that contains instances of `Document\Document`.
 
 ## Collecting an Index
-To use an Index as a **Collection** call the `collect` method on the Sigmie facade instance.
+To treat an Index as a **Collection**, use the `collect` method on the Sigmie facade instance.
+
+For example:
 ```php
 $movies = $sigmie->collect('movies');
 ```
 
-Once you have collected your Index your can start adding `Document\Document` instances to it.
+After collecting your Index, you can start adding `Document\Document` instances to it, like so:
+
 ```php
-$movies->add(new Document([ 'name' => 'Peter Pan' ]));
+$movies->add(new Document([ 'name' => 'Mickey Mouse' ]));
 ```
 
-
 ## Indexing Documents
-Keep in mind that Elasticsearch is **” Near real-time ”**. Documents added to an Index are usually available for searching after **1 second**.
 
-You can make Documents directly available in our Index for testing purposes using the `refresh` flag when collecting an Index.
+Remember that Elasticsearch operates in **” Near real-time ”**. This means that documents added to an Index are usually available for searching after about **1 second**.
 
-Using `refresh=true` is **NOT** recommended in production code.
+For testing purposes, you can make documents immediately available in your Index by using the `refresh` flag when collecting an Index.
 
-### Async
-Let’s have a look at the below example, where we index a Movie into our freshly created `movies` Index.
+@danger
+Using `refresh: true` is **NOT** recommended in production code.
+@enddanger
+
+### Async Indexing
+Consider the following example, where we index a Movie into our newly created `movies` Index:
 
 ```php
 $sigmie->newIndex('movies')->create();
 
-$doc = new Document(['name' => 'Mary Poppins']);
+$doc = new Document(['name' => 'Snow White']);
 
 $movies = $sigmie->collect('movies');
 
@@ -37,105 +42,107 @@ $movies->add($docs);
 $movies->count(); // 0 [tl! highlight]
 ```
 
-After adding the Movie we call **directly** the `count` method on the Alive Index Collection. The `count` method returns `0`.
+In this case, we add the Movie and then **immediately** call the `count` method on the Alive Index Collection.
 
-### Sync
-Bellow if a different example where we test that a Document was inserted into our Index. 
+The `count` method returns `0` because the document is not available yet.
+
+### Sync Indexing
+Here's a different example where we ensure that a Document was inserted into our Index before proceeding:
 
 ```php
 $sigmie->newIndex('movies')->create();
 
-$movies = $sigmie->collect('movies');  // [tl! remove]
+$movies = $sigmie->collect('movies'); // [tl! remove]
 $movies = $sigmie->collect('movies', refresh: true); // [tl! add]
 
-$doc = new Document(['name' => 'Mary Poppins']);
+$doc = new Document(['name' => 'Snow White']);
 
 $movies->add($docs);
 
 $this->assertCount(1, $movies->count()); // [tl! highlight]
 ```
 
-By passing the `refresh: true` parameter when collecting the Index, we made sure that all inserts made to the `movies` Index are immediately visible.
+@info
+By passing the `refresh: true` parameter when collecting the Index, we ensure that all inserts made to the `movies` Index are immediately visible.
+@endinfo
 
 ## Document _id
-Each time you index a Document Elasticsearch assigns an `_id` to it. 
+Every time a Document is indexed, Elasticsearch automatically assigns it an `_id`.
 
-### Add a Document with an `_id`
-You can omit the `_id` field when indexing a Document, or you can pass it to the `Document\Document`’s
-constructor `_id: 1`.  
+### Adding a Document with an `_id`
+You have the option to either let Elasticsearch automatically assign the `_id` field when indexing a Document, or you can manually specify it. To manually specify the `_id`, you can do so in the `Document\Document` constructor, like this: `_id: 1`.  
 ```php
 $movies->add(new Document( 
-              _source: ['name' => 'Mary Poppins'], 
+              _source: ['name' => 'Snow White'], 
               _id: 1 //[tl! highlight]
             ));
 ```
 
-It’s a common practice to manually pass the `_id` when indexing Documents from a SQL database so that you can later perform **update** and **delete** operations on it.
+@info
+Manually specifying the `_id` is a common practice when indexing Documents from a SQL database. This approach provides the advantage of allowing you to perform **update** and **delete** operations on the document at a later stage.
+@endinfo
 
-### Add a Document without an `_id`
+### Adding a Document without an `_id`
 
-You can use the **read-only**  `$doc->_id` property to access the `_id` of a Document that exists in your index. 
+If you add a Document without specifying an `_id`, Elasticsearch will automatically assign one. You can retrieve this `_id` using the `$doc->_id` property, which is read-only. 
 
-Here is an example with an `_id` that was assigned from Elasticsearch:
+Here's an example where Elasticsearch assigns an `_id`:
 ```php
-$doc = new Document(['name' => 'The Parent Trap']);
+$doc = new Document(['name' => 'The Lion King']);
 
-$sigmie->collect('movies')->add($docs); 
+$sigmie->collect('movies')->add($doc); 
 
-$doc->_id; //  7IapIQBhb8W_9CdjGoe [tl! highlight]
+echo $doc->_id; // Outputs: 7IapIQBhb8W_9CdjGoe
 ```
 
-And here is an example with a hypothetical `_id` of **99** that’s coming from the database.
+In contrast, if you're indexing Documents from a database, you might want to manually specify the `_id`. Here's how you can do that:
 
 ```php
-$doc = new Document(['name' => 'The Mighty Ducks'], _id: 99);
+$doc = new Document(['name' => 'The Lion King'], _id: 99);
 
-$sigmie->collect('movies')->add($docs); 
+$sigmie->collect('movies')->add($doc); 
 
-$doc->_id; // 99 [tl! highlight]
-```
-
-
-## Retrieve a Document
-You can retrieve a Document by it’s `_id` using the `get` method on the Index collection.
-
-```php
-$doc = $sigmie->collect('movies')->get(_id: 'rIapIQBhb8W_9CdjGoe');
+echo $doc->_id; // Outputs: 99
 ```
 
 
-## Update a Document
-Many times you may wish to update Documents.
+## Retrieving a Document
+You can retrieve a Document by its `_id` using the `get` method on the Index collection.
 
-### Update a single Document
-Use the `replace` method to update an existing Document.
 ```php
-$doc = new Document(['name' => 'Mary Poppins'], _id: 2 );
+$doc = $sigmie->collect('movies')->get('rIapIQBhb8W_9CdjGoe');
+```
+
+
+## Updating a Document
+There may be instances where you need to update the contents of a Document.
+
+### Updating a Single Document
+To update an existing Document, you can use the `replace` method.
+```php
+$doc = new Document(['name' => 'Snow White'], _id: 2 );
 
 $sigmie->collect('movies')
        ->replace($doc)); // [tl! highlight]
 ```
 
-You can also achieve the same by using the `merge` method, which allows you to **update multiple records at once**.
+Alternatively, you can use the `merge` method to update multiple records simultaneously.
 ```php
-$doc = new Document(['name' => 'Mary Poppins'], _id: 2 );
+$doc = new Document(['name' => 'Snow White'], _id: 2 );
 
 $sigmie->collect('movies')
-      ->replace($doc)); // [tl! remove] 
         ->merge([$doc]); // [tl! add] 
 ```
 
-If you pass a `Document` without an `_id` to the merge function, the `Document` will then be created.
+If you pass a `Document` without an `_id` to the merge function, a new `Document` will be created.
 
-## Iterate over Index Documents
-There is an `each` method that accepts a callback, which allows you to iterator over all Index Documents.
+## Iterating over Index Documents
+The `each` method accepts a callback, allowing you to iterate over all Index Documents.
 
-The `chuck` method specifies how many records to load in memory each time, to avoid memory exceptions.
-
-This is especially useful if you want to iterate over big indices.
+The `chunk` method specifies how many records to load into memory at a time, to avoid memory exceptions. This is especially useful if you want to iterate over large indices.
 
 ```php
-$movies = $sigmie->colelct('movies')->chunk(500);
+$movies = $sigmie->collect('movies')->chunk(500);
 
 $movies->each(function (Document $document, string $_index) {
     // do something...
@@ -151,27 +158,27 @@ foreach ($movies->all() as $index => $movie) {
 
 ```
 
-## Clear Index Documents
-You can remove all Documents from an Index with the `clear` method.
+## Purging Index Documents
+The `clear` function enables you to delete all Documents from an Index.
 
-Let’s assume that we have a `movies` Index containing 100 movies.
+For instance, consider a `movies` Index that contains 100 movies.
 ```php
 $movies = $sigmie->collect('movies');
 
 $movies->count(); // 100
 ```
 
-After calling the `clear` method our Index Document count will be zero.
+After invoking the `clear` function, the count of Documents in our Index will be zero.
 ```php
 $movies = $sigmie->collect('movies');
 
-$movies->clear(); // [tl! highligh]
+$movies->clear(); // [tl! highlight]
 
 $movies->count(); // 0
 ```
 
-## Index Upsert
-You can start adding Documents to an Index, even if the Index **doesn’t exist yet**.
+## Upserting an Index
+You can begin adding Documents to an Index, even if the Index **does not exist yet**.
 
 ```php
 $sigmie->index('movies')->delete(); // [tl! highlight]
@@ -183,32 +190,33 @@ $index->add($doc);
 $index->count(); 1 // [tl! highlight]
 ```
 
-When you using this approach, consider creating an Index template.
+@warning
+While it's possible to add documents to an Index before creating it, **we strongly recommend creating the Index first**. This is because adding documents prior to Index creation can lead to issues with the `boost` and `autocomplete` attributes.
+@endwarning
 
-## More Methods
-Bellow are some more methods available on the Index collection.
+## Additional Functions
+Here are some more functions available on the Index collection.
 
 ```php
 //Remove document by `_id`
 $index->remove(_id: 1);
 
-// Check if document exists
+// Verify if document exists
 $index->has(_id: 1);
 
-// get all documents as an array
+// Retrieve all documents as an array
 $index->toArray();
 
-// check if the index has documents
+// Verify if the index contains documents
 $index->isEmpty();
 
 $index->isNotEmpty();
 
-// get the document count
+// Retrieve the document count
 $index->count();
 ```
 
-The collected **Index** implements the `ArrayAccess` and the `Countable` interfaces.
-Using the `isset` and `count` PHP functions won’t throw any `Exceptions`.
+The collected **Index** implements the `ArrayAccess` and the `Countable` interfaces. Hence, using the `isset` and `count` PHP functions will not result in any `Exceptions`.
 ```php
 isset($index['2'])
 

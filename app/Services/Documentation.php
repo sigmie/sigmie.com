@@ -67,7 +67,7 @@ class Documentation
         foreach ([
             'danger' => 'text-red-500 font-medium',
             'info' => 'text-blue-500 font-medium',
-            'warning' => 'text-yellow-500 font-medium'
+            'warning' => 'text-yellow-400 font-medium'
         ] as $value => $classes) {
             preg_match_all('/@' . $value . '((.|\n)*?)@end' . $value . '/', $markdown, $matches);
 
@@ -75,7 +75,7 @@ class Documentation
 
             foreach ($matches[0] ?? [] as $index => $match) {
                 $replacement = $this->converter->convert($matches[1][$index]);
-                $markdown = str_replace($match, "<div class=\"p-4 mb-4 text-sm rounded-lg bg-gray-50  prose border prose-xl min-w-full\"><div class=\"{$classes}\">{$title}</div>{$replacement}</div>", $markdown);
+                $markdown = str_replace($match, "<div class=\"p-4 mb-4 text-sm leading-relaxed rounded-lg bg-gray-50  prose border prose-xl min-w-full\"><div class=\"{$classes}\">{$title}</div>{$replacement}</div>", $markdown);
             }
         }
 

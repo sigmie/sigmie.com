@@ -209,7 +209,9 @@ Here is another example of how to find a Document that belongs to a user with an
 $newQuery->term('user_id', 13);
 ```
 
-It’s important to note here that using the `term` Query on text fields isn’t wise as it won’t match the desired Documents because **text fields are analyzed**.
+@info
+Using the `term` Query on text fields isn’t wise as it won’t match the desired Documents because **text fields are analyzed**.
+@endinfo
 
 If you plan to use `term` on a Text field, you need to map it also as a `keyword`, for Elasticsearch to also store its raw value.
 
@@ -306,7 +308,9 @@ $newQuery->sort('name.keyword', 'asc')
 
 In this example, the matched Documents are first **sorted by** the `name.keyword` field, and then by the `_score`.
 
-**It’s important to note here, that sorting on Text fields is only possible if they are mapped as Keywords**.
+@info
+It’s important to note here, that sorting on Text fields is only possible if they are mapped as Keywords**.
+@endinfo
 
 # Pagination
 

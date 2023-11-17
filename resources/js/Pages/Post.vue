@@ -58,11 +58,11 @@ pre code {
     @apply block p-3;
 }
 .prose :where(pre):not(:where([class~="not-prose"] *)) {
-    background-color: #292d3e;
+    background-color: #0f111a;
 }
 
 code {
-    background-color: #292d3e;
+    background-color: #0f111a;
     color: #a6accd !important;
     @apply rounded px-1 py-0.5 font-normal !important;
 }

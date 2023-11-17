@@ -15,6 +15,7 @@ module.exports = {
         options: {
             safelist: [
                     'p-4', 'mb-4', 'text-sm', 'rounded-lg',
+                    'leading-relaxed',
                     'text-yellow-500',
                     'text-blue-500',
                     'text-red-500',

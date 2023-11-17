@@ -1,20 +1,20 @@
 ## Introduction
 
-We support more than the traditional JSON fields (string, integer, and boolean).
+Sigmie includes Elasticsearch native fields like **Keyword** and **Text** (for unstructured text), as well as high-level fields such as **Name**, **Tags**, or **Category**.
 
-For example, you can use the Elasticsearch native fields **Keyword** and **Text** (unstructured text) or high-level fields like **Name**, **Tags**, or **Category** that are included.
-
-The high-level fields are nothing more than just wrappers around the **native Elasticsearch** fields that are optimized for specific cases.
+These high-level fields are essentially wrappers around the native Elasticsearch fields, optimized for specific use cases.
 
 ## Properties
 
-Let’s imagine that we have a `users` index and are saving the user’s address in a **Text** field called `address`. When we create our index we initialize the `NewProperties` class and call the `address` method on it.
+Consider a scenario where we have a `users` index and we're storing the user’s address in a **Text** field named `address`.
 
-Next, we pass the instance of `NewProperties` to the `properties` method on the Index builder.
+When creating our index, we initialize the `NewProperties` class and call the `address` method on it.
 
-Once our Index is created we use the same properties to search in it.
+This instance of `NewProperties` is then passed to the `properties` method on the Index builder.
 
-Here is an example of what this looks like:
+Once the Index is created, we use the same properties to perform searches.
+
+Here's an example:
 
 ```php
 use Sigmie\Mappings\NewProperties;
@@ -29,11 +29,11 @@ $sigmie->newSearch()->properties($properties)->get();
 
 ## Native Types
 
-Let’s have a look at the native Elasticsearch types that are supported by Sigmie at the moment.
+Let's explore the native Elasticsearch types supported by Sigmie.
 
 ### Text
 
-Text is probably the most used field when using Elasticsearch as a full-text search solution. By default, Elasticsearch assumes that the indexed string field is an **unstructured text** like an article or a book description.
+Text is often the most used field when using Elasticsearch for full-text search. By default, Elasticsearch treats indexed string fields as **unstructured text**, such as an article or a book description.
 
 #### Unstructured Text
 
@@ -41,7 +41,7 @@ Text is probably the most used field when using Elasticsearch as a full-text sea
 $properties->text('description');
 ```
 
-You can also explicitly say that your `string` is an **unstructured text** chaining the `unstructuredText` method.
+You can also explicitly specify that your `string` is an **unstructured text** by chaining the `unstructuredText` method.
 
 ```php
 $properties->text('description')
@@ -50,7 +50,7 @@ $properties->text('description')
 
 #### Search-as-you-Type
 
-Define a **search-as-you-type** field using `searchAsYouType` and removing the `unstructuredText` mtehod.
+You can define a **search-as-you-type** field using `searchAsYouType` and removing the `unstructuredText` method.
 
 ```php
 $properties->text()
@@ -60,7 +60,7 @@ $properties->text()
 
 #### Index Prefixed
 
-Additionally, you can tell Elasticsearch to **index** field term prefixes by calling the `indexPrefixes` method.
+You can instruct Elasticsearch to **index** field term prefixes by calling the `indexPrefixes` method. This is useful if you plan to use the `Prefix` query on this attribute.
 
 ```php
 $properties->text('description')
@@ -68,21 +68,19 @@ $properties->text('description')
            ->indexPrefixes(); // [tl! add]
 ```
 
-This is a good idea if you plan to use thr `Prefix` query on this attribute.
-
 #### Keyword
 
-If you need to use **filter** or **sort** on your `text` field, you need to chain the `keyword` method.
+If you need to use **filter** or **sort** on your `text` field, you need to chain the `keyword` method. This will store the field one more time with the `.keyword` suffix.
+
+For example, we have the `description` field that is analyzed and can be used for querying, and we also have the `description.keyword` field that’s stored as it is, allowing us to use it for aggregations, sorting, and filtering.
 
 ```php
 $properties->text('description')->keyword();
 ```
 
-This will save you the field one more time with the `.keyword` suffix. In the above example, we have the `description` field that is analyzed and we can use it for querying, and we also have the `description.keyword` field that’s stored as it is allowing us to use it for aggregations, sorting, and filtering.
-
 ### Keyword
 
-There is the `keyword` field type that stores your field **as-it-is** without analyzing it at all.
+The `keyword` field type stores your field **as-it-is** without any analysis.
 
 ```php
 $properties->keyword('ISBN');
@@ -90,13 +88,11 @@ $properties->keyword('ISBN');
 
 ### Number
 
-You can map numbers with the `number` method, which maps them as `integers` by default.
+You can map numbers with the `number` method, which maps them as `integers` by default. You can chain the corresponding **number type** to specify a number type different from an `int`.
 
 ```php
 $properties->number('rating')->float();
 ```
-
-You can chain the corresponding **number type** to specify a number type different that an `int`.
 
 #### Float
 
@@ -136,17 +132,17 @@ Here is how you can format your `Date` instances to the **default** date field f
 (new Date)->format('Y-m-d H:i:s.u');
 ```
 
-In case your time format is different you can pass the preferred **Elasticsearch** format as an argument to the `date` method.
-
-Eg.
+@info
+If your time format is different, you can pass the preferred **Elasticsearch format** as an argument to the `date` method.
 
 ```php
 $properties->date('MM/dd/yyyy');
 ```
+@endinfo
 
 ## High-level types
 
-High-level types are field types that aren’t supported directly in Elasticsearch. They are created by Sigmie and optimized for the types they represent.
+High-level types are field types that aren’t directly supported in Elasticsearch. They are created by Sigmie and optimized for the types they represent.
 
 ### Searchable Number
 
@@ -156,9 +152,9 @@ The **Searchable Number** field represents a number that can be searched by an i
 $properties->searchableNumber('birth_year');
 ```
 
-Normally you users won’t write the product stock in a search input, therefore it isn’t wise to use it for a `stock` property of a document.
+Normally, users won't input the product stock in a search field, so it wouldn't be wise to use it for a `stock` property of a document. However, if you're storing `users` in your search index, you might want to find users by the `birth_year`.
 
-But let’s have another look at a scenario where you store `users` in your search index. You may find yourself trying to find users by the `birth_year`. In this case, it would be beneficial to map the property as a `searchableNumber`.
+In this case, it would be beneficial to map the property as a `searchableNumber`.
 
 Some field examples for a **Searchable Number** are:
 
@@ -206,7 +202,7 @@ This is normally useful for data that are crawled from a website.
 
 ### Case Sensitive Keyword
 
-By default, the **Keyword** mapped strings are lowercase. In case your **Keyword** is case-sensitive you can use the `caseSensitiveKeyword` mapping.
+By default, the **Keyword** mapped strings are lowercase. If your **Keyword** is case-sensitive, you can use the `caseSensitiveKeyword` mapping.
 
 ```php
 $properties->caseSensitiveKeyword();
@@ -214,7 +210,7 @@ $properties->caseSensitiveKeyword();
 
 ### Category
 
-The `category` field, is used for fields that distinguish Documents into categories.
+The `category` field is used for fields that distinguish Documents into categories.
 
 ```php
 $properties->category();
@@ -224,11 +220,11 @@ Some field examples for a **Category** mapping are:
 
 -   Movie Category Horror, Action
 -   Shoe Category eg. Running, sneakers
--   Cat Manufacture eg. Hunday, Ford, BMW
+-   Car Manufacturer eg. Hyundai, Ford, BMW
 
 ### Long Text
 
-Long Text for big string fields.
+Long Text is used for large string fields.
 
 ```php
 $properties->longText();
@@ -242,7 +238,7 @@ Some field examples for a **Long Text** mapping are:
 
 ### Id
 
-Id fields are optimized for filtering a grouping.
+Id fields are optimized for filtering and grouping.
 
 ```php
 $properties->id(); // user_id, product_id, category_id (filterable)
@@ -292,9 +288,7 @@ $properties->price(); // price
 
 ## Property classes
 
-You can also define your own custom property types.
-
-Below is an example of how you may create a `Color` mapping type.
+You can also define your own custom property types. Below is an example of how you may create a `Color` mapping type.
 
 ```php
 use Sigmie\Index\NewAnalyzer;
@@ -328,11 +322,7 @@ class Color extends Text
 }
 ```
 
-In the `configure` method you specify the Elasticsearch native field type. In our example, we are mapping the color as a native unstructured text field to use it with a `Match` query.
-
-Then by calling the `indexPrefixes` we tell Elasticsearch to index the prefixes since we plan to use a `Prefix` query on it.
-
-And lastly, we save the `raw` value to use it with a `Term` query.
+In the `configure` method, you specify the Elasticsearch native field type. In our example, we are mapping the color as a native unstructured text field to use it with a `Match` query. Then by calling the `indexPrefixes`, we tell Elasticsearch to index the prefixes since we plan to use a `Prefix` query on it. Lastly, we save the `raw` value to use it with a `Term` query.
 
 Since colors can have two or more words (eg. sky blue) we define a custom field analyzer that splits the string into tokens whenever it encounters a **whitespace** and also **lowercases** all tokens.
 
@@ -344,7 +334,7 @@ $newProperties->type(new Color)
 
 This will map the `color` attribute field to the `Color` class.
 
-### Examples
+<!-- ### Examples
 
 ```bash
 Elasticsearch
@@ -390,4 +380,4 @@ Sigmie
   "location": "Karagiorgi Servias 9, Athina", // address 
   "speaker": "Winnie the Pooh" // name 
 }
-```
+``` -->

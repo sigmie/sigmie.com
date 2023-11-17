@@ -45,7 +45,7 @@ defineProps({
             <div class="mx-auto max-w-5xl py-32 sm:py-48 lg:py-56">
                 <img
                     class="mx-auto h-36 mb-10"
-                    src="https://github.com/sigmie/art/blob/main/logo/png/logo-icon-black.png?raw=true"
+                    src="https://github.com/sigmie/art/blob/main/logo/svg/logo-icon-black.svg?raw=true"
                 />
                 <div class="text-center">
                     <h1

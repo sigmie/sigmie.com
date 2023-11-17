@@ -50,12 +50,15 @@ pre code {
     @apply block p-3;
 }
 .prose :where(pre):not(:where([class~="not-prose"] *)) {
-    background-color: #292d3e;
+    background-color: #0f111a;
+}
+
+.prose :where(code):not(:where([class~="not-prose"] *))
+{
+    @apply text-zinc-600 bg-zinc-50 rounded-md;
 }
 
 code {
-    background-color: #292d3e;
-    color: #a6accd !important;
     @apply rounded px-1 py-0.5 font-normal !important;
 }
 

@@ -1,12 +1,11 @@
-# Token filters
+## Token Filters
 
-## Introduction
-
-## Available Token Filters
-
-Filters are applied in the order that you specify them.
+Filters are applied in the order that you specify them. Here are some examples of how each filter works:
 
 ###  Stemming
+The Stemming filter reduces words to their root form.
+
+For example, "going" becomes "go":
 ```php
 $newAnalyzer->stemming([
     ['go', ['going']]
@@ -30,6 +29,10 @@ $newAnalyzer->stemming([
 ```
 
 ### Stopwords
+The Stopwords filter removes common words that do not contribute to the meaning of a phrase.
+
+For example, "but" and "not" are removed from the phrase:
+
 ```php
 $newAnalyzer->stopwords(['but']);
 ```
@@ -61,6 +64,9 @@ $newAnalyzer->stopwords(['but']);
 ```
 
 ### Unique
+The Unique filter removes duplicate words.
+
+For example, the second "I" is removed from the phrase:
 ```php
 $newAnalyzer->unique(onlyOnSamePosition: false);
 ```
@@ -92,6 +98,9 @@ $newAnalyzer->unique(onlyOnSamePosition: false);
 
 
 ### Trim
+The Trim filter removes leading and trailing whitespace from words.
+
+For example, " never give up" becomes "never give up":
 ```php
 $newAnalyzer->trim();
 ```
@@ -112,7 +121,9 @@ $newAnalyzer->trim();
 
 
 ### One-Way Synonym
+The One-Way Synonym filter replaces a word with its synonym.
 
+For example, "fun" becomes "joy":
 ```php
 $newAnalyzer->oneWaySynonyms([
                 'ipod' => ['i-pod', 'i pod'],
@@ -149,7 +160,9 @@ $newAnalyzer->synonyms([
 ```
 
 ### Two-Way Synonyms
+The Two-Way Synonyms filter replaces a word with its synonym and vice versa.
 
+For example, "fun" becomes "joy" and "joy" becomes "fun":
 ```php
 $newAnalyzer->synonyms([
                 ['joy' ,'fun']
@@ -181,6 +194,9 @@ $newAnalyzer->synonyms([
 
 
 ### Lowercase
+The Lowercase filter converts all characters in a word to lowercase.
+
+For example, "ASAP" becomes "asap":
 ```php
 $newAnalyzer->lowercase();
 ```
@@ -202,7 +218,13 @@ $newAnalyzer->lowercase();
  "ASAP" // [tl! remove]
  "asap" // [tl! add]
 ```
-### Upercase
+
+### Uppercase
+
+The Uppercase filter converts all characters in a word to uppercase.
+
+For example, "Miserable" becomes "MISERABLE":
+
 ```php
 $newAnalyzer->uppercase();
 ```
@@ -214,7 +236,7 @@ $newAnalyzer->uppercase();
 "perfectly"
 "wretched"
  --------------------- 
- Upercase
+ Uppercase
  --------------------- 
 "Miserable" // [tl! remove]
 "darling" // [tl! remove]
@@ -231,6 +253,9 @@ $newAnalyzer->uppercase();
 ```
 
 ### Decimal Digit
+The Decimal Digit filter converts non-ASCII digits to their ASCII equivalents.
+
+For example, Lao digits are converted to Arabic numerals:
 ```php
 $newAnalyzer->decimalDigit();
 ```
@@ -257,6 +282,9 @@ $newAnalyzer->decimalDigit();
 ```
 
 ### Ascii Folding
+The Ascii Folding filter removes diacritics from characters.
+
+For example, "manténgase" becomes "mantengase":
 ```php
 $newAnalyzer->asciiFolding();
 ```
@@ -282,6 +310,9 @@ $newAnalyzer->asciiFolding();
   ```
 
 ### Token Limit
+The Token Limit filter limits the number of tokens in a phrase.
+
+For example, only the first five words are kept in the phrase:
 ```php
 $newAnalyzer->tokenLimit(maxTokenCount: 10);
 ```
@@ -313,6 +344,9 @@ $newAnalyzer->tokenLimit(maxTokenCount: 10);
 ```
 
 ### Truncate
+The Truncate filter limits the length of a word.
+
+For example, "Supercalifragilisticexpialidocious" becomes "Supercalif":
 ```php
 $newAnalyzer->truncate(length: 10);
 ```
@@ -326,7 +360,9 @@ $newAnalyzer->truncate(length: 10);
 ```
 
 ### Keywords
+The Keywords filter prevents certain words from being modified by other filters.
 
+For example, "going" is not stemmed to "go":
 ```php
 $newAnalyzer
 ->keywords(['going'])
@@ -351,15 +387,9 @@ $newAnalyzer
  "going" // [tl! highlight]
 ```
 
-@info
-This is important that keywords comes before stemmings!
-@endinfo
+## Registering Custom Token Filters 
 
-@info
-This is usefull when using the language token filters.
-@endinfo
-
-## Elaticsearch Plugin Filters
+You can register your own custom token filters. This can be done using the `TokenFilter::filterMap` method. This method accepts an associative array where the keys are the names of the custom filters and the values are the corresponding class names. Here is an example:
 
 ```php
         TokenFilter::filterMap([
@@ -367,3 +397,5 @@ This is usefull when using the language token filters.
             'skroutz_stem_greek' => SkroutzGreekStemmer::class,
         ]);
 ```
+
+In this example, two custom token filters are registered: `skroutz_greeklish` and `skroutz_stem_greek`. The `SkroutzGreeklish` and `SkroutzGreekStemmer` classes define the behavior of these filters.

@@ -202,3 +202,84 @@ Sorting clauses are divided by spaces, and follow this syntax:
 ```
 
 The `direction` can be either `asc` for ascending order or `desc` for descending order.
+
+# Filtering Nested Properties
+
+When working with nested properties in your Elasticsearch documents, you can use a special syntax to filter based on nested field values. The syntax supports both simple and complex nested property filtering.
+
+## Basic Nested Property Filtering
+
+To filter nested properties, use the following syntax:
+```sql
+property_name:{ field:"value" }
+```
+
+For example, if you have a nested field called `subject_services` with `id` and `name` properties:
+
+```php
+[
+    'subject_services' => [
+        ['name' => 'BMAT', 'id' => 23],
+        ['name' => 'IMAT', 'id' => 24]
+    ]
+]
+```
+
+You can filter for specific values like this:
+```sql
+subject_services:{ id:"23" }
+```
+
+## Multiple Conditions in Nested Filters
+
+You can combine multiple conditions within a nested filter using AND/OR operators:
+
+```sql
+subject_services:{ id:"23" AND name:"BMAT" }
+```
+
+## Deep Nested Properties
+
+For deeply nested properties (nested fields within nested fields), you can use multiple levels of curly braces:
+
+```
+contact:{ address:{ city:"Berlin" AND marker:"X" } }
+```
+
+This would match documents with this structure:
+```php
+[
+    'contact' => [
+        'address' => [
+            [
+                'city' => 'Berlin',
+                'marker' => 'X'
+            ]
+        ]
+    ]
+]
+```
+
+## Object Properties vs Nested Properties
+
+It's important to note the difference between object properties and nested properties:
+
+- For object properties, use dot notation:
+```sql
+contact.active:"true"
+```
+
+- For nested properties, use the curly brace syntax:
+```sql
+contact:{ active:"true" }
+```
+
+## Combining Nested Filters
+
+You can combine nested filters with other filter types using AND/OR operators:
+
+```sql
+subject_services:{ id:"23" } AND category:"active"
+```
+
+Remember that nested filters are powerful but should be used carefully as they can impact query performance, especially with deeply nested structures or complex conditions.

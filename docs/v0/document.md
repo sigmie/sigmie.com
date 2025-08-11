@@ -1,224 +1,475 @@
-## Introduction
-Documents are JSON objects stored within an Index. You can think of an Index as a multidimensional array.
+# Document Management
 
-Sigmie treats an Index as a **Collection** that contains instances of `Document\Document`.
+Documents are JSON objects stored within an Index. In Sigmie, you work with documents through the `Document` class and manage them using collection methods.
+
+## Introduction
+
+Sigmie treats an Index as a **Collection** that contains instances of `Document\Document`. This provides a fluent and intuitive API for managing your documents.
+
+## Creating Documents
+
+### Basic Document Creation
+
+```php
+use Sigmie\Document\Document;
+
+// Simple document
+$document = new Document(['name' => 'Snow White']);
+
+// Document with multiple fields
+$document = new Document([
+    'title' => 'The Lion King',
+    'genre' => 'Animation',
+    'year' => 1994,
+    'rating' => 8.5,
+    'tags' => ['family', 'musical', 'coming-of-age']
+]);
+```
+
+### Document with Custom ID
+
+```php
+// Document with specific ID
+$document = new Document([
+    'title' => 'Frozen',
+    'genre' => 'Animation'
+], 'movie_123');  // Custom document ID
+```
+
+### Complex Document Structures
+
+```php
+// Nested document structure
+$document = new Document([
+    'title' => 'Inception',
+    'director' => [
+        'name' => 'Christopher Nolan',
+        'birth_year' => 1970
+    ],
+    'cast' => [
+        ['name' => 'Leonardo DiCaprio', 'role' => 'Dom Cobb'],
+        ['name' => 'Marion Cotillard', 'role' => 'Mal']
+    ],
+    'metadata' => [
+        'runtime' => 148,
+        'budget' => 160000000,
+        'box_office' => 836800000
+    ]
+]);
+```
 
 ## Collecting an Index
-To treat an Index as a **Collection**, use the `collect` method on the Sigmie facade instance.
 
-For example:
+To work with documents in an Index, you first need to "collect" it:
+
 ```php
+// Basic collection
 $movies = $sigmie->collect('movies');
+
+// Collection with refresh for immediate availability
+$movies = $sigmie->collect('movies', refresh: true);
 ```
 
-After collecting your Index, you can start adding `Document\Document` instances to it, like so:
-
-```php
-$movies->add(new Document([ 'name' => 'Mickey Mouse' ]));
-```
-
-## Indexing Documents
-
-Remember that Elasticsearch operates in **” Near real-time ”**. This means that documents added to an Index are usually available for searching after about **1 second**.
-
-For testing purposes, you can make documents immediately available in your Index by using the `refresh` flag when collecting an Index.
+The `refresh: true` parameter makes documents immediately searchable, which is useful for testing but should be avoided in production.
 
 @danger
-Using `refresh: true` is **NOT** recommended in production code.
+Using `refresh: true` is **NOT** recommended in production code as it impacts performance.
 @enddanger
 
-### Async Indexing
-Consider the following example, where we index a Movie into our newly created `movies` Index:
+## Adding Documents
+
+### Adding Single Documents
 
 ```php
-$sigmie->newIndex('movies')->create();
-
-$doc = new Document(['name' => 'Snow White']);
-
+$document = new Document(['name' => 'Mickey Mouse']);
 $movies = $sigmie->collect('movies');
 
-$movies->add($docs);
-
-$movies->count(); // 0 [tl! highlight]
+$movies->add($document);
 ```
 
-In this case, we add the Movie and then **immediately** call the `count` method on the Alive Index Collection.
+### Adding Multiple Documents
 
-The `count` method returns `0` because the document is not available yet.
+```php
+$documents = [
+    new Document(['name' => 'Snow White']),
+    new Document(['name' => 'Cinderella']),
+    new Document(['name' => 'Sleeping Beauty'])
+];
 
-### Sync Indexing
-Here's a different example where we ensure that a Document was inserted into our Index before proceeding:
+$movies = $sigmie->collect('movies', refresh: true);
+$movies->merge($documents);
+```
+
+### Bulk Operations
+
+For better performance with large datasets:
+
+```php
+$documents = [];
+for ($i = 0; $i < 1000; $i++) {
+    $documents[] = new Document([
+        'title' => "Movie {$i}",
+        'year' => rand(1950, 2024),
+        'rating' => rand(1, 10)
+    ]);
+}
+
+$movies = $sigmie->collect('movies');
+$movies->merge($documents);  // Bulk insert
+```
+
+## Document Validation with Properties
+
+When using properties, documents are automatically validated:
+
+```php
+use Sigmie\Mappings\NewProperties;
+
+$properties = new NewProperties;
+$properties->name('title');
+$properties->date('release_date');
+$properties->number('rating')->float();
+
+// Valid document
+$validDoc = new Document([
+    'title' => 'The Matrix',
+    'release_date' => '1999-03-31T00:00:00Z',
+    'rating' => 8.7
+]);
+
+// Invalid document (will be caught during indexing)
+$invalidDoc = new Document([
+    'title' => 'Invalid Movie',
+    'release_date' => 'not-a-date',  // Invalid date format
+    'rating' => 'not-a-number'       // Invalid rating
+]);
+
+$movies = $sigmie->collect('movies')
+    ->properties($properties)
+    ->merge([$validDoc, $invalidDoc]);  // Validation occurs here
+```
+
+## Indexing Timing
+
+### Async Indexing (Default)
+
+By default, Elasticsearch operates in "near real-time" mode:
 
 ```php
 $sigmie->newIndex('movies')->create();
 
-$movies = $sigmie->collect('movies'); // [tl! remove]
-$movies = $sigmie->collect('movies', refresh: true); // [tl! add]
-
 $doc = new Document(['name' => 'Snow White']);
+$movies = $sigmie->collect('movies');
+$movies->add($doc);
 
-$movies->add($docs);
-
-$this->assertCount(1, $movies->count()); // [tl! highlight]
+$movies->count(); // 0 - document not immediately available
 ```
 
-@info
-By passing the `refresh: true` parameter when collecting the Index, we ensure that all inserts made to the `movies` Index are immediately visible.
-@endinfo
+Documents are usually available for searching after about 1 second.
 
-## Document _id
-Every time a Document is indexed, Elasticsearch automatically assigns it an `_id`.
+### Sync Indexing (Testing)
 
-### Adding a Document with an `_id`
-You have the option to either let Elasticsearch automatically assign the `_id` field when indexing a Document, or you can manually specify it. To manually specify the `_id`, you can do so in the `Document\Document` constructor, like this: `_id: 1`.  
+For testing or when you need immediate availability:
+
 ```php
-$movies->add(new Document( 
-              _source: ['name' => 'Snow White'], 
-              _id: 1 //[tl! highlight]
-            ));
+$doc = new Document(['name' => 'Snow White']);
+$movies = $sigmie->collect('movies', refresh: true);
+$movies->add($doc);
+
+$movies->count(); // 1 - document immediately available
 ```
 
-@info
-Manually specifying the `_id` is a common practice when indexing Documents from a SQL database. This approach provides the advantage of allowing you to perform **update** and **delete** operations on the document at a later stage.
-@endinfo
+## Working with Collections
 
-### Adding a Document without an `_id`
+### Counting Documents
 
-If you add a Document without specifying an `_id`, Elasticsearch will automatically assign one. You can retrieve this `_id` using the `$doc->_id` property, which is read-only. 
-
-Here's an example where Elasticsearch assigns an `_id`:
 ```php
-$doc = new Document(['name' => 'The Lion King']);
-
-$sigmie->collect('movies')->add($doc); 
-
-echo $doc->_id; // Outputs: 7IapIQBhb8W_9CdjGoe
+$movies = $sigmie->collect('movies', refresh: true);
+$totalMovies = $movies->count();
 ```
 
-In contrast, if you're indexing Documents from a database, you might want to manually specify the `_id`. Here's how you can do that:
+### Checking Collection State
 
 ```php
-$doc = new Document(['name' => 'The Lion King'], _id: 99);
+$movies = $sigmie->collect('movies');
 
-$sigmie->collect('movies')->add($doc); 
-
-echo $doc->_id; // Outputs: 99
+// Check if collection is "alive" (has real-time data)
+if ($movies instanceof AliveCollection) {
+    // Real-time collection with refresh enabled
+    $count = $movies->count();
+}
 ```
 
-
-## Retrieving a Document
-You can retrieve a Document by its `_id` using the `get` method on the Index collection.
+### Iterating Through Documents
 
 ```php
-$doc = $sigmie->collect('movies')->get('rIapIQBhb8W_9CdjGoe');
-```
+$movies = $sigmie->collect('movies', refresh: true);
 
+// Add some documents first
+$movies->merge([
+    new Document(['title' => 'Movie 1']),
+    new Document(['title' => 'Movie 2']),
+    new Document(['title' => 'Movie 3'])
+]);
 
-## Updating a Document
-There may be instances where you need to update the contents of a Document.
-
-### Updating a Single Document
-To update an existing Document, you can use the `replace` method.
-```php
-$doc = new Document(['name' => 'Snow White'], _id: 2 );
-
-$sigmie->collect('movies')
-       ->replace($doc)); // [tl! highlight]
-```
-
-Alternatively, you can use the `merge` method to update multiple records simultaneously.
-```php
-$doc = new Document(['name' => 'Snow White'], _id: 2 );
-
-$sigmie->collect('movies')
-        ->merge([$doc]); // [tl! add] 
-```
-
-If you pass a `Document` without an `_id` to the merge function, a new `Document` will be created.
-
-## Iterating over Index Documents
-The `each` method accepts a callback, allowing you to iterate over all Index Documents.
-
-The `chunk` method specifies how many records to load into memory at a time, to avoid memory exceptions. This is especially useful if you want to iterate over large indices.
-
-```php
-$movies = $sigmie->collect('movies')->chunk(500);
-
-$movies->each(function (Document $document, string $_index) {
-    // do something...
+// Lazy iteration (memory efficient for large collections)
+$movies->each(function (Document $document) {
+    echo $document['title'] . "\n";
 });
 ```
 
-You can also call the `all` method to use a traditional `foreach` loop.
+### Converting to Array
 
 ```php
-foreach ($movies->all() as $index => $movie) {
-    // do something...
+$movies = $sigmie->collect('movies', refresh: true);
+$movies->merge([/* documents */]);
+
+// Get all documents as array
+$documentsArray = $movies->toArray();
+```
+
+## Document Operations
+
+### Updating Documents
+
+To update documents, you typically re-index them with the same ID:
+
+```php
+// Original document
+$original = new Document([
+    'title' => 'The Matrix',
+    'year' => 1999
+], 'matrix_1');
+
+$movies = $sigmie->collect('movies', refresh: true);
+$movies->add($original);
+
+// Updated document (same ID)
+$updated = new Document([
+    'title' => 'The Matrix',
+    'year' => 1999,
+    'rating' => 8.7,  // New field
+    'updated_at' => date('c')
+], 'matrix_1');
+
+$movies->add($updated);  // This will update the existing document
+```
+
+### Deleting Documents
+
+Currently, document deletion is handled through Elasticsearch's native APIs or by reindexing without the unwanted documents.
+
+## Working with Complex Data Types
+
+### Date Fields
+
+```php
+$properties = new NewProperties;
+$properties->date('created_at');
+
+$document = new Document([
+    'title' => 'New Movie',
+    'created_at' => '2023-04-07T12:38:29.000000Z'  // ISO format
+]);
+```
+
+### Geo Points
+
+```php
+$properties = new NewProperties;
+$properties->geoPoint('location');
+
+$document = new Document([
+    'venue' => 'Cinema Downtown',
+    'location' => [
+        'lat' => 40.7128,
+        'lon' => -74.0060
+    ]
+]);
+```
+
+### Nested Objects
+
+```php
+$properties = new NewProperties;
+$properties->nested('cast', function (NewProperties $props) {
+    $props->name('actor');
+    $props->keyword('role');
+});
+
+$document = new Document([
+    'title' => 'Avengers',
+    'cast' => [
+        ['actor' => 'Robert Downey Jr.', 'role' => 'Iron Man'],
+        ['actor' => 'Chris Evans', 'role' => 'Captain America']
+    ]
+]);
+```
+
+## Performance Considerations
+
+### Batch Operations
+
+Always prefer batch operations for multiple documents:
+
+```php
+// Good: Batch operation
+$movies->merge($manyDocuments);
+
+// Avoid: Individual operations
+foreach ($manyDocuments as $doc) {
+    $movies->add($doc);  // Inefficient for large datasets
 }
-
 ```
 
-## Purging Index Documents
-The `clear` function enables you to delete all Documents from an Index.
+### Memory Management
 
-For instance, consider a `movies` Index that contains 100 movies.
+For large collections, use lazy iteration:
+
 ```php
+// Memory efficient for large datasets
+$movies->each(function (Document $doc) {
+    // Process each document
+    processDocument($doc);
+});
+
+// Memory intensive for large datasets
+$allDocs = $movies->toArray();  // Loads everything into memory
+```
+
+### Index Optimization
+
+Consider refresh strategies based on your use case:
+
+```php
+// Production: Let Elasticsearch handle refresh timing
 $movies = $sigmie->collect('movies');
 
-$movies->count(); // 100
+// Development/Testing: Force immediate refresh
+$movies = $sigmie->collect('movies', refresh: true);
+
+// Batch processing: Disable refresh during bulk operations
+$movies = $sigmie->collect('movies', refresh: false);
+// ... add many documents ...
+// Manually refresh when done
+$sigmie->index('movies')->refresh();
 ```
 
-After invoking the `clear` function, the count of Documents in our Index will be zero.
+## Common Patterns
+
+### E-commerce Products
+
 ```php
-$movies = $sigmie->collect('movies');
+$properties = new NewProperties;
+$properties->name('name');
+$properties->longText('description');
+$properties->price('price');
+$properties->category('category');
+$properties->tags('tags');
+$properties->bool('in_stock');
+$properties->date('created_at');
 
-$movies->clear(); // [tl! highlight]
+$product = new Document([
+    'name' => 'Wireless Headphones',
+    'description' => 'High-quality wireless headphones with noise cancellation',
+    'price' => 199.99,
+    'category' => 'Electronics',
+    'tags' => ['audio', 'wireless', 'noise-cancelling'],
+    'in_stock' => true,
+    'created_at' => date('c')
+]);
 
-$movies->count(); // 0
+$products = $sigmie->collect('products')
+    ->properties($properties)
+    ->merge([$product]);
 ```
 
-## Upserting an Index
-You can begin adding Documents to an Index, even if the Index **does not exist yet**.
+### User Profiles
 
 ```php
-$sigmie->index('movies')->delete(); // [tl! highlight]
+$properties = new NewProperties;
+$properties->name('username');
+$properties->email('email');
+$properties->number('age')->integer();
+$properties->tags('interests');
+$properties->nested('address', function (NewProperties $props) {
+    $props->keyword('street');
+    $props->keyword('city');
+    $props->keyword('country');
+});
 
-$index = $sigmie->collect('movies')
-
-$index->add($doc);
-
-$index->count(); 1 // [tl! highlight]
+$user = new Document([
+    'username' => 'john_doe',
+    'email' => 'john@example.com',
+    'age' => 30,
+    'interests' => ['technology', 'sports', 'travel'],
+    'address' => [
+        'street' => '123 Main St',
+        'city' => 'New York',
+        'country' => 'USA'
+    ]
+]);
 ```
 
-@warning
-While it's possible to add documents to an Index before creating it, **we strongly recommend creating the Index first**. This is because adding documents prior to Index creation can lead to issues with the `boost` and `autocomplete` attributes.
-@endwarning
-
-## Additional Functions
-Here are some more functions available on the Index collection.
+### Content Management
 
 ```php
-//Remove document by `_id`
-$index->remove(_id: 1);
+$properties = new NewProperties;
+$properties->title('title');
+$properties->longText('content');
+$properties->name('author');
+$properties->tags('tags');
+$properties->category('category');
+$properties->date('published_at');
+$properties->bool('is_published');
 
-// Verify if document exists
-$index->has(_id: 1);
-
-// Retrieve all documents as an array
-$index->toArray();
-
-// Verify if the index contains documents
-$index->isEmpty();
-
-$index->isNotEmpty();
-
-// Retrieve the document count
-$index->count();
+$article = new Document([
+    'title' => 'Getting Started with Elasticsearch',
+    'content' => 'Elasticsearch is a powerful search engine...',
+    'author' => 'Jane Smith',
+    'tags' => ['elasticsearch', 'search', 'tutorial'],
+    'category' => 'Technology',
+    'published_at' => '2024-01-15T10:00:00Z',
+    'is_published' => true
+]);
 ```
 
-The collected **Index** implements the `ArrayAccess` and the `Countable` interfaces. Hence, using the `isset` and `count` PHP functions will not result in any `Exceptions`.
-```php
-isset($index['2'])
+## Error Handling
 
-count($index)
+```php
+try {
+    $movies = $sigmie->collect('movies', refresh: true);
+    $movies->merge($documents);
+    
+    echo "Indexed " . count($documents) . " documents successfully";
+} catch (Exception $e) {
+    echo "Error indexing documents: " . $e->getMessage();
+}
+```
+
+## Best Practices
+
+1. **Use Batch Operations**: Always prefer `merge()` over individual `add()` calls for multiple documents
+2. **Validate Data**: Use properties to validate document structure
+3. **Handle Dates Properly**: Use ISO 8601 format for date fields
+4. **Memory Management**: Use lazy iteration for large datasets
+5. **Error Handling**: Always wrap operations in try-catch blocks
+6. **Production Refresh**: Avoid `refresh: true` in production environments
+7. **Custom IDs**: Use meaningful document IDs when you need to update specific documents
+
+```php
+// Good pattern
+$properties = new NewProperties;
+$properties->name('title');
+$properties->date('created_at');
+
+try {
+    $movies = $sigmie->collect('movies')
+        ->properties($properties)
+        ->merge($validatedDocuments);
+    
+    echo "Successfully indexed documents";
+} catch (Exception $e) {
+    logger()->error("Document indexing failed: " . $e->getMessage());
+}
 ```

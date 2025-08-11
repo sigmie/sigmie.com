@@ -7,12 +7,12 @@ In Elasticsearch, you simply add the movie to the **Fairy Tales Index**.
 
 There's no need to create an Index beforehand, it will be created if it doesn't exist.
 
-As long as you keep the movie’s attributes under [1000](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/mapping-settings-limit.html#mapping-settings-limit), you can have as many attributes as you want without needing to define them first.
+As long as you keep the movie's attributes under [1000](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/mapping-settings-limit.html#mapping-settings-limit), you can have as many attributes as you want without needing to define them first.
 
 ### What is an Index?
-An Index can be thought of as a drawer in a kid’s room that contains all the toys, a table in a database, or an **Index** in Elasticsearch.
+An Index can be thought of as a drawer in a kid's room that contains all the toys, a table in a database, or an **Index** in Elasticsearch.
 
-Below is a simple representation of a `movies` **Index**. It’s essentially a storage space for movie records, allowing us to search for them in the future. 
+Below is a simple representation of a `movies` **Index**. It's essentially a storage space for movie records, allowing us to search for them in the future. 
 ```bash
 Index
 ├─ Document 1
@@ -22,8 +22,6 @@ Index
 ```
 
 The records in an Index are referred to as **Documents**.
-
-
 
 ### What is a Document?
 
@@ -37,7 +35,7 @@ Document = JSON
 Index = Collection of related Documents 
 ```
 
-Here’s an example of what a document might look like.
+Here's an example of what a document might look like.
 
 ```json
 {
@@ -62,12 +60,12 @@ And this is how we translate this Document into PHP code so that we can work wit
 ```php
 use Sigmie\Document\Document;
 
-new Document(['name' => 'Cinderella']),
+new Document(['name' => 'Cinderella']);
 ```
 
 ## Create an Index
 
-Let’s create our first index using Sigmie. 
+Let's create our first index using Sigmie. 
 
 While there are many options in the `NewIndex` builder class,
 this is the simplest way to create an Index.
@@ -79,14 +77,32 @@ $index = $sigmie->newIndex('movies')->create();
 Once the above code is executed, we have an **empty**  `movies` Index ready to receive some Documents.
 
 ```bash
-fantasy_characters
+movies
 ├─ # empty
+```
+
+### Create Index with Properties
+
+Most of the time, you'll want to define the structure of your documents using properties:
+
+```php
+use Sigmie\Mappings\NewProperties;
+
+$properties = new NewProperties;
+$properties->name('title');
+$properties->text('description');
+$properties->category('genre');
+$properties->date('created_at');
+
+$index = $sigmie->newIndex('movies')
+    ->properties($properties)
+    ->create();
 ```
 
 ### Add Documents
 To add Documents to our Index, we need to **collect** the Index. 
 
-This is done by calling the `collect` method on the Index instance returned from the Index builder `create` method. Then we pass an `array` of the Documents that we wish to add to the `merge` method.
+This is done by calling the `collect` method on the Sigmie instance and passing the index name. Then we pass an `array` of the Documents that we wish to add to the `merge` method.
 
 Below is an example of how we add 3 Movies to the `movies` Index that we created earlier.
 
@@ -99,18 +115,18 @@ $documents = [
     new Document(['name' => 'Sleeping Beauty']),
 ];
 
-$index->collect()->merge($documents);
+$sigmie->collect('movies')->merge($documents);
 ```
 
-Typically, you won’t have an instance of the `Index` class. You can also `collect` an existing Index by calling the `collect` method on the Sigmie facade and passing the Index name.
+You can also use the `refresh` parameter to make the documents immediately available for search:
 
 ```php
-$sigmie->collect('movies')->merge($documents);
+$sigmie->collect('movies', refresh: true)->merge($documents);
 ```
 
 Here is what the Index looks like once we merge the Movie Documents.
 ```bash
-fantasy_characters
+movies
 ├─ "Cinderella"
 ├─ "Snow White"
 ├─ "Sleeping Beauty"
@@ -119,9 +135,9 @@ fantasy_characters
 The process of adding Documents to an Index is known as **Indexing**.
 
 ## Analysis
-The truth is that the Index doesn’t store the **Documents** in the exact form that we indexed them. All Documents in an Index are **Analyzed** according to the Index settings.
+The truth is that the Index doesn't store the **Documents** in the exact form that we indexed them. All Documents in an Index are **Analyzed** according to the Index settings.
 
-This process is known as **Analysis**. Let’s delve deeper.
+This process is known as **Analysis**. Let's delve deeper.
 
 ### What is Analysis?
 
@@ -135,8 +151,8 @@ If we create an `Index`  like this
 
 ```php
 $sigmie->newIndex('movies')
-    ->tokenizeOnWhitespaces() // [tl! highlight]
-    ->lowercase() // [tl! highlight]
+    ->tokenizeOnWhitespaces()
+    ->lowercase()
     ->create();
 ```
 
@@ -150,7 +166,7 @@ and index the below Documents
 ]
 ```
 
-The `name` attribute of the Documents will look like this after it’s been **analyzed**.
+The `name` attribute of the Documents will look like this after it's been **analyzed**.
 
 ```php
 | Document 1   | Document 2  | Document 3  |
@@ -175,7 +191,7 @@ If we send the Query string `Cinderella`, it will become `cinderella`  because o
 | "Cinderella" | "cinderella"   |
 ```
 
-The logic is that now it doesn’t matter if the search user types `Cinderella`, `CINDERELLA`, or even `cInDeReLlA` once the string is analyzed it will be `cinderella`.
+The logic is that now it doesn't matter if the search user types `Cinderella`, `CINDERELLA`, or even `cInDeReLlA` once the string is analyzed it will be `cinderella`.
 
 ### How does matching happen?
 Now Elasticsearch looks into the analyzed values of the **Documents** to find which Documents contain the analyzed **query term**.
@@ -205,22 +221,94 @@ an `array` containing the **tokens**.
 $tokens = $index->analyze('Cinderella'); // [ "cinderella"]
 ```
 
+## Language Support
+
+Sigmie supports multiple languages with built-in analyzers and filters:
+
+### English
+```php
+use Sigmie\Languages\English\English;
+
+$sigmie->newIndex('articles')
+    ->properties($properties)
+    ->language(new English)
+    ->create();
+```
+
+### German
+```php
+use Sigmie\Languages\German\German;
+
+$sigmie->newIndex('artikel')
+    ->properties($properties)
+    ->language(new German)
+    ->germanNormalize()  // Additional German normalization
+    ->create();
+```
+
+### Greek
+```php
+use Sigmie\Languages\Greek\Greek;
+
+$sigmie->newIndex('articles')
+    ->properties($properties)
+    ->language(new Greek)
+    ->create();
+```
+
+## Analysis Options
+
+Sigmie provides many built-in analysis options:
+
+### Basic Analysis
+```php
+$sigmie->newIndex('movies')
+    ->tokenizeOnWhitespaces()
+    ->lowercase()
+    ->create();
+```
+
+### Advanced Analysis
+```php
+$sigmie->newIndex('movies')
+    ->dontTokenize()      // Don't split text into tokens
+    ->trim()              // Remove whitespace
+    ->create();
+```
+
+## Autocomplete
+
+You can enable autocomplete functionality for your index:
+
+```php
+$properties = new NewProperties;
+$properties->name('title');
+$properties->text('description');
+$properties->autocomplete();
+
+$sigmie->newIndex('movies')
+    ->autocomplete(['title', 'description'])
+    ->properties($properties)
+    ->create();
+```
+
 ## Index Update
 
-Even though an Index update function doesn’t exist in Elasticsearch, we created an `update` function that you can use to **update** your Index.
+Even though an Index update function doesn't exist in Elasticsearch, we created an `update` function that you can use to **update** your Index.
 
 ```php
 use Sigmie\Index\UpdateIndex;
 
 $sigmie->index('movies')->update(function(UpdateIndex $updateIndex){
-
+    $updateIndex->properties($newProperties);
+    $updateIndex->lowercase();
 });
 ```
 
 ### How does the update work?
-It’s important for you to understand what the `update` function does in the background. But before that, let’s see why an **Index update isn’t natively possible in Elasticsearch**.
+It's important for you to understand what the `update` function does in the background. But before that, let's see why an **Index update isn't natively possible in Elasticsearch**.
 
-### Why an Index update isn’t possible?
+### Why an Index update isn't possible?
 
 The reason is the **Analysis** process that makes the Index immutable. If an Index could be updated, Elasticsearch would need to **analyze** the Documents all over again and there are too many risks and implications with this.
 
@@ -248,7 +336,7 @@ movies (movies_20221122210823379774)
 ├─ "Snow White"
 ├─ "Sleeping Beauty"
 
-movies_20221222210823379774 # [tl! add]
+movies_20221222210823379774
 ├─ # empty
 ```
 
@@ -260,9 +348,9 @@ movies (movies_20221122210823379774)
 ├─ "Sleeping Beauty"
 
 movies_20221222210823379774
-├─ "Cinderella" # [tl! add]
-├─ "Snow White" # [tl! add]
-├─ "Sleeping Beauty" # [tl! add]
+├─ "Cinderella"
+├─ "Snow White"
+├─ "Sleeping Beauty"
 ```
 
 #### Phase 3 - Swap Alias
@@ -272,7 +360,7 @@ movies_20221122210823379774
 ├─ "Snow White"
 ├─ "Sleeping Beauty"
 
-movies (movies_20221222210823379774) # [tl! add]
+movies (movies_20221222210823379774)
 ├─ "Cinderella"
 ├─ "Snow White"
 ├─ "Sleeping Beauty"
@@ -280,20 +368,14 @@ movies (movies_20221222210823379774) # [tl! add]
 
 #### Phase 4 - Delete old index
 ```bash
-movies_20221122210823379774 # [tl! remove]
-├─ "Cinderella" # [tl! remove]
-├─ "Snow White" # [tl! remove]
-├─ "Sleeping Beauty" # [tl! remove]
-
-movies (movies_20221222210823379774) # [tl! add] 
+movies (movies_20221222210823379774)
 ├─ "Cinderella"
 ├─ "Snow White"
 ├─ "Sleeping Beauty"
 ```
 
-
 @danger
-It’s important to keep in mind that the **Index Settings** aren’t merged with the old index. You need to always call the Index settings again in the `update` callback. 
+It's important to keep in mind that the **Index Settings** aren't merged with the old index. You need to always call the Index settings again in the `update` callback. 
 @enddanger
 
 ## Delete an Index
@@ -303,12 +385,32 @@ You can delete an Index by calling the **delete** method on the Index instance.
 $sigmie->index('movies')->delete();
 ```
 
+## Retrieving Index Information
+
+You can get information about an existing index:
+
+```php
+$index = $sigmie->index('movies');
+
+// Get raw Elasticsearch mapping
+$rawMapping = $index->raw;
+
+// Get index mappings
+$mappings = $index->mappings;
+
+// Get properties
+$properties = $index->mappings->properties();
+```
+
 ## Advanced
+
 ### Settings
 Use the `config` method to add Index configurations from the [Index modules](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html).
 
 ```php
-$newIndex->config('index.max_ngram_diff', 3);
+$sigmie->newIndex('movies')
+    ->config('index.max_ngram_diff', 3)
+    ->create();
 ```
 
 ### Shards
@@ -320,10 +422,10 @@ You can use the `shards` and `replicas` methods on the `NewIndex` builder class 
 
 ```php
 $sigmie->newIndex('movies')
-    ->shards(1) // [tl! highlight]
+    ->shards(1)
+    ->replicas(2)
     ->create();
 ```
-
 
 #### What is a shard?
 
@@ -356,7 +458,7 @@ You can set the number of replicas with the `replicas` method.
 ```php
 $sigmie->newIndex('movies')
     ->shards(1)
-    ->replicas(2) // [tl! highlight]
+    ->replicas(2)
     ->create();
 ```
 
@@ -397,13 +499,10 @@ cluster
 │  ├─ primary 2
 │  ├─ replica of primary 1
 │  ├─ replica of primary 3
-├─ server 3 # [tl! remove] 
-│  ├─ primary 3 # [tl! remove] 
-│  ├─ replica of primary 2 # [tl! remove] 
-│  ├─ replica of primary 1 # [tl! remove] 
+├─ server 3 # died
 ```
 
-That’s because our Index consists of 3 shards, and even though a node containing some of our shards died. We still have a copy of those data on the other 2 servers.
+That's because our Index consists of 3 shards, and even though a node containing some of our shards died. We still have a copy of those data on the other 2 servers.
 
 #### What happens if two nodes die?
 And also even if our 2nd server died, we still have 3 shards of our Index 2 copies, and 1 primary.
@@ -413,20 +512,13 @@ cluster
 │  ├─ primary 1
 │  ├─ replica of primary 2
 │  ├─ replica of primary 3
-├─ server 2 # [tl! remove] 
-│  ├─ primary 2 # [tl! remove] 
-│  ├─ replica of primary 1 # [tl! remove] 
-│  ├─ replica of primary 1 # [tl! remove] 
-│  ├─ replica of primary 3 # [tl! remove]
-├─ server 3 # [tl! remove] 
-│  ├─ primary 3 # [tl! remove] 
-│  ├─ replica of primary 2 # [tl! remove] 
-│  ├─ replica of primary 1 # [tl! remove] 
+├─ server 2 # died
+├─ server 3 # died
 ```
 
-Even in an extremely unlikely scenario like this one, all our data are there and Elasticsearch can continue to serve our user’s searches until the 2 servers are up again. 
+Even in an extremely unlikely scenario like this one, all our data are there and Elasticsearch can continue to serve our user's searches until the 2 servers are up again. 
 
-To make this clear, of course now the **replica** shards became **primary** shards and it looks like bellow.
+To make this clear, of course now the **replica** shards became **primary** shards and it looks like below.
 ```sh
 cluster
 ├─ server 1

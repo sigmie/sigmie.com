@@ -143,6 +143,36 @@ For instance, given the previous document structure, if you want to find documen
 category:['red', 'blue']
 ```
 
+### Wildcard Filtering
+
+You can use wildcard patterns to match partial values using the `*` character:
+
+```bash
+{field}:'*{pattern}'    # Match ending with pattern
+{field}:'{pattern}*'    # Match starting with pattern  
+{field}:'*{pattern}*'   # Match containing pattern
+```
+
+Examples:
+```sql
+# Match phone numbers ending with specific digits
+number:'*650'
+
+# Match phone numbers starting with area code
+number:'2353*'
+
+# Check for field existence (has any value)
+field_name:*
+
+# Check for field non-existence  
+NOT field_name:*
+```
+
+This is particularly useful for:
+- Partial phone number matching
+- Prefix/suffix searching on identifiers
+- Checking if fields have any value
+
 ### Range Filtering
 
 Often, you may need to filter data within a certain range. This can be achieved using the **range operators**.
@@ -178,6 +208,92 @@ The same syntax can be used to filter within a specific **price range**.
 
 ```sql
 price>=100 AND price<=200
+```
+
+### Between Range Syntax
+
+For convenience, you can also use the **between** syntax with `..` (double dot) to specify ranges:
+
+```bash
+{field}:{from_value}..{to_value}
+```
+
+This is equivalent to using `>=` and `<=` operators but more concise:
+
+```sql
+price:100..200
+```
+
+This is the same as writing:
+```sql
+price>=100 AND price<=200
+```
+
+The between syntax works with both numbers and dates:
+
+```sql
+# Number ranges
+price:100..500
+stock:10..100
+
+# Date ranges  
+created_at:2023-01-01T00:00:00.000000+00:00..2023-12-31T23:59:59.999999+00:00
+last_activity:2024-01-01..2024-12-31
+```
+
+## Value Quoting Rules
+
+### Numbers and Quotes
+
+Numbers can be used with or without quotes in most contexts:
+
+```sql
+# Both are valid for number fields
+price:100
+price:"100"
+
+# Same for comparisons
+stock>=50
+stock>="50"
+
+# Range syntax
+price:100..200    # No quotes needed
+```
+
+### String Values
+
+String values should be quoted, but both single and double quotes are supported:
+
+```sql
+# Both are equivalent  
+category:"sports"
+category:'sports'
+
+# Complex strings with special characters
+job_title:"Chief Information Officer (CIO)"
+category:'crime & drama'
+```
+
+### Empty Values
+
+You can filter for empty values using empty quotes:
+
+```sql
+# Find documents with empty database field
+database:""
+database:''
+
+# Find documents with empty array
+tags:[]
+```
+
+### Escaping Special Characters
+
+Use backslashes to escape quotes within quoted strings:
+
+```sql
+description:"She said \"Hello World\""
+title:'It\'s working'
 ```
 
 
@@ -267,14 +383,29 @@ This would match documents with this structure:
 
 It's important to note the difference between object properties and nested properties:
 
-- For object properties, use dot notation:
+- **For object properties**, use dot notation:
 ```sql
-contact.active:"true"
+contact.active:true
+contact.name:"John Doe"
+contact.location.lat:40.7128
 ```
 
-- For nested properties, use the curly brace syntax:
+- **For nested properties**, use the curly brace syntax:
 ```sql
-contact:{ active:"true" }
+contact:{ active:true }
+contact:{ name:"John Doe" AND location:1km[40.7128,-74.0060] }
+```
+
+### Mixed Nested Path Syntax
+
+For complex nested structures, you can also use the mixed dot and curly brace syntax:
+
+```sql
+# For nested fields within nested fields
+driver.vehicle:{ make:"Powell Motors" AND model:"Canyonero" }
+
+# For deeply nested structures
+subject_services:{ id:"23" AND name:"BMAT" }
 ```
 
 ## Combining Nested Filters
@@ -392,3 +523,69 @@ Remember that geo-location filtering is particularly useful for:
 - Territory-based searches
 - Distance-based filtering
 - Geographic boundary queries
+
+## Important Limitations and Best Practices
+
+### Syntax Requirements
+
+1. **Logical Operators Must Be Separated**: Always separate filter clauses with proper logical operators:
+   ```sql
+   # ✅ Correct
+   color:'red' AND category:'sports'
+   
+   # ❌ Incorrect - will throw ParseException
+   color:'red' color:'sports'
+   ```
+
+2. **Property Validation**: The filter parser validates that all referenced fields exist in your mappings. Using non-existent fields will result in errors.
+
+3. **Complex Nested Filters**: There are limits to nesting depth to prevent performance issues:
+   ```sql
+   # ✅ Reasonable nesting
+   (category:'action' OR category:'horror') AND stock>0
+   
+   # ❌ Excessive nesting (will throw ParseException)
+   (((((((((((((((((NOT field:'value'))))))))))))))))
+   ```
+
+### Performance Considerations
+
+1. **Geo-location Distance**: Very large distances can impact performance:
+   ```sql
+   # ✅ Reasonable distance
+   location:100km[51.49,13.77]
+   
+   # ⚠️ Very large distance - may be slow  
+   location:2000000000mi[51.49,13.77]
+   ```
+
+2. **Zero Distance**: Using zero distance in geo-location filters returns no results, even for exact matches:
+   ```sql
+   # ❌ Returns no results
+   location:0km[51.16,13.49]
+   
+   # ✅ Use small positive distance instead
+   location:1m[51.16,13.49]
+   ```
+
+3. **Empty Arrays**: Empty `IN` arrays return no results:
+   ```sql
+   # Returns no documents
+   category:[]
+   ```
+
+### Quote Handling
+
+1. **Parentheses in Quotes**: Parentheses inside quoted strings are preserved and don't affect parsing:
+   ```sql
+   # ✅ Correctly handled
+   title:"Chief Executive Officer (CEO)"
+   job_titles:["Chief Information Officer (CIO)"]
+   ```
+
+2. **Whitespace Trimming**: Values in arrays are automatically trimmed:
+   ```sql
+   # These are equivalent
+   ids:['123', '456', '789']
+   ids:[' 123 ', ' 456 ', ' 789 ']
+   ```

@@ -1,18 +1,38 @@
 <?php
 
 return [
-    'v0' => [
+    'versions' => [
+        [
+            'value' => 'v1',
+            'label' => 'v1.x',
+            'status' => 'stable',
+            'default' => true
+        ],
+        [
+            'value' => 'v2',
+            'label' => 'v2.x',
+            'status' => 'beta',
+            'default' => true
+        ],
+        // Future versions can be added here
+        // [
+        //     'value' => 'v1',
+        //     'label' => 'v1.x',
+        //     'status' => 'beta'
+        // ],
+    ],
+    'v1' => [
         'navigation' => [
             [
                 'title' => 'Getting Started',
                 'links' => [
                     [
                         'title' => 'Introdution',
-                        'href' => '/docs/v0/introduction'
+                        'href' => '/docs/v1/introduction'
                     ],
                     [
                         'title' => 'Installation',
-                        'href' => '/docs/v0/installation'
+                        'href' => '/docs/v1/installation'
                     ]
                 ]
             ],
@@ -21,23 +41,31 @@ return [
                 'links' => [
                     [
                         'title' => 'Index',
-                        'href' => '/docs/v0/index'
+                        'href' => '/docs/v1/index'
                     ],
                     [
                         'title' => 'Document',
-                        'href' => '/docs/v0/document'
+                        'href' => '/docs/v1/document'
                     ],
                     [
                         'title' => 'Mappings',
-                        'href' => '/docs/v0/mappings'
+                        'href' => '/docs/v1/mappings'
                     ],
                     [
                         'title' => 'Search',
-                        'href' => '/docs/v0/search'
+                        'href' => '/docs/v1/search'
                     ],
                     [
                         'title' => 'Filter & Sorting',
-                        'href' => '/docs/v0/filter-parser'
+                        'href' => '/docs/v1/filter-parser'
+                    ],
+                    [
+                        'title' => 'Facets',
+                        'href' => '/docs/v1/facets'
+                    ],
+                    [
+                        'title' => 'Update',
+                        'href' => '/docs/v1/update'
                     ],
                 ]
             ],
@@ -46,19 +74,23 @@ return [
                 'links' => [
                     [
                         'title' => 'Analyisis',
-                        'href' => '/docs/v0/analysis'
+                        'href' => '/docs/v1/analysis'
                     ],
                     [
                         'title' => 'Char filters',
-                        'href' => '/docs/v0/char-filters'
+                        'href' => '/docs/v1/char-filters'
                     ],
                     [
                         'title' => 'Tokenizer',
-                        'href' => '/docs/v0/tokenizers'
+                        'href' => '/docs/v1/tokenizers'
                     ],
                     [
                         'title' => 'Token filters',
-                        'href' => '/docs/v0/token-filters'
+                        'href' => '/docs/v1/token-filters'
+                    ],
+                    [
+                        'title' => 'Language',
+                        'href' => '/docs/v1/language'
                     ],
                 ]
             ],
@@ -67,55 +99,187 @@ return [
                 'links' => [
                     [
                         'title' => 'Query',
-                        'href' => '/docs/v0/query'
+                        'href' => '/docs/v1/query'
                     ],
                     [
                         'title' => 'Aggregations',
-                        'href' => '/docs/v0/aggregations'
+                        'href' => '/docs/v1/aggregations'
                     ],
-                    // [
-                    //     'title' => 'Search Template',
-                    //     'href' => '/docs/v0/template'
-                    // ],
+                    [
+                        'title' => 'Semantic Search',
+                        'href' => '/docs/v1/semantic-search'
+                    ],
+                    [
+                        'title' => 'Search Template',
+                        'href' => '/docs/v1/template'
+                    ],
                 ]
             ],
-            // [
-            //     'title' => 'Parse',
-            //     'links' => [
-            //         [
-            //             'title' => 'Sort parser',
-            //             'href' => '/docs/v0/sort-parser'
-            //         ]
-            //     ]
-            // ],
-            // [
-            //     'title' => 'More',
-            //     'links' => [
-            //         [
-            //             'title' => 'Testing',
-            //             'href' => '/v0/testing'
-            //         ],
-            //         [
-            //             'title' => 'Packages',
-            //             'href' => '/v0/packages'
-            //         ],
-            //         [
-            //             'title' => 'Docker',
-            //             'href' => '/v0/docker'
-            //         ],
-            //         [
-            //             'title' => 'Changelog',
-            //             'href' => '/v0/changelog'
-            //         ],
-            //     ]
-            // ],
+            [
+                'title' => 'Parse',
+                'links' => [
+                    [
+                        'title' => 'Sort parser',
+                        'href' => '/docs/v1/sort-parser'
+                    ]
+                ]
+            ],
+            [
+                'title' => 'More',
+                'links' => [
+                    [
+                        'title' => 'Testing',
+                        'href' => '/docs/v1/testing'
+                    ],
+                    [
+                        'title' => 'Packages',
+                        'href' => '/docs/v1/packages'
+                    ],
+                    [
+                        'title' => 'Docker',
+                        'href' => '/docs/v1/docker'
+                    ],
+                ]
+            ],
             [
                 'title' => 'Integrations',
                 'links' => [
                     [
                         'title' => 'Laravel Scout',
-                        'href' => '/docs/v0/laravel-scout',
-                        'card'=> config('app.url').'/cards/elasticsearch-scout.png'
+                        'href' => '/docs/v1/laravel-scout',
+                        'card' => config('app.url') . '/cards/elasticsearch-scout.png'
+                    ],
+                ]
+            ]
+        ]
+    ],
+    'v2' => [
+        'navigation' => [
+            [
+                'title' => 'Getting Started',
+                'links' => [
+                    [
+                        'title' => 'Introdution',
+                        'href' => '/docs/v2/introduction'
+                    ],
+                    [
+                        'title' => 'Installation',
+                        'href' => '/docs/v2/installation'
+                    ]
+                ]
+            ],
+            [
+                'title' => 'Basics',
+                'links' => [
+                    [
+                        'title' => 'Index',
+                        'href' => '/docs/v2/index'
+                    ],
+                    [
+                        'title' => 'Document',
+                        'href' => '/docs/v2/document'
+                    ],
+                    [
+                        'title' => 'Mappings',
+                        'href' => '/docs/v2/mappings'
+                    ],
+                    [
+                        'title' => 'Search',
+                        'href' => '/docs/v2/search'
+                    ],
+                    [
+                        'title' => 'Filter & Sorting',
+                        'href' => '/docs/v2/filter-parser'
+                    ],
+                    [
+                        'title' => 'Facets',
+                        'href' => '/docs/v2/facets'
+                    ],
+                    [
+                        'title' => 'Update',
+                        'href' => '/docs/v2/update'
+                    ],
+                ]
+            ],
+            [
+                'title' => 'Analysis',
+                'links' => [
+                    [
+                        'title' => 'Analyisis',
+                        'href' => '/docs/v2/analysis'
+                    ],
+                    [
+                        'title' => 'Char filters',
+                        'href' => '/docs/v2/char-filters'
+                    ],
+                    [
+                        'title' => 'Tokenizer',
+                        'href' => '/docs/v2/tokenizers'
+                    ],
+                    [
+                        'title' => 'Token filters',
+                        'href' => '/docs/v2/token-filters'
+                    ],
+                    [
+                        'title' => 'Language',
+                        'href' => '/docs/v2/language'
+                    ],
+                ]
+            ],
+            [
+                'title' => 'Deeper',
+                'links' => [
+                    [
+                        'title' => 'Query',
+                        'href' => '/docs/v2/query'
+                    ],
+                    [
+                        'title' => 'Aggregations',
+                        'href' => '/docs/v2/aggregations'
+                    ],
+                    [
+                        'title' => 'Semantic Search',
+                        'href' => '/docs/v2/semantic-search'
+                    ],
+                    [
+                        'title' => 'Search Template',
+                        'href' => '/docs/v2/template'
+                    ],
+                ]
+            ],
+            [
+                'title' => 'Parse',
+                'links' => [
+                    [
+                        'title' => 'Sort parser',
+                        'href' => '/docs/v2/sort-parser'
+                    ]
+                ]
+            ],
+            [
+                'title' => 'More',
+                'links' => [
+                    [
+                        'title' => 'Testing',
+                        'href' => '/docs/v2/testing'
+                    ],
+                    [
+                        'title' => 'Packages',
+                        'href' => '/docs/v2/packages'
+                    ],
+                    [
+                        'title' => 'Docker',
+                        'href' => '/docs/v2/docker'
+                    ],
+                ]
+            ],
+            [
+                'title' => 'Integrations',
+                'links' => [
+                    [
+                        'title' => 'Laravel Scout',
+                        'href' => '/docs/v2/laravel-scout',
+                        'card' => config('app.url') . '/cards/elasticsearch-scout.png'
                     ],
                 ]
             ]

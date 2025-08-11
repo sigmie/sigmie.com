@@ -12,14 +12,14 @@ defineProps({
 </script>
 
 <template>
-    <div class="bg-white">
+    <div class="min-h-screen bg-white dark:bg-black">
         <div class="relative isolate px-6 pt-14 lg:px-8">
             <div
                 class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
                 aria-hidden="true"
             >
                 <div
-                    class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -tranzinc-x-1/2 rotate-[30deg] bg-gradient-to-tr from-zinc-300 to-zinc-800 opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+                    class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-blue-600 to-purple-600 opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
                     style="
                         clip-path: polygon(
                             74.1% 44.1%,
@@ -42,48 +42,88 @@ defineProps({
                     "
                 ></div>
             </div>
-            <div class="mx-auto max-w-5xl py-32 sm:py-48 lg:py-56">
-                <img
-                    class="mx-auto h-36 mb-10"
-                    src="https://github.com/sigmie/art/blob/main/logo/svg/logo-icon-black.svg?raw=true"
-                />
-                <div class="text-center">
-                    <h1
-                        class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl"
-                    >
-                        A different Elasticsearch library
-                    </h1>
-                    <p class="mt-6 text-lg leading-8 text-gray-600">
-                        Sigmie library allows you to effortlessly create
-                        powerful searches without mastering Elasticsearch. It
-                        handles all the complexities, letting you focus solely
-                        on relevance.
-                    </p>
-                    <div class="mt-10 flex items-center justify-center gap-x-6">
-                        <Link
-                            href="/docs/v0/introduction"
-                            class="rounded-full bg-zinc-900 px-5 py-1.5 text-lg text-white shadow-sm hover:bg-zinc-900/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
-                            >Get started</Link
+            <div class="mx-auto max-w-6xl py-32 sm:py-48 lg:py-56">
+                <div class="flex flex-col items-center">
+                    <img
+                        class="h-24 mb-12"
+                        src="https://github.com/sigmie/art/blob/main/logo/svg/logo-icon-black.svg?raw=true"
+                    />
+                    <div class="text-center max-w-4xl">
+                        <h1
+                            class="text-5xl sm:text-7xl font-bold tracking-tight text-gray-900 dark:text-gray-100 leading-tight"
                         >
+                            A different<br />
+                            <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                Elasticsearch
+                            </span>
+                            library
+                        </h1>
+                        <p class="mt-8 text-geist-lg leading-relaxed text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                            Sigmie library allows you to effortlessly create
+                            powerful searches without mastering Elasticsearch. It
+                            handles all the complexities, letting you focus solely
+                            on relevance.
+                        </p>
+                        <div class="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+                            <Link
+                                href="/docs/v1/introduction"
+                                class="inline-flex items-center justify-center px-6 py-3 text-geist-base font-medium text-white bg-gray-900 dark:bg-white dark:text-black rounded-geist hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-geist hover:shadow-geist-hover"
+                            >
+                                Get started
+                            </Link>
+                            <a
+                                href="https://github.com/sigmie"
+                                target="_blank"
+                                class="inline-flex items-center justify-center px-6 py-3 text-geist-base font-medium text-gray-900 dark:text-gray-100 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-geist hover:bg-gray-50 dark:hover:bg-gray-900 transition-all duration-200"
+                            >
+                                View on GitHub
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="mt-16 flex items-center justify-center">
+                        <div
+                            class="relative px-4 py-2 text-geist-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-geist"
+                        >
+                            Looking for Search as a Service?
+                            <a
+                                href="https://sigmie.app"
+                                class="ml-1 font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                            >
+                                Try our app →
+                            </a>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="hidden sm:mb-8 sm:flex sm:justify-center mt-10">
-                    <div
-                        class="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20"
-                    >
-                        You want a Search as a Service ?
-                        <a
-                            href="https://sigmie.app"
-                            class="font-semibold text-black"
-                            ><span
-                                class="absolute inset-0"
-                                aria-hidden="true"
-                            ></span
-                            >Try our app<span aria-hidden="true"
-                                >&rarr;</span
-                            ></a
-                        >
+        <div class="border-t border-gray-200 dark:border-gray-800">
+            <div class="mx-auto max-w-6xl px-6 py-24 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="p-6 bg-gray-50 dark:bg-gray-900 rounded-geist border border-gray-200 dark:border-gray-800">
+                        <h3 class="text-geist-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                            Simple API
+                        </h3>
+                        <p class="text-geist-base text-gray-600 dark:text-gray-400">
+                            Intuitive methods that abstract away Elasticsearch complexity while maintaining full power.
+                        </p>
+                    </div>
+                    <div class="p-6 bg-gray-50 dark:bg-gray-900 rounded-geist border border-gray-200 dark:border-gray-800">
+                        <h3 class="text-geist-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                            Focus on Relevance
+                        </h3>
+                        <p class="text-geist-base text-gray-600 dark:text-gray-400">
+                            Built-in best practices for search relevance, so you can focus on your product.
+                        </p>
+                    </div>
+                    <div class="p-6 bg-gray-50 dark:bg-gray-900 rounded-geist border border-gray-200 dark:border-gray-800">
+                        <h3 class="text-geist-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                            Production Ready
+                        </h3>
+                        <p class="text-geist-base text-gray-600 dark:text-gray-400">
+                            Battle-tested in production environments with comprehensive documentation.
+                        </p>
                     </div>
                 </div>
             </div>

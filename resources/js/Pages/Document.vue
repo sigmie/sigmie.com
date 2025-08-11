@@ -10,6 +10,8 @@ defineProps({
     navigation: Object,
     href: String,
     card: String,
+    currentVersion: String,
+    availableVersions: Array,
 });
 </script>
 
@@ -31,14 +33,20 @@ defineProps({
         <meta property="twitter:image" :content="card" />
     </Head>
 
-    <div class="pt-20">
+    <div class="pt-16 min-h-screen bg-white dark:bg-black">
         <div class="flex flex-col">
-            <Navbar :navigation="navigation"></Navbar>
-            <div class="flex flex-row lg:space-x-40 justify-center max-w-7xl mx-auto">
+            <Navbar 
+                :navigation="navigation"
+                :currentVersion="currentVersion"
+                :availableVersions="availableVersions"
+            ></Navbar>
+            <div class="flex flex-row justify-center max-w-7xl mx-auto w-full">
                 <Sidebar :navigation="navigation"></Sidebar>
-                <main class="prose prose-base prose-zinc py-10">
-                    <h1>{{ title }}</h1>
-                    <div v-html="html"></div>
+                <main class="flex-1 max-w-4xl px-6 lg:px-12 py-12">
+                    <article class="prose prose-gray dark:prose-invert max-w-none">
+                        <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100 mb-8">{{ title }}</h1>
+                        <div v-html="html" class="text-gray-600 dark:text-gray-400"></div>
+                    </article>
                 </main>
             </div>
         </div>
@@ -47,40 +55,94 @@ defineProps({
 
 <style type="text/css">
 pre code {
-    @apply block p-3;
+    @apply block p-4 rounded-geist;
 }
+
 .prose :where(pre):not(:where([class~="not-prose"] *)) {
-    background-color: #0f111a;
+    @apply bg-gray-950 dark:bg-gray-900 border border-gray-800 rounded-geist overflow-x-auto;
 }
 
-.prose :where(code):not(:where([class~="not-prose"] *))
-{
-    @apply text-zinc-600 bg-zinc-50 rounded-md;
+.prose :where(code):not(:where([class~="not-prose"] *)) {
+    @apply text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-900 rounded-geist-sm px-1.5 py-0.5 text-sm font-mono;
 }
 
-code {
-    @apply rounded px-1 py-0.5 font-normal !important;
+pre code {
+    @apply bg-transparent p-4;
 }
 
 .heading-permalink {
-    @apply mr-2 no-underline text-zinc-500;
+    @apply mr-2 no-underline text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors;
 }
 
 .table-of-contents li::marker {
-    content: "#";
-    @apply text-zinc-500;
+    content: "";
 }
 
 .table-of-contents > li > a {
-    @apply no-underline font-bold;
+    @apply no-underline font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400;
 }
 
 .table-of-contents > li > ul > li > a {
-    @apply no-underline font-semibold;
+    @apply no-underline font-normal text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100;
 }
 
 .table-of-contents > li > ul > li > ul > li > a {
-    @apply no-underline text-gray-700 font-normal;
+    @apply no-underline text-gray-500 dark:text-gray-500 font-normal hover:text-gray-700 dark:hover:text-gray-300;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+    @apply text-gray-900 dark:text-gray-100 font-semibold;
+}
+
+.prose h1 {
+    @apply text-3xl;
+}
+
+.prose h2 {
+    @apply text-2xl mt-12 mb-6;
+}
+
+.prose h3 {
+    @apply text-xl mt-8 mb-4;
+}
+
+.prose p {
+    @apply text-gray-600 dark:text-gray-400 leading-7;
+}
+
+.prose a {
+    @apply text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 no-underline hover:underline;
+}
+
+.prose strong {
+    @apply text-gray-900 dark:text-gray-100 font-semibold;
+}
+
+.prose ul, .prose ol {
+    @apply text-gray-600 dark:text-gray-400;
+}
+
+.prose li {
+    @apply my-2;
+}
+
+.prose blockquote {
+    @apply border-l-4 border-gray-300 dark:border-gray-700 pl-4 italic text-gray-600 dark:text-gray-400;
+}
+
+.prose table {
+    @apply w-full border-collapse;
+}
+
+.prose th {
+    @apply text-left font-medium text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-900 p-3 border border-gray-200 dark:border-gray-800;
+}
+
+.prose td {
+    @apply p-3 border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400;
 }
 
 /*
@@ -90,7 +152,7 @@ code {
 .torchlight.has-focus-lines .line:not(.line-focus) {
     transition: filter 0.35s, opacity 0.35s;
     filter: blur(0.095rem);
-    opacity: 0.65;
+    opacity: 0.5;
 }
 
 /*
@@ -100,6 +162,7 @@ code {
     filter: blur(0px);
     opacity: 1;
 }
+
 .torchlight summary:focus {
     outline: none;
 }
@@ -142,30 +205,30 @@ code {
 }
 
 .callout {
-    @apply bg-gray-100 p-4 rounded-xl w-full min-w-full my-5;
+    @apply bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4 rounded-geist my-6;
 }
 
 .callout.danger {
-    @apply bg-amber-400/70 text-amber-700/80;
+    @apply bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400;
 }
 
 .callout.danger::before {
-    @apply font-bold;
+    @apply font-medium;
 }
 
 .callout.warning {
-    @apply bg-zinc-700/90 text-white;
+    @apply bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400;
 }
 
 .callout.warning::before {
-    @apply font-bold;
+    @apply font-medium;
 }
 
 .callout.info::before {
-    @apply font-bold;
+    @apply font-medium;
 }
 
 .callout.info {
-    @apply bg-sky-600/70 text-white;
+    @apply bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400;
 }
 </style>

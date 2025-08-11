@@ -58,6 +58,16 @@ Route::any('/blog/{endpoint?}', function ($endpoint, MarkdownConverter $converte
 })
     ->where('endpoint', '.*');
 
+// Redirect /docs to the default version
+Route::get('/docs', function () {
+    $defaultVersion = collect(config('docs.versions', []))
+        ->firstWhere('default', true);
+    
+    $version = $defaultVersion['value'] ?? 'v0';
+    
+    return redirect("/docs/{$version}/introduction");
+});
+
 Route::any('/docs/{version}/{endpoint?}', function ($version, $endpoint, MarkdownConverter $converter) {
 
     $documentation = new Documentation($converter);
@@ -77,6 +87,8 @@ Route::any('/docs/{version}/{endpoint?}', function ($version, $endpoint, Markdow
         'card' => $link['card'] ?? config('app.url') . '/twitter-card.png',
         'href' => config('app.url'),
         'description' => config('app.description'),
+        'currentVersion' => $version,
+        'availableVersions' => config('docs.versions', []),
     ]);
 })
     ->where('endpoint', '.*');

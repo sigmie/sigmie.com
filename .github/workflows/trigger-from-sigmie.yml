@@ -1,0 +1,48 @@
+# Workflow to be added to sigmie/sigmie repository
+# This triggers docs sync using gh CLI (works with default GITHUB_TOKEN)
+# Save as: .github/workflows/trigger-docs-sync.yml
+
+name: Trigger Docs Sync
+
+on:
+  push:
+    branches:
+      - v2
+    paths:
+      - 'docs/**'
+  workflow_dispatch:
+
+jobs:
+  trigger-docs-sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Trigger docs sync workflow
+        run: |
+          echo "🔄 Triggering documentation sync in sigmie.com..."
+          
+          gh workflow run sync-v2-docs.yml \
+            --repo sigmie/sigmie.com \
+            --ref main \
+            || echo "Note: If this fails, make sure the workflow exists in sigmie.com"
+          
+          echo "✅ Workflow dispatch sent successfully"
+          echo "📝 Check https://github.com/sigmie/sigmie.com/actions for the workflow run"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Wait and check status
+        run: |
+          echo "⏳ Waiting 10 seconds for workflow to start..."
+          sleep 10
+          
+          echo "📊 Recent workflow runs:"
+          gh run list \
+            --repo sigmie/sigmie.com \
+            --workflow sync-v2-docs.yml \
+            --limit 3 \
+            || echo "Could not fetch workflow status"
+        env:
+          GH_TOKEN: ${{ github.token }}

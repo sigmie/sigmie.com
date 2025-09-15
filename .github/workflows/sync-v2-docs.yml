@@ -12,6 +12,11 @@ on:
       token:
         required: false
         description: 'GitHub token for authentication'
+  # Watch for changes in sigmie/sigmie repository (if using GitHub's new cross-repo features)
+  # This requires enabling GitHub Actions permissions in repository settings
+  push:
+    branches:
+      - 'sync-trigger-*' # Push to a branch with this prefix to trigger sync
 
 jobs:
   sync-docs:

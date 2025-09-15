@@ -1,9 +1,11 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3";
+import { computed, onMounted, nextTick } from "vue";
 import Sidebar from "../Sidebar.vue";
 import Navbar from "../Navbar.vue";
+import TableOfContents from "../TableOfContents.vue";
 
-defineProps({
+const props = defineProps({
     html: String,
     title: String,
     description: String,
@@ -12,6 +14,25 @@ defineProps({
     card: String,
     currentVersion: String,
     availableVersions: Array,
+});
+
+// Clean up hash symbols from headings in the HTML
+const cleanedHtml = computed(() => {
+    if (!props.html) return '';
+    // Remove # symbols at the start of headings
+    return props.html.replace(/>(\s*)#+ /g, '>$1');
+});
+
+// Also clean up after mount
+onMounted(() => {
+    nextTick(() => {
+        const headings = document.querySelectorAll('article h1, article h2, article h3, article h4');
+        headings.forEach(heading => {
+            if (heading.textContent.startsWith('#')) {
+                heading.textContent = heading.textContent.replace(/^#+\s*/, '');
+            }
+        });
+    });
 });
 </script>
 
@@ -33,20 +54,58 @@ defineProps({
         <meta property="twitter:image" :content="card" />
     </Head>
 
-    <div class="pt-14 sm:pt-16 min-h-screen bg-white dark:bg-black">
-        <div class="flex flex-col">
-            <Navbar 
-                :navigation="navigation"
-                :currentVersion="currentVersion"
-                :availableVersions="availableVersions"
-            ></Navbar>
-            <div class="flex flex-row max-w-7xl mx-auto w-full">
-                <Sidebar :navigation="navigation"></Sidebar>
-                <main class="flex-1 min-w-0 px-4 sm:px-6 lg:px-8 xl:px-12 py-6 sm:py-8 lg:py-12">
-                    <article class="prose prose-gray dark:prose-invert max-w-none prose-sm sm:prose-base">
-                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100 mb-6 sm:mb-8">{{ title }}</h1>
-                        <div v-html="html" class="text-gray-600 dark:text-gray-400"></div>
-                    </article>
+    <div class="min-h-screen bg-white dark:bg-black">
+        <Navbar 
+            :navigation="navigation"
+            :currentVersion="currentVersion"
+            :availableVersions="availableVersions"
+        />
+        
+        <div class="mx-auto max-w-screen-2xl">
+            <div class="flex">
+                <!-- Left Sidebar -->
+                <Sidebar :navigation="navigation" />
+                
+                <!-- Main Content -->
+                <main class="min-w-0 flex-1 lg:ml-[234px] xl:ml-[250px]">
+                    <div class="flex">
+                        <!-- Article Content -->
+                        <article class="flex-1 min-w-0 px-6 pb-12 sm:px-8 lg:px-12 xl:px-16">
+                            <div class="max-w-3xl pt-10 pb-8">
+                                <!-- Title -->
+                                <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white mb-8">
+                                    {{ title }}
+                                </h1>
+                                
+                                <!-- Content -->
+                                <div 
+                                    v-html="cleanedHtml" 
+                                    class="prose prose-gray dark:prose-invert max-w-none
+                                           prose-headings:scroll-mt-20 prose-headings:font-semibold
+                                           prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-gray-200 dark:prose-h2:border-gray-800
+                                           prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
+                                           prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-3
+                                           prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-7
+                                           prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline prose-a:font-medium hover:prose-a:underline
+                                           prose-code:bg-gray-100 dark:prose-code:bg-gray-900 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-normal
+                                           prose-pre:bg-gray-950 dark:prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-800
+                                           prose-blockquote:border-l-4 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:italic
+                                           prose-ul:my-6 prose-ol:my-6 prose-li:my-2
+                                           prose-table:my-8 prose-thead:border-b prose-thead:border-gray-300 dark:prose-thead:border-gray-700
+                                           prose-tr:border-b prose-tr:border-gray-200 dark:prose-tr:border-gray-800
+                                           prose-th:text-left prose-th:py-2 prose-th:px-4 prose-th:font-semibold
+                                           prose-td:py-2 prose-td:px-4"
+                                ></div>
+                            </div>
+                        </article>
+                        
+                        <!-- Right Table of Contents -->
+                        <aside class="hidden xl:block w-64 flex-shrink-0">
+                            <div class="sticky top-24 pr-8 pb-8">
+                                <TableOfContents :html="cleanedHtml" />
+                            </div>
+                        </aside>
+                    </div>
                 </main>
             </div>
         </div>
@@ -72,6 +131,15 @@ pre code {
 
 .heading-permalink {
     @apply mr-2 no-underline text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors;
+}
+
+/* Clean up any hash symbols that appear in headings from markdown */
+.prose :is(h1, h2, h3, h4)::first-letter {
+    font-size: 0;
+}
+
+.prose :is(h1, h2, h3, h4)::first-letter:not(#) {
+    font-size: inherit;
 }
 
 .table-of-contents li::marker {

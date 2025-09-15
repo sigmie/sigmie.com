@@ -1,0 +1,95 @@
+name: Sync V2 Documentation
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  sync-docs:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout target repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+        with:
+          repository: sigmie/sigmie
+          ref: v2
+          path: sigmie-source
+          sparse-checkout: |
+            docs
+          
+      - name: Create v2 docs directory
+        run: mkdir -p resources/docs/v2
+        
+      - name: Sync documentation files
+        run: |
+          # Remove existing v2 docs (except .gitkeep if exists)
+          find resources/docs/v2 -mindepth 1 -not -name '.gitkeep' -delete 2>/dev/null || true
+          
+          # Copy new docs from source
+          if [ -d "sigmie-source/docs" ]; then
+            cp -r sigmie-source/docs/* resources/docs/v2/
+            echo "✅ Documentation files synced successfully"
+          else
+            echo "⚠️ No docs directory found in source repository"
+            exit 1
+          fi
+          
+      - name: Check for changes
+        id: changes
+        run: |
+          git add -A resources/docs/v2
+          if git diff --staged --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "📄 No documentation changes detected"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "📝 Documentation changes detected"
+            git diff --staged --stat
+          fi
+          
+      - name: Commit and push changes
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Create commit message with date
+          COMMIT_MSG="chore: sync v2 documentation from sigmie/sigmie@v2
+
+          Automated sync on $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          Source: https://github.com/sigmie/sigmie/tree/v2/docs"
+          
+          git commit -m "$COMMIT_MSG"
+          git push
+          
+          echo "✅ Changes committed and pushed successfully"
+          
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.changes.outputs.has_changes }}" == "true" ]; then
+            echo "✅ **Documentation synced and updated**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Changes have been committed to the repository." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ **No changes detected**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The documentation is already up to date." >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "Source: [sigmie/sigmie@v2/docs](https://github.com/sigmie/sigmie/tree/v2/docs)" >> $GITHUB_STEP_SUMMARY
+          echo "Target: resources/docs/v2/" >> $GITHUB_STEP_SUMMARY

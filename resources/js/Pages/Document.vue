@@ -33,18 +33,18 @@ defineProps({
         <meta property="twitter:image" :content="card" />
     </Head>
 
-    <div class="pt-16 min-h-screen bg-white dark:bg-black">
+    <div class="pt-14 sm:pt-16 min-h-screen bg-white dark:bg-black">
         <div class="flex flex-col">
             <Navbar 
                 :navigation="navigation"
                 :currentVersion="currentVersion"
                 :availableVersions="availableVersions"
             ></Navbar>
-            <div class="flex flex-row justify-center max-w-7xl mx-auto w-full">
+            <div class="flex flex-row max-w-7xl mx-auto w-full">
                 <Sidebar :navigation="navigation"></Sidebar>
-                <main class="flex-1 max-w-4xl px-6 lg:px-12 py-12">
-                    <article class="prose prose-gray dark:prose-invert max-w-none">
-                        <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100 mb-8">{{ title }}</h1>
+                <main class="flex-1 min-w-0 px-4 sm:px-6 lg:px-8 xl:px-12 py-6 sm:py-8 lg:py-12">
+                    <article class="prose prose-gray dark:prose-invert max-w-none prose-sm sm:prose-base">
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100 mb-6 sm:mb-8">{{ title }}</h1>
                         <div v-html="html" class="text-gray-600 dark:text-gray-400"></div>
                     </article>
                 </main>

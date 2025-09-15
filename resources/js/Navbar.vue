@@ -38,29 +38,29 @@ const isDocsPage = computed(() => {
             class="w-full lg:hidden block md:w-auto bg-white dark:bg-black px-2"
         >
             <ul
-                class="fixed bg-white dark:bg-black left-0 right-0 max-h-screen overflow-scroll flex flex-col h-screen lg:h-auto lg:flex-row lg:space-x-8 lg:mt-0 lg:text-sm lg:font-medium lg:border-0 pb-20 lg:pb-0 -mt-3"
+                class="fixed bg-white dark:bg-black left-0 right-0 top-14 sm:top-16 max-h-screen overflow-y-auto flex flex-col h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] lg:h-auto lg:flex-row lg:space-x-8 lg:mt-0 lg:text-sm lg:font-medium lg:border-0 pb-20 lg:pb-0 pt-4"
             >
                 <li
-                    class="lg:hidden pt-3 px-5"
+                    class="lg:hidden pt-2 px-4 sm:px-6"
                     v-for="(section, index) in navigation"
                     :key="index"
                 >
                     <h4
-                        class="mb-4 mt-6 font-semibold text-gray-900 dark:text-gray-100"
+                        class="mb-3 mt-4 font-semibold text-sm text-gray-900 dark:text-gray-100"
                     >
                         {{ section.title }}
                     </h4>
-                    <div class="space-y-2 border-l border-gray-200 dark:border-gray-800">
+                    <div class="space-y-1 mb-6">
                         <button
                             @click.prevent="() => visit(link.href)"
                             v-for="(link, index) in section.links"
                             :key="index"
                             :class="{
-                                'bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-900 dark:border-gray-100':
+                                'bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100':
                                     $page.url === link.href,
-                                'text-gray-600 dark:text-gray-400': !$page.url.startsWith('/docs'),
+                                'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100': $page.url !== link.href,
                             }"
-                            class="block border-l-2 pl-4 -ml-px border-transparent hover:border-gray-400 dark:hover:border-gray-600 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                            class="block w-full text-left px-3 py-2 text-sm rounded-geist-sm transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-900"
                         >
                             {{ link.title }}
                         </button>
@@ -70,14 +70,14 @@ const isDocsPage = computed(() => {
         </div>
 
         <nav
-            class="bg-white/80 dark:bg-black/80 backdrop-blur-md flex flex-row h-16 fixed top-0 left-0 right-0 z-50 border-b border-gray-200 dark:border-gray-800"
+            class="bg-white/80 dark:bg-black/80 backdrop-blur-md flex flex-row h-14 sm:h-16 fixed top-0 left-0 right-0 z-50 border-b border-gray-200 dark:border-gray-800"
         >
             <div
-                class="max-w-7xl w-full flex flex-row items-center justify-between mx-auto px-4 sm:px-6 lg:px-8"
+                class="max-w-7xl w-full flex flex-row items-center justify-between mx-auto px-3 sm:px-4 lg:px-8"
             >
                 <Link href="/" class="flex items-center">
                     <img
-                        class="h-8"
+                        class="h-6 sm:h-8"
                         src="/logo.png"
                         alt="Sigmie Logo"
                     />
@@ -85,7 +85,7 @@ const isDocsPage = computed(() => {
 
                 <Search></Search>
 
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 sm:space-x-4">
                     <VersionSwitcher 
                         v-if="isDocsPage && currentVersion && availableVersions"
                         :currentVersion="currentVersion"
@@ -97,7 +97,7 @@ const isDocsPage = computed(() => {
                         class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
                     >
                         <svg
-                            class="h-5 w-5"
+                            class="h-4 w-4 sm:h-5 sm:w-5"
                             viewBox="0 0 16 16"
                             fill="currentColor"
                             aria-hidden="true"
@@ -110,13 +110,13 @@ const isDocsPage = computed(() => {
                     <button
                         @click="toggleNav"
                         type="button"
-                        class="inline-flex items-center p-2 text-gray-600 dark:text-gray-400 rounded-geist-sm hover:bg-gray-100 dark:hover:bg-gray-900 md:hidden transition-colors"
+                        class="inline-flex items-center p-1.5 sm:p-2 text-gray-600 dark:text-gray-400 rounded-geist-sm hover:bg-gray-100 dark:hover:bg-gray-900 md:hidden transition-colors"
                         aria-controls="navbar-default"
                         aria-expanded="false"
                     >
                         <span class="sr-only">Open main menu</span>
                         <svg
-                            class="w-5 h-5"
+                            class="w-4 h-4 sm:w-5 sm:h-5"
                             aria-hidden="true"
                             fill="currentColor"
                             viewBox="0 0 20 20"

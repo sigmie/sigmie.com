@@ -10,10 +10,10 @@ defineProps({
 
 <template>
     <div
-        class="z-10 min-h-screen lg:block hidden max-w-xs border-r border-gray-200 dark:border-gray-800"
+        class="z-10 min-h-screen lg:block hidden w-64 xl:w-72 flex-shrink-0 border-r border-gray-200 dark:border-gray-800"
     >
-        <div class="block mx-auto pt-8 pb-4 max-h-screen overflow-y-auto">
-            <nav class="mt-8 flex-1 px-6 flex-col flex space-y-6 mx-auto">
+        <div class="sticky top-16 pt-8 pb-4 max-h-[calc(100vh-4rem)] overflow-y-auto">
+            <nav class="flex-1 px-4 xl:px-6 flex-col flex space-y-6">
                 <div v-for="(section, index) in navigation" :key="index">
                     <h4 class="font-medium mb-3 text-geist-sm text-gray-900 dark:text-gray-100">
                         {{ section.title }}

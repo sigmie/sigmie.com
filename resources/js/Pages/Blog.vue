@@ -12,6 +12,22 @@ navigation: Object
 </script>
 
 <template>
+    <Head>
+        <title>Blog - Sigmie</title>
+        <meta name="description" content="Latest articles and updates about Sigmie Elasticsearch library. Learn about search implementation, best practices, and tips for using Sigmie." />
+        <meta name="keywords" content="sigmie blog, elasticsearch tutorials, search implementation, sigmie updates, elasticsearch best practices" />
+        <meta property="og:title" content="Blog - Sigmie" />
+        <meta property="og:description" content="Latest articles and updates about Sigmie Elasticsearch library. Learn about search implementation, best practices, and tips." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://sigmie.com/blog" />
+        <meta property="og:image" content="https://sigmie.com/og-image.png" />
+        <meta property="og:site_name" content="Sigmie" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Blog - Sigmie" />
+        <meta name="twitter:description" content="Latest articles and updates about Sigmie Elasticsearch library. Learn about search implementation and best practices." />
+        <meta name="twitter:image" content="https://sigmie.com/og-image.png" />
+        <link rel="canonical" href="https://sigmie.com/blog" />
+    </Head>
     <div class="pt-20">
         <div class="flex flex-col font-display relative">
             <Navbar :navigation="navigation"></Navbar>

@@ -90,7 +90,7 @@ const getStatusColor = (status) => {
     <div class="relative" ref="dropdownRef">
         <button
             @click="toggleDropdown"
-            class="flex items-center gap-2 px-3 py-1.5 text-geist-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-geist hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+            class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 text-xs sm:text-geist-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-geist hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
             aria-expanded="isOpen"
             aria-haspopup="true"
         >
@@ -98,13 +98,13 @@ const getStatusColor = (status) => {
             <span 
                 v-if="currentVersionStatus"
                 :class="getStatusColor(currentVersionStatus)"
-                class="px-1.5 py-0.5 text-xs font-medium rounded border"
+                class="hidden sm:inline-block px-1.5 py-0.5 text-xs font-medium rounded border"
             >
                 {{ currentVersionStatus }}
             </span>
             <svg
                 :class="{ 'rotate-180': isOpen }"
-                class="w-4 h-4 transition-transform duration-200"
+                class="w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -123,7 +123,7 @@ const getStatusColor = (status) => {
         >
             <div
                 v-if="isOpen"
-                class="absolute right-0 mt-2 w-48 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-geist shadow-geist-md overflow-hidden z-50"
+                class="absolute right-0 mt-2 w-40 sm:w-48 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-geist shadow-geist-md overflow-hidden z-50"
             >
                 <div class="py-1">
                     <button
@@ -133,7 +133,7 @@ const getStatusColor = (status) => {
                         :class="{
                             'bg-gray-50 dark:bg-gray-900': version.value === currentVersion
                         }"
-                        class="w-full px-4 py-2 text-left text-geist-sm hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors duration-150 flex items-center justify-between group"
+                        class="w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-geist-sm hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors duration-150 flex items-center justify-between group"
                     >
                         <span 
                             :class="{

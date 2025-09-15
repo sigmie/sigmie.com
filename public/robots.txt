@@ -1,2 +1,9 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Sitemap
+Sitemap: https://sigmie.com/sitemap.xml
+
+# Crawl-delay for bots
+User-agent: *
+Crawl-delay: 1

@@ -67,11 +67,11 @@ onMounted(() => {
                 <Sidebar :navigation="navigation" />
                 
                 <!-- Main Content -->
-                <main class="min-w-0 flex-1 lg:ml-[234px] xl:ml-[250px]">
+                <main class="min-w-0 flex-1 lg:ml-[260px] xl:ml-[280px] pt-16">
                     <div class="flex">
                         <!-- Article Content -->
                         <article class="flex-1 min-w-0 px-6 pb-12 sm:px-8 lg:px-12 xl:px-16">
-                            <div class="max-w-3xl pt-10 pb-8">
+                            <div class="max-w-3xl pt-8 pb-8">
                                 <!-- Title -->
                                 <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white mb-8">
                                     {{ title }}

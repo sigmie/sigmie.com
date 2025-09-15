@@ -65,12 +65,12 @@ const isDocsPage = computed(() => {
         </div>
 
         <header
-            class="bg-white dark:bg-black h-16 fixed top-0 left-0 right-0 z-50 border-b border-gray-200 dark:border-gray-800"
+            class="bg-white dark:bg-black h-16 fixed top-0 right-0 z-40 border-b border-gray-200 dark:border-gray-800 lg:left-[260px] xl:left-[280px] left-0"
         >
             <nav class="h-full flex items-center justify-between px-6">
-                <!-- Left side - Empty div for spacing -->
-                <div class="w-[234px] xl:w-[250px]">
-                    <!-- Space reserved for sidebar -->
+                <!-- Left side - Title or breadcrumb could go here -->
+                <div class="flex items-center">
+                    <!-- Empty for now -->
                 </div>
 
                 <!-- Right side -->

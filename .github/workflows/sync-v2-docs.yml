@@ -5,6 +5,13 @@ on:
     # Run daily at 2 AM UTC
     - cron: '0 2 * * *'
   workflow_dispatch: # Allow manual trigger
+  repository_dispatch:
+    types: [sync-v2-docs] # Custom event type that can be triggered via API
+  workflow_call: # Allow this workflow to be called by other workflows
+    secrets:
+      token:
+        required: false
+        description: 'GitHub token for authentication'
 
 jobs:
   sync-docs:

@@ -1,0 +1,67 @@
+# Example workflow to be added to sigmie/sigmie repository
+# This workflow triggers the docs sync in sigmie.com when v2 branch is updated
+# 
+# Save this file as .github/workflows/trigger-docs-sync.yml in the sigmie/sigmie repository
+
+name: Trigger Docs Sync
+
+on:
+  push:
+    branches:
+      - v2
+    paths:
+      - 'docs/**'
+
+jobs:
+  # METHOD 1: Using workflow_dispatch (Simplest - No PAT needed!)
+  trigger-sync-simple:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger workflow in sigmie.com
+        run: |
+          gh workflow run sync-v2-docs.yml \
+            --repo sigmie/sigmie.com \
+            --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}
+  
+  # METHOD 2: Using repository_dispatch (Requires PAT or GitHub App)
+  # Uncomment if you need to pass custom data or use repository_dispatch specifically
+  # trigger-sync-dispatch:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Trigger sigmie.com docs sync
+  #       uses: actions/github-script@v7
+  #       with:
+  #         github-token: ${{ secrets.SIGMIE_COM_TRIGGER_TOKEN }}
+  #         script: |
+  #           // Trigger via repository_dispatch event
+  #           await github.rest.repos.createDispatchEvent({
+  #             owner: 'sigmie',
+  #             repo: 'sigmie.com',
+  #             event_type: 'sync-v2-docs',
+  #             client_payload: {
+  #               triggered_by: 'sigmie/sigmie',
+  #               branch: 'v2',
+  #               timestamp: new Date().toISOString()
+  #             }
+  #           });
+  #           
+  #           console.log('✅ Triggered docs sync in sigmie.com repository');
+
+# SETUP INSTRUCTIONS:
+# 
+# METHOD 1 (SIMPLEST - NO TOKEN NEEDED):
+# 1. Just copy this workflow to sigmie/sigmie repository
+# 2. It will automatically trigger docs sync when v2 branch docs change
+# 3. Uses the built-in GITHUB_TOKEN (no setup required!)
+# 
+# METHOD 2 (Only if you need repository_dispatch):
+# 1. Create a PAT with 'repo' scope or use a GitHub App
+# 2. Add as SIGMIE_COM_TRIGGER_TOKEN secret in sigmie/sigmie
+# 3. Uncomment the trigger-sync-dispatch job above
+# 
+# NOTES:
+# - The workflow will automatically trigger when docs/ changes in v2 branch
+# - You can also trigger manually from the Actions tab
+# - The GITHUB_TOKEN has permissions within the same org by default

@@ -4,6 +4,7 @@ import { computed, onMounted, nextTick } from "vue";
 import Sidebar from "../Sidebar.vue";
 import Navbar from "../Navbar.vue";
 import TableOfContents from "../TableOfContents.vue";
+import Chat from "../Chat.vue";
 
 const props = defineProps({
     html: String,
@@ -110,6 +111,9 @@ onMounted(() => {
             </div>
         </div>
     </div>
+    
+    <!-- Chat Component -->
+    <Chat />
 </template>
 
 <style type="text/css">
@@ -134,9 +138,9 @@ pre code {
 }
 
 /* Clean up any hash symbols that appear in headings from markdown */
-.prose :is(h1, h2, h3, h4)::first-letter {
+/* .prose :is(h1, h2, h3, h4)::first-letter {
     font-size: 0;
-}
+} */
 
 .prose :is(h1, h2, h3, h4)::first-letter:not(#) {
     font-size: inherit;

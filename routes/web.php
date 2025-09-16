@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatController;
 use App\Services\Blog;
 use App\Services\Documentation;
 use Illuminate\Foundation\Application;
@@ -28,6 +29,9 @@ use Torchlight\Commonmark\V2\TorchlightExtension;
 Route::get('/', function () {
     return Inertia::render('Welcome', []);
 });
+
+// Chat API endpoint
+Route::post('/api/chat', [ChatController::class, 'chat']);
 
 Route::get('/blog', function () {
 

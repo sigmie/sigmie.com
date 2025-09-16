@@ -16,6 +16,7 @@
         "league/commonmark": "^2.3",
         "masterminds/html5": "^2.8",
         "sigmie/app-sdk": "^1.0",
+        "sigmie/sigmie": "v2.x-dev",
         "symfony/http-client": "^6.2",
         "tightenco/ziggy": "^1.0",
         "torchlight/torchlight-commonmark": "^0.5.5"

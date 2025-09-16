@@ -113,6 +113,10 @@ return [
                         'title' => 'Search Template',
                         'href' => '/docs/v1/template'
                     ],
+                    [
+                        'title' => 'RAG (Retrieval-Augmented Generation)',
+                        'href' => '/docs/v1/rag'
+                    ],
                 ]
             ],
             [
@@ -244,6 +248,10 @@ return [
                     [
                         'title' => 'Search Template',
                         'href' => '/docs/v2/template'
+                    ],
+                    [
+                        'title' => 'RAG (Retrieval-Augmented Generation)',
+                        'href' => '/docs/v2/rag'
                     ],
                 ]
             ],

@@ -36,4 +36,12 @@ return [
         'admin_api_key' => env('SIGMIE_ADMIN_KEY', ''),
         'search_api_key' => env('SIGMIE_SEARCH_KEY', ''),
     ],
+
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY', ''),
+    ],
+
+    'voyage' => [
+        'api_key' => env('VOYAGE_API_KEY', ''),
+    ]
 ];

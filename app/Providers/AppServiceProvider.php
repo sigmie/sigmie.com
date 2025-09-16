@@ -13,6 +13,10 @@ use League\CommonMark\MarkdownConverter;
 use Torchlight\Commonmark\V2\TorchlightExtension;
 use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\Extension\TableOfContents\TableOfContentsExtension;
+use Sigmie\AI\LLMs\OpenAILLM;
+use Sigmie\Base\Http\ElasticsearchConnection;
+use Sigmie\Http\JSONClient;
+use Sigmie\Sigmie;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +34,18 @@ class AppServiceProvider extends ServiceProvider
             $converter = new MarkdownConverter($environment);
 
             return $converter;
+        });
+
+        $this->app->singleton(Sigmie::class, function () {
+
+            $json = JSONClient::create(hosts: ['127.0.0.1:9200'], config: ['connect_timeout' => 15]);
+
+            $elasticsearchConnection = new ElasticsearchConnection($json);
+
+            return new Sigmie(
+                $elasticsearchConnection,
+                new OpenAILLM(config('services.openai.api_key'))
+            );
         });
     }
 }

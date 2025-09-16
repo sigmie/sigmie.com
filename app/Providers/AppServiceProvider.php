@@ -15,6 +15,7 @@ use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\Extension\TableOfContents\TableOfContentsExtension;
 use Sigmie\AI\LLMs\OpenAILLM;
 use Sigmie\Base\Http\ElasticsearchConnection;
+use Sigmie\Enums\ElasticsearchVersion;
 use Sigmie\Http\JSONClient;
 use Sigmie\Sigmie;
 
@@ -42,10 +43,14 @@ class AppServiceProvider extends ServiceProvider
 
             $elasticsearchConnection = new ElasticsearchConnection($json);
 
-            return new Sigmie(
+            $sigmie = new Sigmie(
                 $elasticsearchConnection,
                 new OpenAILLM(config('services.openai.api_key'))
             );
+
+            $sigmie->version(ElasticsearchVersion::v8);
+
+            return $sigmie;
         });
     }
 }

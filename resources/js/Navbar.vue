@@ -77,16 +77,16 @@ const isDocsPage = computed(() => {
                 <div class="flex items-center space-x-4">
                     <!-- Search -->
                     <div class="hidden md:block">
-                        <button 
+                        <Link 
+                            href="/search"
                             class="flex items-center space-x-3 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-800 transition-colors"
-                            @click="$refs.search?.focus()"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
                             <span>Search docs...</span>
                             <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-black rounded border border-gray-200 dark:border-gray-700">⌘K</kbd>
-                        </button>
+                        </Link>
                     </div>
                     
                     <!-- Version Switcher -->

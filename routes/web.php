@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\SearchController;
 use App\Services\Blog;
 use App\Services\Documentation;
 use Illuminate\Foundation\Application;
@@ -32,6 +33,13 @@ Route::get('/', function () {
 
 // Chat API endpoint
 Route::post('/api/chat', [ChatController::class, 'chat']);
+
+// Search endpoints
+Route::get('/search', function () {
+    return Inertia::render('Search');
+});
+Route::post('/api/search/rag', [SearchController::class, 'rag']);
+Route::post('/api/search/standard', [SearchController::class, 'standard']);
 
 Route::get('/blog', function () {
 

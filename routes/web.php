@@ -39,6 +39,7 @@ Route::get('/search', function () {
     return Inertia::render('Search');
 });
 Route::post('/api/search/rag', [SearchController::class, 'rag']);
+Route::post('/api/search/rag-stream', [SearchController::class, 'ragStream']);
 Route::post('/api/search/standard', [SearchController::class, 'standard']);
 
 Route::get('/blog', function () {

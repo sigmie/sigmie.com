@@ -84,23 +84,50 @@
                 </div>
             </div>
             
-            <!-- Loading State -->
-            <div v-if="isSearching" class="flex justify-center py-12">
-                <div class="text-center">
-                    <div class="inline-flex items-center space-x-2">
-                        <svg class="animate-spin h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span class="text-gray-600 dark:text-gray-400">
-                            {{ searchMode === 'semantic' ? 'Generating AI response...' : 'Searching documentation...' }}
-                        </span>
+            <!-- Processing Steps Display -->
+            <div v-if="processingSteps.length > 0 && searchMode === 'semantic'" class="mb-6">
+                <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-800">
+                    <div class="space-y-2">
+                        <div v-for="step in processingSteps" :key="step.type" class="flex items-center space-x-3">
+                            <!-- Step indicator -->
+                            <div class="flex-shrink-0">
+                                <div v-if="step.status === 'completed'" class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <div v-else-if="step.status === 'running' || step.status === 'streaming'" class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                                    <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                                </div>
+                                <div v-else class="w-5 h-5 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
+                            </div>
+                            <!-- Step message -->
+                            <div class="flex-1">
+                                <span class="text-sm" :class="{
+                                    'text-gray-900 dark:text-white font-medium': step.status === 'running' || step.status === 'streaming',
+                                    'text-gray-600 dark:text-gray-400': step.status === 'completed'
+                                }">
+                                    {{ step.message }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Current status -->
+                    <div v-if="currentStatus && isSearching" class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-800">
+                        <div class="flex items-center space-x-2">
+                            <svg class="animate-spin h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{ currentStatus }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
             
             <!-- AI Response (for semantic search) -->
-            <div v-else-if="searchMode === 'semantic' && aiResponse" class="mb-8">
+            <div v-if="searchMode === 'semantic' && aiResponse" class="mb-8">
                 <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 rounded-xl p-6 border border-blue-200 dark:border-gray-700">
                     <div class="flex items-start space-x-3">
                         <div class="flex-shrink-0">
@@ -111,7 +138,17 @@
                             </div>
                         </div>
                         <div class="flex-1">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">AI Answer</h3>
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">AI Answer</h3>
+                                <div v-if="isSearching" class="flex items-center space-x-2">
+                                    <div class="flex space-x-1">
+                                        <div class="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></div>
+                                        <div class="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" style="animation-delay: 150ms"></div>
+                                        <div class="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" style="animation-delay: 300ms"></div>
+                                    </div>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">Streaming response...</span>
+                                </div>
+                            </div>
                             <div 
                                 v-html="renderMarkdown(aiResponse)" 
                                 class="prose prose-blue dark:prose-invert max-w-none
@@ -121,13 +158,66 @@
                                        prose-pre:bg-gray-950 dark:prose-pre:bg-black prose-pre:border prose-pre:border-gray-800
                                        prose-a:text-blue-600 dark:prose-a:text-blue-400"
                             />
+                            
+                            <!-- Source Citations -->
+                            <div v-if="aiSources.length > 0" class="mt-6 pt-4 border-t border-blue-200 dark:border-gray-700">
+                                <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Sources</h4>
+                                <div class="space-y-2">
+                                    <div v-for="source in aiSources" :key="source.index" class="flex items-start space-x-2">
+                                        <span class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-400 rounded">
+                                            {{ source.index }}
+                                        </span>
+                                        <Link 
+                                            :href="source.url"
+                                            class="flex-1 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                        >
+                                            <span class="font-medium">{{ source.title }}</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-500 ml-2">({{ source.version }})</span>
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Retrieved Documents (for semantic search) -->
+            <div v-if="searchMode === 'semantic' && searchDocuments.length > 0" class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Documents Used for Answer</h3>
+                <div class="grid gap-3">
+                    <div v-for="(doc, index) in searchDocuments" :key="index" 
+                         class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2 mb-1">
+                                    <span class="inline-flex items-center justify-center w-6 h-6 bg-blue-100 dark:bg-blue-900 text-xs font-bold text-blue-600 dark:text-blue-400 rounded">
+                                        {{ index + 1 }}
+                                    </span>
+                                    <Link :href="doc.url" class="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
+                                        {{ doc.title }}
+                                    </Link>
+                                    <span class="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">
+                                        {{ doc.version }}
+                                    </span>
+                                    <span v-if="doc.section" class="text-xs text-gray-500 dark:text-gray-500">
+                                        • {{ doc.section }}
+                                    </span>
+                                </div>
+                                <p v-if="doc.description" class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    {{ doc.description }}
+                                </p>
+                            </div>
+                            <div v-if="doc.score" class="ml-4 flex-shrink-0">
+                                <span class="text-xs text-gray-500 dark:text-gray-500">Score: {{ doc.score?.toFixed(2) }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
             <!-- Search Results -->
-            <div v-if="searchResults.length > 0" class="space-y-4">
+            <div v-else-if="searchResults.length > 0 && searchMode === 'standard'" class="space-y-4">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                     {{ searchMode === 'semantic' ? 'Related Documentation' : 'Search Results' }}
                 </h3>
@@ -205,9 +295,13 @@ import { debounce } from 'lodash'
 const searchQuery = ref('')
 const searchResults = ref([])
 const aiResponse = ref('')
+const aiSources = ref([])  // Store source citations
+const searchDocuments = ref([])  // Store retrieved documents
 const isSearching = ref(false)
 const hasSearched = ref(false)
 const searchMode = ref('semantic') // 'semantic' or 'standard'
+const currentStatus = ref('')  // Current processing status
+const processingSteps = ref([])  // Track all processing steps
 
 const suggestedTopics = [
     'semantic search',
@@ -238,12 +332,16 @@ const performSearch = async () => {
     isSearching.value = true
     hasSearched.value = true
     aiResponse.value = ''
+    aiSources.value = []
+    searchDocuments.value = []
     searchResults.value = []
+    currentStatus.value = ''
+    processingSteps.value = []
     
     try {
         if (searchMode.value === 'semantic') {
-            // Perform RAG search
-            const response = await fetch('/api/search/rag', {
+            // Use streaming for RAG search
+            const response = await fetch('/api/search/rag-stream', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -254,9 +352,121 @@ const performSearch = async () => {
                 })
             })
             
-            const data = await response.json()
-            aiResponse.value = data.answer
-            searchResults.value = data.results || []
+            if (!response.ok) throw new Error('Stream request failed')
+            
+            const reader = response.body.getReader()
+            const decoder = new TextDecoder()
+            let buffer = ''
+            
+            // Process stream with minimal delay
+            const processStream = async () => {
+                while (true) {
+                    const { done, value } = await reader.read()
+                    if (done) break
+                    
+                    // Decode chunk immediately
+                    const chunk = decoder.decode(value, { stream: true })
+                    buffer += chunk
+                    
+                    // Process complete lines immediately
+                    let newlineIndex
+                    while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+                        const line = buffer.slice(0, newlineIndex)
+                        buffer = buffer.slice(newlineIndex + 1)
+                        
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6))
+                                
+                                // Handle all event types
+                                switch(data.type) {
+                                    case 'search.started':
+                                        currentStatus.value = data.message
+                                        processingSteps.value.push({ type: 'search', status: 'running', message: data.message })
+                                        break
+                                    case 'search.completed':
+                                        const searchStep = processingSteps.value.find(s => s.type === 'search')
+                                        if (searchStep) {
+                                            searchStep.status = 'completed'
+                                            searchStep.message = data.message
+                                        }
+                                        currentStatus.value = data.message
+                                        break
+                                    case 'rerank.started':
+                                        currentStatus.value = data.message
+                                        processingSteps.value.push({ type: 'rerank', status: 'running', message: data.message })
+                                        break
+                                    case 'rerank.completed':
+                                        const rerankStep = processingSteps.value.find(s => s.type === 'rerank')
+                                        if (rerankStep) {
+                                            rerankStep.status = 'completed'
+                                            rerankStep.message = data.message
+                                        }
+                                        currentStatus.value = data.message
+                                        break
+                                    case 'prompt.generated':
+                                        processingSteps.value.push({ type: 'prompt', status: 'completed', message: data.message })
+                                        currentStatus.value = data.message
+                                        break
+                                    case 'llm.request.started':
+                                        currentStatus.value = data.message
+                                        processingSteps.value.push({ type: 'llm', status: 'running', message: data.message })
+                                        break
+                                    case 'llm.first_token':
+                                        const llmStep = processingSteps.value.find(s => s.type === 'llm')
+                                        if (llmStep) {
+                                            llmStep.status = 'streaming'
+                                            llmStep.message = 'Streaming response...'
+                                        }
+                                        currentStatus.value = 'Streaming response...'
+                                        break
+                                    case 'stream.start':
+                                        aiSources.value = data.sources || []
+                                        searchDocuments.value = data.documents || []
+                                        searchResults.value = data.documents || []  // Also update search results
+                                        break
+                                    case 'content.delta':
+                                        // Append content immediately for real-time display
+                                        aiResponse.value += data.content
+                                        break
+                                    case 'stream.complete':
+                                        const finalLlmStep = processingSteps.value.find(s => s.type === 'llm')
+                                        if (finalLlmStep) {
+                                            finalLlmStep.status = 'completed'
+                                            finalLlmStep.message = 'Response complete'
+                                        }
+                                        currentStatus.value = ''
+                                        isSearching.value = false
+                                        break
+                                    case 'error':
+                                        console.error('Stream error:', data.error)
+                                        aiResponse.value = data.error || 'An error occurred'
+                                        currentStatus.value = 'Error occurred'
+                                        isSearching.value = false
+                                        break
+                                    // Legacy event support
+                                    case 'results':
+                                        searchResults.value = data.results || []
+                                        break
+                                    case 'sources':
+                                        aiSources.value = data.sources || []
+                                        break
+                                    case 'content':
+                                        aiResponse.value += data.content
+                                        break
+                                    case 'done':
+                                        isSearching.value = false
+                                        break
+                                }
+                            } catch (e) {
+                                // Ignore JSON parse errors
+                            }
+                        }
+                    }
+                }
+            }
+            
+            await processStream()
         } else {
             // Perform standard search
             const response = await fetch('/api/search/standard', {
@@ -275,6 +485,7 @@ const performSearch = async () => {
         }
     } catch (error) {
         console.error('Search error:', error)
+        aiResponse.value = 'An error occurred while searching. Please try again.'
     } finally {
         isSearching.value = false
     }

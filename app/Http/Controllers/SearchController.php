@@ -9,6 +9,7 @@ use Sigmie\AI\LLMs\OpenAILLM;
 use Sigmie\AI\Rerankers\VoyageReranker;
 use Sigmie\Document\Hit;
 use Sigmie\Search\NewRagPrompt;
+use Sigmie\Rag\NewRerank;
 use Sigmie\Mappings\NewProperties;
 
 class SearchController extends Controller
@@ -18,6 +19,227 @@ class SearchController extends Controller
     public function __construct(Sigmie $sigmie)
     {
         $this->sigmie = $sigmie;
+    }
+
+    /**
+     * Perform RAG search with streaming response
+     */
+    public function ragStream(Request $request)
+    {
+        $request->validate([
+            'question' => 'required|string|max:500'
+        ]);
+
+        $question = $request->input('question');
+
+        return response()->stream(function () use ($question) {
+            // Disable any output buffering for immediate streaming
+            while (ob_get_level() > 0) {
+                ob_end_flush();
+            }
+            
+            try {
+                // Define properties for semantic search
+                $props = new NewProperties;
+                $props->title('title')->semantic(accuracy: 5);
+                $props->longText('content')->semantic(accuracy: 4);
+                $props->text('description')->semantic(accuracy: 3);
+
+                // First get search results
+                $searchResults = $this->sigmie
+                    ->newSearch('documentation')
+                    ->properties($props)
+                    ->queryString($question)
+                    ->retrieve(['title', 'content', 'description', 'url', 'version', 'section'])
+                    ->size(5)
+                    ->get();
+
+                // Format search results
+                $formattedResults = collect($searchResults->hits())->map(function (Hit $doc) {
+                    return [
+                        '_id' => $doc['_id'] ?? null,
+                        'title' => $doc['title'] ?? '',
+                        'description' => $doc['description'] ?? '',
+                        'url' => $doc['url'] ?? '',
+                        'version' => $doc['version'] ?? '',
+                        'section' => $doc['section'] ?? ''
+                    ];
+                })->toArray();
+
+                // Send search results immediately
+                echo "data: " . json_encode([
+                    'type' => 'results',
+                    'results' => $formattedResults
+                ]) . "\n\n";
+                flush();
+
+                // Check if OpenAI is configured
+                $apiKey = config('services.openai.api_key');
+                
+                if (!$apiKey) {
+                    // Send fallback message if no API key
+                    $fallbackAnswer = "Here are the most relevant documentation pages for your query:\n\n";
+                    foreach (array_slice($formattedResults, 0, 3) as $result) {
+                        $fallbackAnswer .= "- **[{$result['title']}]({$result['url']})** ({$result['version']})\n";
+                        if ($result['description']) {
+                            $fallbackAnswer .= "  {$result['description']}\n";
+                        }
+                    }
+                    
+                    echo "data: " . json_encode([
+                        'type' => 'content',
+                        'content' => $fallbackAnswer
+                    ]) . "\n\n";
+                    flush();
+                    
+                    echo "data: " . json_encode([
+                        'type' => 'done',
+                        'finish_reason' => 'stop'
+                    ]) . "\n\n";
+                    flush();
+                    return;
+                }
+
+                // Setup reranker if available
+                $voyageKey = config('services.voyage.api_key');
+                $ragBuilder = $this->sigmie->newRag(new OpenAILLM($apiKey));
+                
+                if ($voyageKey) {
+                    $ragBuilder->reranker(new VoyageReranker($voyageKey))
+                        ->rerank(function (NewRerank $rerank) use ($question) {
+                            $rerank->fields(['title', 'content']);
+                            $rerank->topK(3);
+                            $rerank->query($question);
+                        });
+                }
+
+                // Stream AI answer with new API - all events
+                $stream = $ragBuilder
+                    ->search(
+                        $this->sigmie->newSearch('documentation')
+                            ->properties($props)
+                            ->queryString($question)
+                            ->retrieve(['title', 'content', 'description', 'url', 'version', 'section'])
+                            ->size(5)
+                    )
+                    ->prompt(function (NewRagPrompt $prompt) use ($question) {
+                        $prompt->question($question);
+                        $prompt->contextFields(['title', 'content', 'description']);
+                        $prompt->guardrails([
+                            'Answer based on the Sigmie documentation provided',
+                            'Be concise and technical',
+                            'Include code examples when relevant',
+                            'Use markdown formatting for better readability',
+                            'Mention which version (v1 or v2) the information applies to',
+                            'If information is not in context, say so clearly',
+                            'Reference source documents as [1], [2], etc when citing information'
+                        ]);
+                    })
+                    ->instructions(
+                        "You are a helpful assistant for the Sigmie PHP Elasticsearch library. " .
+                        "Provide accurate, technical answers based on the documentation. " .
+                        "Format your response using markdown with clear sections. " .
+                        "Include relevant PHP code examples with proper syntax highlighting. " .
+                        "Always mention which version the information applies to. " .
+                        "When citing information, reference sources as [1], [2], etc."
+                    )
+                    ->answer(true); // true for streaming
+
+                foreach ($stream as $event) {
+                    // Stream all event types directly to frontend
+                    if (isset($event['type'])) {
+                        switch($event['type']) {
+                            case 'search.started':
+                            case 'search.completed':
+                            case 'rerank.started':
+                            case 'rerank.completed':
+                            case 'prompt.generated':
+                            case 'llm.request.started':
+                            case 'llm.first_token':
+                                // Pass through status events
+                                echo "data: " . json_encode([
+                                    'type' => $event['type'],
+                                    'message' => $event['message'] ?? '',
+                                    'metadata' => $event['metadata'] ?? null
+                                ]) . "\n\n";
+                                flush();
+                                break;
+                                
+                            case 'stream.start':
+                                // Send context with source documents
+                                $sources = [];
+                                $documents = [];
+                                if (isset($event['context']['documents'])) {
+                                    foreach ($event['context']['documents'] as $index => $doc) {
+                                        $sources[] = [
+                                            'index' => $index + 1,
+                                            'title' => $doc['title'] ?? '',
+                                            'url' => $doc['url'] ?? '',
+                                            'version' => $doc['version'] ?? '',
+                                            'section' => $doc['section'] ?? ''
+                                        ];
+                                        $documents[] = [
+                                            'title' => $doc['title'] ?? '',
+                                            'description' => $doc['description'] ?? '',
+                                            'url' => $doc['url'] ?? '',
+                                            'version' => $doc['version'] ?? '',
+                                            'section' => $doc['section'] ?? '',
+                                            'score' => $doc['_score'] ?? null
+                                        ];
+                                    }
+                                }
+                                echo "data: " . json_encode([
+                                    'type' => 'stream.start',
+                                    'sources' => $sources,
+                                    'documents' => $documents,
+                                    'context' => $event['context'] ?? null
+                                ]) . "\n\n";
+                                flush();
+                                break;
+                                
+                            case 'content.delta':
+                                // Stream content chunks
+                                echo "data: " . json_encode([
+                                    'type' => 'content.delta',
+                                    'content' => $event['delta'] ?? ''
+                                ]) . "\n\n";
+                                flush();
+                                break;
+                                
+                            case 'stream.complete':
+                                // Stream completion
+                                echo "data: " . json_encode([
+                                    'type' => 'stream.complete',
+                                    'finish_reason' => 'stop'
+                                ]) . "\n\n";
+                                flush();
+                                break;
+                                
+                            default:
+                                // Pass through any other events
+                                echo "data: " . json_encode($event) . "\n\n";
+                                flush();
+                                break;
+                        }
+                    }
+                }
+
+            } catch (\Exception $e) {
+                Log::error('RAG streaming error: ' . $e->getMessage());
+                
+                echo "data: " . json_encode([
+                    'type' => 'error',
+                    'error' => 'An error occurred while generating the response.'
+                ]) . "\n\n";
+                flush();
+            }
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+            'X-Accel-Buffering' => 'no', // Disable Nginx buffering
+            'Content-Encoding' => 'none', // Disable compression for streaming
+        ]);
     }
 
     /**
@@ -65,9 +287,20 @@ class SearchController extends Controller
             
             if ($apiKey) {
                 try {
-                    $answer = $this->sigmie
-                        ->newRag(new OpenAILLM($apiKey))
-                        ->reranker(new VoyageReranker(config('services.voyage.api_key')))
+                    $ragBuilder = $this->sigmie->newRag(new OpenAILLM($apiKey));
+                    
+                    // Add reranker if available
+                    $voyageKey = config('services.voyage.api_key');
+                    if ($voyageKey) {
+                        $ragBuilder->reranker(new VoyageReranker($voyageKey))
+                            ->rerank(function (NewRerank $rerank) use ($question) {
+                                $rerank->fields(['title', 'content']);
+                                $rerank->topK(3);
+                                $rerank->query($question);
+                            });
+                    }
+                    
+                    $responses = $ragBuilder
                         ->search(
                             $this->sigmie->newSearch('documentation')
                                 ->properties($props)
@@ -84,7 +317,8 @@ class SearchController extends Controller
                                 'Include code examples when relevant',
                                 'Use markdown formatting for better readability',
                                 'Mention which version (v1 or v2) the information applies to',
-                                'If information is not in context, say so clearly'
+                                'If information is not in context, say so clearly',
+                                'Reference source documents as [1], [2], etc when citing information'
                             ]);
                         })
                         ->instructions(
@@ -92,12 +326,30 @@ class SearchController extends Controller
                             "Provide accurate, technical answers based on the documentation. " .
                             "Format your response using markdown with clear sections. " .
                             "Include relevant PHP code examples with proper syntax highlighting. " .
-                            "Always mention which version the information applies to."
+                            "Always mention which version the information applies to. " .
+                            "When citing information, reference sources as [1], [2], etc."
                         )
-                        ->limits(maxTokens: 800, temperature: 0.1)
-                        ->answer();
-
-                    $aiAnswer = $answer['answer'] ?? null;
+                        ->answer(false); // false for non-streaming
+                    
+                    // Get the RagResponse object
+                    $ragResponse = iterator_to_array($responses)[0] ?? null;
+                    
+                    if ($ragResponse) {
+                        $aiAnswer = $ragResponse->finalAnswer();
+                        
+                        // Add source references at the end
+                        $sources = "\n\n### Sources:\n";
+                        $context = $ragResponse->context();
+                        if (isset($context['documents'])) {
+                            foreach ($context['documents'] as $index => $doc) {
+                                $num = $index + 1;
+                                $sources .= "[{$num}] [{$doc['title']}]({$doc['url']}) (v{$doc['version']})\n";
+                            }
+                            $aiAnswer .= $sources;
+                        }
+                    } else {
+                        $aiAnswer = null;
+                    }
                 } catch (\Exception $e) {
                     Log::error('RAG generation error: ' . $e->getMessage());
                     // Continue without AI answer

@@ -4626,12 +4626,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sigmie/sigmie.git",
-                "reference": "2fe130a58f01370750f0d220ee7164f59dad6680"
+                "reference": "0a60cf2e108fc2c5bd41c6b8f57d971573a774a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sigmie/sigmie/zipball/2fe130a58f01370750f0d220ee7164f59dad6680",
-                "reference": "2fe130a58f01370750f0d220ee7164f59dad6680",
+                "url": "https://api.github.com/repos/sigmie/sigmie/zipball/0a60cf2e108fc2c5bd41c6b8f57d971573a774a5",
+                "reference": "0a60cf2e108fc2c5bd41c6b8f57d971573a774a5",
                 "shasum": ""
             },
             "require": {
@@ -4688,7 +4688,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-09-16T12:14:43+00:00"
+            "time": "2025-09-17T12:55:08+00:00"
         },
         {
             "name": "spatie/backtrace",

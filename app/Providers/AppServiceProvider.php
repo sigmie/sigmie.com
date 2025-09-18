@@ -13,6 +13,7 @@ use League\CommonMark\MarkdownConverter;
 use Torchlight\Commonmark\V2\TorchlightExtension;
 use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\Extension\TableOfContents\TableOfContentsExtension;
+use Sigmie\AI\APIs\OpenAIEmbeddingsApi;
 use Sigmie\AI\LLMs\OpenAILLM;
 use Sigmie\Base\Http\ElasticsearchConnection;
 use Sigmie\Enums\ElasticsearchVersion;
@@ -45,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
 
             $sigmie = new Sigmie(
                 $elasticsearchConnection,
-                new OpenAILLM(config('services.openai.api_key'))
+                new OpenAIEmbeddingsApi(config('services.openai.api_key'))
             );
 
             $sigmie->version(ElasticsearchVersion::v8);

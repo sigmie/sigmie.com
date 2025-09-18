@@ -41,6 +41,7 @@ Route::get('/search', function () {
 Route::post('/api/search/rag', [SearchController::class, 'rag']);
 Route::post('/api/search/rag-stream', [SearchController::class, 'ragStream']);
 Route::post('/api/search/standard', [SearchController::class, 'standard']);
+Route::post('/api/search/clear-conversation', [SearchController::class, 'clearConversation']);
 
 Route::get('/blog', function () {
 

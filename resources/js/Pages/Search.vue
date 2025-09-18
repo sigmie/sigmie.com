@@ -56,6 +56,26 @@
         
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Conversation ID Display -->
+            <div v-if="conversationId && searchMode === 'semantic'" class="flex items-center justify-center mb-4">
+                <div class="inline-flex items-center space-x-2 px-4 py-2 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg text-sm">
+                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    <span class="text-gray-700 dark:text-gray-300">Conversation:</span>
+                    <code class="font-mono text-xs text-blue-700 dark:text-blue-300">{{ conversationId.slice(0, 8) }}...</code>
+                    <button
+                        @click="clearConversation"
+                        class="ml-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                        title="Clear conversation context"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
             <!-- Search Mode Toggle -->
             <div class="flex items-center justify-center mb-6">
                 <div class="inline-flex rounded-lg border border-gray-200 dark:border-gray-700 p-1">
@@ -139,7 +159,25 @@
                         </div>
                         <div class="flex-1">
                             <div class="flex items-center justify-between mb-2">
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">AI Answer</h3>
+                                <div class="flex items-center space-x-3">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">AI Answer</h3>
+                                    <div v-if="conversationId" class="flex items-center space-x-2">
+                                        <div class="flex items-center space-x-1">
+                                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                            </svg>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400" :title="'Conversation: ' + conversationId">
+                                                Context preserved
+                                            </span>
+                                        </div>
+                                        <button
+                                            @click="clearConversation"
+                                            class="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 underline"
+                                        >
+                                            Clear context
+                                        </button>
+                                    </div>
+                                </div>
                                 <div v-if="isSearching" class="flex items-center space-x-2">
                                     <div class="flex space-x-1">
                                         <div class="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></div>
@@ -302,6 +340,7 @@ const hasSearched = ref(false)
 const searchMode = ref('semantic') // 'semantic' or 'standard'
 const currentStatus = ref('')  // Current processing status
 const processingSteps = ref([])  // Track all processing steps
+const conversationId = ref(null)  // Store conversation ID for context
 
 const suggestedTopics = [
     'semantic search',
@@ -337,6 +376,7 @@ const performSearch = async () => {
     searchResults.value = []
     currentStatus.value = ''
     processingSteps.value = []
+    // Keep conversation ID to maintain context
     
     try {
         if (searchMode.value === 'semantic') {
@@ -348,7 +388,8 @@ const performSearch = async () => {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
                 },
                 body: JSON.stringify({ 
-                    question: searchQuery.value 
+                    question: searchQuery.value,
+                    conversation_id: conversationId.value 
                 })
             })
             
@@ -420,10 +461,29 @@ const performSearch = async () => {
                                         }
                                         currentStatus.value = 'Streaming response...'
                                         break
+                                    case 'conversation.created':
+                                        conversationId.value = data.conversation_id
+                                        processingSteps.value.push({ 
+                                            type: 'conversation', 
+                                            status: 'completed', 
+                                            message: 'New conversation started' 
+                                        })
+                                        break
+                                    case 'conversation.reused':
+                                        conversationId.value = data.conversation_id
+                                        processingSteps.value.push({ 
+                                            type: 'conversation', 
+                                            status: 'completed', 
+                                            message: 'Using existing conversation context' 
+                                        })
+                                        break
                                     case 'stream.start':
                                         aiSources.value = data.sources || []
                                         searchDocuments.value = data.documents || []
                                         searchResults.value = data.documents || []  // Also update search results
+                                        if (data.conversation_id) {
+                                            conversationId.value = data.conversation_id
+                                        }
                                         break
                                     case 'content.delta':
                                         // Append content immediately for real-time display
@@ -488,6 +548,30 @@ const performSearch = async () => {
         aiResponse.value = 'An error occurred while searching. Please try again.'
     } finally {
         isSearching.value = false
+    }
+}
+
+// Clear conversation context
+const clearConversation = async () => {
+    try {
+        const response = await fetch('/api/search/clear-conversation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            }
+        })
+        
+        if (response.ok) {
+            conversationId.value = null
+            // Clear the AI response and sources to indicate context was cleared
+            aiResponse.value = ''
+            aiSources.value = []
+            searchDocuments.value = []
+            processingSteps.value = []
+        }
+    } catch (error) {
+        console.error('Failed to clear conversation:', error)
     }
 }
 

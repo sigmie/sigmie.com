@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Sigmie\Sigmie;
-use Sigmie\AI\LLMs\OpenAILLM;
-use Sigmie\AI\Rerankers\VoyageReranker;
+use Sigmie\AI\APIs\OpenAIConversationsApi;
+use Sigmie\AI\APIs\OpenAIResponseApi;
+use Sigmie\AI\APIs\VoyageRerankApi;
 use Sigmie\Document\Hit;
 use Sigmie\Search\NewRagPrompt;
 use Sigmie\Rag\NewRerank;
@@ -27,12 +28,14 @@ class SearchController extends Controller
     public function ragStream(Request $request)
     {
         $request->validate([
-            'question' => 'required|string|max:500'
+            'question' => 'required|string|max:500',
+            'conversation_id' => 'nullable|string'
         ]);
 
         $question = $request->input('question');
+        $conversationId = $request->input('conversation_id') ?? session('rag_conversation_id');
 
-        return response()->stream(function () use ($question) {
+        return response()->stream(function () use ($question, $conversationId) {
             // Disable any output buffering for immediate streaming
             while (ob_get_level() > 0) {
                 ob_end_flush();
@@ -100,18 +103,21 @@ class SearchController extends Controller
                     return;
                 }
 
+                // Setup LLM with conversations API, reusing conversation if available
+                $llm = new OpenAIConversationsApi($apiKey, $conversationId);
+                $ragBuilder = $this->sigmie->newRag($llm);
+                
                 // Setup reranker if available
                 $voyageKey = config('services.voyage.api_key');
-                $ragBuilder = $this->sigmie->newRag(new OpenAILLM($apiKey));
-                
-                if ($voyageKey) {
-                    $ragBuilder->reranker(new VoyageReranker($voyageKey))
-                        ->rerank(function (NewRerank $rerank) use ($question) {
-                            $rerank->fields(['title', 'content']);
-                            $rerank->topK(3);
-                            $rerank->query($question);
-                        });
-                }
+                // if ($voyageKey) {
+                    // $voyageReranker = new VoyageRerankApi($voyageKey);
+                    // $ragBuilder->reranker($voyageReranker)
+                    //     ->rerank(function (NewRerank $rerank) use ($question) {
+                    //         $rerank->fields(['title', 'content']);
+                    //         $rerank->topK(3);
+                    //         $rerank->query($question);
+                    //     });
+                // }
 
                 // Stream AI answer with new API - all events
                 $stream = $ragBuilder
@@ -165,6 +171,21 @@ class SearchController extends Controller
                                 flush();
                                 break;
                                 
+                            case 'conversation.created':
+                            case 'conversation.reused':
+                                // Store conversation ID in session for reuse
+                                if (isset($event['conversation_id'])) {
+                                    session(['rag_conversation_id' => $event['conversation_id']]);
+                                }
+                                // Pass through conversation events
+                                echo "data: " . json_encode([
+                                    'type' => $event['type'],
+                                    'conversation_id' => $event['conversation_id'] ?? null,
+                                    'metadata' => $event['metadata'] ?? null
+                                ]) . "\n\n";
+                                flush();
+                                break;
+                                
                             case 'stream.start':
                                 // Send context with source documents
                                 $sources = [];
@@ -192,7 +213,8 @@ class SearchController extends Controller
                                     'type' => 'stream.start',
                                     'sources' => $sources,
                                     'documents' => $documents,
-                                    'context' => $event['context'] ?? null
+                                    'context' => $event['context'] ?? null,
+                                    'conversation_id' => $event['context']['conversation_id'] ?? null
                                 ]) . "\n\n";
                                 flush();
                                 break;
@@ -287,12 +309,15 @@ class SearchController extends Controller
             
             if ($apiKey) {
                 try {
-                    $ragBuilder = $this->sigmie->newRag(new OpenAILLM($apiKey));
+                    // Use OpenAIConversationsApi for better context management
+                    $llm = new OpenAIConversationsApi($apiKey);
+                    $ragBuilder = $this->sigmie->newRag($llm);
                     
                     // Add reranker if available
                     $voyageKey = config('services.voyage.api_key');
                     if ($voyageKey) {
-                        $ragBuilder->reranker(new VoyageReranker($voyageKey))
+                        $voyageReranker = new VoyageRerankApi($voyageKey);
+                        $ragBuilder->reranker($voyageReranker)
                             ->rerank(function (NewRerank $rerank) use ($question) {
                                 $rerank->fields(['title', 'content']);
                                 $rerank->topK(3);
@@ -382,6 +407,19 @@ class SearchController extends Controller
                 'results' => []
             ], 500);
         }
+    }
+
+    /**
+     * Clear conversation context
+     */
+    public function clearConversation(Request $request)
+    {
+        session()->forget('rag_conversation_id');
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Conversation cleared'
+        ]);
     }
 
     /**

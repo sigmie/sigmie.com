@@ -50,7 +50,7 @@ jobs:
           
           # Copy new docs from source
           if [ -d "sigmie-source/docs" ]; then
-            cp -r sigmie-source/docs/* resources/docs/v2/
+            cp -r sigmie-source/docs/* docs/v2/
             echo "✅ Documentation files synced successfully"
           else
             echo "⚠️ No docs directory found in source repository"

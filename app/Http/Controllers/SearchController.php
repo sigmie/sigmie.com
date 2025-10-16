@@ -12,6 +12,7 @@ use Sigmie\Document\Hit;
 use Sigmie\Search\NewRagPrompt;
 use Sigmie\Rag\NewRerank;
 use Sigmie\Mappings\NewProperties;
+use App\Indices\NetflixTitles;
 
 class SearchController extends Controller
 {
@@ -469,7 +470,63 @@ class SearchController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Standard search error: ' . $e->getMessage());
-            
+
+            return response()->json([
+                'results' => [],
+                'error' => 'Search failed. Please try again.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Perform semantic search on Netflix titles
+     */
+    public function netflix(Request $request)
+    {
+        $request->validate([
+            'query' => 'required|string|max:500'
+        ]);
+
+        $query = $request->input('query');
+
+        try {
+            $netflixIndex = app(NetflixTitles::class);
+            $blueprint = $netflixIndex->properties();
+
+            $search = $netflixIndex
+                ->newSearch()
+                ->properties($blueprint)
+                ->semantic()
+                ->noResultsOnEmptySearch()
+                ->disableKeywordSearch()
+                ->queryString($query)
+                ->filters('type:"TV Show" OR type:"Movie"')
+                ->facets('type')
+                ->fields(['type', 'title', 'director', 'cast', 'country', 'date_added', 'release_year'])
+                ->retrieve(['type', 'title', 'director', 'cast', 'country', 'date_added', 'release_year'])
+                ->size(20);
+
+            $response = $search->get();
+
+            $formattedResults = collect($response->hits())->map(fn (Hit $doc) => [
+                '_id' => $doc['_id'] ?? null,
+                'type' => $doc['type'] ?? '',
+                'title' => $doc['title'] ?? '',
+                'director' => $doc['director'] ?? '',
+                'cast' => $doc['cast'] ?? '',
+                'country' => $doc['country'] ?? '',
+                'date_added' => $doc['date_added'] ?? '',
+                'release_year' => $doc['release_year'] ?? '',
+            ])->toArray();
+
+            return response()->json([
+                'results' => $formattedResults,
+                'total' => count($formattedResults)
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Netflix search error: ' . $e->getMessage());
+
             return response()->json([
                 'results' => [],
                 'error' => 'Search failed. Please try again.'

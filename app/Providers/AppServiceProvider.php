@@ -13,8 +13,10 @@ use League\CommonMark\MarkdownConverter;
 use Torchlight\Commonmark\V2\TorchlightExtension;
 use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\Extension\TableOfContents\TableOfContentsExtension;
+use Sigmie\AI\APIs\InfinityEmbeddingsApi;
 use Sigmie\AI\APIs\OpenAIEmbeddingsApi;
 use Sigmie\AI\LLMs\OpenAILLM;
+use Sigmie\Base\Contracts\ElasticsearchConnection as ContractsElasticsearchConnection;
 use Sigmie\Base\Http\ElasticsearchConnection;
 use Sigmie\Enums\ElasticsearchVersion;
 use Sigmie\Http\JSONClient;
@@ -38,16 +40,20 @@ class AppServiceProvider extends ServiceProvider
             return $converter;
         });
 
-        $this->app->singleton(Sigmie::class, function () {
+        $this->app->singleton(ContractsElasticsearchConnection::class, function () {
 
             $json = JSONClient::create(hosts: ['127.0.0.1:9200'], config: ['connect_timeout' => 15]);
 
-            $elasticsearchConnection = new ElasticsearchConnection($json);
+            return new ElasticsearchConnection($json);
+        });
 
-            $sigmie = new Sigmie(
-                $elasticsearchConnection,
-                new OpenAIEmbeddingsApi(config('services.openai.api_key'))
-            );
+        $this->app->singleton(Sigmie::class, function () {
+
+            $elasticsearchConnection = app(ContractsElasticsearchConnection::class);
+
+            $sigmie = new Sigmie($elasticsearchConnection);
+
+            $sigmie->registerApi('infinity-embeddings', new InfinityEmbeddingsApi('http://localhost:7997'));
 
             $sigmie->version(ElasticsearchVersion::v8);
 

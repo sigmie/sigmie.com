@@ -21,16 +21,16 @@ on:
 jobs:
   sync-docs:
     runs-on: ubuntu-latest
-    
+
     permissions:
       contents: write
-    
+
     steps:
       - name: Checkout target repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Checkout source repository
         uses: actions/checkout@v4
         with:
@@ -39,15 +39,15 @@ jobs:
           path: sigmie-source
           sparse-checkout: |
             docs
-          
+
       - name: Create v2 docs directory
         run: mkdir -p resources/docs/v2
-        
+
       - name: Sync documentation files
         run: |
           # Remove existing v2 docs (except .gitkeep if exists)
           find resources/docs/v2 -mindepth 1 -not -name '.gitkeep' -delete 2>/dev/null || true
-          
+
           # Copy new docs from source
           if [ -d "sigmie-source/docs" ]; then
             cp -r sigmie-source/docs/* docs/v2/
@@ -56,7 +56,7 @@ jobs:
             echo "⚠️ No docs directory found in source repository"
             exit 1
           fi
-          
+
       - name: Check for changes
         id: changes
         run: |
@@ -69,24 +69,24 @@ jobs:
             echo "📝 Documentation changes detected"
             git diff --staged --stat
           fi
-          
+
       - name: Commit and push changes
         if: steps.changes.outputs.has_changes == 'true'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
+
           # Create commit message with date
           COMMIT_MSG="chore: sync v2 documentation from sigmie/sigmie@v2
 
           Automated sync on $(date -u '+%Y-%m-%d %H:%M:%S UTC')
           Source: https://github.com/sigmie/sigmie/tree/v2/docs"
-          
+
           git commit -m "$COMMIT_MSG"
           git push
-          
+
           echo "✅ Changes committed and pushed successfully"
-          
+
       - name: Summary
         if: always()
         run: |

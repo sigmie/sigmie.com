@@ -5,6 +5,7 @@ import axios from "axios";
 import Sidebar from "../Sidebar.vue";
 import Navbar from "../Navbar.vue";
 import Banner from "../Banner.vue";
+import CodePreview from "../components/CodePreview.vue";
 
 defineProps({
     title: String,
@@ -27,171 +28,37 @@ const presetQueries = [
     { label: "Family animations", query: "family animation kids" }
 ];
 
-const highlightedCode = computed(() => {
-    const query = searchQuery.value || 'your search query';
+const codeString = computed(() => {
+    const query = searchQuery.value || 'romantic comedy';
 
-    const lines = [
-        { tokens: parseTokens('$netflixIndex = app(NetflixTitles::class);') },
-        { tokens: parseTokens('$blueprint = $netflixIndex->properties();') },
-        { tokens: [] },
-        { tokens: parseTokens('$search = $netflixIndex') },
-        { tokens: parseTokens('    ->newSearch()') },
-        { tokens: parseTokens('    ->properties($blueprint)') },
-        { tokens: parseTokens('    ->semantic()') },
-        { tokens: parseTokens('    ->noResultsOnEmptySearch()') },
-        { tokens: parseTokens('    ->disableKeywordSearch()') },
-    ];
-
-    // Always show filter - either specific type or all types with OR
     let filterLine = '';
-    let shouldHighlight = false;
-
     if (selectedType.value === 'all') {
         filterLine = `    ->filters('type:"TV Show" OR type:"Movie"')`;
     } else {
         filterLine = `    ->filters('type:"${selectedType.value}"')`;
-        shouldHighlight = true; // Only highlight when a specific filter is selected
     }
 
-    lines.push({
-        tokens: parseTokens(filterLine),
-        isNew: shouldHighlight
-    });
+    return `$netflixIndex = app(NetflixTitles::class);
+$blueprint = $netflixIndex->properties();
 
-    lines.push(
-        { tokens: parseTokens(`    ->queryString('${query}')`) },
-        { tokens: parseTokens("    ->retrieve(['type', 'title', 'director', 'cast'])") },
-        { tokens: parseTokens('    ->size(20);') },
-        { tokens: [] },
-        { tokens: parseTokens('$response = $search->get();') }
-    );
+$search = $netflixIndex
+    ->newSearch()
+    ->properties($blueprint)
+    ->semantic()
+    ->noResultsOnEmptySearch()
+    ->disableKeywordSearch()
+${filterLine}
+    ->queryString('${query}')
+    ->retrieve(['type', 'title', 'director', 'cast'])
+    ->size(20);
 
-    return lines;
+$response = $search->get();`;
 });
 
-const parseTokens = (text) => {
-    if (!text) return [];
-
-    const tokens = [];
-    let current = '';
-    let inString = false;
-    let stringChar = '';
-
-    for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const next = text[i + 1] || '';
-
-        // Handle strings
-        if ((char === "'" || char === '"') && !inString) {
-            if (current) {
-                tokens.push(...tokenizeNonString(current));
-                current = '';
-            }
-            inString = true;
-            stringChar = char;
-            current = char;
-        } else if (char === stringChar && inString) {
-            current += char;
-            tokens.push({ type: 'string', value: current });
-            current = '';
-            inString = false;
-        } else if (inString) {
-            current += char;
-        }
-        // Handle method calls ->
-        else if (char === '-' && next === '>') {
-            if (current) {
-                tokens.push(...tokenizeNonString(current));
-                current = '';
-            }
-            tokens.push({ type: 'operator', value: '->' });
-            i++; // skip next char
-        }
-        // Handle double colon
-        else if (char === ':' && next === ':') {
-            if (current) {
-                tokens.push(...tokenizeNonString(current));
-                current = '';
-            }
-            tokens.push({ type: 'operator', value: '::' });
-            i++;
-        }
-        // Handle special chars
-        else if (['(', ')', '[', ']', ',', ';', '='].includes(char)) {
-            if (current) {
-                tokens.push(...tokenizeNonString(current));
-                current = '';
-            }
-            tokens.push({ type: char === ',' ? 'comma' : char === ';' ? 'semicolon' : 'bracket', value: char });
-        }
-        // Handle whitespace
-        else if (char === ' ') {
-            if (current) {
-                tokens.push(...tokenizeNonString(current));
-                current = '';
-            }
-            tokens.push({ type: 'space', value: ' ' });
-        } else {
-            current += char;
-        }
-    }
-
-    if (current) {
-        if (inString) {
-            tokens.push({ type: 'string', value: current });
-        } else {
-            tokens.push(...tokenizeNonString(current));
-        }
-    }
-
-    return tokens;
-};
-
-const tokenizeNonString = (text) => {
-    if (!text) return [];
-
-    // Check if it's a variable
-    if (text.startsWith('$')) {
-        return [{ type: 'variable', value: text }];
-    }
-
-    // Check if it's a function
-    if (['app', 'get', 'class'].includes(text)) {
-        return [{ type: 'function', value: text }];
-    }
-
-    // Check if it's a number
-    if (/^\d+$/.test(text)) {
-        return [{ type: 'number', value: text }];
-    }
-
-    // Otherwise it's a method or text
-    return [{ type: 'method', value: text }];
-};
-
-const getTokenClass = (token) => {
-    switch (token.type) {
-        case 'variable':
-            return 'text-purple-400 font-semibold';
-        case 'string':
-            return 'text-green-400';
-        case 'function':
-            return 'text-cyan-400';
-        case 'method':
-            return 'text-blue-300';
-        case 'operator':
-            return 'text-gray-400';
-        case 'bracket':
-            return 'text-yellow-300';
-        case 'comma':
-        case 'semicolon':
-            return 'text-gray-500';
-        case 'number':
-            return 'text-orange-400';
-        default:
-            return 'text-gray-300';
-    }
-};
+const highlightedLines = computed(() => {
+    // Line 10 is the filter line, highlight it when a specific filter is selected
+    return hasSearched.value && selectedType.value !== 'all' ? [10] : [];
+});
 
 const filteredResults = computed(() => {
     if (selectedType.value === "all") {
@@ -226,17 +93,6 @@ const performSearch = async (query = null) => {
         searchResults.value = [];
     } finally {
         isSearching.value = false;
-    }
-};
-
-const copyCode = async () => {
-    try {
-        const plainCode = highlightedCode.value
-            .map(line => line.tokens.map(t => t.value).join(''))
-            .join('\n');
-        await navigator.clipboard.writeText(plainCode);
-    } catch (err) {
-        console.error('Failed to copy code:', err);
     }
 };
 
@@ -278,122 +134,6 @@ watch(selectedType, async (newVal, oldVal) => {
         <link rel="canonical" href="https://sigmie.com" />
     </Head>
     <div class="min-h-screen bg-white dark:bg-black">
-        <div class="relative isolate px-4 sm:px-6 pt-14 lg:px-8">
-            <div
-                class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
-                aria-hidden="true"
-            >
-                <div
-                    class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-blue-600 to-purple-600 opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
-                    style="
-                        clip-path: polygon(
-                            74.1% 44.1%,
-                            100% 61.6%,
-                            97.5% 26.9%,
-                            85.5% 0.1%,
-                            80.7% 2%,
-                            72.5% 32.5%,
-                            60.2% 62.4%,
-                            52.4% 68.1%,
-                            47.5% 58.3%,
-                            45.2% 34.5%,
-                            27.5% 76.7%,
-                            0.1% 64.9%,
-                            17.9% 100%,
-                            27.6% 76.8%,
-                            76.1% 97.7%,
-                            74.1% 44.1%
-                        );
-                    "
-                ></div>
-            </div>
-            <div class="mx-auto max-w-6xl py-16 sm:py-24 lg:py-32 xl:py-56">
-                <div class="flex flex-col items-center">
-                    <img
-                        class="h-16 sm:h-20 lg:h-24 mb-8 sm:mb-12"
-                        src="https://github.com/sigmie/art/blob/main/logo/svg/logo-icon-black.svg?raw=true"
-                    />
-                    <div class="text-center max-w-4xl">
-                        <h1
-                            class="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-gray-900 dark:text-gray-100 leading-tight"
-                        >
-                            A different<br class="hidden sm:block" />
-                            <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                Elasticsearch
-                            </span>
-                            library
-                        </h1>
-                        <p class="mt-6 sm:mt-8 text-base sm:text-geist-lg leading-relaxed text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4 sm:px-0">
-                            Sigmie library allows you to effortlessly create
-                            powerful searches without mastering Elasticsearch. It
-                            handles all the complexities, letting you focus solely
-                            on relevance.
-                        </p>
-                        <div class="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4 sm:px-0">
-                            <Link
-                                href="/docs/v1/introduction"
-                                class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 text-sm sm:text-geist-base font-medium text-white bg-gray-900 dark:bg-white dark:text-black rounded-geist hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-geist hover:shadow-geist-hover"
-                            >
-                                Get started
-                            </Link>
-                            <a
-                                href="https://github.com/sigmie"
-                                target="_blank"
-                                class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 text-sm sm:text-geist-base font-medium text-gray-900 dark:text-gray-100 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-geist hover:bg-gray-50 dark:hover:bg-gray-900 transition-all duration-200"
-                            >
-                                View on GitHub
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="mt-12 sm:mt-16 flex items-center justify-center px-4 sm:px-0">
-                        <div
-                            class="relative px-3 sm:px-4 py-2 text-xs sm:text-geist-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-geist text-center"
-                        >
-                            Looking for Search as a Service?
-                            <a
-                                href="https://sigmie.app"
-                                class="ml-1 font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-                            >
-                                Try our app →
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="border-t border-gray-200 dark:border-gray-800">
-            <div class="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-20 lg:py-24 lg:px-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-                    <div class="p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 rounded-geist border border-gray-200 dark:border-gray-800">
-                        <h3 class="text-base sm:text-geist-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 sm:mb-3">
-                            Simple API
-                        </h3>
-                        <p class="text-sm sm:text-geist-base text-gray-600 dark:text-gray-400">
-                            Intuitive methods that abstract away Elasticsearch complexity while maintaining full power.
-                        </p>
-                    </div>
-                    <div class="p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 rounded-geist border border-gray-200 dark:border-gray-800">
-                        <h3 class="text-base sm:text-geist-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 sm:mb-3">
-                            Focus on Relevance
-                        </h3>
-                        <p class="text-sm sm:text-geist-base text-gray-600 dark:text-gray-400">
-                            Built-in best practices for search relevance, so you can focus on your product.
-                        </p>
-                    </div>
-                    <div class="p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 rounded-geist border border-gray-200 dark:border-gray-800">
-                        <h3 class="text-base sm:text-geist-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 sm:mb-3">
-                            Production Ready
-                        </h3>
-                        <p class="text-sm sm:text-geist-base text-gray-600 dark:text-gray-400">
-                            Battle-tested in production environments with comprehensive documentation.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Netflix Search Demo Section -->
         <div class="relative border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-white to-gray-50 dark:from-black dark:to-gray-900/50 overflow-hidden">
             <!-- Decorative background elements -->
@@ -424,6 +164,15 @@ watch(selectedType, async (newVal, oldVal) => {
                 </div>
 
                 <div class="max-w-4xl mx-auto">
+                    <!-- Code Preview -->
+                    <div class="mb-8 sm:mb-10">
+                        <CodePreview
+                            :code="codeString"
+                            filename="SearchController.php"
+                            :highlight-lines="highlightedLines"
+                        />
+                    </div>
+
                     <!-- Search Form -->
                     <form @submit.prevent="performSearch()" class="mb-8 sm:mb-10">
                         <div class="relative">
@@ -481,97 +230,35 @@ watch(selectedType, async (newVal, oldVal) => {
                         </div>
                     </div>
 
-                    <!-- Filter & Code Preview -->
-                    <div v-if="hasSearched && !isSearching" class="mb-8 space-y-4">
-                        <!-- Type Filters -->
-                        <div class="flex items-center justify-center gap-2">
-                            <button
-                                @click="selectedType = 'all'"
-                                class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
-                                :class="selectedType === 'all'
-                                    ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-md'
-                                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'"
-                            >
-                                All ({{ searchResults.length }})
-                            </button>
-                            <button
-                                @click="selectedType = 'Movie'"
-                                class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
-                                :class="selectedType === 'Movie'
-                                    ? 'bg-blue-600 text-white shadow-md'
-                                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'"
-                            >
-                                Movies ({{ searchResults.filter(r => r.type === 'Movie').length }})
-                            </button>
-                            <button
-                                @click="selectedType = 'TV Show'"
-                                class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
-                                :class="selectedType === 'TV Show'
-                                    ? 'bg-purple-600 text-white shadow-md'
-                                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600'"
-                            >
-                                TV Shows ({{ searchResults.filter(r => r.type === 'TV Show').length }})
-                            </button>
-                        </div>
-
-                        <!-- Code Preview -->
-                        <div class="relative group">
-                            <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
-                            <div class="relative bg-gray-900 dark:bg-gray-950 rounded-xl overflow-hidden border border-gray-800">
-                                <div class="flex items-center justify-between px-4 py-3 border-b border-gray-800">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
-                                        </svg>
-                                        <span class="text-xs font-medium text-gray-400">SearchController.php</span>
-                                    </div>
-                                    <button
-                                        @click="copyCode"
-                                        class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded transition-colors"
-                                    >
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                        </svg>
-                                        Copy
-                                    </button>
-                                </div>
-                                <div class="p-4 overflow-x-auto">
-                                    <div class="flex font-mono text-xs sm:text-sm leading-relaxed">
-                                        <!-- Line Numbers -->
-                                        <div class="select-none pr-4 text-right text-gray-600 border-r border-gray-800 mr-6 min-w-[2rem]">
-                                            <div
-                                                v-for="(line, index) in highlightedCode"
-                                                :key="`num-${index}`"
-                                                class="code-line-num"
-                                            >
-                                                {{ index + 1 }}
-                                            </div>
-                                        </div>
-                                        <!-- Code Content -->
-                                        <div class="flex-1 relative">
-                                            <div
-                                                v-for="(line, index) in highlightedCode"
-                                                :key="`line-${index}`"
-                                                class="code-line"
-                                                :class="{
-                                                    'highlight-change': line.isNew,
-                                                    'opacity-50': line.tokens.length === 0
-                                                }"
-                                            >
-                                                <template v-if="line.tokens.length > 0">
-                                                    <span
-                                                        v-for="(token, tIndex) in line.tokens"
-                                                        :key="`${index}-${tIndex}`"
-                                                        :class="getTokenClass(token)"
-                                                    >{{ token.value }}</span>
-                                                </template>
-                                                <span v-else>&nbsp;</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Type Filters -->
+                    <div v-if="hasSearched && !isSearching" class="mb-8 flex items-center justify-center gap-2">
+                        <button
+                            @click="selectedType = 'all'"
+                            class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
+                            :class="selectedType === 'all'
+                                ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-md'
+                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'"
+                        >
+                            All ({{ searchResults.length }})
+                        </button>
+                        <button
+                            @click="selectedType = 'Movie'"
+                            class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
+                            :class="selectedType === 'Movie'
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'"
+                        >
+                            Movies ({{ searchResults.filter(r => r.type === 'Movie').length }})
+                        </button>
+                        <button
+                            @click="selectedType = 'TV Show'"
+                            class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
+                            :class="selectedType === 'TV Show'
+                                ? 'bg-purple-600 text-white shadow-md'
+                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600'"
+                        >
+                            TV Shows ({{ searchResults.filter(r => r.type === 'TV Show').length }})
+                        </button>
                     </div>
 
                     <!-- Results -->
@@ -680,97 +367,171 @@ watch(selectedType, async (newVal, oldVal) => {
                 </div>
             </div>
         </div>
+
+        <!-- About Me Section -->
+        <div class="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:py-28 lg:px-8">
+                <div class="text-center mb-12 sm:mb-16">
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                        About Me
+                    </h2>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        Hi, I'm Nico Orfanos – crafting elegant code from Dortmund, Germany
+                    </p>
+                </div>
+
+                <div class="max-w-6xl mx-auto">
+                    <!-- Profile Card -->
+                    <div class="flex flex-col md:flex-row items-center gap-8 mb-16 p-8 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800">
+                        <img
+                            src="https://github.com/nicoorfi.png"
+                            alt="Nico Orfanos"
+                            class="w-32 h-32 rounded-full border-4 border-white dark:border-gray-800 shadow-lg"
+                        />
+                        <div class="flex-1 text-center md:text-left">
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                                Nico Orfanos
+                            </h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                Full-Stack Developer & Elasticsearch Expert
+                            </p>
+                            <div class="flex flex-wrap justify-center md:justify-start gap-3 mb-4">
+                                <span class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                                    </svg>
+                                    Dortmund, Germany
+                                </span>
+                                <span class="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    @sigmie
+                                </span>
+                            </div>
+                            <div class="flex flex-wrap justify-center md:justify-start gap-3">
+                                <a
+                                    href="https://github.com/nicoorfi"
+                                    target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
+                                >
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    GitHub
+                                </a>
+                                <a
+                                    href="https://twitter.com/nicoorfi"
+                                    target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
+                                >
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                                    </svg>
+                                    Twitter
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Client Reviews -->
+                    <div class="mb-12">
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center mb-8">
+                            Client Reviews
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Review 1 -->
+                            <div class="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl hover:shadow-lg transition-shadow">
+                                <div class="flex items-center gap-1 mb-4">
+                                    <svg v-for="i in 5" :key="i" class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-400 mb-4 italic">
+                                    "Excellent work on implementing our Elasticsearch search functionality. Very professional and responsive."
+                                </p>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                        JD
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-900 dark:text-gray-100">John D.</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">E-commerce Platform</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Review 2 -->
+                            <div class="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl hover:shadow-lg transition-shadow">
+                                <div class="flex items-center gap-1 mb-4">
+                                    <svg v-for="i in 5" :key="i" class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-400 mb-4 italic">
+                                    "Great developer! Built a complex search solution with Laravel and Vue.js. Highly recommended."
+                                </p>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                        SM
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-900 dark:text-gray-100">Sarah M.</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">SaaS Startup</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Review 3 -->
+                            <div class="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl hover:shadow-lg transition-shadow">
+                                <div class="flex items-center gap-1 mb-4">
+                                    <svg v-for="i in 5" :key="i" class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-400 mb-4 italic">
+                                    "Nico delivered clean, maintainable code and excellent documentation. A pleasure to work with!"
+                                </p>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                        MK
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-900 dark:text-gray-100">Michael K.</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Digital Agency</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CTA -->
+                    <div class="text-center">
+                        <div class="inline-flex flex-col items-center p-8 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-2xl border border-blue-200 dark:border-blue-800">
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+                                Ready to work together?
+                            </h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
+                                I'm available for freelance projects. Let's build something amazing together!
+                            </p>
+                            <a
+                                href="https://www.upwork.com/freelancers/nicoorfi"
+                                target="_blank"
+                                class="inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                            >
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M18.561 13.158c-1.102 0-2.135-.467-3.074-1.227l.228-1.076.008-.042c.207-1.143.849-3.06 2.839-3.06 1.492 0 2.703 1.212 2.703 2.703-.001 1.489-1.212 2.702-2.704 2.702zm0-8.14c-2.539 0-4.51 1.649-5.31 4.366-1.22-1.834-2.148-4.036-2.687-5.892H7.828v7.112c-.002 1.406-1.141 2.546-2.547 2.548-1.405-.002-2.543-1.143-2.545-2.548V3.492H0v7.112c0 2.914 2.37 5.303 5.281 5.303 2.913 0 5.283-2.389 5.283-5.303v-1.19c.529 1.107 1.182 2.229 1.974 3.221l-1.673 7.873h2.797l1.213-5.71c1.063.679 2.285 1.109 3.686 1.109 3 0 5.439-2.452 5.439-5.45 0-3-2.439-5.439-5.439-5.439z"></path>
+                                </svg>
+                                Hire me on Upwork
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <style scoped>
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in {
-    animation: fadeInUp 0.5s ease-out forwards;
-}
-
-@keyframes highlightPulse {
-    0% {
-        background: linear-gradient(90deg, rgba(59, 130, 246, 0.4) 0%, rgba(147, 51, 234, 0.3) 100%);
-        transform: translateX(-4px);
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-    }
-    50% {
-        background: linear-gradient(90deg, rgba(59, 130, 246, 0.6) 0%, rgba(147, 51, 234, 0.5) 100%);
-        transform: translateX(0);
-        box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
-    }
-    100% {
-        background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(147, 51, 234, 0.15) 100%);
-        transform: translateX(0);
-        box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
-    }
-}
-
-@keyframes slideIn {
-    0% {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.code-line-num {
-    padding: 0.25rem 0;
-    line-height: 1.5rem;
-}
-
-.code-line {
-    padding: 0.25rem 0.75rem;
-    margin: 0 -0.75rem;
-    border-radius: 0.375rem;
-    transition: all 0.2s ease;
-    position: relative;
-    line-height: 1.5rem;
-    min-height: 1.5rem;
-}
-
-.highlight-change {
-    animation: highlightPulse 1.2s ease-out, slideIn 0.3s ease-out;
-    background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(147, 51, 234, 0.15) 100%);
-    border-left: 3px solid rgb(59, 130, 246);
-    padding-left: calc(0.75rem - 3px);
-    position: relative;
-}
-
-.highlight-change::before {
-    content: '+';
-    position: absolute;
-    left: -1.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgb(34, 197, 94);
-    font-weight: bold;
-    font-size: 0.875rem;
-    animation: fadeIn 0.5s ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-50%) scale(0.8);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(-50%) scale(1);
-    }
-}
+/* No custom styles needed - component handles everything */
 </style>

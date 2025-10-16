@@ -19,6 +19,15 @@ const isSearching = ref(false);
 const hasSearched = ref(false);
 const selectedType = ref("all");
 
+// Image search state
+const uploadedImage = ref(null);
+const imagePreview = ref(null);
+const isCropping = ref(false);
+const cropArea = ref({ x: 0, y: 0, width: 100, height: 100 });
+const imageSearchResults = ref([]);
+const imageQuery = ref("nature landscapes");
+const initialImages = ref([]);
+
 const presetQueries = [
     { label: "Woman protagonist", query: "woman" },
     { label: "Action thrillers", query: "action thriller" },
@@ -94,6 +103,71 @@ const performSearch = async (query = null) => {
     } finally {
         isSearching.value = false;
     }
+};
+
+// Generate initial images based on query
+const generateInitialImages = () => {
+    const seed = imageQuery.value.replace(/\s+/g, '-');
+    initialImages.value = Array.from({ length: 9 }, (_, i) => ({
+        id: i + 1,
+        url: `https://picsum.photos/seed/${seed}-${i + 1}/400/300`,
+        title: `${imageQuery.value} ${i + 1}`,
+    }));
+};
+
+// Initialize on mount
+generateInitialImages();
+
+// Image search functions
+const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        uploadedImage.value = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            imagePreview.value = e.target.result;
+            isCropping.value = true;
+            // Reset crop area
+            cropArea.value = { x: 10, y: 10, width: 80, height: 80 };
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+const selectImageFromGallery = (imageUrl) => {
+    imagePreview.value = imageUrl;
+    isCropping.value = true;
+    uploadedImage.value = null; // No file uploaded, using URL
+    cropArea.value = { x: 10, y: 10, width: 80, height: 80 };
+};
+
+const updateImageQuery = () => {
+    generateInitialImages();
+    // Reset search state
+    imagePreview.value = null;
+    isCropping.value = false;
+    imageSearchResults.value = [];
+};
+
+const performImageSearch = async () => {
+    // Placeholder function - will be implemented later
+    isCropping.value = false;
+
+    // Generate placeholder results
+    imageSearchResults.value = Array.from({ length: 12 }, (_, i) => ({
+        id: i + 1,
+        url: `https://picsum.photos/seed/${i + 1}/400/600`,
+        title: `Similar Image ${i + 1}`,
+        width: Math.random() > 0.5 ? 400 : 300,
+        height: Math.random() * 400 + 300
+    }));
+};
+
+const resetImageSearch = () => {
+    uploadedImage.value = null;
+    imagePreview.value = null;
+    isCropping.value = false;
+    imageSearchResults.value = [];
 };
 
 // Preserve scroll position when filtering
@@ -358,6 +432,262 @@ watch(selectedType, async (newVal, oldVal) => {
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path>
                                             </svg>
                                             <span class="line-clamp-1 flex-1">{{ result.country }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Search Demo Section -->
+        <div class="relative border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/50 dark:to-black overflow-hidden">
+            <!-- Decorative background elements -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-1/3 -left-64 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-1/3 -right-64 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+            </div>
+
+            <div class="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:py-28 lg:px-8">
+                <div class="text-center mb-10 sm:mb-14">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border border-purple-200 dark:border-purple-800 rounded-full mb-6">
+                        <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span class="text-sm font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            Visual Search
+                        </span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">
+                        Find with
+                        <span class="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
+                            Images
+                        </span>
+                    </h2>
+                    <p class="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
+                        Upload an image, crop the region of interest, and discover visually similar content. Pinterest-style search powered by AI.
+                    </p>
+                </div>
+
+                <div class="max-w-6xl mx-auto">
+                    <!-- Query Input -->
+                    <div v-if="!imageSearchResults.length && !isCropping" class="mb-8">
+                        <form @submit.prevent="updateImageQuery" class="max-w-2xl mx-auto">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl blur-lg opacity-20"></div>
+                                <div class="relative flex gap-2 p-2 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl shadow-lg transition-all duration-300 focus-within:border-purple-500 dark:focus-within:border-purple-400">
+                                    <div class="flex-1 flex items-center gap-3 px-3">
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <input
+                                            v-model="imageQuery"
+                                            type="text"
+                                            placeholder="What kind of images are you looking for?"
+                                            class="flex-1 py-3 text-sm sm:text-base bg-transparent focus:outline-none dark:text-gray-100 placeholder-gray-400"
+                                        />
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        class="px-6 sm:px-8 py-3 sm:py-4 font-semibold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                                    >
+                                        <span class="hidden sm:inline">Update</span>
+                                        <svg class="sm:hidden w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Upload / Crop Interface -->
+                    <div v-if="!imageSearchResults.length" class="mb-12">
+                        <!-- Initial Images Gallery -->
+                        <div v-if="!imagePreview" class="space-y-8">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
+                                    Select an image or upload your own
+                                </h3>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+                                    <button
+                                        v-for="image in initialImages"
+                                        :key="image.id"
+                                        @click="selectImageFromGallery(image.url)"
+                                        class="group relative aspect-[4/3] overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-400 transition-all duration-200 hover:shadow-lg"
+                                    >
+                                        <img
+                                            :src="image.url"
+                                            :alt="image.title"
+                                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                        />
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div class="absolute bottom-2 left-2 right-2">
+                                                <p class="text-white text-sm font-medium truncate">{{ image.title }}</p>
+                                            </div>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Upload Area -->
+                            <div class="relative">
+                                <div class="relative">
+                                    <div class="absolute inset-0 flex items-center">
+                                        <div class="w-full border-t border-gray-300 dark:border-gray-700"></div>
+                                    </div>
+                                    <div class="relative flex justify-center text-sm">
+                                        <span class="px-4 bg-white dark:bg-black text-gray-500 dark:text-gray-400">Or upload your own</span>
+                                    </div>
+                                </div>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    @change="handleImageUpload"
+                                    id="image-upload"
+                                    class="hidden"
+                                />
+                                <label
+                                    for="image-upload"
+                                    class="mt-6 flex flex-col items-center justify-center w-full p-8 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl hover:border-purple-500 dark:hover:border-purple-400 transition-colors cursor-pointer bg-white dark:bg-gray-900"
+                                >
+                                    <div class="relative mb-4">
+                                        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="absolute inset-0 w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-xl opacity-50"></div>
+                                    </div>
+                                    <p class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                                        Upload an image to search
+                                    </p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                        Click to browse or drag and drop
+                                    </p>
+                                    <p class="text-xs text-gray-400 dark:text-gray-500">
+                                        PNG, JPG, GIF up to 10MB
+                                    </p>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Cropping Interface -->
+                        <div v-else class="space-y-6">
+                            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                        Select the area to search
+                                    </h3>
+                                    <button
+                                        @click="resetImageSearch"
+                                        class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+
+                                <!-- Image with crop overlay -->
+                                <div class="relative max-w-3xl mx-auto mb-6">
+                                    <img
+                                        :src="imagePreview"
+                                        alt="Uploaded image"
+                                        class="w-full rounded-lg"
+                                    />
+                                    <!-- Crop overlay -->
+                                    <div
+                                        class="absolute border-4 border-purple-500 rounded-lg shadow-lg cursor-move"
+                                        :style="{
+                                            left: cropArea.x + '%',
+                                            top: cropArea.y + '%',
+                                            width: cropArea.width + '%',
+                                            height: cropArea.height + '%'
+                                        }"
+                                    >
+                                        <div class="absolute inset-0 bg-purple-500/20 rounded"></div>
+                                        <!-- Corner handles -->
+                                        <div class="absolute -top-2 -left-2 w-4 h-4 bg-white dark:bg-gray-800 border-2 border-purple-500 rounded-full"></div>
+                                        <div class="absolute -top-2 -right-2 w-4 h-4 bg-white dark:bg-gray-800 border-2 border-purple-500 rounded-full"></div>
+                                        <div class="absolute -bottom-2 -left-2 w-4 h-4 bg-white dark:bg-gray-800 border-2 border-purple-500 rounded-full"></div>
+                                        <div class="absolute -bottom-2 -right-2 w-4 h-4 bg-white dark:bg-gray-800 border-2 border-purple-500 rounded-full"></div>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-center">
+                                    <button
+                                        @click="performImageSearch"
+                                        class="inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                                    >
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                        Find Similar Images
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="text-center text-sm text-gray-500 dark:text-gray-400">
+                                <p>Drag the corners to adjust the crop area, then click "Find Similar Images"</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Masonry Grid -->
+                    <div v-if="imageSearchResults.length" class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                    Similar Images Found
+                                </h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                    {{ imageSearchResults.length }} visually similar results
+                                </p>
+                            </div>
+                            <button
+                                @click="resetImageSearch"
+                                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-lg transition-colors"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                                New Search
+                            </button>
+                        </div>
+
+                        <!-- Pinterest-style Masonry Grid -->
+                        <div class="columns-2 sm:columns-3 lg:columns-4 gap-4 space-y-4">
+                            <div
+                                v-for="(image, index) in imageSearchResults"
+                                :key="image.id"
+                                class="break-inside-avoid mb-4"
+                            >
+                                <div class="group relative bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer">
+                                    <img
+                                        :src="image.url"
+                                        :alt="image.title"
+                                        class="w-full h-auto"
+                                        loading="lazy"
+                                    />
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div class="absolute bottom-0 left-0 right-0 p-4">
+                                            <p class="text-white font-medium text-sm">{{ image.title }}</p>
+                                            <div class="flex items-center gap-2 mt-2">
+                                                <div class="flex items-center gap-1 text-white/80 text-xs">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                                    </svg>
+                                                    {{ Math.floor(Math.random() * 100) + 10 }}
+                                                </div>
+                                                <div class="flex items-center gap-1 text-white/80 text-xs">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                    </svg>
+                                                    {{ Math.floor(Math.random() * 500) + 50 }}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

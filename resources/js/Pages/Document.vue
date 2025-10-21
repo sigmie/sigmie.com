@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3";
 import { computed, onMounted, nextTick } from "vue";
-import Sidebar from "../Sidebar.vue";
+import DocsSidebar from "../components/DocsSidebar.vue";
 import Navbar from "../Navbar.vue";
 import TableOfContents from "../TableOfContents.vue";
 
@@ -55,19 +55,19 @@ onMounted(() => {
     </Head>
 
     <div class="min-h-screen bg-white dark:bg-black">
-        <Navbar 
+        <!-- Documentation Sidebar -->
+        <DocsSidebar :navigation="navigation" :current-path="$page.url" />
+
+        <Navbar
             :navigation="navigation"
             :currentVersion="currentVersion"
             :availableVersions="availableVersions"
         />
-        
+
         <div class="mx-auto max-w-screen-2xl">
             <div class="flex">
-                <!-- Left Sidebar -->
-                <Sidebar :navigation="navigation" />
-                
                 <!-- Main Content -->
-                <main class="min-w-0 flex-1 lg:ml-[260px] xl:ml-[280px] pt-16">
+                <main class="min-w-0 flex-1 lg:ml-64 pt-16">
                     <div class="flex">
                         <!-- Article Content -->
                         <article class="flex-1 min-w-0 px-6 pb-12 sm:px-8 lg:px-12 xl:px-16">

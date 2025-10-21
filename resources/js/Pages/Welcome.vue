@@ -16,6 +16,7 @@ const searchResults = ref([]);
 const isSearching = ref(false);
 const hasSearched = ref(false);
 const selectedType = ref("all");
+const showAllResults = ref(false);
 
 // Image search state
 const imageSearchResults = ref([]);
@@ -25,6 +26,7 @@ const isLoadingImages = ref(false);
 const isSearchingImages = ref(false);
 const imageSearchMode = ref('text'); // 'text' or 'image'
 const selectedImageUrl = ref(null);
+const imageGridStyle = ref(1); // 1, 2, 3, 4 for different grid styles
 
 // Recommendations state
 const recommendationSeeds = ref([]);
@@ -77,32 +79,10 @@ const highlightedLines = computed(() => {
 
 const imageCodeString = computed(() => {
     if (imageSearchMode.value === 'image') {
-        return `$imageIndex = app(ImageData::class);
-$blueprint = $imageIndex->properties();
-
-$search = $imageIndex
-    ->newSearch()
-    ->properties($blueprint)
-    ->semantic()
-    ->queryImage('https://example.com/image.jpg')
-    ->fields(['image'])
-    ->size(12);
-
-$response = $search->get();`;
+        return `->queryImage('https://example.com/image.jpg')`;
     } else {
         const query = imageQuery.value || 'nature landscapes';
-        return `$imageIndex = app(ImageData::class);
-$blueprint = $imageIndex->properties();
-
-$search = $imageIndex
-    ->newSearch()
-    ->properties($blueprint)
-    ->semantic()
-    ->queryString('${query}')
-    ->fields(['image'])
-    ->size(12);
-
-$response = $search->get();`;
+        return `->queryString('${query}')`;
     }
 });
 
@@ -217,6 +197,9 @@ const updateImageQuery = async () => {
     if (!imageQuery.value.trim()) {
         return;
     }
+
+    // Cycle grid style on each query
+    imageGridStyle.value = imageGridStyle.value === 4 ? 1 : imageGridStyle.value + 1;
 
     isLoadingImages.value = true;
     imageSearchMode.value = 'text';
@@ -390,10 +373,10 @@ onMounted(() => {
                 </div>
 
                 <!-- Header Section -->
-                <div class="border border-gray-800 rounded-xl p-6 mb-12" style="background: linear-gradient(135deg, #0C0D0F 0%, #07080A 100%); border-radius: 12px;">
+                <div class="border border-gray-800 rounded-xl p-6 mb-12 bg-black">
                     <div class="flex flex-col justify-center">
                         <h2 class="text-lg sm:text-xl font-medium text-gray-100 mb-4">
-                            Experience <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Semantic Search</span>
+                            Experience Semantic Search
                         </h2>
                         <p class="text-base sm:text-lg text-gray-400 leading-relaxed">
                             Search 8,000+ Netflix titles using natural language. See how Sigmie's semantic search understands intent, not just keywords
@@ -405,12 +388,23 @@ onMounted(() => {
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Left Column: Search -->
                     <div class="space-y-6">
+                        <!-- Search Box Display or Input -->
+                        <div v-if="hasSearched" class="border border-gray-800 rounded-xl p-6 mb-6 bg-black">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                    <span class="text-lg font-medium text-gray-100">{{ searchQuery }}</span>
+                                </div>
+                                <span class="text-lg font-medium text-gray-400">Found {{ searchResults.length }} Results</span>
+                            </div>
+                        </div>
+
                         <!-- Search Form -->
-                        <form @submit.prevent="performSearch()" class="">
-                        <div class="relative">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur-xl opacity-20"></div>
-                            <div class="relative flex gap-2 sm:gap-3 p-2 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl transition-all duration-300 focus-within:border-blue-500 dark:focus-within:border-blue-400">
-                                <div class="flex-1 flex items-center gap-3 px-3">
+                        <form v-else @submit.prevent="performSearch()" class="">
+                            <div class="border-b border-gray-800 pb-4">
+                                <div class="relative flex gap-2 sm:gap-3 items-center">
                                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                     </svg>
@@ -418,25 +412,12 @@ onMounted(() => {
                                         v-model="searchQuery"
                                         type="text"
                                         placeholder="Search by mood, genre, or description..."
-                                        class="flex-1 py-3 text-sm sm:text-base bg-transparent focus:outline-none dark:text-gray-100 placeholder-gray-400"
+                                        class="flex-1 py-3 text-base bg-transparent focus:outline-none text-gray-100 placeholder-gray-500"
                                         :disabled="isSearching"
+                                        @keyup.enter="performSearch()"
                                     />
                                 </div>
-                                <button
-                                    type="submit"
-                                    class="group relative px-6 sm:px-8 py-3 sm:py-4 font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl disabled:hover:shadow-lg overflow-hidden"
-                                    :disabled="isSearching || !searchQuery.trim()"
-                                >
-                                    <span class="relative z-10 flex items-center gap-2">
-                                        <span class="hidden sm:inline">{{ isSearching ? "Searching..." : "Search" }}</span>
-                                        <svg v-if="!isSearching" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                                        </svg>
-                                        <div v-else class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                    </span>
-                                </button>
                             </div>
-                        </div>
                         </form>
 
                         <!-- Preset Queries -->
@@ -460,86 +441,54 @@ onMounted(() => {
                             </div>
                         </div>
 
-                        <!-- Type Filters -->
-                        <div v-if="hasSearched && !isSearching" class="flex flex-col gap-2">
-                            <p class="text-xs font-medium uppercase text-gray-500 mb-2">Filter by type</p>
-                            <div class="grid grid-cols-3 gap-2">
-                                <button
-                                    @click="selectedType = 'all'"
-                                    class="px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200"
-                                    :class="selectedType === 'all'
-                                        ? 'bg-gray-900 text-white'
-                                        : 'bg-gray-800 text-gray-300 border border-gray-700 hover:border-gray-600'"
-                                >
-                                    All ({{ searchResults.length }})
-                                </button>
-                                <button
-                                    @click="selectedType = 'Movie'"
-                                    class="px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200"
-                                    :class="selectedType === 'Movie'
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-gray-800 text-gray-300 border border-gray-700 hover:border-blue-500'"
-                                >
-                                    Movie
-                                </button>
-                                <button
-                                    @click="selectedType = 'TV Show'"
-                                    class="px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200"
-                                    :class="selectedType === 'TV Show'
-                                        ? 'bg-purple-600 text-white'
-                                        : 'bg-gray-800 text-gray-300 border border-gray-700 hover:border-purple-500'"
-                                >
-                                    TV Show
-                                </button>
-                            </div>
-                        </div>
-
                         <!-- Results -->
-                        <div v-if="hasSearched" class="border border-gray-800 rounded-lg p-4 bg-gray-900/50 max-h-96 overflow-y-auto">
-                            <div v-if="isSearching" class="text-center py-8">
+                        <div v-if="hasSearched" class="border border-gray-800 rounded-xl bg-black overflow-hidden">
+                            <div v-if="isSearching" class="text-center py-12">
                                 <div class="relative inline-flex">
                                     <div class="w-8 h-8 border-3 border-gray-700 border-t-blue-600 rounded-full animate-spin"></div>
                                 </div>
                                 <p class="mt-3 text-sm text-gray-400">Searching...</p>
                             </div>
 
-                            <div v-else-if="searchResults.length === 0" class="text-center py-8">
+                            <div v-else-if="searchResults.length === 0" class="text-center py-12">
                                 <p class="text-sm text-gray-400">No results found</p>
                             </div>
 
-                            <div v-else class="space-y-3">
-                                <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-800">
-                                    <h4 class="font-medium text-gray-100 text-sm">
-                                        <span v-if="selectedType === 'all'">Found {{ searchResults.length }}</span>
-                                        <span v-else>{{ filteredResults.length }}</span>
-                                    </h4>
+                            <div v-else>
+                                <!-- Results Header -->
+                                <div class="border-b border-gray-800 px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-gray-900/50 transition-colors" @click="showAllResults = !showAllResults">
+                                    <h4 class="text-sm font-medium text-gray-400">Results</h4>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm font-medium text-gray-400">{{ showAllResults ? 'Show Less' : 'Show More' }}</span>
+                                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': showAllResults }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                                        </svg>
+                                    </div>
                                 </div>
 
-                                <div v-if="filteredResults.length === 0" class="text-center py-4">
-                                    <p class="text-xs text-gray-400">No matches</p>
-                                </div>
-
-                                <div v-else class="space-y-2">
+                                <!-- Results Content -->
+                                <div v-show="showAllResults" class="p-6 space-y-6">
                                     <div
-                                        v-for="(result, index) in filteredResults.slice(0, 5)"
+                                        v-for="(result, index) in searchResults.slice(0, 10)"
                                         :key="`${result._id || result.title}-${index}`"
-                                        class="bg-gray-800/50 border border-gray-700 rounded p-3 hover:border-blue-600 transition-all cursor-pointer group"
+                                        class="border-b border-gray-800 pb-6 last:border-b-0"
                                     >
-                                        <div class="flex items-start justify-between gap-2">
-                                            <div class="flex-1 min-w-0">
-                                                <h5 class="text-sm font-medium text-gray-200 group-hover:text-blue-400 truncate">
-                                                    {{ result.title }}
-                                                </h5>
-                                                <p v-if="result.release_year" class="text-xs text-gray-500 mt-0.5">
-                                                    {{ result.release_year }}
-                                                </p>
+                                        <div class="flex items-start justify-between gap-4">
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-3 mb-3">
+                                                    <span class="px-3 py-1 text-xs font-medium rounded-full border border-gray-700 text-gray-400">
+                                                        {{ result.type }}
+                                                    </span>
+                                                    <h5 class="text-lg font-medium text-gray-100">
+                                                        {{ result.title }}
+                                                    </h5>
+                                                </div>
+                                                <div class="space-y-1 text-sm text-gray-400">
+                                                    <p v-if="result.release_year">Release Date: {{ result.release_year }}</p>
+                                                    <p v-if="result.director">Director: {{ result.director }}</p>
+                                                    <p v-if="result.cast">Actors: {{ result.cast }}</p>
+                                                </div>
                                             </div>
-                                            <span class="text-xs font-medium px-2 py-1 rounded whitespace-nowrap"
-                                                :class="result.type === 'Movie'
-                                                    ? 'bg-blue-900/30 text-blue-300'
-                                                    : 'bg-purple-900/30 text-purple-300'">
-                                                {{ result.type }}
-                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -570,22 +519,12 @@ onMounted(() => {
             </div>
 
             <div class="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:py-28 lg:px-8">
-                <div class="text-center mb-10 sm:mb-14">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border border-purple-200 dark:border-purple-800 rounded-full mb-6">
-                        <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        <span class="text-sm font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                            Visual Search
-                        </span>
-                    </div>
-                    <h2 class="text-lg sm:text-xl font-medium text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">
-                        Find with
-                        <span class="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
-                            Images
-                        </span>
+                <!-- Hero Text Section -->
+                <div class="mb-12">
+                    <h2 class="text-lg sm:text-xl font-medium text-gray-100 mb-4">
+                        Find with Images
                     </h2>
-                    <p class="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
+                    <p class="text-base sm:text-lg text-gray-400 leading-relaxed">
                         Search by text or click any image to discover visually similar content. AI-powered image search that understands visual semantics.
                     </p>
                 </div>
@@ -597,43 +536,30 @@ onMounted(() => {
                             :code="imageCodeString"
                             filename="ImageSearchController.php"
                             :highlight-lines="imageHighlightedLines"
+                            :fade-right="false"
+                            :fade-bottom="false"
+                            :fade-left="false"
                         />
                     </div>
 
                     <!-- Query Input - Always Visible -->
-                    <div class="mb-8">
-                        <form @submit.prevent="updateImageQuery" class="max-w-2xl mx-auto">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl blur-lg opacity-20"></div>
-                                <div class="relative flex gap-2 p-2 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl shadow-lg transition-all duration-300 focus-within:border-purple-500 dark:focus-within:border-purple-400">
-                                    <div class="flex-1 flex items-center gap-3 px-3">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                        </svg>
-                                        <input
-                                            v-model="imageQuery"
-                                            type="text"
-                                            placeholder="What kind of images are you looking for?"
-                                            class="flex-1 py-3 text-sm sm:text-base bg-transparent focus:outline-none dark:text-gray-100 placeholder-gray-400"
-                                            :disabled="isLoadingImages || isSearchingImages"
-                                        />
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        class="px-6 sm:px-8 py-3 sm:py-4 font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                                        :disabled="isLoadingImages || isSearchingImages || !imageQuery.trim()"
-                                    >
-                                        <span v-if="!isLoadingImages" class="hidden sm:inline">Update</span>
-                                        <span v-if="isLoadingImages" class="hidden sm:inline">Loading...</span>
-                                        <svg v-if="!isLoadingImages" class="sm:hidden w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                        </svg>
-                                        <div v-if="isLoadingImages" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                    </button>
-                                </div>
+                    <form @submit.prevent="updateImageQuery" class="mb-8">
+                        <div class="border-b border-gray-800 pb-4">
+                            <div class="relative flex gap-2 sm:gap-3 items-center">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <input
+                                    v-model="imageQuery"
+                                    type="text"
+                                    placeholder="What kind of images are you looking for?"
+                                    class="flex-1 py-3 text-base bg-transparent focus:outline-none text-gray-100 placeholder-gray-500"
+                                    :disabled="isLoadingImages || isSearchingImages"
+                                    @keyup.enter="updateImageQuery()"
+                                />
                             </div>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
 
                     <!-- Initial Images Gallery - Always Visible -->
                     <div v-if="!imageSearchResults.length" class="mb-12">
@@ -646,50 +572,17 @@ onMounted(() => {
                             <p class="mt-4 text-base font-medium text-gray-600 dark:text-gray-400">Loading images...</p>
                         </div>
 
-                        <!-- Initial Images Gallery -->
-                        <div v-else class="space-y-4">
-                            <div class="text-center mb-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border border-purple-200 dark:border-purple-800 rounded-xl p-4">
-                                <div class="flex items-center justify-center gap-2 mb-2">
-                                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
-                                    </svg>
-                                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                                        Click any image to search
-                                    </h3>
-                                </div>
-                                <p class="text-sm text-gray-600 dark:text-gray-300">
-                                    AI will instantly find visually similar images
-                                </p>
-                            </div>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        <!-- Initial Images Gallery - Single Row -->
+                        <div v-else class="overflow-x-auto pb-4">
+                            <div class="flex gap-4" style="min-width: max-content;">
                                 <button
-                                    v-for="image in initialImages"
+                                    v-for="image in initialImages.slice(0, 5)"
                                     :key="image.id"
                                     @click="selectImageFromGallery(image.url)"
                                     :disabled="isSearchingImages"
-                                    class="group relative aspect-[4/3] overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-400 transition-all duration-200 hover:shadow-2xl hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                    class="group relative flex-shrink-0 w-64 h-40 overflow-hidden rounded-xl border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                 >
-                                    <img
-                                        :src="image.url"
-                                        :alt="image.title"
-                                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                    />
-                                    <!-- Hover overlay with click indicator -->
-                                    <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                        <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                            <div class="bg-white dark:bg-gray-900 rounded-full p-4 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                                <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                                </svg>
-                                            </div>
-                                            <span class="text-white font-medium text-sm bg-purple-600/90 px-3 py-1 rounded-full">
-                                                Click to Search
-                                            </span>
-                                        </div>
-                                        <div class="absolute bottom-2 left-2 right-2">
-                                            <p class="text-white text-sm font-medium truncate">{{ image.title }}</p>
-                                        </div>
-                                    </div>
+                                    <img :src="image.url" :alt="image.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                                 </button>
                             </div>
                         </div>

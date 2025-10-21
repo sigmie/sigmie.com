@@ -48,10 +48,6 @@ Route::get('/', function () {
                         'title' => 'Smart Discovery',
                         'href' => '/#recommendations',
                     ],
-                    [
-                        'title' => 'Perfect Match',
-                        'href' => '/#perfect-match',
-                    ],
                 ]
             ],
             [

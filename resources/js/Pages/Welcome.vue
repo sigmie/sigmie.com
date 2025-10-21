@@ -78,21 +78,39 @@ $response = $search->get();`;
 });
 
 const highlightedLines = computed(() => {
-    // Line 10 is the filter line, highlight it when a specific filter is selected
-    return hasSearched.value && selectedType.value !== 'all' ? [10] : [];
+    const lines = [];
+
+    // Highlight line 5 (semantic) when search is active
+    if (hasSearched.value) {
+        lines.push(5);
+    }
+
+    // Highlight line 10 (filters) when a specific filter is selected
+    if (hasSearched.value && selectedType.value !== 'all') {
+        lines.push(10);
+    }
+
+    // Highlight line 11 (queryString) when there's a search query
+    if (searchQuery.value) {
+        lines.push(11);
+    }
+
+    return lines;
 });
 
 const imageCodeString = computed(() => {
+    const query = imageQuery.value || 'nature landscapes';
+
     if (imageSearchMode.value === 'image') {
-        return `->queryImage('https://example.com/image.jpg')`;
+        return `->queryImage('${selectedImageUrl.value || 'https://example.com/image.jpg'}')`;
     } else {
-        const query = imageQuery.value || 'nature landscapes';
         return `->queryString('${query}')`;
     }
 });
 
 const imageHighlightedLines = computed(() => {
-    return imageSearchMode.value === 'image' ? [8] : [8];
+    // Highlight the single line when active
+    return imageSearchMode.value === 'image' || imageQuery.value ? [1] : [];
 });
 
 const recommendCodeString = computed(() => {
@@ -120,7 +138,19 @@ ${mmrLine}
 });
 
 const recommendHighlightedLines = computed(() => {
-    return mmrValue.value > 0 ? [8] : [];
+    const lines = [];
+
+    // Highlight MMR line when enabled
+    if (mmrValue.value > 0) {
+        lines.push(8);
+    }
+
+    // Highlight seedIds line when seeds are selected
+    if (recommendationSeeds.value.length > 0) {
+        lines.push(10);
+    }
+
+    return lines;
 });
 
 const filteredResults = computed(() => {
@@ -473,17 +503,17 @@ onMounted(() => {
             </div>
 
             <div class="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:py-28 lg:px-8">
-                <!-- Hero Text Section -->
-                <div class="mb-12">
-                    <h2 class="text-lg sm:text-xl font-medium text-gray-100 mb-4">
-                        Find with Images
-                    </h2>
-                    <p class="text-base sm:text-lg text-gray-400 leading-relaxed">
-                        Search by text or click any image to discover visually similar content. AI-powered image search that understands visual semantics.
-                    </p>
-                </div>
-
                 <div class="max-w-6xl mx-auto">
+                    <!-- Hero Text Section -->
+                    <div class="mb-12">
+                        <h2 class="text-lg sm:text-xl font-medium text-gray-100 mb-4">
+                            Find with Images
+                        </h2>
+                        <p class="text-base sm:text-lg text-gray-400 leading-relaxed">
+                            Search by text or click any image to discover visually similar content. AI-powered image search that understands visual semantics.
+                        </p>
+                    </div>
+
                     <!-- Code Preview -->
                     <div class="mb-16">
                         <CodePreview
@@ -593,7 +623,7 @@ onMounted(() => {
                                                 </svg>
                                             </div>
                                             <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
-                                                Search Similar
+                                                Find Similar
                                             </span>
                                         </div>
                                         <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">

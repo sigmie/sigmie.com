@@ -227,7 +227,7 @@ const copyCode = async () => {
 <template>
     <div class="relative w-full">
         <div class="relative rounded-t-lg overflow-hidden border border-gray-800 border-b-0 bg-black" :style="{ maskImage: maskImage, WebkitMaskImage: maskImage, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }">
-            <div class="p-3 sm:p-4 pb-8 sm:pb-12 overflow-x-auto overflow-y-hidden">
+            <div class="px-3 sm:px-4 pt-6 sm:pt-8 pb-8 sm:pb-12 overflow-x-auto overflow-y-hidden">
                 <div class="flex font-mono text-sm leading-relaxed min-h-[auto]">
                     <!-- Line Numbers -->
                     <div class="select-none pr-6 text-right text-gray-600 mr-4 min-w-[3rem]">
@@ -276,9 +276,26 @@ const copyCode = async () => {
 
 .code-line {
     line-height: 1.75rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .highlight-change {
-    background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.08) 100%);
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.12) 100%);
+    animation: highlight-pulse 0.5s ease-in-out;
+}
+
+@keyframes highlight-pulse {
+    0% {
+        background: transparent;
+        transform: translateX(0);
+    }
+    50% {
+        background: linear-gradient(90deg, rgba(59, 130, 246, 0.25) 0%, rgba(147, 51, 234, 0.2) 100%);
+        transform: translateX(2px);
+    }
+    100% {
+        background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.12) 100%);
+        transform: translateX(0);
+    }
 }
 </style>

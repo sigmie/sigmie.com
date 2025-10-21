@@ -408,10 +408,11 @@ onMounted(() => {
                 </div>
 
                 <!-- Header Section -->
-                <Container max-width="max-w-4xl" class="mb-12">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="mb-12">
+                    <div class="relative border border-gray-800 rounded-xl p-6 sm:p-8 bg-black/50 backdrop-blur-sm overflow-hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                         <!-- Left Column: Title & Subtitle -->
-                        <div class="text-left">
+                        <div class="text-left mb-12">
                             <h2 class="text-lg sm:text-xl font-medium text-gray-100 mb-4">
                                 Experience Semantic Search
                             </h2>
@@ -421,7 +422,7 @@ onMounted(() => {
                         </div>
 
                         <!-- Right Column: SVG Graphic -->
-                        <div class="flex justify-center md:justify-end">
+                        <div class="flex justify-center md:justify-end md:absolute md:right-0 md:bottom-0 md:pr-8">
                             <svg width="213" height="152" viewBox="0 0 213 152" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-48 h-auto">
                                 <g style="mix-blend-mode:color-dodge">
                                     <foreignObject x="-24" y="36.1865" width="154.137" height="319.813"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(12px);clip-path:url(#bgblur_0_856_6183_clip_path);height:100%;width:100%"></div></foreignObject>
@@ -471,8 +472,9 @@ onMounted(() => {
                                 </defs>
                             </svg>
                         </div>
+                        </div>
                     </div>
-                </Container>
+                </div>
 
                 <!-- Main Content Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

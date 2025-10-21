@@ -182,11 +182,6 @@ const copyCode = async () => {
 <template>
     <div class="relative">
         <div class="relative bg-black rounded-t-lg overflow-hidden border border-gray-800 border-b-0">
-            <!-- Fade overlays -->
-            <div v-if="fadeRight" class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-black to-black/0 pointer-events-none z-10"></div>
-            <div v-if="fadeBottom" class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black via-black/50 to-black/0 pointer-events-none z-10"></div>
-            <div v-if="fadeLeft" class="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-black to-black/0 pointer-events-none z-10"></div>
-
             <div class="p-6 overflow-x-auto overflow-y-hidden">
                 <div class="flex font-mono text-sm leading-relaxed min-h-[300px]">
                     <!-- Line Numbers -->
@@ -222,6 +217,13 @@ const copyCode = async () => {
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Content fade overlays -->
+        <div class="absolute inset-0 rounded-t-lg overflow-hidden pointer-events-none">
+            <div v-if="fadeRight" class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-black via-black/80 to-black/0 z-10"></div>
+            <div v-if="fadeBottom" class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black via-black/50 to-black/0 z-10"></div>
+            <div v-if="fadeLeft" class="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-black via-black/80 to-black/0 z-10"></div>
         </div>
     </div>
 </template>

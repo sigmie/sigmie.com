@@ -384,43 +384,20 @@ onMounted(() => {
             </div>
 
             <div class="relative mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 lg:py-20 lg:px-8">
+                <!-- Logo -->
+                <div class="mb-12">
+                    <img src="https://raw.githubusercontent.com/sigmie/art/refs/heads/main/logo/svg/logo-full-white.svg" alt="Sigmie" class="w-40 sm:w-48" />
+                </div>
+
                 <!-- Header Section -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <div class="border border-gray-800 rounded-xl p-6 mb-12" style="background: linear-gradient(135deg, #0C0D0F 0%, #07080A 100%); border-radius: 12px;">
                     <div class="flex flex-col justify-center">
-                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-100 mb-4">
+                        <h2 class="text-lg sm:text-xl font-medium text-gray-100 mb-4">
                             Experience <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Semantic Search</span>
                         </h2>
                         <p class="text-base sm:text-lg text-gray-400 leading-relaxed">
                             Search 8,000+ Netflix titles using natural language. See how Sigmie's semantic search understands intent, not just keywords
                         </p>
-                    </div>
-                    <!-- 3D Cube Illustration -->
-                    <div class="flex items-center justify-center">
-                        <div class="w-64 h-64 relative">
-                            <svg viewBox="0 0 200 200" class="w-full h-full">
-                                <!-- 3D Cube -->
-                                <defs>
-                                    <linearGradient id="cubeGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.8" />
-                                        <stop offset="100%" style="stop-color:#1e40af;stop-opacity:0.8" />
-                                    </linearGradient>
-                                    <linearGradient id="cubeGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
-                                        <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:0.6" />
-                                        <stop offset="100%" style="stop-color:#1e40af;stop-opacity:0.8" />
-                                    </linearGradient>
-                                    <linearGradient id="cubeGradient3" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" style="stop-color:#93c5fd;stop-opacity:0.5" />
-                                        <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0.8" />
-                                    </linearGradient>
-                                </defs>
-                                <!-- Front face -->
-                                <polygon points="50,80 150,80 150,150 50,150" fill="url(#cubeGradient1)" stroke="#1e40af" stroke-width="1.5"/>
-                                <!-- Top face -->
-                                <polygon points="50,80 100,30 200,30 150,80" fill="url(#cubeGradient3)" stroke="#1e40af" stroke-width="1.5"/>
-                                <!-- Right face -->
-                                <polygon points="150,80 200,30 200,100 150,150" fill="url(#cubeGradient2)" stroke="#1e40af" stroke-width="1.5"/>
-                            </svg>
-                        </div>
                     </div>
                 </div>
 
@@ -447,7 +424,7 @@ onMounted(() => {
                                 </div>
                                 <button
                                     type="submit"
-                                    class="group relative px-6 sm:px-8 py-3 sm:py-4 font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl disabled:hover:shadow-lg overflow-hidden"
+                                    class="group relative px-6 sm:px-8 py-3 sm:py-4 font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl disabled:hover:shadow-lg overflow-hidden"
                                     :disabled="isSearching || !searchQuery.trim()"
                                 >
                                     <span class="relative z-10 flex items-center gap-2">
@@ -485,7 +462,7 @@ onMounted(() => {
 
                         <!-- Type Filters -->
                         <div v-if="hasSearched && !isSearching" class="flex flex-col gap-2">
-                            <p class="text-xs font-semibold uppercase text-gray-500 mb-2">Filter by type</p>
+                            <p class="text-xs font-medium uppercase text-gray-500 mb-2">Filter by type</p>
                             <div class="grid grid-cols-3 gap-2">
                                 <button
                                     @click="selectedType = 'all'"
@@ -532,7 +509,7 @@ onMounted(() => {
 
                             <div v-else class="space-y-3">
                                 <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-800">
-                                    <h4 class="font-semibold text-gray-100 text-sm">
+                                    <h4 class="font-medium text-gray-100 text-sm">
                                         <span v-if="selectedType === 'all'">Found {{ searchResults.length }}</span>
                                         <span v-else>{{ filteredResults.length }}</span>
                                     </h4>
@@ -550,7 +527,7 @@ onMounted(() => {
                                     >
                                         <div class="flex items-start justify-between gap-2">
                                             <div class="flex-1 min-w-0">
-                                                <h5 class="text-sm font-semibold text-gray-200 group-hover:text-blue-400 truncate">
+                                                <h5 class="text-sm font-medium text-gray-200 group-hover:text-blue-400 truncate">
                                                     {{ result.title }}
                                                 </h5>
                                                 <p v-if="result.release_year" class="text-xs text-gray-500 mt-0.5">
@@ -602,7 +579,7 @@ onMounted(() => {
                             Visual Search
                         </span>
                     </div>
-                    <h2 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">
+                    <h2 class="text-lg sm:text-xl font-medium text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">
                         Find with
                         <span class="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
                             Images
@@ -643,7 +620,7 @@ onMounted(() => {
                                     </div>
                                     <button
                                         type="submit"
-                                        class="px-6 sm:px-8 py-3 sm:py-4 font-semibold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                        class="px-6 sm:px-8 py-3 sm:py-4 font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                         :disabled="isLoadingImages || isSearchingImages || !imageQuery.trim()"
                                     >
                                         <span v-if="!isLoadingImages" class="hidden sm:inline">Update</span>
@@ -676,7 +653,7 @@ onMounted(() => {
                                     <svg class="w-5 h-5 text-purple-600 dark:text-purple-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
                                     </svg>
-                                    <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
+                                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
                                         Click any image to search
                                     </h3>
                                 </div>
@@ -705,7 +682,7 @@ onMounted(() => {
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                                 </svg>
                                             </div>
-                                            <span class="text-white font-semibold text-sm bg-purple-600/90 px-3 py-1 rounded-full">
+                                            <span class="text-white font-medium text-sm bg-purple-600/90 px-3 py-1 rounded-full">
                                                 Click to Search
                                             </span>
                                         </div>
@@ -731,7 +708,7 @@ onMounted(() => {
                     <div v-if="imageSearchResults.length && !isSearchingImages" class="space-y-6">
                         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
                             <div class="text-center sm:text-left">
-                                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                <h3 class="text-xl sm:text-lg font-medium text-gray-900 dark:text-gray-100">
                                     Similar Images Found
                                 </h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -740,7 +717,7 @@ onMounted(() => {
                             </div>
                             <button
                                 @click="resetImageSearch"
-                                class="inline-flex items-center gap-2 px-6 py-3 text-base font-semibold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                                class="inline-flex items-center gap-2 px-6 py-3 text-base font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg"
                             >
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -771,7 +748,7 @@ onMounted(() => {
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                                 </svg>
                                             </div>
-                                            <span class="text-white font-semibold text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                            <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
                                                 Search Similar
                                             </span>
                                         </div>
@@ -805,7 +782,7 @@ onMounted(() => {
                             Smart Recommendations
                         </span>
                     </div>
-                    <h2 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">
+                    <h2 class="text-lg sm:text-xl font-medium text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">
                         Discover with
                         <span class="bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
                             Recommendations
@@ -831,7 +808,7 @@ onMounted(() => {
                         <!-- Left Column: Title Selector -->
                         <div class="lg:col-span-1 space-y-4">
                             <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-lg">
-                                <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
                                     <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                     </svg>
@@ -884,7 +861,7 @@ onMounted(() => {
 
                                         <div class="pr-6">
                                             <div class="mb-2">
-                                                <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">{{ seed.title }}</p>
+                                                <p class="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2">{{ seed.title }}</p>
                                                 <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                                                     {{ seed.type }} • {{ seed.release_year }}
                                                 </p>
@@ -928,7 +905,7 @@ onMounted(() => {
                             <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-lg">
                                 <div class="flex items-center justify-between mb-4">
                                     <div>
-                                        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
                                             <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
                                             </svg>
@@ -939,7 +916,7 @@ onMounted(() => {
                                         </p>
                                     </div>
                                     <div class="text-right">
-                                        <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                        <div class="text-lg font-medium text-gray-900 dark:text-gray-100">
                                             {{ mmrValue.toFixed(1) }}
                                         </div>
                                         <div class="text-xs text-gray-500 dark:text-gray-400">
@@ -986,7 +963,7 @@ onMounted(() => {
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
                                         </svg>
                                     </div>
-                                    <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                                    <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                                         Start by selecting titles
                                     </h4>
                                     <p class="text-sm text-gray-600 dark:text-gray-400 max-w-sm">
@@ -997,7 +974,7 @@ onMounted(() => {
                                 <!-- Results Grid -->
                                 <div v-else-if="recommendationResults.length > 0" class="space-y-4">
                                     <div class="flex items-center justify-between mb-4">
-                                        <h4 class="text-lg font-bold text-gray-900 dark:text-gray-100">
+                                        <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100">
                                             Recommended for you
                                         </h4>
                                         <span class="text-sm text-gray-500 dark:text-gray-400">
@@ -1012,7 +989,7 @@ onMounted(() => {
                                             class="group relative bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-green-500 dark:hover:border-green-400 hover:shadow-lg transition-all duration-200"
                                         >
                                             <div class="absolute top-3 right-3">
-                                                <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full"
+                                                <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full"
                                                     :class="result.type === 'Movie'
                                                         ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
                                                         : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'">
@@ -1021,7 +998,7 @@ onMounted(() => {
                                             </div>
 
                                             <div class="pr-16 mb-3">
-                                                <h5 class="font-semibold text-sm text-gray-900 dark:text-gray-100 line-clamp-2 mb-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                                                <h5 class="font-medium text-sm text-gray-900 dark:text-gray-100 line-clamp-2 mb-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
                                                     {{ result.title }}
                                                 </h5>
                                                 <p v-if="result.release_year" class="text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -1060,7 +1037,7 @@ onMounted(() => {
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M12 12h.01M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                     </div>
-                                    <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                                    <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                                         No recommendations found
                                     </h4>
                                     <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -1078,7 +1055,7 @@ onMounted(() => {
         <div id="about" class="border-t border-gray-800 bg-black scroll-mt-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:py-28 lg:px-8">
                 <div class="text-center mb-12 sm:mb-16">
-                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-100 mb-4">
+                    <h2 class="text-lg sm:text-xl font-medium text-gray-100 mb-4">
                         About Me
                     </h2>
                     <p class="text-lg text-gray-400 max-w-2xl mx-auto">
@@ -1095,7 +1072,7 @@ onMounted(() => {
                             class="w-32 h-32 rounded-full border-4 border-white dark:border-gray-800 shadow-lg"
                         />
                         <div class="flex-1 text-center md:text-left">
-                            <h3 class="text-2xl font-bold text-gray-100 mb-2">
+                            <h3 class="text-lg font-medium text-gray-100 mb-2">
                                 Nico Orfanos
                             </h3>
                             <p class="text-gray-400 mb-4">
@@ -1142,7 +1119,7 @@ onMounted(() => {
 
                     <!-- Client Reviews -->
                     <div class="mb-12">
-                        <h3 class="text-2xl font-bold text-gray-100 text-center mb-8">
+                        <h3 class="text-lg font-medium text-gray-100 text-center mb-8">
                             Client Reviews
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1157,11 +1134,11 @@ onMounted(() => {
                                     "Excellent work on implementing our Elasticsearch search functionality. Very professional and responsive."
                                 </p>
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium">
                                         JD
                                     </div>
                                     <div>
-                                        <p class="font-semibold text-gray-900 dark:text-gray-100">John D.</p>
+                                        <p class="font-medium text-gray-900 dark:text-gray-100">John D.</p>
                                         <p class="text-sm text-gray-500 dark:text-gray-400">E-commerce Platform</p>
                                     </div>
                                 </div>
@@ -1178,11 +1155,11 @@ onMounted(() => {
                                     "Great developer! Built a complex search solution with Laravel and Vue.js. Highly recommended."
                                 </p>
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center text-white font-medium">
                                         SM
                                     </div>
                                     <div>
-                                        <p class="font-semibold text-gray-900 dark:text-gray-100">Sarah M.</p>
+                                        <p class="font-medium text-gray-900 dark:text-gray-100">Sarah M.</p>
                                         <p class="text-sm text-gray-500 dark:text-gray-400">SaaS Startup</p>
                                     </div>
                                 </div>
@@ -1199,11 +1176,11 @@ onMounted(() => {
                                     "Nico delivered clean, maintainable code and excellent documentation. A pleasure to work with!"
                                 </p>
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center text-white font-medium">
                                         MK
                                     </div>
                                     <div>
-                                        <p class="font-semibold text-gray-900 dark:text-gray-100">Michael K.</p>
+                                        <p class="font-medium text-gray-900 dark:text-gray-100">Michael K.</p>
                                         <p class="text-sm text-gray-500 dark:text-gray-400">Digital Agency</p>
                                     </div>
                                 </div>
@@ -1214,7 +1191,7 @@ onMounted(() => {
                     <!-- CTA -->
                     <div class="text-center">
                         <div class="inline-flex flex-col items-center p-8 bg-gradient-to-br from-blue-950/30 to-purple-950/30 rounded-2xl border border-blue-800">
-                            <h3 class="text-2xl font-bold text-gray-100 mb-3">
+                            <h3 class="text-lg font-medium text-gray-100 mb-3">
                                 Ready to work together?
                             </h3>
                             <p class="text-gray-400 mb-6 max-w-md">
@@ -1223,7 +1200,7 @@ onMounted(() => {
                             <a
                                 href="https://www.upwork.com/freelancers/nicoorfi"
                                 target="_blank"
-                                class="inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                                class="inline-flex items-center gap-3 px-8 py-4 text-lg font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
                             >
                                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M18.561 13.158c-1.102 0-2.135-.467-3.074-1.227l.228-1.076.008-.042c.207-1.143.849-3.06 2.839-3.06 1.492 0 2.703 1.212 2.703 2.703-.001 1.489-1.212 2.702-2.704 2.702zm0-8.14c-2.539 0-4.51 1.649-5.31 4.366-1.22-1.834-2.148-4.036-2.687-5.892H7.828v7.112c-.002 1.406-1.141 2.546-2.547 2.548-1.405-.002-2.543-1.143-2.545-2.548V3.492H0v7.112c0 2.914 2.37 5.303 5.281 5.303 2.913 0 5.283-2.389 5.283-5.303v-1.19c.529 1.107 1.182 2.229 1.974 3.221l-1.673 7.873h2.797l1.213-5.71c1.063.679 2.285 1.109 3.686 1.109 3 0 5.439-2.452 5.439-5.45 0-3-2.439-5.439-5.439-5.439z"></path>

@@ -6,6 +6,7 @@ use Sigmie\Base\Contracts\ElasticsearchConnection;
 use Sigmie\Document\Document;
 use Sigmie\Indices\Index;
 use Sigmie\Mappings\NewProperties;
+use Sigmie\Search\NewRecommendations;
 use Sigmie\Sigmie;
 use Sigmie\SigmieIndex;
 
@@ -25,6 +26,13 @@ abstract class AbstractIndex extends SigmieIndex
         $properties = new NewProperties;
 
         return $properties;
+    }
+
+    public function newRecommend(): NewRecommendations
+    {
+        return $this->sigmie()
+            ->newRecommend($this->alias())
+            ->properties($this->properties());
     }
 
     public function sigmie(): Sigmie

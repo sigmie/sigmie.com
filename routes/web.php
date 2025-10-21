@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\NetflixSearchController;
+use App\Http\Controllers\ImageSearchController;
+use App\Http\Controllers\ResumesSearchController;
 use App\Services\Blog;
 use App\Services\Documentation;
 use Illuminate\Foundation\Application;
@@ -42,7 +45,20 @@ Route::post('/api/search/rag', [SearchController::class, 'rag']);
 Route::post('/api/search/rag-stream', [SearchController::class, 'ragStream']);
 Route::post('/api/search/standard', [SearchController::class, 'standard']);
 Route::post('/api/search/clear-conversation', [SearchController::class, 'clearConversation']);
-Route::post('/api/search/netflix', [SearchController::class, 'netflix']);
+
+// Netflix search
+Route::post('/api/search/netflix', [NetflixSearchController::class, 'search']);
+Route::post('/api/recommendations/netflix', [NetflixSearchController::class, 'recommend']);
+
+// Image search
+Route::post('/api/search/images/text', [ImageSearchController::class, 'searchByText']);
+Route::post('/api/search/images/image', [ImageSearchController::class, 'searchByImage']);
+
+// Resumes search
+Route::get('/resumes', function () {
+    return Inertia::render('Resumes');
+});
+Route::post('/api/search/resumes', [ResumesSearchController::class, 'search']);
 
 Route::get('/blog', function () {
 

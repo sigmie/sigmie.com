@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3";
-import { ref, computed, watch, nextTick } from "vue";
+import { ref, computed, watch, nextTick, onMounted } from "vue";
 import axios from "axios";
 import Sidebar from "../Sidebar.vue";
 import Navbar from "../Navbar.vue";
@@ -20,13 +20,21 @@ const hasSearched = ref(false);
 const selectedType = ref("all");
 
 // Image search state
-const uploadedImage = ref(null);
-const imagePreview = ref(null);
-const isCropping = ref(false);
-const cropArea = ref({ x: 0, y: 0, width: 100, height: 100 });
 const imageSearchResults = ref([]);
 const imageQuery = ref("nature landscapes");
 const initialImages = ref([]);
+const isLoadingImages = ref(false);
+const isSearchingImages = ref(false);
+const imageSearchMode = ref('text'); // 'text' or 'image'
+const selectedImageUrl = ref(null);
+
+// Recommendations state
+const recommendationSeeds = ref([]);
+const recommendationResults = ref([]);
+const mmrValue = ref(0);
+const isLoadingRecommendations = ref(false);
+const titleSearchQuery = ref("");
+const titleSearchResults = ref([]);
 
 const presetQueries = [
     { label: "Woman protagonist", query: "woman" },
@@ -69,6 +77,69 @@ const highlightedLines = computed(() => {
     return hasSearched.value && selectedType.value !== 'all' ? [10] : [];
 });
 
+const imageCodeString = computed(() => {
+    if (imageSearchMode.value === 'image') {
+        return `$imageIndex = app(ImageData::class);
+$blueprint = $imageIndex->properties();
+
+$search = $imageIndex
+    ->newSearch()
+    ->properties($blueprint)
+    ->semantic()
+    ->queryImage('https://example.com/image.jpg')
+    ->fields(['image'])
+    ->size(12);
+
+$response = $search->get();`;
+    } else {
+        const query = imageQuery.value || 'nature landscapes';
+        return `$imageIndex = app(ImageData::class);
+$blueprint = $imageIndex->properties();
+
+$search = $imageIndex
+    ->newSearch()
+    ->properties($blueprint)
+    ->semantic()
+    ->queryString('${query}')
+    ->fields(['image'])
+    ->size(12);
+
+$response = $search->get();`;
+    }
+});
+
+const imageHighlightedLines = computed(() => {
+    return imageSearchMode.value === 'image' ? [8] : [8];
+});
+
+const recommendCodeString = computed(() => {
+    const seedIdsStr = recommendationSeeds.value.length > 0
+        ? `['${recommendationSeeds.value.map(s => s._id).join("', '")}']`
+        : "['wireless-earbuds']";
+
+    const mmrLine = mmrValue.value > 0
+        ? `    ->mmr(${mmrValue.value.toFixed(2)})`
+        : `    // ->mmr(0.5) // Enable for diversity`;
+
+    return `$netflixIndex = app(NetflixTitles::class);
+$blueprint = $netflixIndex->properties();
+
+$recommendations = $netflixIndex
+    ->newRecommend()
+    ->properties($blueprint)
+    ->rrf(rrfRankConstant: 60, rankWindowSize: 10)
+${mmrLine}
+    ->topK(10)
+    ->seedIds(${seedIdsStr})
+    ->field(fieldName: 'listed_in', weight: 2)
+    ->field(fieldName: 'title', weight: 1)
+    ->hits();`;
+});
+
+const recommendHighlightedLines = computed(() => {
+    return mmrValue.value > 0 ? [8] : [];
+});
+
 const filteredResults = computed(() => {
     if (selectedType.value === "all") {
         return searchResults.value;
@@ -105,7 +176,7 @@ const performSearch = async (query = null) => {
     }
 };
 
-// Generate initial images based on query
+// Generate initial images based on query (fallback)
 const generateInitialImages = () => {
     const seed = imageQuery.value.replace(/\s+/g, '-');
     initialImages.value = Array.from({ length: 9 }, (_, i) => ({
@@ -115,59 +186,72 @@ const generateInitialImages = () => {
     }));
 };
 
-// Initialize on mount
-generateInitialImages();
-
 // Image search functions
-const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-        uploadedImage.value = file;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            imagePreview.value = e.target.result;
-            isCropping.value = true;
-            // Reset crop area
-            cropArea.value = { x: 10, y: 10, width: 80, height: 80 };
-        };
-        reader.readAsDataURL(file);
+const selectImageFromGallery = async (imageUrl) => {
+    selectedImageUrl.value = imageUrl;
+    imageSearchMode.value = 'image';
+    isSearchingImages.value = true;
+
+    // Clear previous results to show loading state
+    imageSearchResults.value = [];
+
+    try {
+        const response = await axios.post("/api/search/images/image", {
+            image: imageUrl,
+        });
+
+        imageSearchResults.value = response.data.results.map((result, i) => ({
+            id: i + 1,
+            url: result.image,
+            title: `Similar Image ${i + 1}`,
+            width: 400,
+            height: 600
+        }));
+    } catch (error) {
+        console.error("Image search error:", error);
+        imageSearchResults.value = [];
+    } finally {
+        isSearchingImages.value = false;
     }
 };
 
-const selectImageFromGallery = (imageUrl) => {
-    imagePreview.value = imageUrl;
-    isCropping.value = true;
-    uploadedImage.value = null; // No file uploaded, using URL
-    cropArea.value = { x: 10, y: 10, width: 80, height: 80 };
-};
+const updateImageQuery = async () => {
+    if (!imageQuery.value.trim()) {
+        return;
+    }
 
-const updateImageQuery = () => {
-    generateInitialImages();
-    // Reset search state
-    imagePreview.value = null;
-    isCropping.value = false;
-    imageSearchResults.value = [];
-};
+    isLoadingImages.value = true;
+    imageSearchMode.value = 'text';
 
-const performImageSearch = async () => {
-    // Placeholder function - will be implemented later
-    isCropping.value = false;
+    try {
+        const response = await axios.post("/api/search/images/text", {
+            query: imageQuery.value,
+        });
 
-    // Generate placeholder results
-    imageSearchResults.value = Array.from({ length: 12 }, (_, i) => ({
-        id: i + 1,
-        url: `https://picsum.photos/seed/${i + 1}/400/600`,
-        title: `Similar Image ${i + 1}`,
-        width: Math.random() > 0.5 ? 400 : 300,
-        height: Math.random() * 400 + 300
-    }));
+        initialImages.value = response.data.results.map((result, i) => ({
+            id: i + 1,
+            url: result.image,
+            title: `${imageQuery.value} ${i + 1}`,
+        }));
+
+        // Reset search state
+        imageSearchResults.value = [];
+        selectedImageUrl.value = null;
+    } catch (error) {
+        console.error("Image query error:", error);
+        // Fallback to generating placeholder images
+        generateInitialImages();
+    } finally {
+        isLoadingImages.value = false;
+    }
 };
 
 const resetImageSearch = () => {
-    uploadedImage.value = null;
-    imagePreview.value = null;
-    isCropping.value = false;
     imageSearchResults.value = [];
+    imageSearchMode.value = 'text';
+    selectedImageUrl.value = null;
+    // Reload initial images
+    updateImageQuery();
 };
 
 // Preserve scroll position when filtering
@@ -187,6 +271,88 @@ watch(selectedType, async (newVal, oldVal) => {
             behavior: 'instant' // Use instant to prevent any visible scroll jump
         });
     }
+});
+
+// Recommendations functions
+const searchTitles = async () => {
+    if (!titleSearchQuery.value.trim()) {
+        titleSearchResults.value = [];
+        return;
+    }
+
+    try {
+        const response = await axios.post("/api/search/netflix", {
+            query: titleSearchQuery.value,
+        });
+
+        titleSearchResults.value = response.data.results || [];
+    } catch (error) {
+        console.error("Title search error:", error);
+        titleSearchResults.value = [];
+    }
+};
+
+const addSeedTitle = (title) => {
+    if (!recommendationSeeds.value.find(s => s._id === title._id)) {
+        recommendationSeeds.value.push(title);
+        fetchRecommendations();
+    }
+    titleSearchQuery.value = "";
+    titleSearchResults.value = [];
+};
+
+const removeSeedTitle = (titleId) => {
+    recommendationSeeds.value = recommendationSeeds.value.filter(s => s._id !== titleId);
+    if (recommendationSeeds.value.length > 0) {
+        fetchRecommendations();
+    } else {
+        recommendationResults.value = [];
+    }
+};
+
+const fetchRecommendations = async () => {
+    if (recommendationSeeds.value.length === 0) {
+        recommendationResults.value = [];
+        return;
+    }
+
+    isLoadingRecommendations.value = true;
+
+    try {
+        const seedIds = recommendationSeeds.value
+            .map(s => s._id)
+            .filter(id => id != null)
+            .map(id => String(id));
+
+        if (seedIds.length === 0) {
+            recommendationResults.value = [];
+            return;
+        }
+
+        const response = await axios.post("/api/recommendations/netflix", {
+            seed_ids: seedIds,
+            mmr: mmrValue.value > 0 ? mmrValue.value : null,
+        });
+
+        recommendationResults.value = response.data.results || [];
+    } catch (error) {
+        console.error("Recommendations error:", error);
+        recommendationResults.value = [];
+    } finally {
+        isLoadingRecommendations.value = false;
+    }
+};
+
+// Watch MMR value changes and fetch new recommendations
+watch(mmrValue, () => {
+    if (recommendationSeeds.value.length > 0) {
+        fetchRecommendations();
+    }
+});
+
+// Initialize image gallery on mount
+onMounted(() => {
+    updateImageQuery();
 });
 </script>
 
@@ -208,6 +374,29 @@ watch(selectedType, async (newVal, oldVal) => {
         <link rel="canonical" href="https://sigmie.com" />
     </Head>
     <div class="min-h-screen bg-white dark:bg-black">
+        <!-- Navigation Bar -->
+        <div class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-black sticky top-0 z-50">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 py-4 lg:px-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">S</span>
+                        </div>
+                        <span class="text-lg font-bold text-gray-900 dark:text-gray-100">Sigmie</span>
+                    </div>
+                    <Link
+                        href="/resumes"
+                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        Resume Search
+                    </Link>
+                </div>
+            </div>
+        </div>
+
         <!-- Netflix Search Demo Section -->
         <div class="relative border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-white to-gray-50 dark:from-black dark:to-gray-900/50 overflow-hidden">
             <!-- Decorative background elements -->
@@ -467,13 +656,22 @@ watch(selectedType, async (newVal, oldVal) => {
                         </span>
                     </h2>
                     <p class="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-                        Upload an image, crop the region of interest, and discover visually similar content. Pinterest-style search powered by AI.
+                        Search by text or click any image to discover visually similar content. AI-powered image search that understands visual semantics.
                     </p>
                 </div>
 
                 <div class="max-w-6xl mx-auto">
-                    <!-- Query Input -->
-                    <div v-if="!imageSearchResults.length && !isCropping" class="mb-8">
+                    <!-- Code Preview -->
+                    <div class="mb-8">
+                        <CodePreview
+                            :code="imageCodeString"
+                            filename="ImageSearchController.php"
+                            :highlight-lines="imageHighlightedLines"
+                        />
+                    </div>
+
+                    <!-- Query Input - Always Visible -->
+                    <div class="mb-8">
                         <form @submit.prevent="updateImageQuery" class="max-w-2xl mx-auto">
                             <div class="relative">
                                 <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl blur-lg opacity-20"></div>
@@ -487,169 +685,111 @@ watch(selectedType, async (newVal, oldVal) => {
                                             type="text"
                                             placeholder="What kind of images are you looking for?"
                                             class="flex-1 py-3 text-sm sm:text-base bg-transparent focus:outline-none dark:text-gray-100 placeholder-gray-400"
+                                            :disabled="isLoadingImages || isSearchingImages"
                                         />
                                     </div>
                                     <button
                                         type="submit"
-                                        class="px-6 sm:px-8 py-3 sm:py-4 font-semibold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                                        class="px-6 sm:px-8 py-3 sm:py-4 font-semibold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                        :disabled="isLoadingImages || isSearchingImages || !imageQuery.trim()"
                                     >
-                                        <span class="hidden sm:inline">Update</span>
-                                        <svg class="sm:hidden w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <span v-if="!isLoadingImages" class="hidden sm:inline">Update</span>
+                                        <span v-if="isLoadingImages" class="hidden sm:inline">Loading...</span>
+                                        <svg v-if="!isLoadingImages" class="sm:hidden w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                         </svg>
+                                        <div v-if="isLoadingImages" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                     </button>
                                 </div>
                             </div>
                         </form>
                     </div>
 
-                    <!-- Upload / Crop Interface -->
+                    <!-- Initial Images Gallery - Always Visible -->
                     <div v-if="!imageSearchResults.length" class="mb-12">
-                        <!-- Initial Images Gallery -->
-                        <div v-if="!imagePreview" class="space-y-8">
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
-                                    Select an image or upload your own
-                                </h3>
-                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-                                    <button
-                                        v-for="image in initialImages"
-                                        :key="image.id"
-                                        @click="selectImageFromGallery(image.url)"
-                                        class="group relative aspect-[4/3] overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-400 transition-all duration-200 hover:shadow-lg"
-                                    >
-                                        <img
-                                            :src="image.url"
-                                            :alt="image.title"
-                                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                                        />
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <div class="absolute bottom-2 left-2 right-2">
-                                                <p class="text-white text-sm font-medium truncate">{{ image.title }}</p>
-                                            </div>
-                                        </div>
-                                    </button>
-                                </div>
+                        <!-- Loading State for Initial Images -->
+                        <div v-if="isLoadingImages" class="text-center py-12">
+                            <div class="relative inline-flex">
+                                <div class="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 border-t-purple-600 rounded-full animate-spin"></div>
+                                <div class="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-pink-600 rounded-full animate-spin" style="animation-duration: 1.5s; animation-direction: reverse;"></div>
                             </div>
-
-                            <!-- Upload Area -->
-                            <div class="relative">
-                                <div class="relative">
-                                    <div class="absolute inset-0 flex items-center">
-                                        <div class="w-full border-t border-gray-300 dark:border-gray-700"></div>
-                                    </div>
-                                    <div class="relative flex justify-center text-sm">
-                                        <span class="px-4 bg-white dark:bg-black text-gray-500 dark:text-gray-400">Or upload your own</span>
-                                    </div>
-                                </div>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    @change="handleImageUpload"
-                                    id="image-upload"
-                                    class="hidden"
-                                />
-                                <label
-                                    for="image-upload"
-                                    class="mt-6 flex flex-col items-center justify-center w-full p-8 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl hover:border-purple-500 dark:hover:border-purple-400 transition-colors cursor-pointer bg-white dark:bg-gray-900"
-                                >
-                                    <div class="relative mb-4">
-                                        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                            </svg>
-                                        </div>
-                                        <div class="absolute inset-0 w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-xl opacity-50"></div>
-                                    </div>
-                                    <p class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                                        Upload an image to search
-                                    </p>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                                        Click to browse or drag and drop
-                                    </p>
-                                    <p class="text-xs text-gray-400 dark:text-gray-500">
-                                        PNG, JPG, GIF up to 10MB
-                                    </p>
-                                </label>
-                            </div>
+                            <p class="mt-4 text-base font-medium text-gray-600 dark:text-gray-400">Loading images...</p>
                         </div>
 
-                        <!-- Cropping Interface -->
-                        <div v-else class="space-y-6">
-                            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
-                                <div class="flex items-center justify-between mb-4">
-                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                        Select the area to search
+                        <!-- Initial Images Gallery -->
+                        <div v-else class="space-y-4">
+                            <div class="text-center mb-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border border-purple-200 dark:border-purple-800 rounded-xl p-4">
+                                <div class="flex items-center justify-center gap-2 mb-2">
+                                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+                                    </svg>
+                                    <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
+                                        Click any image to search
                                     </h3>
-                                    <button
-                                        @click="resetImageSearch"
-                                        class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                                    >
-                                        Cancel
-                                    </button>
                                 </div>
-
-                                <!-- Image with crop overlay -->
-                                <div class="relative max-w-3xl mx-auto mb-6">
-                                    <img
-                                        :src="imagePreview"
-                                        alt="Uploaded image"
-                                        class="w-full rounded-lg"
-                                    />
-                                    <!-- Crop overlay -->
-                                    <div
-                                        class="absolute border-4 border-purple-500 rounded-lg shadow-lg cursor-move"
-                                        :style="{
-                                            left: cropArea.x + '%',
-                                            top: cropArea.y + '%',
-                                            width: cropArea.width + '%',
-                                            height: cropArea.height + '%'
-                                        }"
-                                    >
-                                        <div class="absolute inset-0 bg-purple-500/20 rounded"></div>
-                                        <!-- Corner handles -->
-                                        <div class="absolute -top-2 -left-2 w-4 h-4 bg-white dark:bg-gray-800 border-2 border-purple-500 rounded-full"></div>
-                                        <div class="absolute -top-2 -right-2 w-4 h-4 bg-white dark:bg-gray-800 border-2 border-purple-500 rounded-full"></div>
-                                        <div class="absolute -bottom-2 -left-2 w-4 h-4 bg-white dark:bg-gray-800 border-2 border-purple-500 rounded-full"></div>
-                                        <div class="absolute -bottom-2 -right-2 w-4 h-4 bg-white dark:bg-gray-800 border-2 border-purple-500 rounded-full"></div>
-                                    </div>
-                                </div>
-
-                                <div class="flex justify-center">
-                                    <button
-                                        @click="performImageSearch"
-                                        class="inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-                                    >
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                        </svg>
-                                        Find Similar Images
-                                    </button>
-                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">
+                                    AI will instantly find visually similar images
+                                </p>
                             </div>
-
-                            <div class="text-center text-sm text-gray-500 dark:text-gray-400">
-                                <p>Drag the corners to adjust the crop area, then click "Find Similar Images"</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                <button
+                                    v-for="image in initialImages"
+                                    :key="image.id"
+                                    @click="selectImageFromGallery(image.url)"
+                                    :disabled="isSearchingImages"
+                                    class="group relative aspect-[4/3] overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-400 transition-all duration-200 hover:shadow-2xl hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                >
+                                    <img
+                                        :src="image.url"
+                                        :alt="image.title"
+                                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                    />
+                                    <!-- Hover overlay with click indicator -->
+                                    <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                                            <div class="bg-white dark:bg-gray-900 rounded-full p-4 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                                <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                                </svg>
+                                            </div>
+                                            <span class="text-white font-semibold text-sm bg-purple-600/90 px-3 py-1 rounded-full">
+                                                Click to Search
+                                            </span>
+                                        </div>
+                                        <div class="absolute bottom-2 left-2 right-2">
+                                            <p class="text-white text-sm font-medium truncate">{{ image.title }}</p>
+                                        </div>
+                                    </div>
+                                </button>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Searching State -->
+                    <div v-if="isSearchingImages && !imageSearchResults.length" class="text-center py-16">
+                        <div class="relative inline-flex">
+                            <div class="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 border-t-purple-600 rounded-full animate-spin"></div>
+                            <div class="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-pink-600 rounded-full animate-spin" style="animation-duration: 1.5s; animation-direction: reverse;"></div>
+                        </div>
+                        <p class="mt-4 text-base font-medium text-gray-600 dark:text-gray-400">Finding similar images...</p>
+                    </div>
+
                     <!-- Results Masonry Grid -->
-                    <div v-if="imageSearchResults.length" class="space-y-6">
-                        <div class="flex items-center justify-between">
-                            <div>
+                    <div v-if="imageSearchResults.length && !isSearchingImages" class="space-y-6">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                            <div class="text-center sm:text-left">
                                 <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                                     Similar Images Found
                                 </h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                    {{ imageSearchResults.length }} visually similar results
+                                    {{ imageSearchResults.length }} visually similar results • Click any to search again
                                 </p>
                             </div>
                             <button
                                 @click="resetImageSearch"
-                                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-lg transition-colors"
+                                class="inline-flex items-center gap-2 px-6 py-3 text-base font-semibold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg"
                             >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                 </svg>
                                 New Search
@@ -658,38 +798,321 @@ watch(selectedType, async (newVal, oldVal) => {
 
                         <!-- Pinterest-style Masonry Grid -->
                         <div class="columns-2 sm:columns-3 lg:columns-4 gap-4 space-y-4">
-                            <div
+                            <button
                                 v-for="(image, index) in imageSearchResults"
                                 :key="image.id"
-                                class="break-inside-avoid mb-4"
+                                @click="selectImageFromGallery(image.url)"
+                                class="break-inside-avoid mb-4 block w-full"
                             >
-                                <div class="group relative bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer">
+                                <div class="group relative bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-1 border-2 border-transparent hover:border-purple-500">
                                     <img
                                         :src="image.url"
                                         :alt="image.title"
-                                        class="w-full h-auto"
+                                        class="w-full h-auto group-hover:scale-105 transition-transform duration-300"
                                         loading="lazy"
                                     />
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <div class="absolute bottom-0 left-0 right-0 p-4">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                                            <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                                </svg>
+                                            </div>
+                                            <span class="text-white font-semibold text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                                Search Similar
+                                            </span>
+                                        </div>
+                                        <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
                                             <p class="text-white font-medium text-sm">{{ image.title }}</p>
-                                            <div class="flex items-center gap-2 mt-2">
-                                                <div class="flex items-center gap-1 text-white/80 text-xs">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                        </div>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations Demo Section -->
+        <div class="relative border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-white to-gray-50 dark:from-black dark:to-gray-900/50 overflow-hidden">
+            <!-- Decorative background elements -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-1/4 -right-64 w-96 h-96 bg-green-500/10 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-1/4 -left-64 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+            </div>
+
+            <div class="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:py-28 lg:px-8">
+                <div class="text-center mb-10 sm:mb-14">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/30 dark:to-blue-950/30 border border-green-200 dark:border-green-800 rounded-full mb-6">
+                        <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        <span class="text-sm font-medium bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                            Smart Recommendations
+                        </span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">
+                        Discover with
+                        <span class="bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            Recommendations
+                        </span>
+                    </h2>
+                    <p class="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
+                        Select titles you love and get personalized recommendations. Fine-tune diversity with MMR to balance similarity and variety.
+                    </p>
+                </div>
+
+                <div class="max-w-6xl mx-auto">
+                    <!-- Code Preview -->
+                    <div class="mb-8 sm:mb-10">
+                        <CodePreview
+                            :code="recommendCodeString"
+                            filename="NetflixSearchController.php"
+                            :highlight-lines="recommendHighlightedLines"
+                        />
+                    </div>
+
+                    <!-- Main Content Area -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Left Column: Title Selector -->
+                        <div class="lg:col-span-1 space-y-4">
+                            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-lg">
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    Select Titles
+                                </h3>
+
+                                <!-- Title Search Input -->
+                                <div class="relative mb-4">
+                                    <input
+                                        v-model="titleSearchQuery"
+                                        @input="searchTitles"
+                                        type="text"
+                                        placeholder="Search for titles..."
+                                        class="w-full px-4 py-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 dark:text-gray-100 placeholder-gray-400"
+                                    />
+                                    <!-- Search Results Dropdown -->
+                                    <div v-if="titleSearchResults.length > 0" class="absolute z-10 w-full mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-64 overflow-y-auto">
+                                        <button
+                                            v-for="title in titleSearchResults.slice(0, 10)"
+                                            :key="title._id"
+                                            @click="addSeedTitle(title)"
+                                            class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors"
+                                        >
+                                            <div class="font-medium text-gray-900 dark:text-gray-100 text-sm">{{ title.title }}</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                {{ title.type }} • {{ title.release_year }}
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Selected Seeds -->
+                                <div v-if="recommendationSeeds.length > 0" class="space-y-2">
+                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                                        Selected ({{ recommendationSeeds.length }}):
+                                    </p>
+                                    <div
+                                        v-for="seed in recommendationSeeds"
+                                        :key="seed._id"
+                                        class="group relative bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/30 dark:to-blue-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3"
+                                    >
+                                        <button
+                                            @click="removeSeedTitle(seed._id)"
+                                            class="absolute top-2 right-2 shrink-0 p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                                        >
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+
+                                        <div class="pr-6">
+                                            <div class="mb-2">
+                                                <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">{{ seed.title }}</p>
+                                                <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                                                    {{ seed.type }} • {{ seed.release_year }}
+                                                </p>
+                                            </div>
+
+                                            <div class="space-y-1.5 text-xs text-gray-600 dark:text-gray-400">
+                                                <div v-if="seed.director" class="flex items-start gap-1.5">
+                                                    <svg class="w-3 h-3 shrink-0 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                                     </svg>
-                                                    {{ Math.floor(Math.random() * 100) + 10 }}
+                                                    <span class="line-clamp-1 flex-1">{{ seed.director }}</span>
                                                 </div>
-                                                <div class="flex items-center gap-1 text-white/80 text-xs">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                <div v-if="seed.cast" class="flex items-start gap-1.5">
+                                                    <svg class="w-3 h-3 shrink-0 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                                     </svg>
-                                                    {{ Math.floor(Math.random() * 500) + 50 }}
+                                                    <span class="line-clamp-1 flex-1">{{ seed.cast }}</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+
+                                <!-- Empty State -->
+                                <div v-else class="text-center py-8">
+                                    <div class="inline-flex items-center justify-center w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full mb-3">
+                                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                                        </svg>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                        Search and select titles to get recommendations
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: MMR Slider & Results -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <!-- MMR Slider -->
+                            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                                            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                                            </svg>
+                                            Diversity Control (MMR)
+                                        </h3>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                            Balance similarity and variety
+                                        </p>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                            {{ mmrValue.toFixed(1) }}
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ mmrValue === 0 ? 'Disabled' : mmrValue < 0.5 ? 'Similar' : 'Diverse' }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="relative">
+                                    <input
+                                        v-model.number="mmrValue"
+                                        type="range"
+                                        min="0"
+                                        max="1"
+                                        step="0.1"
+                                        :disabled="recommendationSeeds.length === 0"
+                                        class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    />
+                                    <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                        <span>0.0 (Similar)</span>
+                                        <span>0.5</span>
+                                        <span>1.0 (Diverse)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Recommendations Results -->
+                            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-lg min-h-[400px]">
+                                <!-- Loading State -->
+                                <div v-if="isLoadingRecommendations" class="flex flex-col items-center justify-center py-16">
+                                    <div class="relative inline-flex">
+                                        <div class="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 border-t-green-600 rounded-full animate-spin"></div>
+                                        <div class="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-blue-600 rounded-full animate-spin" style="animation-duration: 1.5s; animation-direction: reverse;"></div>
+                                    </div>
+                                    <p class="mt-4 text-base font-medium text-gray-600 dark:text-gray-400">
+                                        Finding recommendations...
+                                    </p>
+                                </div>
+
+                                <!-- No Seeds Selected -->
+                                <div v-else-if="recommendationSeeds.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
+                                    <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-100 to-blue-100 dark:from-green-900/30 dark:to-blue-900/30 rounded-full mb-4">
+                                        <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+                                        </svg>
+                                    </div>
+                                    <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                                        Start by selecting titles
+                                    </h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 max-w-sm">
+                                        Search and add titles you like to receive personalized recommendations based on your preferences
+                                    </p>
+                                </div>
+
+                                <!-- Results Grid -->
+                                <div v-else-if="recommendationResults.length > 0" class="space-y-4">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h4 class="text-lg font-bold text-gray-900 dark:text-gray-100">
+                                            Recommended for you
+                                        </h4>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">
+                                            {{ recommendationResults.length }} results
+                                        </span>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div
+                                            v-for="(result, index) in recommendationResults"
+                                            :key="`${result._id || result.title}-${index}`"
+                                            class="group relative bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-green-500 dark:hover:border-green-400 hover:shadow-lg transition-all duration-200"
+                                        >
+                                            <div class="absolute top-3 right-3">
+                                                <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full"
+                                                    :class="result.type === 'Movie'
+                                                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                                                        : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'">
+                                                    {{ result.type }}
+                                                </span>
+                                            </div>
+
+                                            <div class="pr-16 mb-3">
+                                                <h5 class="font-semibold text-sm text-gray-900 dark:text-gray-100 line-clamp-2 mb-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                                                    {{ result.title }}
+                                                </h5>
+                                                <p v-if="result.release_year" class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                                                    {{ result.release_year }}
+                                                </p>
+                                            </div>
+
+                                            <div class="space-y-2 text-xs text-gray-600 dark:text-gray-400">
+                                                <div v-if="result.director" class="flex items-start gap-2">
+                                                    <svg class="w-3.5 h-3.5 shrink-0 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                                    </svg>
+                                                    <span class="line-clamp-1 flex-1">{{ result.director }}</span>
+                                                </div>
+                                                <div v-if="result.cast" class="flex items-start gap-2">
+                                                    <svg class="w-3.5 h-3.5 shrink-0 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                                    </svg>
+                                                    <span class="line-clamp-2 flex-1">{{ result.cast }}</span>
+                                                </div>
+                                                <div v-if="result.listed_in" class="flex items-start gap-2">
+                                                    <svg class="w-3.5 h-3.5 shrink-0 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                                    </svg>
+                                                    <span class="line-clamp-2 flex-1">{{ result.listed_in }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- No Results -->
+                                <div v-else class="flex flex-col items-center justify-center py-16 text-center">
+                                    <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
+                                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M12 12h.01M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                                        No recommendations found
+                                    </h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                        Try selecting different titles or adjusting the MMR slider
+                                    </p>
                                 </div>
                             </div>
                         </div>

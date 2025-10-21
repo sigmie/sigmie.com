@@ -13,6 +13,7 @@ use League\CommonMark\MarkdownConverter;
 use Torchlight\Commonmark\V2\TorchlightExtension;
 use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\Extension\TableOfContents\TableOfContentsExtension;
+use Sigmie\AI\APIs\InfinityClipApi;
 use Sigmie\AI\APIs\InfinityEmbeddingsApi;
 use Sigmie\AI\APIs\OpenAIEmbeddingsApi;
 use Sigmie\AI\LLMs\OpenAILLM;
@@ -54,6 +55,7 @@ class AppServiceProvider extends ServiceProvider
             $sigmie = new Sigmie($elasticsearchConnection);
 
             $sigmie->registerApi('infinity-embeddings', new InfinityEmbeddingsApi('http://localhost:7997'));
+            $sigmie->registerApi('infinity-clip', new InfinityClipApi('http://localhost:7996'));
 
             $sigmie->version(ElasticsearchVersion::v8);
 

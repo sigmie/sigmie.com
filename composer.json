@@ -17,7 +17,7 @@
         "league/csv": "^9.0",
         "masterminds/html5": "^2.8",
         "sigmie/app-sdk": "^1.0",
-        "sigmie/sigmie": "v2.x-dev",
+        "sigmie/sigmie": "dev-master",
         "spatie/laravel-ray": "^1.40",
         "symfony/http-client": "^6.2",
         "tightenco/ziggy": "^1.0",

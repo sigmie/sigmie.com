@@ -4,6 +4,10 @@ import { ref, computed, watch, nextTick, onMounted } from "vue";
 import axios from "axios";
 import AppLayout from "../Layouts/AppLayout.vue";
 import CodePreview from "../components/CodePreview.vue";
+import QueryInput from "../components/QueryInput.vue";
+import Menu from "../components/Menu.vue";
+import SearchIcon from "../components/icons/SearchIcon.vue";
+import ImageIcon from "../components/icons/ImageIcon.vue";
 
 defineProps({
     title: String,
@@ -17,7 +21,6 @@ const isSearching = ref(false);
 const hasSearched = ref(false);
 const selectedType = ref("all");
 const showAllResults = ref(false);
-const expandedResults = ref({}); // Track which results are expanded
 
 // Image search state
 const imageSearchResults = ref([]);
@@ -140,7 +143,6 @@ const performSearch = async (query = null) => {
     isSearching.value = true;
     hasSearched.value = true;
     selectedType.value = "all";
-    expandedResults.value = {}; // Reset expanded state on new search
 
     try {
         const response = await axios.post("/api/search/netflix", {
@@ -154,10 +156,6 @@ const performSearch = async (query = null) => {
     } finally {
         isSearching.value = false;
     }
-};
-
-const toggleResult = (resultId) => {
-    expandedResults.value[resultId] = !expandedResults.value[resultId];
 };
 
 // Generate initial images based on query (fallback)
@@ -408,23 +406,17 @@ onMounted(() => {
                         </div>
 
                         <!-- Search Form -->
-                        <form v-else @submit.prevent="performSearch()" class="">
-                            <div class="border-b border-gray-800 pb-4">
-                                <div class="relative flex gap-2 sm:gap-3 items-center">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                    </svg>
-                                    <input
-                                        v-model="searchQuery"
-                                        type="text"
-                                        placeholder="Search by mood, genre, or description..."
-                                        class="flex-1 py-3 text-base bg-transparent focus:outline-none text-gray-100 placeholder-gray-500"
-                                        :disabled="isSearching"
-                                        @keyup.enter="performSearch()"
-                                    />
-                                </div>
-                            </div>
-                        </form>
+                        <QueryInput
+                            v-if="!hasSearched"
+                            v-model="searchQuery"
+                            placeholder="Search by mood, genre, or description..."
+                            :disabled="isSearching"
+                            @submit="performSearch()"
+                        >
+                            <template #icon>
+                                <SearchIcon />
+                            </template>
+                        </QueryInput>
 
                         <!-- Preset Queries -->
                         <div v-if="!hasSearched" class="space-y-2">
@@ -448,81 +440,13 @@ onMounted(() => {
                         </div>
 
                         <!-- Results -->
-                        <div v-if="hasSearched" class="space-y-4">
-                            <div v-if="isSearching" class="text-center py-12">
-                                <div class="relative inline-flex">
-                                    <div class="w-8 h-8 border-3 border-gray-700 border-t-blue-600 rounded-full animate-spin"></div>
-                                </div>
-                                <p class="mt-3 text-sm text-gray-400">Searching...</p>
-                            </div>
-
-                            <div v-else-if="searchResults.length === 0" class="text-center py-12">
-                                <p class="text-sm text-gray-400">No results found</p>
-                            </div>
-
-                            <div v-else class="space-y-4">
-                                <div
-                                    v-for="(result, index) in searchResults.slice(0, 10)"
-                                    :key="`${result._id || result.title}-${index}`"
-                                    class="bg-black border border-gray-800 rounded-lg overflow-hidden"
-                                >
-                                    <!-- Result Header - Always Visible -->
-                                    <div
-                                        class="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-gray-900/50 transition-colors"
-                                        @click="toggleResult(result._id || index)"
-                                    >
-                                        <div class="flex items-center gap-3">
-                                            <span class="px-3 py-1 text-xs font-medium rounded-full bg-gray-800 text-gray-300">
-                                                {{ result.type }}
-                                            </span>
-                                            <h5 class="text-base font-medium text-gray-100">
-                                                {{ result.title }}
-                                            </h5>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-sm font-medium text-gray-400">
-                                                {{ expandedResults[result._id || index] ? 'Show Less' : 'Show More' }}
-                                            </span>
-                                            <svg
-                                                class="w-4 h-4 text-gray-400 transition-transform duration-200"
-                                                :class="{ 'rotate-180': expandedResults[result._id || index] }"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                            </svg>
-                                        </div>
-                                    </div>
-
-                                    <!-- Result Details - Collapsible -->
-                                    <div v-if="expandedResults[result._id || index]" class="px-6 pb-6 border-t border-gray-800">
-                                        <div class="flex gap-6 pt-4">
-                                            <!-- Details Column -->
-                                            <div class="flex-1 space-y-2 text-sm text-gray-400">
-                                                <p v-if="result.release_year">
-                                                    <span class="font-medium">Release Date:</span> {{ result.release_year }}
-                                                </p>
-                                                <p v-if="result.cast">
-                                                    <span class="font-medium">Actors:</span> {{ result.cast }}
-                                                </p>
-                                                <p v-if="result.country">
-                                                    <span class="font-medium">Languages:</span> {{ result.country }}
-                                                </p>
-                                            </div>
-                                            <!-- Movie Poster (if available) -->
-                                            <div v-if="result.poster_url" class="flex-shrink-0">
-                                                <img
-                                                    :src="result.poster_url"
-                                                    :alt="result.title"
-                                                    class="w-32 h-48 object-cover rounded-lg border border-gray-800"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <Menu
+                            v-if="hasSearched"
+                            :items="searchResults"
+                            :loading="isSearching"
+                            :max-items="10"
+                            empty-message="No results found"
+                        />
                     </div>
 
                     <!-- Right Column: Code Preview -->
@@ -572,23 +496,18 @@ onMounted(() => {
                     </div>
 
                     <!-- Query Input - Always Visible -->
-                    <form @submit.prevent="updateImageQuery" class="mb-8">
-                        <div class="border-b border-gray-800 pb-4">
-                            <div class="relative flex gap-2 sm:gap-3 items-center">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                                <input
-                                    v-model="imageQuery"
-                                    type="text"
-                                    placeholder="What kind of images are you looking for?"
-                                    class="flex-1 py-3 text-base bg-transparent focus:outline-none text-gray-100 placeholder-gray-500"
-                                    :disabled="isLoadingImages || isSearchingImages"
-                                    @keyup.enter="updateImageQuery()"
-                                />
-                            </div>
-                        </div>
-                    </form>
+                    <div class="mb-8">
+                        <QueryInput
+                            v-model="imageQuery"
+                            placeholder="What kind of images are you looking for?"
+                            :disabled="isLoadingImages || isSearchingImages"
+                            @submit="updateImageQuery"
+                        >
+                            <template #icon>
+                                <ImageIcon />
+                            </template>
+                        </QueryInput>
+                    </div>
 
                     <!-- Initial Images Gallery - Always Visible -->
                     <div v-if="!imageSearchResults.length" class="mb-12">

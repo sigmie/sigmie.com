@@ -31,7 +31,40 @@ use League\CommonMark\MarkdownConverter;
 use Torchlight\Commonmark\V2\TorchlightExtension;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', []);
+    return Inertia::render('Welcome', [
+        'navigation' => [
+            [
+                'title' => 'Products',
+                'links' => [
+                    [
+                        'title' => 'Semantic Search',
+                        'href' => '/#semantic-search',
+                    ],
+                    [
+                        'title' => 'Text to Image',
+                        'href' => '/#image-search',
+                    ],
+                    [
+                        'title' => 'Smart Discovery',
+                        'href' => '/#recommendations',
+                    ],
+                    [
+                        'title' => 'Perfect Match',
+                        'href' => '/#perfect-match',
+                    ],
+                ]
+            ],
+            [
+                'title' => 'Resources',
+                'links' => [
+                    [
+                        'title' => 'About Us',
+                        'href' => '/#about',
+                    ],
+                ]
+            ]
+        ]
+    ]);
 });
 
 // Chat API endpoint

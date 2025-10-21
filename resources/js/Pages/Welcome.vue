@@ -373,32 +373,35 @@ onMounted(() => {
         <meta name="twitter:image" content="https://sigmie.com/og-image.png" />
         <link rel="canonical" href="https://sigmie.com" />
     </Head>
-    <div class="min-h-screen bg-white dark:bg-black">
-        <!-- Navigation Bar -->
-        <div class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-black sticky top-0 z-50">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 py-4 lg:px-8">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                            <span class="text-white font-bold text-sm">S</span>
-                        </div>
-                        <span class="text-lg font-bold text-gray-900 dark:text-gray-100">Sigmie</span>
+
+    <div class="flex min-h-screen bg-black">
+        <!-- Sidebar -->
+        <Sidebar :navigation="navigation" />
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Navigation Bar -->
+            <div class="border-b border-gray-800 bg-black sticky top-0 z-40">
+                <div class="px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <Link
+                            href="/resumes"
+                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            Resume Search
+                        </Link>
                     </div>
-                    <Link
-                        href="/resumes"
-                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                    >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                        Resume Search
-                    </Link>
                 </div>
             </div>
-        </div>
+
+            <!-- Content Sections -->
+            <div class="flex-1 overflow-y-auto">
 
         <!-- Netflix Search Demo Section -->
-        <div class="relative border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-white to-gray-50 dark:from-black dark:to-gray-900/50 overflow-hidden">
+        <div id="semantic-search" class="relative bg-gradient-to-b from-black to-gray-900/50 overflow-hidden scroll-mt-20">
             <!-- Decorative background elements -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute top-1/4 -right-64 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
@@ -632,7 +635,7 @@ onMounted(() => {
         </div>
 
         <!-- Image Search Demo Section -->
-        <div class="relative border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/50 dark:to-black overflow-hidden">
+        <div id="image-search" class="relative border-t border-gray-800 bg-gradient-to-b from-gray-900/50 to-black overflow-hidden scroll-mt-20">
             <!-- Decorative background elements -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute top-1/3 -left-64 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
@@ -835,7 +838,7 @@ onMounted(() => {
         </div>
 
         <!-- Recommendations Demo Section -->
-        <div class="relative border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-white to-gray-50 dark:from-black dark:to-gray-900/50 overflow-hidden">
+        <div id="recommendations" class="relative border-t border-gray-800 bg-gradient-to-b from-black to-gray-900/50 overflow-hidden scroll-mt-20">
             <!-- Decorative background elements -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute top-1/4 -right-64 w-96 h-96 bg-green-500/10 rounded-full blur-3xl"></div>
@@ -1122,13 +1125,13 @@ onMounted(() => {
         </div>
 
         <!-- About Me Section -->
-        <div class="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
+        <div id="about" class="border-t border-gray-800 bg-black scroll-mt-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:py-28 lg:px-8">
                 <div class="text-center mb-12 sm:mb-16">
-                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-100 mb-4">
                         About Me
                     </h2>
-                    <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    <p class="text-lg text-gray-400 max-w-2xl mx-auto">
                         Hi, I'm Nico Orfanos – crafting elegant code from Dortmund, Germany
                     </p>
                 </div>
@@ -1142,10 +1145,10 @@ onMounted(() => {
                             class="w-32 h-32 rounded-full border-4 border-white dark:border-gray-800 shadow-lg"
                         />
                         <div class="flex-1 text-center md:text-left">
-                            <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                            <h3 class="text-2xl font-bold text-gray-100 mb-2">
                                 Nico Orfanos
                             </h3>
-                            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                            <p class="text-gray-400 mb-4">
                                 Full-Stack Developer & Elasticsearch Expert
                             </p>
                             <div class="flex flex-wrap justify-center md:justify-start gap-3 mb-4">
@@ -1189,7 +1192,7 @@ onMounted(() => {
 
                     <!-- Client Reviews -->
                     <div class="mb-12">
-                        <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center mb-8">
+                        <h3 class="text-2xl font-bold text-gray-100 text-center mb-8">
                             Client Reviews
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1260,11 +1263,11 @@ onMounted(() => {
 
                     <!-- CTA -->
                     <div class="text-center">
-                        <div class="inline-flex flex-col items-center p-8 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-2xl border border-blue-200 dark:border-blue-800">
-                            <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+                        <div class="inline-flex flex-col items-center p-8 bg-gradient-to-br from-blue-950/30 to-purple-950/30 rounded-2xl border border-blue-800">
+                            <h3 class="text-2xl font-bold text-gray-100 mb-3">
                                 Ready to work together?
                             </h3>
-                            <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
+                            <p class="text-gray-400 mb-6 max-w-md">
                                 I'm available for freelance projects. Let's build something amazing together!
                             </p>
                             <a
@@ -1280,6 +1283,8 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
             </div>
         </div>
     </div>

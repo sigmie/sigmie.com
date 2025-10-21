@@ -490,10 +490,11 @@ onMounted(() => {
                             :code="imageCodeString"
                             filename="ImageSearchController.php"
                             :highlight-lines="imageHighlightedLines"
-                            :fade-right="false"
+                            :fade-right="true"
                             :fade-bottom="true"
                             :fade-left="false"
-                            :fade-length="48"
+                            :fade-width-right="200"
+                            :fade-height-bottom="48"
                         />
                     </div>
 

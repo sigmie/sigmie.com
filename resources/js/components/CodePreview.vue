@@ -28,8 +28,49 @@ const props = defineProps({
     },
     fadeLength: {
         type: Number,
-        default: 64 // pixels
+        default: 64 // pixels - for backwards compatibility
+    },
+    fadeWidthRight: {
+        type: Number,
+        default: null // uses fadeLength if not specified
+    },
+    fadeWidthLeft: {
+        type: Number,
+        default: null // uses fadeLength if not specified
+    },
+    fadeHeightBottom: {
+        type: Number,
+        default: null // uses fadeLength if not specified
     }
+});
+
+const rightFadeWidth = computed(() => props.fadeWidthRight ?? props.fadeLength);
+const leftFadeWidth = computed(() => props.fadeWidthLeft ?? props.fadeLength);
+const bottomFadeHeight = computed(() => props.fadeHeightBottom ?? props.fadeLength);
+
+const maskImage = computed(() => {
+    const gradients = [];
+
+    // Create mask gradients - opaque in content, transparent at edges
+    if (props.fadeRight) {
+        gradients.push(`linear-gradient(to right, black, black calc(100% - ${rightFadeWidth.value}px), transparent 100%)`);
+    } else {
+        gradients.push(`linear-gradient(to right, black, black)`);
+    }
+
+    if (props.fadeBottom) {
+        gradients.push(`linear-gradient(to bottom, black, black calc(100% - ${bottomFadeHeight.value}px), transparent 100%)`);
+    } else {
+        gradients.push(`linear-gradient(to bottom, black, black)`);
+    }
+
+    if (props.fadeLeft) {
+        gradients.push(`linear-gradient(to left, black, black calc(100% - ${leftFadeWidth.value}px), transparent 100%)`);
+    } else {
+        gradients.push(`linear-gradient(to left, black, black)`);
+    }
+
+    return gradients.join(', ');
 });
 
 const parsedLines = computed(() => {
@@ -185,7 +226,7 @@ const copyCode = async () => {
 
 <template>
     <div class="relative w-full">
-        <div class="relative bg-black rounded-t-lg overflow-hidden border border-gray-800 border-b-0">
+        <div class="relative rounded-t-lg overflow-hidden border border-gray-800 border-b-0 bg-black" :style="{ maskImage: maskImage, WebkitMaskImage: maskImage, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }">
             <div class="p-3 sm:p-4 pb-8 sm:pb-12 overflow-x-auto overflow-y-hidden">
                 <div class="flex font-mono text-sm leading-relaxed min-h-[auto]">
                     <!-- Line Numbers -->
@@ -223,12 +264,8 @@ const copyCode = async () => {
             </div>
         </div>
 
-        <!-- Content fade overlays -->
-        <div class="absolute inset-0 rounded-t-lg overflow-hidden pointer-events-none">
-            <div v-if="fadeRight" class="absolute right-0 top-0 bottom-0 bg-gradient-to-l from-black via-black/80 to-black/0 z-10" :style="{ width: fadeLength + 'px' }"></div>
-            <div v-if="fadeBottom" class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/50 to-black/0 z-10" :style="{ height: fadeLength + 'px' }"></div>
-            <div v-if="fadeLeft" class="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-black via-black/80 to-black/0 z-10" :style="{ width: fadeLength + 'px' }"></div>
-        </div>
+        <!-- Content fade overlays - now handled by background gradient -->
+        <!-- Keeping this div for potential future use, but overlays removed -->
     </div>
 </template>
 

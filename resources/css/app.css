@@ -15,8 +15,9 @@
         --geist-foreground: 255 255 255;
     }
 
+    html,
     body {
-        @apply antialiased;
+        @apply antialiased bg-black;
     }
 
     * {

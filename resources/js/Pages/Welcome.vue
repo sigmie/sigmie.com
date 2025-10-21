@@ -17,6 +17,7 @@ const isSearching = ref(false);
 const hasSearched = ref(false);
 const selectedType = ref("all");
 const showAllResults = ref(false);
+const expandedResults = ref({}); // Track which results are expanded
 
 // Image search state
 const imageSearchResults = ref([]);
@@ -139,6 +140,7 @@ const performSearch = async (query = null) => {
     isSearching.value = true;
     hasSearched.value = true;
     selectedType.value = "all";
+    expandedResults.value = {}; // Reset expanded state on new search
 
     try {
         const response = await axios.post("/api/search/netflix", {
@@ -152,6 +154,10 @@ const performSearch = async (query = null) => {
     } finally {
         isSearching.value = false;
     }
+};
+
+const toggleResult = (resultId) => {
+    expandedResults.value[resultId] = !expandedResults.value[resultId];
 };
 
 // Generate initial images based on query (fallback)
@@ -442,7 +448,7 @@ onMounted(() => {
                         </div>
 
                         <!-- Results -->
-                        <div v-if="hasSearched" class="border border-gray-800 rounded-xl bg-black overflow-hidden">
+                        <div v-if="hasSearched" class="space-y-4">
                             <div v-if="isSearching" class="text-center py-12">
                                 <div class="relative inline-flex">
                                     <div class="w-8 h-8 border-3 border-gray-700 border-t-blue-600 rounded-full animate-spin"></div>
@@ -454,40 +460,63 @@ onMounted(() => {
                                 <p class="text-sm text-gray-400">No results found</p>
                             </div>
 
-                            <div v-else>
-                                <!-- Results Header -->
-                                <div class="border-b border-gray-800 px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-gray-900/50 transition-colors" @click="showAllResults = !showAllResults">
-                                    <h4 class="text-sm font-medium text-gray-400">Results</h4>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-sm font-medium text-gray-400">{{ showAllResults ? 'Show Less' : 'Show More' }}</span>
-                                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': showAllResults }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-
-                                <!-- Results Content -->
-                                <div v-show="showAllResults" class="p-6 space-y-6">
+                            <div v-else class="space-y-4">
+                                <div
+                                    v-for="(result, index) in searchResults.slice(0, 10)"
+                                    :key="`${result._id || result.title}-${index}`"
+                                    class="bg-black border border-gray-800 rounded-lg overflow-hidden"
+                                >
+                                    <!-- Result Header - Always Visible -->
                                     <div
-                                        v-for="(result, index) in searchResults.slice(0, 10)"
-                                        :key="`${result._id || result.title}-${index}`"
-                                        class="border-b border-gray-800 pb-6 last:border-b-0"
+                                        class="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-gray-900/50 transition-colors"
+                                        @click="toggleResult(result._id || index)"
                                     >
-                                        <div class="flex items-start justify-between gap-4">
-                                            <div class="flex-1">
-                                                <div class="flex items-center gap-3 mb-3">
-                                                    <span class="px-3 py-1 text-xs font-medium rounded-full border border-gray-700 text-gray-400">
-                                                        {{ result.type }}
-                                                    </span>
-                                                    <h5 class="text-lg font-medium text-gray-100">
-                                                        {{ result.title }}
-                                                    </h5>
-                                                </div>
-                                                <div class="space-y-1 text-sm text-gray-400">
-                                                    <p v-if="result.release_year">Release Date: {{ result.release_year }}</p>
-                                                    <p v-if="result.director">Director: {{ result.director }}</p>
-                                                    <p v-if="result.cast">Actors: {{ result.cast }}</p>
-                                                </div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="px-3 py-1 text-xs font-medium rounded-full bg-gray-800 text-gray-300">
+                                                {{ result.type }}
+                                            </span>
+                                            <h5 class="text-base font-medium text-gray-100">
+                                                {{ result.title }}
+                                            </h5>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm font-medium text-gray-400">
+                                                {{ expandedResults[result._id || index] ? 'Show Less' : 'Show More' }}
+                                            </span>
+                                            <svg
+                                                class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                                                :class="{ 'rotate-180': expandedResults[result._id || index] }"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <!-- Result Details - Collapsible -->
+                                    <div v-if="expandedResults[result._id || index]" class="px-6 pb-6 border-t border-gray-800">
+                                        <div class="flex gap-6 pt-4">
+                                            <!-- Details Column -->
+                                            <div class="flex-1 space-y-2 text-sm text-gray-400">
+                                                <p v-if="result.release_year">
+                                                    <span class="font-medium">Release Date:</span> {{ result.release_year }}
+                                                </p>
+                                                <p v-if="result.cast">
+                                                    <span class="font-medium">Actors:</span> {{ result.cast }}
+                                                </p>
+                                                <p v-if="result.country">
+                                                    <span class="font-medium">Languages:</span> {{ result.country }}
+                                                </p>
+                                            </div>
+                                            <!-- Movie Poster (if available) -->
+                                            <div v-if="result.poster_url" class="flex-shrink-0">
+                                                <img
+                                                    :src="result.poster_url"
+                                                    :alt="result.title"
+                                                    class="w-32 h-48 object-cover rounded-lg border border-gray-800"
+                                                />
                                             </div>
                                         </div>
                                     </div>

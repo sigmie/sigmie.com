@@ -553,19 +553,95 @@ onMounted(() => {
                             <p class="mt-4 text-base font-medium text-gray-600 dark:text-gray-400">Loading images...</p>
                         </div>
 
-                        <!-- Initial Images Gallery - Single Row -->
-                        <div v-else class="overflow-x-auto pb-4">
-                            <div class="flex gap-4" style="min-width: max-content;">
-                                <button
-                                    v-for="image in initialImages.slice(0, 5)"
-                                    :key="image.id"
-                                    @click="selectImageFromGallery(image.url)"
-                                    :disabled="isSearchingImages"
-                                    class="group relative flex-shrink-0 w-64 h-40 overflow-hidden rounded-xl border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                                >
-                                    <img :src="image.url" :alt="image.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                </button>
-                            </div>
+                        <!-- Initial Images Gallery - 6 Column Grid -->
+                        <div v-else class="grid grid-cols-6 grid-rows-2 gap-4 h-[400px]">
+                            <!-- Image 1: 1 column × 2 rows -->
+                            <button
+                                v-if="initialImages[0]"
+                                @click="selectImageFromGallery(initialImages[0].url)"
+                                :disabled="isSearchingImages"
+                                class="group relative col-span-1 row-span-2 overflow-hidden rounded-xl border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            >
+                                <img :src="initialImages[0].url" :alt="initialImages[0].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                            Find Similar
+                                        </span>
+                                    </div>
+                                </div>
+                            </button>
+
+                            <!-- Image 2: 3 columns × 2 rows -->
+                            <button
+                                v-if="initialImages[1]"
+                                @click="selectImageFromGallery(initialImages[1].url)"
+                                :disabled="isSearchingImages"
+                                class="group relative col-span-3 row-span-2 overflow-hidden rounded-xl border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            >
+                                <img :src="initialImages[1].url" :alt="initialImages[1].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                            Find Similar
+                                        </span>
+                                    </div>
+                                </div>
+                            </button>
+
+                            <!-- Image 3: 2 columns × 1 row -->
+                            <button
+                                v-if="initialImages[2]"
+                                @click="selectImageFromGallery(initialImages[2].url)"
+                                :disabled="isSearchingImages"
+                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-xl border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            >
+                                <img :src="initialImages[2].url" :alt="initialImages[2].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                            Find Similar
+                                        </span>
+                                    </div>
+                                </div>
+                            </button>
+
+                            <!-- Image 4: 2 columns × 1 row -->
+                            <button
+                                v-if="initialImages[3]"
+                                @click="selectImageFromGallery(initialImages[3].url)"
+                                :disabled="isSearchingImages"
+                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-xl border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            >
+                                <img :src="initialImages[3].url" :alt="initialImages[3].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                            Find Similar
+                                        </span>
+                                    </div>
+                                </div>
+                            </button>
                         </div>
                     </div>
 

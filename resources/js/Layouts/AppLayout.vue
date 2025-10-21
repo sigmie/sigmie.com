@@ -19,15 +19,15 @@ defineProps({
 </script>
 
 <template>
-    <div class="flex min-h-screen bg-black">
+    <div class="flex min-h-screen bg-black overflow-x-hidden">
         <!-- Sidebar -->
         <Sidebar :navigation="navigation" />
 
         <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col lg:ml-[100px] xl:ml-[280px] bg-black">
+        <div class="flex-1 flex flex-col lg:ml-[100px] xl:ml-[280px] bg-black min-w-0">
             <!-- Top Navigation Bar -->
             <div v-if="showTopBar" class="border-b border-gray-800 bg-black sticky top-0 z-40">
-                <div class="px-6 py-4">
+                <div class="px-4 sm:px-6 py-4">
                     <div class="flex items-center justify-between">
                         <Link
                             href="/resumes"
@@ -43,7 +43,7 @@ defineProps({
             </div>
 
             <!-- Page Content -->
-            <div class="flex-1 overflow-y-auto bg-black">
+            <div class="flex-1 overflow-x-hidden bg-black w-full">
                 <slot />
             </div>
         </div>

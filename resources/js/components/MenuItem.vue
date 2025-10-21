@@ -43,19 +43,19 @@ const toggle = () => {
     <div class="bg-black border border-gray-800 rounded-lg overflow-hidden">
         <!-- Header - Always Visible -->
         <div
-            class="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-gray-900/50 transition-colors"
+            class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 cursor-pointer hover:bg-gray-900/50 transition-colors"
             @click="toggle"
         >
-            <div class="flex items-center gap-3">
-                <span class="px-3 py-1 text-xs font-medium rounded-full bg-gray-800 text-gray-300">
+            <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                <span class="px-2 sm:px-3 py-1 text-xs font-medium rounded-full bg-gray-800 text-gray-300 whitespace-nowrap">
                     {{ type }}
                 </span>
-                <h5 class="text-base font-medium text-gray-100">
+                <h5 class="text-sm sm:text-base font-medium text-gray-100 truncate">
                     {{ title }}
                 </h5>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="text-sm font-medium text-gray-400">
+            <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+                <span class="hidden sm:inline text-sm font-medium text-gray-400">
                     {{ isExpanded ? 'Show Less' : 'Show More' }}
                 </span>
                 <svg
@@ -71,26 +71,26 @@ const toggle = () => {
         </div>
 
         <!-- Details - Collapsible -->
-        <div v-if="isExpanded" class="px-6 pb-6 border-t border-gray-800">
-            <div class="flex gap-6 pt-4">
+        <div v-if="isExpanded" class="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-gray-800">
+            <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 pt-4">
                 <!-- Details Column -->
-                <div class="flex-1 space-y-2 text-sm text-gray-400">
-                    <p v-if="releaseYear">
+                <div class="flex-1 space-y-2 text-sm text-gray-400 min-w-0">
+                    <p v-if="releaseYear" class="break-words">
                         <span class="font-medium">Release Date:</span> {{ releaseYear }}
                     </p>
-                    <p v-if="cast">
+                    <p v-if="cast" class="break-words">
                         <span class="font-medium">Actors:</span> {{ cast }}
                     </p>
-                    <p v-if="country">
+                    <p v-if="country" class="break-words">
                         <span class="font-medium">Languages:</span> {{ country }}
                     </p>
                 </div>
                 <!-- Movie Poster -->
-                <div v-if="posterUrl" class="flex-shrink-0">
+                <div v-if="posterUrl" class="flex-shrink-0 self-center sm:self-start">
                     <img
                         :src="posterUrl"
                         :alt="title"
-                        class="w-32 h-48 object-cover rounded-lg border border-gray-800"
+                        class="w-24 h-36 sm:w-32 sm:h-48 object-cover rounded-lg border border-gray-800"
                     />
                 </div>
             </div>

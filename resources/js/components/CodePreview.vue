@@ -180,9 +180,9 @@ const copyCode = async () => {
 </script>
 
 <template>
-    <div class="relative">
+    <div class="relative w-full">
         <div class="relative bg-black rounded-t-lg overflow-hidden border border-gray-800 border-b-0">
-            <div class="p-4 overflow-x-auto overflow-y-hidden">
+            <div class="p-3 sm:p-4 overflow-x-auto overflow-y-hidden">
                 <div class="flex font-mono text-sm leading-relaxed min-h-[auto]">
                     <!-- Line Numbers -->
                     <div class="select-none pr-6 text-right text-gray-600 mr-4 min-w-[3rem]">

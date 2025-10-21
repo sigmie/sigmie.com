@@ -9,6 +9,7 @@ import Menu from "../components/Menu.vue";
 import Container from "../components/Container.vue";
 import SearchIcon from "../components/icons/SearchIcon.vue";
 import ImageIcon from "../components/icons/ImageIcon.vue";
+import ImageHoverOverlay from "../components/ImageHoverOverlay.vue";
 
 defineProps({
     title: String,
@@ -611,18 +612,7 @@ onMounted(() => {
                                 class="group relative col-span-1 row-span-2 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[0].url" :alt="initialImages[0].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
-                                            Find Similar
-                                        </span>
-                                    </div>
-                                </div>
+                                <ImageHoverOverlay />
                             </button>
 
                             <!-- Image 2: 3 columns × 2 rows -->
@@ -633,18 +623,7 @@ onMounted(() => {
                                 class="group relative col-span-3 row-span-2 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[1].url" :alt="initialImages[1].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
-                                            Find Similar
-                                        </span>
-                                    </div>
-                                </div>
+                                <ImageHoverOverlay />
                             </button>
 
                             <!-- Image 3: 2 columns × 1 row -->
@@ -655,18 +634,7 @@ onMounted(() => {
                                 class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[2].url" :alt="initialImages[2].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
-                                            Find Similar
-                                        </span>
-                                    </div>
-                                </div>
+                                <ImageHoverOverlay />
                             </button>
 
                             <!-- Image 4: 2 columns × 1 row -->
@@ -677,18 +645,7 @@ onMounted(() => {
                                 class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[3].url" :alt="initialImages[3].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
-                                            Find Similar
-                                        </span>
-                                    </div>
-                                </div>
+                                <ImageHoverOverlay />
                             </button>
                         </div>
 
@@ -702,18 +659,7 @@ onMounted(() => {
                                 class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[0].url" :alt="initialImages[0].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
-                                            Find Similar
-                                        </span>
-                                    </div>
-                                </div>
+                                <ImageHoverOverlay />
                             </button>
 
                             <!-- Image 2: 2 columns × 1 row -->
@@ -724,18 +670,7 @@ onMounted(() => {
                                 class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[1].url" :alt="initialImages[1].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
-                                            Find Similar
-                                        </span>
-                                    </div>
-                                </div>
+                                <ImageHoverOverlay />
                             </button>
 
                             <!-- Image 3: 2 columns × 1 row -->
@@ -746,18 +681,7 @@ onMounted(() => {
                                 class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[2].url" :alt="initialImages[2].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
-                                            Find Similar
-                                        </span>
-                                    </div>
-                                </div>
+                                <ImageHoverOverlay />
                             </button>
 
                             <!-- Image 4: 6 columns × 1 row (full width bottom) -->
@@ -768,18 +692,7 @@ onMounted(() => {
                                 class="group relative col-span-6 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[3].url" :alt="initialImages[3].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
-                                            Find Similar
-                                        </span>
-                                    </div>
-                                </div>
+                                <ImageHoverOverlay />
                             </button>
                         </div>
 
@@ -793,18 +706,7 @@ onMounted(() => {
                                 class="group relative col-span-2 row-span-2 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[0].url" :alt="initialImages[0].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
-                                            Find Similar
-                                        </span>
-                                    </div>
-                                </div>
+                                <ImageHoverOverlay />
                             </button>
 
                             <!-- Image 2: 4 columns × 1 row -->
@@ -815,18 +717,7 @@ onMounted(() => {
                                 class="group relative col-span-4 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[1].url" :alt="initialImages[1].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
-                                            Find Similar
-                                        </span>
-                                    </div>
-                                </div>
+                                <ImageHoverOverlay />
                             </button>
 
                             <!-- Image 3: 2 columns × 1 row -->
@@ -837,18 +728,7 @@ onMounted(() => {
                                 class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[2].url" :alt="initialImages[2].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
-                                            Find Similar
-                                        </span>
-                                    </div>
-                                </div>
+                                <ImageHoverOverlay />
                             </button>
 
                             <!-- Image 4: 2 columns × 1 row -->
@@ -859,18 +739,7 @@ onMounted(() => {
                                 class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[3].url" :alt="initialImages[3].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
-                                            Find Similar
-                                        </span>
-                                    </div>
-                                </div>
+                                <ImageHoverOverlay />
                             </button>
                         </div>
                     </div>
@@ -921,20 +790,9 @@ onMounted(() => {
                                         class="w-full h-auto group-hover:scale-105 transition-transform duration-300"
                                         loading="lazy"
                                     />
-                                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
-                                        <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                            <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                                </svg>
-                                            </div>
-                                            <span class="text-white font-medium text-xs px-3 py-1">
-                                                Find Similar
-                                            </span>
-                                        </div>
-                                        <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-                                            <p class="text-white font-medium text-sm">{{ image.title }}</p>
-                                        </div>
+                                    <ImageHoverOverlay />
+                                    <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <p class="text-white font-medium text-sm">{{ image.title }}</p>
                                     </div>
                                 </div>
                             </button>

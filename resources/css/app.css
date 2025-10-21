@@ -15,6 +15,10 @@
         --geist-foreground: 255 255 255;
     }
 
+    html {
+        scroll-behavior: smooth;
+    }
+
     html,
     body {
         @apply antialiased bg-black overflow-x-hidden;

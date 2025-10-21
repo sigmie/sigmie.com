@@ -408,16 +408,71 @@ onMounted(() => {
                 </div>
 
                 <!-- Header Section -->
-                <div class="border border-gray-800 rounded-xl p-6 mb-12 bg-black">
-                    <div class="flex flex-col justify-center">
-                        <h2 class="text-lg sm:text-xl font-medium text-gray-100 mb-4">
-                            Experience Semantic Search
-                        </h2>
-                        <p class="text-base sm:text-lg text-gray-400 leading-relaxed">
-                            Search 8,000+ Netflix titles using natural language. See how Sigmie's semantic search understands intent, not just keywords
-                        </p>
+                <Container max-width="max-w-4xl" class="mb-12">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <!-- Left Column: Title & Subtitle -->
+                        <div class="text-left">
+                            <h2 class="text-lg sm:text-xl font-medium text-gray-100 mb-4">
+                                Experience Semantic Search
+                            </h2>
+                            <p class="text-base sm:text-lg text-gray-400 leading-relaxed">
+                                Search 8,000+ Netflix titles using natural language. See how Sigmie's semantic search understands intent, not just keywords
+                            </p>
+                        </div>
+
+                        <!-- Right Column: SVG Graphic -->
+                        <div class="flex justify-center md:justify-end">
+                            <svg width="213" height="152" viewBox="0 0 213 152" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-48 h-auto">
+                                <g style="mix-blend-mode:color-dodge">
+                                    <foreignObject x="-24" y="36.1865" width="154.137" height="319.813"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(12px);clip-path:url(#bgblur_0_856_6183_clip_path);height:100%;width:100%"></div></foreignObject>
+                                    <g data-figma-bg-blur-radius="24">
+                                        <path d="M0 332V60.1865L106.137 120.374V332H0Z" fill="url(#paint0_linear_856_6183)" fill-opacity="0.8"/>
+                                        <path d="M105.637 120.665V331.5H0.5V61.0439L105.637 120.665Z" stroke="url(#paint1_linear_856_6183)" stroke-opacity="0.6"/>
+                                    </g>
+                                    <foreignObject x="82.1367" y="36.1865" width="154.137" height="319.813"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(12px);clip-path:url(#bgblur_1_856_6183_clip_path);height:100%;width:100%"></div></foreignObject>
+                                    <g data-figma-bg-blur-radius="24">
+                                        <path d="M212.273 332V60.1865L106.137 120.374V332H212.273Z" fill="url(#paint2_linear_856_6183)" fill-opacity="0.8"/>
+                                        <path d="M106.637 120.665V331.5H211.773V61.0439L106.637 120.665Z" stroke="url(#paint3_linear_856_6183)" stroke-opacity="0.6"/>
+                                    </g>
+                                    <foreignObject x="-24" y="-24" width="260.273" height="168.374"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(12px);clip-path:url(#bgblur_2_856_6183_clip_path);height:100%;width:100%"></div></foreignObject>
+                                    <g data-figma-bg-blur-radius="24">
+                                        <path d="M0 60.1872L106.137 0L212.273 60.1872L106.137 120.374L0 60.1872Z" fill="url(#paint4_linear_856_6183)" fill-opacity="0.8"/>
+                                        <path d="M211.259 60.1865L106.136 119.799L1.01367 60.1865L106.136 0.574219L211.259 60.1865Z" stroke="url(#paint5_linear_856_6183)" stroke-opacity="0.6"/>
+                                    </g>
+                                </g>
+                                <defs>
+                                    <clipPath id="bgblur_0_856_6183_clip_path" transform="translate(24 -36.1865)"><path d="M0 332V60.1865L106.137 120.374V332H0Z"/></clipPath>
+                                    <clipPath id="bgblur_1_856_6183_clip_path" transform="translate(-82.1367 -36.1865)"><path d="M212.273 332V60.1865L106.137 120.374V332H212.273Z"/></clipPath>
+                                    <clipPath id="bgblur_2_856_6183_clip_path" transform="translate(24 24)"><path d="M0 60.1872L106.137 0L212.273 60.1872L106.137 120.374L0 60.1872Z"/></clipPath>
+                                    <linearGradient id="paint0_linear_856_6183" x1="53.0683" y1="89.3093" x2="53.0683" y2="351.091" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="white"/>
+                                        <stop offset="1" stop-color="white" stop-opacity="0"/>
+                                    </linearGradient>
+                                    <linearGradient id="paint1_linear_856_6183" x1="106.137" y1="119.403" x2="2.26511" y2="334.912" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="white"/>
+                                        <stop offset="1" stop-color="white" stop-opacity="0"/>
+                                    </linearGradient>
+                                    <linearGradient id="paint2_linear_856_6183" x1="159.205" y1="89.3093" x2="159.205" y2="351.091" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="white"/>
+                                        <stop offset="1" stop-color="white" stop-opacity="0"/>
+                                    </linearGradient>
+                                    <linearGradient id="paint3_linear_856_6183" x1="113.579" y1="120.697" x2="212.273" y2="332" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="white"/>
+                                        <stop offset="1" stop-color="white" stop-opacity="0"/>
+                                    </linearGradient>
+                                    <linearGradient id="paint4_linear_856_6183" x1="119.727" y1="-5.10812e-07" x2="106.137" y2="120.374" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="white"/>
+                                        <stop offset="1" stop-color="white" stop-opacity="0.69"/>
+                                    </linearGradient>
+                                    <linearGradient id="paint5_linear_856_6183" x1="106.137" y1="0" x2="106.137" y2="120.374" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="white"/>
+                                        <stop offset="1" stop-color="white" stop-opacity="0.4"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
                     </div>
-                </div>
+                </Container>
 
                 <!-- Main Content Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -551,17 +606,17 @@ onMounted(() => {
                                 v-if="initialImages[0]"
                                 @click="selectImageFromGallery(initialImages[0].url)"
                                 :disabled="isSearchingImages"
-                                class="group relative col-span-1 row-span-2 overflow-hidden rounded-md border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-1 row-span-2 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[0].url" :alt="initialImages[0].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
                                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
                                             Find Similar
                                         </span>
                                     </div>
@@ -573,17 +628,17 @@ onMounted(() => {
                                 v-if="initialImages[1]"
                                 @click="selectImageFromGallery(initialImages[1].url)"
                                 :disabled="isSearchingImages"
-                                class="group relative col-span-3 row-span-2 overflow-hidden rounded-md border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-3 row-span-2 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[1].url" :alt="initialImages[1].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
                                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
                                             Find Similar
                                         </span>
                                     </div>
@@ -595,17 +650,17 @@ onMounted(() => {
                                 v-if="initialImages[2]"
                                 @click="selectImageFromGallery(initialImages[2].url)"
                                 :disabled="isSearchingImages"
-                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[2].url" :alt="initialImages[2].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
                                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
                                             Find Similar
                                         </span>
                                     </div>
@@ -617,17 +672,17 @@ onMounted(() => {
                                 v-if="initialImages[3]"
                                 @click="selectImageFromGallery(initialImages[3].url)"
                                 :disabled="isSearchingImages"
-                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[3].url" :alt="initialImages[3].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
                                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
                                             Find Similar
                                         </span>
                                     </div>
@@ -642,17 +697,17 @@ onMounted(() => {
                                 v-if="initialImages[0]"
                                 @click="selectImageFromGallery(initialImages[0].url)"
                                 :disabled="isSearchingImages"
-                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[0].url" :alt="initialImages[0].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
                                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
                                             Find Similar
                                         </span>
                                     </div>
@@ -664,17 +719,17 @@ onMounted(() => {
                                 v-if="initialImages[1]"
                                 @click="selectImageFromGallery(initialImages[1].url)"
                                 :disabled="isSearchingImages"
-                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[1].url" :alt="initialImages[1].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
                                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
                                             Find Similar
                                         </span>
                                     </div>
@@ -686,17 +741,17 @@ onMounted(() => {
                                 v-if="initialImages[2]"
                                 @click="selectImageFromGallery(initialImages[2].url)"
                                 :disabled="isSearchingImages"
-                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[2].url" :alt="initialImages[2].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
                                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
                                             Find Similar
                                         </span>
                                     </div>
@@ -708,17 +763,17 @@ onMounted(() => {
                                 v-if="initialImages[3]"
                                 @click="selectImageFromGallery(initialImages[3].url)"
                                 :disabled="isSearchingImages"
-                                class="group relative col-span-6 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-6 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[3].url" :alt="initialImages[3].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
                                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
                                             Find Similar
                                         </span>
                                     </div>
@@ -733,17 +788,17 @@ onMounted(() => {
                                 v-if="initialImages[0]"
                                 @click="selectImageFromGallery(initialImages[0].url)"
                                 :disabled="isSearchingImages"
-                                class="group relative col-span-2 row-span-2 overflow-hidden rounded-md border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-2 row-span-2 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[0].url" :alt="initialImages[0].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
                                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
                                             Find Similar
                                         </span>
                                     </div>
@@ -755,17 +810,17 @@ onMounted(() => {
                                 v-if="initialImages[1]"
                                 @click="selectImageFromGallery(initialImages[1].url)"
                                 :disabled="isSearchingImages"
-                                class="group relative col-span-4 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-4 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[1].url" :alt="initialImages[1].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
                                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
                                             Find Similar
                                         </span>
                                     </div>
@@ -777,17 +832,17 @@ onMounted(() => {
                                 v-if="initialImages[2]"
                                 @click="selectImageFromGallery(initialImages[2].url)"
                                 :disabled="isSearchingImages"
-                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[2].url" :alt="initialImages[2].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
                                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
                                             Find Similar
                                         </span>
                                     </div>
@@ -799,17 +854,17 @@ onMounted(() => {
                                 v-if="initialImages[3]"
                                 @click="selectImageFromGallery(initialImages[3].url)"
                                 :disabled="isSearchingImages"
-                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-purple-500 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[3].url" :alt="initialImages[3].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
                                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                        <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                        <span class="text-white font-medium text-xs bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full">
                                             Find Similar
                                         </span>
                                     </div>
@@ -857,21 +912,21 @@ onMounted(() => {
                                 @click="selectImageFromGallery(image.url)"
                                 class="break-inside-avoid mb-4 block w-full"
                             >
-                                <div class="group relative bg-gray-100 dark:bg-gray-800 rounded-md overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-1 border-2 border-transparent hover:border-purple-500">
+                                <div class="group relative bg-gray-100 dark:bg-gray-800 rounded-md overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-1 border-2 border-transparent hover:border-gray-600">
                                     <img
                                         :src="image.url"
                                         :alt="image.title"
                                         class="w-full h-auto group-hover:scale-105 transition-transform duration-300"
                                         loading="lazy"
                                     />
-                                    <div class="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-800/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="backdrop-filter: blur(8px);">
                                         <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                            <div class="bg-white dark:bg-gray-900 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
-                                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-200 shadow-xl">
+                                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                                 </svg>
                                             </div>
-                                            <span class="text-white font-medium text-xs bg-purple-600/90 px-3 py-1 rounded-full">
+                                            <span class="text-white font-medium text-xs px-3 py-1">
                                                 Find Similar
                                             </span>
                                         </div>

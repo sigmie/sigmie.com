@@ -6,6 +6,7 @@ import AppLayout from "../Layouts/AppLayout.vue";
 import CodePreview from "../components/CodePreview.vue";
 import QueryInput from "../components/QueryInput.vue";
 import Menu from "../components/Menu.vue";
+import Container from "../components/Container.vue";
 import SearchIcon from "../components/icons/SearchIcon.vue";
 import ImageIcon from "../components/icons/ImageIcon.vue";
 
@@ -391,10 +392,10 @@ onMounted(() => {
                 <!-- Main Content Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Left Column: Search -->
-                    <div class="space-y-6">
-                        <!-- Search Box Display or Input -->
-                        <div v-if="hasSearched" class="border border-gray-800 rounded-xl p-4 sm:p-6 mb-6 bg-black">
-                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="rounded-lg p-6" style="background: linear-gradient(59.66deg, #0C0D0F 0%, #07080A 100%); border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0px 1px 0px 1px rgba(255, 255, 255, 0.1) inset;">
+                        <div class="space-y-8">
+                            <!-- Search Box Display or Input -->
+                            <div v-if="hasSearched" class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-gray-800">
                                 <div class="flex items-center gap-3 min-w-0">
                                     <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -403,50 +404,50 @@ onMounted(() => {
                                 </div>
                                 <span class="text-sm sm:text-base font-medium text-gray-400 whitespace-nowrap">Found {{ searchResults.length }} Results</span>
                             </div>
-                        </div>
 
-                        <!-- Search Form -->
-                        <QueryInput
-                            v-if="!hasSearched"
-                            v-model="searchQuery"
-                            placeholder="Search by mood, genre, or description..."
-                            :disabled="isSearching"
-                            @submit="performSearch()"
-                        >
-                            <template #icon>
-                                <SearchIcon />
-                            </template>
-                        </QueryInput>
+                            <!-- Search Form -->
+                            <QueryInput
+                                v-if="!hasSearched"
+                                v-model="searchQuery"
+                                placeholder="Search by mood, genre, or description..."
+                                :disabled="isSearching"
+                                @submit="performSearch()"
+                            >
+                                <template #icon>
+                                    <SearchIcon />
+                                </template>
+                            </QueryInput>
 
-                        <!-- Preset Queries -->
-                        <div v-if="!hasSearched" class="space-y-2">
-                            <p class="text-sm font-medium text-gray-400 mb-3">Try these popular searches:</p>
-                            <div class="flex flex-col gap-2">
-                                <button
-                                    v-for="preset in presetQueries"
-                                    :key="preset.query"
-                                    @click="performSearch(preset.query)"
-                                    class="group text-left px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-400 hover:bg-gray-800 transition-all duration-200"
-                                    :disabled="isSearching"
-                                >
-                                    <span class="flex items-center gap-2">
-                                        {{ preset.label }}
-                                        <svg class="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                        </svg>
-                                    </span>
-                                </button>
+                            <!-- Preset Queries -->
+                            <div v-if="!hasSearched" class="space-y-2">
+                                <p class="text-sm font-medium text-gray-400 mb-3">Try these popular searches:</p>
+                                <div class="flex flex-col gap-2">
+                                    <button
+                                        v-for="preset in presetQueries"
+                                        :key="preset.query"
+                                        @click="performSearch(preset.query)"
+                                        class="group text-left px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-400 hover:bg-gray-800 transition-all duration-200"
+                                        :disabled="isSearching"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            {{ preset.label }}
+                                            <svg class="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Results -->
-                        <Menu
-                            v-if="hasSearched"
-                            :items="searchResults"
-                            :loading="isSearching"
-                            :max-items="10"
-                            empty-message="No results found"
-                        />
+                            <!-- Results -->
+                            <Menu
+                                v-if="hasSearched"
+                                :items="searchResults"
+                                :loading="isSearching"
+                                :max-items="10"
+                                empty-message="No results found"
+                            />
+                        </div>
                     </div>
 
                     <!-- Right Column: Code Preview -->
@@ -484,14 +485,15 @@ onMounted(() => {
 
                 <div class="max-w-6xl mx-auto">
                     <!-- Code Preview -->
-                    <div class="mb-8">
+                    <div class="mb-16">
                         <CodePreview
                             :code="imageCodeString"
                             filename="ImageSearchController.php"
                             :highlight-lines="imageHighlightedLines"
                             :fade-right="false"
-                            :fade-bottom="false"
+                            :fade-bottom="true"
                             :fade-left="false"
+                            :fade-length="48"
                         />
                     </div>
 

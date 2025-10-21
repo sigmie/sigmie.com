@@ -408,39 +408,53 @@ onMounted(() => {
                 <div class="absolute bottom-1/4 -left-64 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
             </div>
 
-            <div class="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:py-28 lg:px-8">
-                <div class="text-center mb-10 sm:mb-14">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-800 rounded-full mb-6">
-                        <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                        <span class="text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            Live Demo
-                        </span>
+            <div class="relative mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 lg:py-20 lg:px-8">
+                <!-- Header Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                    <div class="flex flex-col justify-center">
+                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-100 mb-4">
+                            Experience <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Semantic Search</span>
+                        </h2>
+                        <p class="text-base sm:text-lg text-gray-400 leading-relaxed">
+                            Search 8,000+ Netflix titles using natural language. See how Sigmie's semantic search understands intent, not just keywords
+                        </p>
                     </div>
-                    <h2 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">
-                        Experience
-                        <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                            Semantic Search
-                        </span>
-                    </h2>
-                    <p class="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-                        Search 8,000+ Netflix titles using natural language. See how Sigmie's semantic search understands intent, not just keywords.
-                    </p>
+                    <!-- 3D Cube Illustration -->
+                    <div class="flex items-center justify-center">
+                        <div class="w-64 h-64 relative">
+                            <svg viewBox="0 0 200 200" class="w-full h-full">
+                                <!-- 3D Cube -->
+                                <defs>
+                                    <linearGradient id="cubeGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.8" />
+                                        <stop offset="100%" style="stop-color:#1e40af;stop-opacity:0.8" />
+                                    </linearGradient>
+                                    <linearGradient id="cubeGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:0.6" />
+                                        <stop offset="100%" style="stop-color:#1e40af;stop-opacity:0.8" />
+                                    </linearGradient>
+                                    <linearGradient id="cubeGradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#93c5fd;stop-opacity:0.5" />
+                                        <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0.8" />
+                                    </linearGradient>
+                                </defs>
+                                <!-- Front face -->
+                                <polygon points="50,80 150,80 150,150 50,150" fill="url(#cubeGradient1)" stroke="#1e40af" stroke-width="1.5"/>
+                                <!-- Top face -->
+                                <polygon points="50,80 100,30 200,30 150,80" fill="url(#cubeGradient3)" stroke="#1e40af" stroke-width="1.5"/>
+                                <!-- Right face -->
+                                <polygon points="150,80 200,30 200,100 150,150" fill="url(#cubeGradient2)" stroke="#1e40af" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="max-w-4xl mx-auto">
-                    <!-- Code Preview -->
-                    <div class="mb-8 sm:mb-10">
-                        <CodePreview
-                            :code="codeString"
-                            filename="SearchController.php"
-                            :highlight-lines="highlightedLines"
-                        />
-                    </div>
-
-                    <!-- Search Form -->
-                    <form @submit.prevent="performSearch()" class="mb-8 sm:mb-10">
+                <!-- Main Content Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Left Column: Search -->
+                    <div class="space-y-6">
+                        <!-- Search Form -->
+                        <form @submit.prevent="performSearch()" class="">
                         <div class="relative">
                             <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur-xl opacity-20"></div>
                             <div class="relative flex gap-2 sm:gap-3 p-2 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl transition-all duration-300 focus-within:border-blue-500 dark:focus-within:border-blue-400">
@@ -471,163 +485,124 @@ onMounted(() => {
                                 </button>
                             </div>
                         </div>
-                    </form>
+                        </form>
 
-                    <!-- Preset Queries -->
-                    <div v-if="!hasSearched" class="mb-12">
-                        <p class="text-center text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">
-                            Try these popular searches:
-                        </p>
-                        <div class="flex flex-wrap justify-center gap-2 sm:gap-3">
-                            <button
-                                v-for="preset in presetQueries"
-                                :key="preset.query"
-                                @click="performSearch(preset.query)"
-                                class="group px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 hover:shadow-md transition-all duration-200"
-                                :disabled="isSearching"
-                            >
-                                <span class="flex items-center gap-2">
-                                    {{ preset.label }}
-                                    <svg class="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                    </svg>
-                                </span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Type Filters -->
-                    <div v-if="hasSearched && !isSearching" class="mb-8 flex items-center justify-center gap-2">
-                        <button
-                            @click="selectedType = 'all'"
-                            class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
-                            :class="selectedType === 'all'
-                                ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-md'
-                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'"
-                        >
-                            All ({{ searchResults.length }})
-                        </button>
-                        <button
-                            @click="selectedType = 'Movie'"
-                            class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
-                            :class="selectedType === 'Movie'
-                                ? 'bg-blue-600 text-white shadow-md'
-                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'"
-                        >
-                            Movies ({{ searchResults.filter(r => r.type === 'Movie').length }})
-                        </button>
-                        <button
-                            @click="selectedType = 'TV Show'"
-                            class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
-                            :class="selectedType === 'TV Show'
-                                ? 'bg-purple-600 text-white shadow-md'
-                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600'"
-                        >
-                            TV Shows ({{ searchResults.filter(r => r.type === 'TV Show').length }})
-                        </button>
-                    </div>
-
-                    <!-- Results -->
-                    <div v-if="hasSearched" class="space-y-6">
-                        <div v-if="isSearching" class="text-center py-16 sm:py-20">
-                            <div class="relative inline-flex">
-                                <div class="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 border-t-blue-600 rounded-full animate-spin"></div>
-                                <div class="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-purple-600 rounded-full animate-spin" style="animation-duration: 1.5s; animation-direction: reverse;"></div>
-                            </div>
-                            <p class="mt-6 text-base font-medium text-gray-600 dark:text-gray-400">Searching through 8,000+ titles...</p>
-                        </div>
-
-                        <div v-else-if="searchResults.length === 0" class="text-center py-16 sm:py-20">
-                            <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
-                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M12 12h.01M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No results found</h3>
-                            <p class="text-base text-gray-600 dark:text-gray-400 mb-6">Try a different search term or one of our suggestions above</p>
-                            <button
-                                @click="hasSearched = false; searchQuery = ''; searchResults = []"
-                                class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
-                            >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                                </svg>
-                                Try again
-                            </button>
-                        </div>
-
-                        <div v-else>
-                            <div class="flex items-center justify-between mb-6">
-                                <div>
-                                    <h3 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
-                                        <span v-if="selectedType === 'all'">Found {{ searchResults.length }} results</span>
-                                        <span v-else>Showing {{ filteredResults.length }} {{ selectedType === 'Movie' ? 'movies' : 'TV shows' }}</span>
-                                    </h3>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                        Powered by semantic search
-                                    </p>
-                                </div>
+                        <!-- Preset Queries -->
+                        <div v-if="!hasSearched" class="space-y-2">
+                            <p class="text-sm font-medium text-gray-400 mb-3">Try these popular searches:</p>
+                            <div class="flex flex-col gap-2">
                                 <button
-                                    @click="hasSearched = false; searchQuery = ''; searchResults = []; selectedType = 'all'"
-                                    class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                                    v-for="preset in presetQueries"
+                                    :key="preset.query"
+                                    @click="performSearch(preset.query)"
+                                    class="group text-left px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-400 hover:bg-gray-800 transition-all duration-200"
+                                    :disabled="isSearching"
                                 >
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                    </svg>
-                                    New search
+                                    <span class="flex items-center gap-2">
+                                        {{ preset.label }}
+                                        <svg class="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </span>
                                 </button>
                             </div>
+                        </div>
 
-                            <div v-if="filteredResults.length === 0" class="text-center py-12">
-                                <p class="text-gray-600 dark:text-gray-400">No {{ selectedType === 'Movie' ? 'movies' : 'TV shows' }} found in these results.</p>
+                        <!-- Type Filters -->
+                        <div v-if="hasSearched && !isSearching" class="flex flex-col gap-2">
+                            <p class="text-xs font-semibold uppercase text-gray-500 mb-2">Filter by type</p>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button
+                                    @click="selectedType = 'all'"
+                                    class="px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200"
+                                    :class="selectedType === 'all'
+                                        ? 'bg-gray-900 text-white'
+                                        : 'bg-gray-800 text-gray-300 border border-gray-700 hover:border-gray-600'"
+                                >
+                                    All ({{ searchResults.length }})
+                                </button>
+                                <button
+                                    @click="selectedType = 'Movie'"
+                                    class="px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200"
+                                    :class="selectedType === 'Movie'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-800 text-gray-300 border border-gray-700 hover:border-blue-500'"
+                                >
+                                    Movie
+                                </button>
+                                <button
+                                    @click="selectedType = 'TV Show'"
+                                    class="px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200"
+                                    :class="selectedType === 'TV Show'
+                                        ? 'bg-purple-600 text-white'
+                                        : 'bg-gray-800 text-gray-300 border border-gray-700 hover:border-purple-500'"
+                                >
+                                    TV Show
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Results -->
+                        <div v-if="hasSearched" class="border border-gray-800 rounded-lg p-4 bg-gray-900/50 max-h-96 overflow-y-auto">
+                            <div v-if="isSearching" class="text-center py-8">
+                                <div class="relative inline-flex">
+                                    <div class="w-8 h-8 border-3 border-gray-700 border-t-blue-600 rounded-full animate-spin"></div>
+                                </div>
+                                <p class="mt-3 text-sm text-gray-400">Searching...</p>
                             </div>
 
-                            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5" id="results-grid">
-                                <div
-                                    v-for="(result, index) in filteredResults"
-                                    :key="`${result._id || result.title}-${index}`"
-                                    class="group relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all duration-300"
-                                >
-                                    <div class="absolute top-3 right-3">
-                                        <span class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full"
-                                            :class="result.type === 'Movie'
-                                                ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                                                : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'">
-                                            {{ result.type }}
-                                        </span>
-                                    </div>
+                            <div v-else-if="searchResults.length === 0" class="text-center py-8">
+                                <p class="text-sm text-gray-400">No results found</p>
+                            </div>
 
-                                    <div class="pr-16 mb-4">
-                                        <h3 class="font-bold text-base text-gray-900 dark:text-gray-100 line-clamp-2 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                            {{ result.title }}
-                                        </h3>
-                                        <p v-if="result.release_year" class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                            {{ result.release_year }}
-                                        </p>
-                                    </div>
+                            <div v-else class="space-y-3">
+                                <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-800">
+                                    <h4 class="font-semibold text-gray-100 text-sm">
+                                        <span v-if="selectedType === 'all'">Found {{ searchResults.length }}</span>
+                                        <span v-else>{{ filteredResults.length }}</span>
+                                    </h4>
+                                </div>
 
-                                    <div class="space-y-2.5 text-xs text-gray-600 dark:text-gray-400">
-                                        <div v-if="result.director" class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 shrink-0 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                            </svg>
-                                            <span class="line-clamp-1 flex-1">{{ result.director }}</span>
-                                        </div>
-                                        <div v-if="result.cast" class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 shrink-0 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                            </svg>
-                                            <span class="line-clamp-2 flex-1">{{ result.cast }}</span>
-                                        </div>
-                                        <div v-if="result.country" class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 shrink-0 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path>
-                                            </svg>
-                                            <span class="line-clamp-1 flex-1">{{ result.country }}</span>
+                                <div v-if="filteredResults.length === 0" class="text-center py-4">
+                                    <p class="text-xs text-gray-400">No matches</p>
+                                </div>
+
+                                <div v-else class="space-y-2">
+                                    <div
+                                        v-for="(result, index) in filteredResults.slice(0, 5)"
+                                        :key="`${result._id || result.title}-${index}`"
+                                        class="bg-gray-800/50 border border-gray-700 rounded p-3 hover:border-blue-600 transition-all cursor-pointer group"
+                                    >
+                                        <div class="flex items-start justify-between gap-2">
+                                            <div class="flex-1 min-w-0">
+                                                <h5 class="text-sm font-semibold text-gray-200 group-hover:text-blue-400 truncate">
+                                                    {{ result.title }}
+                                                </h5>
+                                                <p v-if="result.release_year" class="text-xs text-gray-500 mt-0.5">
+                                                    {{ result.release_year }}
+                                                </p>
+                                            </div>
+                                            <span class="text-xs font-medium px-2 py-1 rounded whitespace-nowrap"
+                                                :class="result.type === 'Movie'
+                                                    ? 'bg-blue-900/30 text-blue-300'
+                                                    : 'bg-purple-900/30 text-purple-300'">
+                                                {{ result.type }}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Code Preview -->
+                    <div class="hidden lg:block">
+                        <div class="sticky top-24">
+                            <CodePreview
+                                :code="codeString"
+                                filename="SearchController.php"
+                                :highlight-lines="highlightedLines"
+                            />
                         </div>
                     </div>
                 </div>

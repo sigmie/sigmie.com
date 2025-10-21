@@ -24,7 +24,7 @@ defineProps({
         <Sidebar :navigation="navigation" />
 
         <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col lg:ml-[100px] xl:ml-[280px]">
+        <div class="flex-1 flex flex-col lg:ml-[100px] xl:ml-[280px] bg-black">
             <!-- Top Navigation Bar -->
             <div v-if="showTopBar" class="border-b border-gray-800 bg-black sticky top-0 z-40">
                 <div class="px-6 py-4">
@@ -43,7 +43,7 @@ defineProps({
             </div>
 
             <!-- Page Content -->
-            <div class="flex-1 overflow-y-auto">
+            <div class="flex-1 overflow-y-auto bg-black">
                 <slot />
             </div>
         </div>

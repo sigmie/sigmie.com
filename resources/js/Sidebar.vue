@@ -71,7 +71,7 @@ onUnmounted(() => {
 
 <template>
     <aside
-        class="hidden lg:block w-[100px] xl:w-[280px] flex-shrink-0 fixed left-0 top-0 h-screen bg-gradient-to-b from-gray-900 to-black border-r border-gray-800"
+        class="hidden lg:block w-[100px] xl:w-[280px] flex-shrink-0 fixed left-0 top-0 h-screen bg-black border-r border-gray-800"
     >
         <div class="h-full flex flex-col pt-12 pb-6">
             <!-- Navigation Links -->

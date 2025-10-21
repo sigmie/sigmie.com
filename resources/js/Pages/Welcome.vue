@@ -376,7 +376,7 @@ onMounted(() => {
         <template #default>
 
         <!-- Netflix Search Demo Section -->
-        <div id="semantic-search" class="relative bg-gradient-to-b from-black to-gray-900/50 overflow-hidden scroll-mt-20">
+        <div id="semantic-search" class="relative bg-black overflow-hidden scroll-mt-20">
             <!-- Decorative background elements -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute top-1/4 -right-64 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
@@ -585,7 +585,7 @@ onMounted(() => {
         </div>
 
         <!-- Image Search Demo Section -->
-        <div id="image-search" class="relative border-t border-gray-800 bg-gradient-to-b from-gray-900/50 to-black overflow-hidden scroll-mt-20">
+        <div id="image-search" class="relative border-t border-gray-800 bg-black overflow-hidden scroll-mt-20">
             <!-- Decorative background elements -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute top-1/3 -left-64 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
@@ -788,7 +788,7 @@ onMounted(() => {
         </div>
 
         <!-- Recommendations Demo Section -->
-        <div id="recommendations" class="relative border-t border-gray-800 bg-gradient-to-b from-black to-gray-900/50 overflow-hidden scroll-mt-20">
+        <div id="recommendations" class="relative border-t border-gray-800 bg-black overflow-hidden scroll-mt-20">
             <!-- Decorative background elements -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute top-1/4 -right-64 w-96 h-96 bg-green-500/10 rounded-full blur-3xl"></div>

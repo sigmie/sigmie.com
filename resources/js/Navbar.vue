@@ -2,7 +2,6 @@
 import { Head, Link, router as Inertia } from "@inertiajs/vue3";
 import Search from "./Search.vue";
 import Banner from "./Banner.vue";
-import VersionSwitcher from "./VersionSwitcher.vue";
 import { onMounted, ref, computed } from "vue";
 import { SigmieSearch } from "@sigmie/vue";
 
@@ -21,14 +20,16 @@ let visit = (url) => {
 
 const props = defineProps({
     navigation: Object,
-    currentVersion: String,
-    availableVersions: Array,
 });
 
-// Check if we're on a docs page
-const isDocsPage = computed(() => {
-    return window.location.pathname.startsWith('/docs/');
-});
+const searchQuery = ref('');
+const searchFocused = ref(false);
+
+const handleSearch = () => {
+    if (searchQuery.value.trim()) {
+        Inertia.visit(`/search?q=${encodeURIComponent(searchQuery.value)}`);
+    }
+};
 </script>
 
 <template>
@@ -74,29 +75,33 @@ const isDocsPage = computed(() => {
                 </div>
 
                 <!-- Right side -->
-                <div class="flex items-center space-x-4">
-                    <!-- Search -->
-                    <div class="hidden md:block">
-                        <Link 
-                            href="/search"
-                            class="flex items-center space-x-3 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-800 transition-colors"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            </svg>
-                            <span>Search docs...</span>
-                            <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-black rounded border border-gray-200 dark:border-gray-700">⌘K</kbd>
-                        </Link>
+                <div class="flex items-center space-x-4 flex-1 justify-end">
+                    <!-- Elegant Search Box -->
+                    <div class="hidden md:block max-w-md w-full">
+                        <form @submit.prevent="handleSearch" class="relative">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                    </svg>
+                                </div>
+                                <input
+                                    v-model="searchQuery"
+                                    @focus="searchFocused = true"
+                                    @blur="searchFocused = false"
+                                    type="text"
+                                    placeholder="Search documentation..."
+                                    class="w-full pl-10 pr-20 py-2 text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
+                                />
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <kbd class="hidden sm:inline-block px-2 py-1 text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-black rounded border border-gray-200 dark:border-gray-700">
+                                        ⌘K
+                                    </kbd>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                    
-                    <!-- Version Switcher -->
-                    <VersionSwitcher 
-                        v-if="isDocsPage && currentVersion && availableVersions"
-                        :currentVersion="currentVersion"
-                        :availableVersions="availableVersions"
-                        class="hidden sm:block"
-                    />
-                    
+
                     <!-- GitHub -->
                     <a
                         href="https://github.com/sigmie/sigmie"

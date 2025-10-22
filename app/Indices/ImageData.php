@@ -12,6 +12,11 @@ use Sigmie\SigmieIndex;
 
 class ImageData extends AbstractIndex
 {
+    public function name(): string
+    {
+        return 'image_data';
+    }
+
     public function csvPath(): string
     {
         return storage_path('app/datasets/image_data.csv');

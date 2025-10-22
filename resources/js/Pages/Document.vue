@@ -12,8 +12,6 @@ const props = defineProps({
     navigation: Object,
     href: String,
     card: String,
-    currentVersion: String,
-    availableVersions: Array,
 });
 
 // Clean up hash symbols from headings in the HTML
@@ -58,11 +56,7 @@ onMounted(() => {
         <!-- Documentation Sidebar -->
         <DocsSidebar :navigation="navigation" :current-path="$page.url" />
 
-        <Navbar
-            :navigation="navigation"
-            :currentVersion="currentVersion"
-            :availableVersions="availableVersions"
-        />
+        <Navbar :navigation="navigation" />
 
         <div class="mx-auto max-w-screen-2xl">
             <div class="flex">

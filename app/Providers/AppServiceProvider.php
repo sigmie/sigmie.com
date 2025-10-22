@@ -57,8 +57,6 @@ class AppServiceProvider extends ServiceProvider
             $sigmie->registerApi('infinity-embeddings', new InfinityEmbeddingsApi('http://localhost:7997'));
             $sigmie->registerApi('infinity-clip', new InfinityClipApi('http://localhost:7996'));
 
-            $sigmie->version(ElasticsearchVersion::v8);
-
             return $sigmie;
         });
     }

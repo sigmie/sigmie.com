@@ -5,6 +5,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\NetflixSearchController;
 use App\Http\Controllers\ImageSearchController;
 use App\Http\Controllers\ResumesSearchController;
+use App\Http\Controllers\AsosProductsController;
 use App\Services\Blog;
 use App\Services\Documentation;
 use Illuminate\Foundation\Application;
@@ -79,6 +80,10 @@ Route::post('/api/search/clear-conversation', [SearchController::class, 'clearCo
 Route::post('/api/search/netflix', [NetflixSearchController::class, 'search']);
 Route::post('/api/recommendations/netflix', [NetflixSearchController::class, 'recommend']);
 
+// ASOS Products
+Route::post('/api/search/products', [AsosProductsController::class, 'search']);
+Route::post('/api/recommendations/products', [AsosProductsController::class, 'recommend']);
+
 // Image search
 Route::post('/api/search/images/text', [ImageSearchController::class, 'searchByText']);
 Route::post('/api/search/images/image', [ImageSearchController::class, 'searchByImage']);
@@ -147,8 +152,6 @@ Route::any('/docs/{version}/{endpoint?}', function ($version, $endpoint, Markdow
         'card' => $link['card'] ?? config('app.url') . '/twitter-card.png',
         'href' => config('app.url'),
         'description' => config('app.description'),
-        'currentVersion' => $version,
-        'availableVersions' => config('docs.versions', []),
     ]);
 })
     ->where('endpoint', '.*');

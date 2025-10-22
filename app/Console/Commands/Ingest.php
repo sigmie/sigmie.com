@@ -27,16 +27,18 @@ class Ingest extends Command
         // Check if class exists
         if (!class_exists($fullClassName)) {
             $this->error("Index class not found: {$fullClassName}");
-            $this->info("Available indices: NetflixTitles, ImageData, Resumes");
+            $this->info("Available indices: NetflixTitles, ImageData, Resumes, AsosProducts");
             return Command::FAILURE;
         }
 
         // Get index instance
         $index = app($fullClassName);
+        /** @var Sigmie $sigmie */
+        $sigmie = $index->sigmie();
 
         // Drop old indices if fresh flag is set
         if ($this->option('fresh')) {
-            $index->delete();
+            $sigmie->deleteIfExists($index->name());
             $this->info("Dropped index: {$index->name()}");
         }
 

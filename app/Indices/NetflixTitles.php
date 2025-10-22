@@ -11,6 +11,10 @@ use Sigmie\SigmieIndex;
 
 class NetflixTitles extends AbstractIndex
 {
+    public function name(): string {
+        return 'netflix_titles';
+    }
+
     public function csvPath(): string
     {
         return storage_path('app/datasets/netflix_titles.csv');

@@ -18,7 +18,7 @@ abstract class AbstractIndex extends SigmieIndex
 
     final public function __construct()
     {
-        parent::__construct($this->alias(), app(ElasticsearchConnection::class));
+        parent::__construct(app(Sigmie::class));
     }
 
     public function properties(): NewProperties

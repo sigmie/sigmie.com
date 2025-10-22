@@ -1,6 +1,7 @@
 <script setup>
 import { Link } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
+import Logo from "./Logo.vue";
 
 const props = defineProps({
     navigation: {
@@ -30,7 +31,7 @@ const toggleMobileMenu = () => {
         <div class="lg:hidden fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800 px-4 py-3">
             <div class="flex items-center justify-between">
                 <Link href="/" class="flex items-center gap-2">
-                    <img src="https://raw.githubusercontent.com/sigmie/art/refs/heads/main/logo/svg/logo-full-white.svg" alt="Sigmie" class="h-8" />
+                    <Logo :height="32" />
                 </Link>
                 <button
                     @click="toggleMobileMenu"
@@ -55,35 +56,33 @@ const toggleMobileMenu = () => {
             <!-- Logo -->
             <div class="p-6 border-b border-gray-800">
                 <Link href="/" class="flex items-center gap-2">
-                    <img src="https://raw.githubusercontent.com/sigmie/art/refs/heads/main/logo/svg/logo-full-white.svg" alt="Sigmie" class="h-8" />
+                    <Logo :height="32" />
                 </Link>
             </div>
 
             <!-- Navigation -->
-            <nav class="p-4 space-y-0">
-                <div v-for="item in navigation" :key="item.path">
+            <nav class="p-4 space-y-1">
+                <div v-for="(section, index) in navigation" :key="index" class="mb-4">
                     <!-- Section Header -->
-                    <div v-if="item.section" class="px-3 pt-4 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        {{ item.section }}
+                    <div class="px-3 pt-4 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        {{ section.title }}
                     </div>
 
-                    <!-- Navigation Link -->
-                    <Link
-                        v-else
-                        :href="item.path"
-                        class="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-                        :class="[
-                            isActive(item.path)
-                                ? 'bg-gray-800 text-white'
-                                : 'text-gray-400 hover:text-white hover:bg-gray-900'
-                        ]"
-                        @click="isMobileMenuOpen = false"
-                    >
-                        <svg v-if="item.icon" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon"></path>
-                        </svg>
-                        <span>{{ item.name }}</span>
-                    </Link>
+                    <!-- Navigation Links -->
+                    <div v-for="link in section.links" :key="link.href" class="space-y-0.5">
+                        <Link
+                            :href="link.href"
+                            class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors"
+                            :class="[
+                                isActive(link.href)
+                                    ? 'bg-gray-800 text-white font-medium'
+                                    : 'text-gray-400 hover:text-white hover:bg-gray-900'
+                            ]"
+                            @click="isMobileMenuOpen = false"
+                        >
+                            <span>{{ link.title }}</span>
+                        </Link>
+                    </div>
                 </div>
             </nav>
 

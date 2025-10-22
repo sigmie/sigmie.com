@@ -11,7 +11,8 @@ use Sigmie\SigmieIndex;
 
 class NetflixTitles extends AbstractIndex
 {
-    public function name(): string {
+    public function name(): string
+    {
         return 'netflix_titles';
     }
 
@@ -35,7 +36,7 @@ class NetflixTitles extends AbstractIndex
         $properties->name('director')->semantic(accuracy: 6, dimensions: 384, api: 'infinity-embeddings');
         $properties->name('cast')->semantic(accuracy: 6, dimensions: 384, api: 'infinity-embeddings');
         $properties->category('country');
-        $properties->date('date_added');
+        $properties->datetime('date_added');
         $properties->number('release_year');
         $properties->keyword('rating');
         $properties->category('duration');
@@ -67,6 +68,11 @@ class NetflixTitles extends AbstractIndex
                 'country' => $row['country'],
                 'date_added' => $dateAdded?->format('Y-m-d\TH:i:s.uP'),
                 'release_year' => $row['release_year'],
+                'rating' => $row['rating'] ?? '',
+                'duration' => $row['duration'] ?? '',
+                'listed_in' => $row['listed_in'] ?? '',
+                'description' => $row['description'] ?? '',
+                ...$dateAdded ? ['date_added' => $dateAdded?->format('Y-m-d\TH:i:s.uP')] : [],
             ], _id: $row['show_id']),
         ];
     }

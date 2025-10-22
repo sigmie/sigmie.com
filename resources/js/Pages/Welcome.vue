@@ -476,20 +476,8 @@ onMounted(() => {
                     <!-- Left Column: Search -->
                     <div class="rounded-lg p-6" style="background: linear-gradient(59.66deg, #0C0D0F 0%, #07080A 100%); border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0px 1px 0px 1px rgba(255, 255, 255, 0.1) inset;">
                         <div class="space-y-8">
-                            <!-- Search Box Display or Input -->
-                            <div v-if="hasSearched" class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-gray-800">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                    </svg>
-                                    <span class="text-base sm:text-lg font-medium text-gray-100 truncate">{{ searchQuery }}</span>
-                                </div>
-                                <span class="text-sm sm:text-base font-medium text-gray-400 whitespace-nowrap">Found {{ searchResults.length }} Results</span>
-                            </div>
-
                             <!-- Search Form -->
                             <QueryInput
-                                v-if="!hasSearched"
                                 v-model="searchQuery"
                                 placeholder="Search by mood, genre, or description..."
                                 :disabled="isSearching"

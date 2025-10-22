@@ -36,7 +36,7 @@ const displayItems = computed(() => {
             <div class="relative inline-flex">
                 <div class="w-10 h-10 border-4 border-gray-800 border-t-blue-500 rounded-full animate-spin"></div>
             </div>
-            <p class="mt-4 text-sm text-gray-400 font-medium">Searching products...</p>
+            <p class="mt-4 text-sm text-gray-400 font-medium">Searching...</p>
         </div>
 
         <!-- Empty State -->
@@ -52,11 +52,15 @@ const displayItems = computed(() => {
             <MenuItem
                 v-for="(item, index) in displayItems"
                 :key="item._id || item.id || index"
-                :name="item.name"
+                :name="item.name || item.title"
                 :price="item.price"
                 :category="item.category"
                 :color="item.color"
                 :images="item.images"
+                :type="item.type"
+                :director="item.director"
+                :description="item.description"
+                :release-year="item.release_year"
             />
         </div>
     </div>

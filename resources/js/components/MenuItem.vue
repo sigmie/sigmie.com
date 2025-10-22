@@ -22,6 +22,22 @@ const props = defineProps({
         type: Array,
         default: () => []
     },
+    type: {
+        type: String,
+        default: null
+    },
+    director: {
+        type: String,
+        default: null
+    },
+    description: {
+        type: String,
+        default: null
+    },
+    releaseYear: {
+        type: [Number, String],
+        default: null
+    },
     defaultExpanded: {
         type: Boolean,
         default: false
@@ -59,9 +75,18 @@ const mainImage = computed(() => {
                     <h5 class="text-sm sm:text-base font-medium text-white truncate mb-1">
                         {{ name }}
                     </h5>
-                    <p class="text-base font-bold text-blue-400">
+                    <!-- Product price -->
+                    <p v-if="price" class="text-base font-bold text-blue-400">
                         £{{ price?.toFixed(2) }}
                     </p>
+                    <!-- Netflix type, director, and year -->
+                    <div v-if="type || director || releaseYear" class="flex items-center gap-2 text-xs text-gray-400">
+                        <span v-if="type" class="text-gray-500">{{ type }}</span>
+                        <span v-if="type && (director || releaseYear)">•</span>
+                        <span v-if="releaseYear" class="text-gray-400">{{ releaseYear }}</span>
+                        <span v-if="releaseYear && director">•</span>
+                        <span v-if="director" class="text-gray-400">{{ director }}</span>
+                    </div>
                 </div>
             </div>
             <div class="flex items-center gap-2 flex-shrink-0 ml-2">
@@ -85,6 +110,18 @@ const mainImage = computed(() => {
             <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 pt-4">
                 <!-- Details Column -->
                 <div class="flex-1 space-y-3 text-sm min-w-0">
+                    <!-- Netflix Description -->
+                    <div v-if="description" class="flex items-start gap-2">
+                        <svg class="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+                        </svg>
+                        <div class="min-w-0">
+                            <span class="text-gray-500 text-xs">Description</span>
+                            <p class="text-gray-300 break-words">{{ description }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Product Category -->
                     <div v-if="category" class="flex items-start gap-2">
                         <svg class="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
@@ -94,6 +131,8 @@ const mainImage = computed(() => {
                             <p class="text-gray-300 break-words">{{ category }}</p>
                         </div>
                     </div>
+
+                    <!-- Product Color -->
                     <div v-if="color" class="flex items-start gap-2">
                         <svg class="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>

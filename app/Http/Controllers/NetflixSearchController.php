@@ -30,8 +30,8 @@ class NetflixSearchController extends Controller
             ->queryString($query)
             ->filters('type:"TV Show" OR type:"Movie"')
             ->facets('type')
-            ->fields(['type', 'title', 'director', 'cast', 'country', 'date_added', 'release_year'])
-            ->retrieve(['type', 'title', 'director', 'cast', 'country', 'date_added', 'release_year'])
+            ->fields(['type', 'title', 'director', 'cast', 'country', 'date_added', 'release_year', 'description'])
+            ->retrieve(['type', 'title', 'director', 'cast', 'country', 'date_added', 'release_year', 'description'])
             ->size(20);
 
         $response = $search->get();
@@ -45,6 +45,7 @@ class NetflixSearchController extends Controller
             'country' => $doc['country'] ?? '',
             'date_added' => $doc['date_added'] ?? '',
             'release_year' => $doc['release_year'] ?? '',
+            'description' => $doc['description'] ?? '',
         ])->toArray();
 
         return response()->json([

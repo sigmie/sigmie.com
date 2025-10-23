@@ -492,63 +492,17 @@ onMounted(() => {
                         <!-- Left Column: Title & Subtitle -->
                         <div class="text-left mb-12">
                             <h2 class="text-lg sm:text-xl font-medium text-gray-100 mb-4">
-                                Experience Semantic Search
+                                Creating an AI Search Has Never Been Easier
                             </h2>
                             <p class="text-base sm:text-lg text-gray-400 leading-relaxed">
-                                Search thousands of fashion products using natural language. See how Sigmie's semantic search understands intent, not just keywords
+                                Vectorization, complex filtering and more. Everything you need for modern search, ready to use with Elasticsearch or OpenSearch
                             </p>
                         </div>
 
-                        <!-- Right Column: SVG Graphic -->
-                        <div class="flex justify-center md:justify-end md:absolute md:right-0 md:bottom-0 md:pr-8">
-                            <svg width="213" height="152" viewBox="0 0 213 152" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-48 h-auto">
-                                <g style="mix-blend-mode:color-dodge">
-                                    <foreignObject x="-24" y="36.1865" width="154.137" height="319.813"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(12px);clip-path:url(#bgblur_0_856_6183_clip_path);height:100%;width:100%"></div></foreignObject>
-                                    <g data-figma-bg-blur-radius="24">
-                                        <path d="M0 332V60.1865L106.137 120.374V332H0Z" fill="url(#paint0_linear_856_6183)" fill-opacity="0.8"/>
-                                        <path d="M105.637 120.665V331.5H0.5V61.0439L105.637 120.665Z" stroke="url(#paint1_linear_856_6183)" stroke-opacity="0.6"/>
-                                    </g>
-                                    <foreignObject x="82.1367" y="36.1865" width="154.137" height="319.813"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(12px);clip-path:url(#bgblur_1_856_6183_clip_path);height:100%;width:100%"></div></foreignObject>
-                                    <g data-figma-bg-blur-radius="24">
-                                        <path d="M212.273 332V60.1865L106.137 120.374V332H212.273Z" fill="url(#paint2_linear_856_6183)" fill-opacity="0.8"/>
-                                        <path d="M106.637 120.665V331.5H211.773V61.0439L106.637 120.665Z" stroke="url(#paint3_linear_856_6183)" stroke-opacity="0.6"/>
-                                    </g>
-                                    <foreignObject x="-24" y="-24" width="260.273" height="168.374"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(12px);clip-path:url(#bgblur_2_856_6183_clip_path);height:100%;width:100%"></div></foreignObject>
-                                    <g data-figma-bg-blur-radius="24">
-                                        <path d="M0 60.1872L106.137 0L212.273 60.1872L106.137 120.374L0 60.1872Z" fill="url(#paint4_linear_856_6183)" fill-opacity="0.8"/>
-                                        <path d="M211.259 60.1865L106.136 119.799L1.01367 60.1865L106.136 0.574219L211.259 60.1865Z" stroke="url(#paint5_linear_856_6183)" stroke-opacity="0.6"/>
-                                    </g>
-                                </g>
-                                <defs>
-                                    <clipPath id="bgblur_0_856_6183_clip_path" transform="translate(24 -36.1865)"><path d="M0 332V60.1865L106.137 120.374V332H0Z"/></clipPath>
-                                    <clipPath id="bgblur_1_856_6183_clip_path" transform="translate(-82.1367 -36.1865)"><path d="M212.273 332V60.1865L106.137 120.374V332H212.273Z"/></clipPath>
-                                    <clipPath id="bgblur_2_856_6183_clip_path" transform="translate(24 24)"><path d="M0 60.1872L106.137 0L212.273 60.1872L106.137 120.374L0 60.1872Z"/></clipPath>
-                                    <linearGradient id="paint0_linear_856_6183" x1="53.0683" y1="89.3093" x2="53.0683" y2="351.091" gradientUnits="userSpaceOnUse">
-                                        <stop stop-color="white"/>
-                                        <stop offset="1" stop-color="white" stop-opacity="0"/>
-                                    </linearGradient>
-                                    <linearGradient id="paint1_linear_856_6183" x1="106.137" y1="119.403" x2="2.26511" y2="334.912" gradientUnits="userSpaceOnUse">
-                                        <stop stop-color="white"/>
-                                        <stop offset="1" stop-color="white" stop-opacity="0"/>
-                                    </linearGradient>
-                                    <linearGradient id="paint2_linear_856_6183" x1="159.205" y1="89.3093" x2="159.205" y2="351.091" gradientUnits="userSpaceOnUse">
-                                        <stop stop-color="white"/>
-                                        <stop offset="1" stop-color="white" stop-opacity="0"/>
-                                    </linearGradient>
-                                    <linearGradient id="paint3_linear_856_6183" x1="113.579" y1="120.697" x2="212.273" y2="332" gradientUnits="userSpaceOnUse">
-                                        <stop stop-color="white"/>
-                                        <stop offset="1" stop-color="white" stop-opacity="0"/>
-                                    </linearGradient>
-                                    <linearGradient id="paint4_linear_856_6183" x1="119.727" y1="-5.10812e-07" x2="106.137" y2="120.374" gradientUnits="userSpaceOnUse">
-                                        <stop stop-color="white"/>
-                                        <stop offset="1" stop-color="white" stop-opacity="0.69"/>
-                                    </linearGradient>
-                                    <linearGradient id="paint5_linear_856_6183" x1="106.137" y1="0" x2="106.137" y2="120.374" gradientUnits="userSpaceOnUse">
-                                        <stop stop-color="white"/>
-                                        <stop offset="1" stop-color="white" stop-opacity="0.4"/>
-                                    </linearGradient>
-                                </defs>
-                            </svg>
+                        <!-- Right Column: Logo Images -->
+                        <div class="flex justify-end gap-4 space-x-16 items-end px-10">
+                            <img src="/elasticsearch.png" alt="Elasticsearch" class="w-16 h-auto object-contain" />
+                            <img src="/opensearch.png" alt="OpenSearch" class="w-16 h-auto object-contain" />
                         </div>
                         </div>
                     </div>
@@ -695,10 +649,10 @@ onMounted(() => {
                     <!-- Hero Text Section -->
                     <div class="mb-12">
                         <h2 class="text-lg sm:text-xl font-medium text-gray-100 mb-4">
-                            Find with Images
+                            Search beyond just keywords
                         </h2>
                         <p class="text-base sm:text-lg text-gray-400 leading-relaxed">
-                            Search by text or click any image to discover visually similar content. AI-powered image search that understands visual semantics.
+                            Create search experiences that understand images, not just text.
                         </p>
                     </div>
 

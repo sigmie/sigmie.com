@@ -1,5 +1,4 @@
 <script setup>
-import { Link } from "@inertiajs/vue3";
 import { computed, ref, onMounted, onUnmounted } from "vue";
 
 const props = defineProps({
@@ -59,6 +58,15 @@ const isLinkActive = (link) => {
     return activeSection.value === sectionId;
 };
 
+const scrollToSection = (e, link) => {
+    e.preventDefault();
+    const sectionId = linkToSectionId[link.title];
+    const element = document.getElementById(sectionId);
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+    }
+};
+
 onMounted(() => {
     window.addEventListener('scroll', handleScroll);
     handleScroll(); // Call once on mount
@@ -77,10 +85,10 @@ onUnmounted(() => {
             <!-- Navigation Links -->
             <nav class="flex-1 flex flex-col w-full">
                 <div v-for="link in allLinks" :key="link.href" class="w-full">
-                    <Link
-                        :href="link.href"
+                    <button
+                        @click="scrollToSection($event, link)"
                         :class="[
-                            'relative flex items-center justify-center xl:justify-start gap-4 px-4 py-4 xl:px-6 transition-all duration-200 w-full',
+                            'relative flex items-center justify-center xl:justify-start gap-4 px-4 py-4 xl:px-6 transition-all duration-200 w-full text-left',
                             isLinkActive(link)
                                 ? 'text-blue-400'
                                 : 'text-gray-500 hover:text-gray-300'
@@ -106,7 +114,7 @@ onUnmounted(() => {
                         <span class="hidden xl:inline text-sm font-medium truncate">
                             {{ link.title }}
                         </span>
-                    </Link>
+                    </button>
                 </div>
             </nav>
 

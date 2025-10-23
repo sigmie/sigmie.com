@@ -45,17 +45,17 @@ Route::get('/', function () {
                         'title' => 'Text to Image',
                         'href' => '/#image-search',
                     ],
-                    [
-                        'title' => 'Smart Discovery',
-                        'href' => '/#recommendations',
-                    ],
+                    // [
+                    //     'title' => 'Smart Discovery',
+                    //     'href' => '/#recommendations',
+                    // ],
                 ]
             ],
             [
                 'title' => 'Resources',
                 'links' => [
                     [
-                        'title' => 'About Us',
+                        'title' => 'About',
                         'href' => '/#about',
                     ],
                 ]

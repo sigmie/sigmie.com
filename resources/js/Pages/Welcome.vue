@@ -33,9 +33,27 @@ const retrieveDirector = ref(true);
 // Netflix type filter
 const typeFilter = ref('all'); // 'all', 'movie', 'tv'
 
+// Image suggestions
+const imageSuggestions = [
+    { label: "Safari", query: "Safari" },
+    { label: "Owl", query: "Owl" },
+    { label: "Space", query: "Space" },
+    { label: "Snow", query: "Snow" },
+    { label: "Love", query: "Love" },
+    { label: "Baloons", query: "Balloons" },
+    { label: "Nature", query: "Nature" },
+    { label: "Forest", query: "Forest" },
+    { label: "Fox", query: "Fox" },
+    { label: "Clouds", query: "Balloons" }
+];
+
+const getRandomImageSuggestion = () => {
+    return imageSuggestions[Math.floor(Math.random() * imageSuggestions.length)].query;
+};
+
 // Image search state
 const imageSearchResults = ref([]);
-const imageQuery = ref("nature landscapes");
+const imageQuery = ref(getRandomImageSuggestion());
 const initialImages = ref([]);
 const isLoadingImages = ref(false);
 const isSearchingImages = ref(false);
@@ -132,10 +150,12 @@ const highlightedLines = computed(() => {
 });
 
 const imageCodeString = computed(() => {
-    const query = imageQuery.value || 'nature landscapes';
+    const query = imageQuery.value || 'Safari';
 
     if (imageSearchMode.value === 'image') {
-        return `->queryImage('${selectedImageUrl.value || 'https://example.com/image.jpg'}')`;
+        const imageName = query.toLowerCase().replace(/\s+/g, '_');
+        const fakeUrl = `https://img.sigmie.com/${imageName}1.png`;
+        return `->queryImage('${fakeUrl}')`;
     } else {
         return `->queryString('${query}')`;
     }
@@ -708,6 +728,19 @@ onMounted(() => {
                                 <ImageIcon />
                             </template>
                         </QueryInput>
+
+                        <!-- Suggestions -->
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <button
+                                v-for="suggestion in imageSuggestions"
+                                :key="suggestion.query"
+                                @click="imageQuery = suggestion.query; updateImageQuery()"
+                                class="group text-left px-3 py-1.5 text-xs font-medium text-gray-300 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-400 hover:bg-gray-800 transition-all duration-200"
+                                :disabled="isLoadingImages"
+                            >
+                                {{ suggestion.label }}
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Images Gallery -->
@@ -976,7 +1009,7 @@ onMounted(() => {
                         About Me
                     </h2>
                     <p class="text-lg text-gray-400 max-w-2xl mx-auto">
-                        Hi, I'm Nico Orfanos – crafting elegant code from Dortmund, Germany
+                        Hi, I'm Nico Orfanos – passionate about building search experiences from Dortmund, Germany
                     </p>
                 </div>
 
@@ -991,10 +1024,10 @@ onMounted(() => {
                             />
                             <div class="flex-1 min-w-0">
                                 <h3 class="text-xl font-semibold text-white mb-1">
-                                    Nico Orfanos
+                                    Nico
                                 </h3>
                                 <p class="text-gray-300 text-sm mb-3">
-                                    Full-Stack Developer & Elasticsearch Expert
+                                    Search Relevance Engineer
                                 </p>
                                 <div class="flex items-center gap-2 text-gray-400 text-sm mb-4">
                                     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1005,10 +1038,10 @@ onMounted(() => {
                                 </div>
                                 <div class="flex flex-wrap gap-2 mb-6">
                                     <span class="px-3 py-1 bg-gray-800/70 border border-gray-700 text-gray-300 rounded-lg text-xs font-medium">
-                                        @Sigmie
+                                        Opensearch 
                                     </span>
                                     <span class="px-3 py-1 bg-gray-800/70 border border-gray-700 text-gray-300 rounded-lg text-xs font-medium">
-                                        Laravel
+                                        Elasticsearch 
                                     </span>
                                     <span class="px-3 py-1 bg-gray-800/70 border border-gray-700 text-gray-300 rounded-lg text-xs font-medium">
                                         Php
@@ -1033,7 +1066,7 @@ onMounted(() => {
                                 </svg>
                             </a>
                             <a
-                                href="https://linkedin.com/in/nicoorfi"
+                                href="https://www.linkedin.com/in/nicoorfi/"
                                 target="_blank"
                                 class="text-gray-400 hover:text-white transition-colors"
                                 title="LinkedIn"
@@ -1043,7 +1076,7 @@ onMounted(() => {
                                 </svg>
                             </a>
                             <a
-                                href="https://www.upwork.com/freelancers/nicoorfi"
+                                href="https://www.upwork.com/freelancers/~0168612ffb19d75fc6"
                                 target="_blank"
                                 class="text-gray-400 hover:text-white transition-colors"
                                 title="Upwork"
@@ -1053,7 +1086,7 @@ onMounted(() => {
                                 </svg>
                             </a>
                             <a
-                                href="https://twitter.com/nicoorfi"
+                                href="https://x.com/nicoorfi"
                                 target="_blank"
                                 class="text-gray-400 hover:text-white transition-colors"
                                 title="Twitter"

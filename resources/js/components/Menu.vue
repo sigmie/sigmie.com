@@ -30,13 +30,70 @@ const displayItems = computed(() => {
 </script>
 
 <template>
-    <div class="space-y-3">
-        <!-- Loading State -->
-        <div v-if="loading" class="text-center py-16 bg-gray-950 border border-gray-800 rounded-lg">
-            <div class="relative inline-flex">
-                <div class="w-10 h-10 border-4 border-gray-800 border-t-blue-500 rounded-full animate-spin"></div>
+    <div class="space-y-3 h-[460px] overflow-y-auto scrollbar-hide">
+        <!-- Loading Skeleton State -->
+        <div v-if="loading" class="space-y-3">
+            <!-- First skeleton item (expanded) -->
+            <div key="skeleton-1" class="bg-gray-950 border border-gray-800 rounded-lg overflow-hidden">
+                <div class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <!-- Skeleton Thumbnail -->
+                        <div class="flex-shrink-0 w-14 h-14 bg-gray-800 rounded border border-gray-700 animate-pulse"></div>
+                        <div class="min-w-0 flex-1">
+                            <!-- Skeleton Title -->
+                            <div class="h-4 bg-gray-800 rounded w-3/4 mb-2 animate-pulse"></div>
+                            <!-- Skeleton Metadata -->
+                            <div class="flex items-center gap-2">
+                                <div class="h-3 bg-gray-800 rounded w-16 animate-pulse"></div>
+                                <div class="h-3 bg-gray-800 rounded w-12 animate-pulse"></div>
+                                <div class="h-3 bg-gray-800 rounded w-20 animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Skeleton Chevron -->
+                    <div class="w-4 h-4 bg-gray-800 rounded flex-shrink-0 ml-2 animate-pulse"></div>
+                </div>
+                <!-- Expanded details skeleton -->
+                <div class="px-4 sm:px-6 pb-3 sm:pb-4 border-t border-gray-800 bg-gray-900/50">
+                    <div class="flex flex-col pt-3">
+                        <!-- Details Column -->
+                        <div class="flex-1 space-y-2 text-sm min-w-0">
+                            <div class="flex items-start gap-2">
+                                <div class="w-3 h-3 bg-gray-800 rounded flex-shrink-0 mt-1 animate-pulse"></div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="h-2 bg-gray-800 rounded w-20 mb-1 animate-pulse"></div>
+                                    <div class="space-y-1">
+                                        <div class="h-2 bg-gray-800 rounded w-full animate-pulse"></div>
+                                        <div class="h-2 bg-gray-800 rounded w-5/6 animate-pulse"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <p class="mt-4 text-sm text-gray-400 font-medium">Searching...</p>
+
+            <!-- Remaining collapsed skeleton items -->
+            <div v-for="i in 3" :key="`skeleton-${i + 1}`" class="bg-gray-950 border border-gray-800 rounded-lg overflow-hidden animate-pulse">
+                <div class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <!-- Skeleton Thumbnail -->
+                        <div class="flex-shrink-0 w-14 h-14 bg-gray-800 rounded border border-gray-700"></div>
+                        <div class="min-w-0 flex-1">
+                            <!-- Skeleton Title -->
+                            <div class="h-4 bg-gray-800 rounded w-3/4 mb-2"></div>
+                            <!-- Skeleton Metadata -->
+                            <div class="flex items-center gap-2">
+                                <div class="h-3 bg-gray-800 rounded w-16"></div>
+                                <div class="h-3 bg-gray-800 rounded w-12"></div>
+                                <div class="h-3 bg-gray-800 rounded w-20"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Skeleton Chevron -->
+                    <div class="w-4 h-4 bg-gray-800 rounded flex-shrink-0 ml-2"></div>
+                </div>
+            </div>
         </div>
 
         <!-- Empty State -->
@@ -61,7 +118,19 @@ const displayItems = computed(() => {
                 :director="item.director"
                 :description="item.description"
                 :release-year="item.release_year"
+                :default-expanded="index === 0"
             />
         </div>
     </div>
 </template>
+
+<style scoped>
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+}
+</style>

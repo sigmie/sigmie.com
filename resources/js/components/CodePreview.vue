@@ -84,6 +84,11 @@ const parsedLines = computed(() => {
 const parseTokens = (text) => {
     if (!text) return [];
 
+    // Check if line is a comment
+    if (text.trim().startsWith('//')) {
+        return [{ type: 'comment', value: text }];
+    }
+
     const tokens = [];
     let current = '';
     let inString = false;
@@ -208,6 +213,8 @@ const getTokenClass = (token) => {
             return 'text-gray-500';
         case 'number':
             return 'text-orange-400';
+        case 'comment':
+            return 'text-gray-500';
         case 'text':
             return 'text-gray-300';
         default:
@@ -227,7 +234,7 @@ const copyCode = async () => {
 <template>
     <div class="relative w-full">
         <div class="relative rounded-t-lg overflow-hidden border border-gray-800 border-b-0 bg-black" :style="{ maskImage: maskImage, WebkitMaskImage: maskImage, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }">
-            <div class="px-3 sm:px-4 pt-6 sm:pt-8 pb-8 sm:pb-12 overflow-x-auto overflow-y-hidden">
+            <div class="px-3 sm:px-4 pt-6 sm:pt-8 pb-8 sm:pb-12 overflow-x-auto overflow-y-hidden" style="white-space: pre-wrap;">
                 <div class="flex font-mono text-sm leading-relaxed min-h-[auto]">
                     <!-- Line Numbers -->
                     <div class="select-none pr-6 text-right text-gray-600 mr-4 min-w-[3rem]">

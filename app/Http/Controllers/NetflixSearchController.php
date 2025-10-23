@@ -13,10 +13,14 @@ class NetflixSearchController extends Controller
     public function search(Request $request)
     {
         $request->validate([
-            'query' => 'required|string|max:500'
+            'query' => 'required|string|max:500',
+            'retrieve' => 'nullable|array',
+            'filters' => 'nullable|string'
         ]);
 
         $query = $request->input('query');
+        $retrieve = $request->input('retrieve', ['title', 'description']);
+        $filters = $request->input('filters', 'type:"TV Show" OR type:"Movie"');
 
         $netflixIndex = app(NetflixTitles::class);
         $blueprint = $netflixIndex->properties();
@@ -28,25 +32,31 @@ class NetflixSearchController extends Controller
             ->noResultsOnEmptySearch()
             ->disableKeywordSearch()
             ->queryString($query)
-            ->filters('type:"TV Show" OR type:"Movie"')
+            ->filters($filters)
             ->facets('type')
-            ->fields(['type', 'title', 'director', 'cast', 'country', 'date_added', 'release_year', 'description'])
-            ->retrieve(['type', 'title', 'director', 'cast', 'country', 'date_added', 'release_year', 'description'])
-            ->size(20);
+            ->fields([
+                'type',
+                'title',
+                'description'
+            ])
+            ->retrieve($retrieve)
+            ->size(4);
 
-        $response = $search->get();
+        $results = $search->hits();
 
-        $formattedResults = collect($response->hits())->map(fn (Hit $doc) => [
-            '_id' => $doc->_id,
-            'type' => $doc['type'] ?? '',
-            'title' => $doc['title'] ?? '',
-            'director' => $doc['director'] ?? '',
-            'cast' => $doc['cast'] ?? '',
-            'country' => $doc['country'] ?? '',
-            'date_added' => $doc['date_added'] ?? '',
-            'release_year' => $doc['release_year'] ?? '',
-            'description' => $doc['description'] ?? '',
-        ])->toArray();
+        $allFields = ['_id', 'type', 'title', 'director', 'cast', 'country', 'date_added', 'release_year', 'description'];
+
+        $formattedResults = collect($results)->map(function(Hit $doc) use ($retrieve, $allFields) {
+            $result = ['_id' => $doc->_id];
+
+            foreach ($allFields as $field) {
+                if ($field !== '_id' && in_array($field, $retrieve)) {
+                    $result[$field] = $doc[$field] ?? '';
+                }
+            }
+
+            return $result;
+        })->toArray();
 
         return response()->json([
             'results' => $formattedResults,
@@ -82,7 +92,7 @@ class NetflixSearchController extends Controller
 
         $results = $recommend->hits();
 
-        $formattedResults = collect($results)->map(fn (Hit $doc) => [
+        $formattedResults = collect($results)->map(fn(Hit $doc) => [
             '_id' => $doc->_id,
             'type' => $doc['type'] ?? '',
             'title' => $doc['title'] ?? '',

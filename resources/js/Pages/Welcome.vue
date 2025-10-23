@@ -25,6 +25,14 @@ const hasSearched = ref(false);
 const selectedType = ref("all");
 const showAllResults = ref(false);
 
+// Netflix field toggles
+const retrieveType = ref(true);
+const retrieveYear = ref(true);
+const retrieveDirector = ref(true);
+
+// Netflix type filter
+const typeFilter = ref('all'); // 'all', 'movie', 'tv'
+
 // Image search state
 const imageSearchResults = ref([]);
 const imageQuery = ref("nature landscapes");
@@ -51,52 +59,76 @@ const presetQueries = [
     { label: "Horror", query: "horror scary terrifying" }
 ];
 
-const codeString = computed(() => {
-    const query = searchQuery.value || 'romantic comedy';
+let previousCodeLines = [];
+let isFirstLoad = true;
 
+const codeString = computed(() => {
+    const query = searchQuery.value || 'zombie apocalypse';
+
+    // Build retrieve array based on toggles
+    const allFields = [
+        { name: 'title', enabled: true },
+        { name: 'description', enabled: true },
+        { name: 'type', enabled: retrieveType.value },
+        { name: 'release_year', enabled: retrieveYear.value },
+        { name: 'director', enabled: retrieveDirector.value },
+    ];
+
+    const fieldLines = allFields.map(field => {
+        const prefix = field.enabled ? '' : '// ';
+        return `${prefix}'${field.name}'`;
+    }).join(",\n        ");
+
+    const retrieveString = `[\n        ${fieldLines}\n    ]`;
+
+    // Build filter line based on type selection
     let filterLine = '';
-    if (selectedType.value === 'all') {
-        filterLine = `    ->facets('type')`;
-    } else {
-        filterLine = `    ->filters('type:"${selectedType.value}"')`;
+    if (typeFilter.value === 'movie') {
+        filterLine = `->filters('type:"Movie"')`;
+    } else if (typeFilter.value === 'tv') {
+        filterLine = `->filters('type:"TV Show"')`;
+    } else if (typeFilter.value === 'all') {
+        filterLine = `->filters('type:"TV Show" OR type:"Movie"')`;
     }
 
-    return `$netflixIndex = app(NetflixTitles::class);
-$blueprint = $netflixIndex->properties();
+    const codeLines = [
+'$netflixIndex->newSearch()',
+`->queryString('${query}')`
+    ];
 
-$search = $netflixIndex
-    ->newSearch()
-    ->properties($blueprint)
-    ->semantic()
-    ->noResultsOnEmptySearch()
-    ->disableKeywordSearch()
-${filterLine}
-    ->queryString('${query}')
-    ->retrieve(['title', 'type', 'description', 'cast', 'release_year'])
-    ->size(20);
+    if (filterLine) {
+        codeLines.push(filterLine.trim());
+    }
 
-$response = $search->get();`;
+    codeLines.push(
+        `->retrieve(${retrieveString})`,
+        '->size(4)',
+        '->hits();'
+    );
+
+    return codeLines.join('\n    ');
 });
 
 const highlightedLines = computed(() => {
-    const lines = [];
+    const currentCodeLines = codeString.value.split('\n');
+    const changedLines = [];
 
-    // Highlight line 5 (semantic) when search is active
-    if (hasSearched.value) {
-        lines.push(5);
+    // Skip highlighting on first load
+    if (!isFirstLoad) {
+        // Compare each line with the previous version
+        currentCodeLines.forEach((line, index) => {
+            if (previousCodeLines[index] !== line) {
+                changedLines.push(index + 1); // 1-indexed
+            }
+        });
+    } else {
+        isFirstLoad = false;
     }
 
-    // Highlight line 10 (filters) when a specific filter is selected
-    if (hasSearched.value && selectedType.value !== 'all') {
-        lines.push(10);
-    }
+    // Update previous code lines for next comparison
+    previousCodeLines = [...currentCodeLines];
 
-    // Highlight line 11 (queryString) when there's a search query
-    if (searchQuery.value) {
-        lines.push(11);
-    }
-
-    return lines;
+    return changedLines;
 });
 
 const imageCodeString = computed(() => {
@@ -178,8 +210,26 @@ const performSearch = async (query = null) => {
     selectedType.value = "all";
 
     try {
+        // Build retrieve fields based on toggles
+        const retrieveFields = ['title', 'description'];
+        if (retrieveType.value) retrieveFields.push('type');
+        if (retrieveYear.value) retrieveFields.push('release_year');
+        if (retrieveDirector.value) retrieveFields.push('director');
+
+        // Build filter based on type selection
+        let filters = '';
+        if (typeFilter.value === 'movie') {
+            filters = 'type:"Movie"';
+        } else if (typeFilter.value === 'tv') {
+            filters = 'type:"TV Show"';
+        } else if (typeFilter.value === 'all') {
+            filters = 'type:"TV Show" OR type:"Movie"';
+        }
+
         const response = await axios.post("/api/search/netflix", {
             query: searchTerm,
+            retrieve: retrieveFields,
+            filters: filters,
         });
 
         searchResults.value = response.data.results || [];
@@ -357,11 +407,24 @@ watch(mmrValue, () => {
     }
 });
 
+// Watch Netflix filter and toggles to auto-update search
+watch(typeFilter, () => {
+    if (hasSearched.value) {
+        performSearch();
+    }
+});
+
+watch([retrieveType, retrieveYear, retrieveDirector], () => {
+    if (hasSearched.value) {
+        performSearch();
+    }
+});
+
 // Initialize searches on mount
 onMounted(() => {
     updateImageQuery();
     // Load initial Netflix search results
-    performSearch('romantic comedy');
+    performSearch('zombie apocalypse');
     // Initialize cart with products
     initializeCart();
 });
@@ -487,6 +550,71 @@ onMounted(() => {
                                     <SearchIcon />
                                 </template>
                             </QueryInput>
+
+                            <!-- Filters and Switches -->
+                            <div class="flex flex-wrap items-center gap-4 px-1">
+                                <!-- Type Filter Toggles -->
+                                <div class="flex items-center gap-2">
+                                    <button
+                                        @click="typeFilter = typeFilter === 'all' ? '' : 'all'"
+                                        :class="typeFilter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
+                                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
+                                    >
+                                        All
+                                    </button>
+                                    <button
+                                        @click="typeFilter = typeFilter === 'movie' ? '' : 'movie'"
+                                        :class="typeFilter === 'movie' ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
+                                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
+                                    >
+                                        Movies
+                                    </button>
+                                    <button
+                                        @click="typeFilter = typeFilter === 'tv' ? '' : 'tv'"
+                                        :class="typeFilter === 'tv' ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
+                                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
+                                    >
+                                        TV Shows
+                                    </button>
+                                </div>
+
+                                <!-- Field Switches -->
+                                <div class="flex items-center gap-3">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <div class="relative">
+                                            <input
+                                                type="checkbox"
+                                                v-model="retrieveType"
+                                                class="sr-only peer"
+                                            />
+                                            <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                                        </div>
+                                        <span class="text-sm text-gray-400">Type</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <div class="relative">
+                                            <input
+                                                type="checkbox"
+                                                v-model="retrieveYear"
+                                                class="sr-only peer"
+                                            />
+                                            <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                                        </div>
+                                        <span class="text-sm text-gray-400">Year</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <div class="relative">
+                                            <input
+                                                type="checkbox"
+                                                v-model="retrieveDirector"
+                                                class="sr-only peer"
+                                            />
+                                            <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                                        </div>
+                                        <span class="text-sm text-gray-400">Director</span>
+                                    </label>
+                                </div>
+                            </div>
 
                             <!-- Preset Queries -->
                             <div v-if="!hasSearched" class="space-y-2">
@@ -636,7 +764,7 @@ onMounted(() => {
         </div>
 
         <!-- Recommendations Demo Section -->
-        <div id="recommendations" class="relative border-t border-gray-800 bg-black overflow-hidden scroll-mt-20">
+        <div v-if="false" id="recommendations" class="relative border-t border-gray-800 bg-black overflow-hidden scroll-mt-20">
             <div class="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:py-28 lg:px-8">
                 <div class="text-center mb-10 sm:mb-14">
                     <h2 class="text-lg sm:text-xl font-medium text-white mb-4 sm:mb-6">

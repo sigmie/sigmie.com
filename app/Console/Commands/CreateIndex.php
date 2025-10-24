@@ -50,9 +50,9 @@ class CreateIndex extends Command
 
         // Define properties for the index
         $properties = new NewProperties;
-        $properties->title('title')->semantic(accuracy: 5);  // Using title() method for optimized title field
-        $properties->longText('content')->semantic(accuracy: 4);  // Long text for main content
-        $properties->text('description')->semantic(accuracy: 3);  // Text field for description
+        $properties->title('title')->semantic(accuracy: 5, dimensions: 384, api: 'infinity-embeddings');  // Using title() method for optimized title field
+        $properties->longText('content')->semantic(accuracy: 4, dimensions: 384, api: 'infinity-embeddings');  // Long text for main content
+        $properties->text('description')->semantic(accuracy: 3, dimensions: 384, api: 'infinity-embeddings');  // Text field for description
         $properties->keyword('version');  // Keyword for exact matching
         $properties->keyword('section');  // Keyword for exact matching
         $properties->keyword('filename');  // Keyword for exact matching

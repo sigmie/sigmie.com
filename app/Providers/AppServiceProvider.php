@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use League\CommonMark\CommonMarkConverter;
 use Torchlight\Block;
@@ -25,7 +28,14 @@ use Sigmie\Sigmie;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register()
+    public function boot(): void
+    {
+        if (app()->environment('production')) {
+            URL::forceScheme('https');
+        }
+    }
+
+    public function register(): void
     {
         $this->app->singleton(MarkdownConverter::class, function () {
             $environment = new Environment();

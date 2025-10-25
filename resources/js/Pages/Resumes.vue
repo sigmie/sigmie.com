@@ -51,8 +51,44 @@ const isExpanded = (resumeId) => {
 
 <template>
     <Head>
+        <!-- Primary Meta Tags -->
         <title>Resume Search - Sigmie</title>
-        <meta name="description" content="Search for the perfect candidate using AI-powered semantic search. Match job requirements with resumes intelligently." />
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="description" content="Search for the perfect candidate using AI-powered semantic search. Match job requirements with resumes intelligently with Sigmie." />
+        <meta name="keywords" content="resume search, candidate search, semantic search, AI recruiting, job matching, resume matching, talent search" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta name="language" content="en-us" />
+        <link rel="canonical" href="https://sigmie.com/resumes" />
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://sigmie.com/resumes" />
+        <meta property="og:title" content="Resume Search - Sigmie" />
+        <meta property="og:description" content="Search for the perfect candidate using AI-powered semantic search. Match job requirements with resumes intelligently." />
+        <meta property="og:site_name" content="Sigmie" />
+
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:url" content="https://sigmie.com/resumes" />
+        <meta name="twitter:title" content="Resume Search - Sigmie" />
+        <meta name="twitter:description" content="Search for the perfect candidate using AI-powered semantic search. Match job requirements with resumes intelligently." />
+
+        <!-- Structured Data (JSON-LD) -->
+        <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Resume Search",
+  "description": "AI-powered semantic search for finding the perfect candidate",
+  "url": "https://sigmie.com/resumes",
+  "applicationCategory": "BusinessApplication",
+  "offer": {
+    "@type": "Offer",
+    "price": "0"
+  }
+}
+        </script>
     </Head>
 
     <div class="min-h-screen bg-white dark:bg-black">

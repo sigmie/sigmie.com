@@ -30,26 +30,65 @@ onMounted(() => {
                 heading.textContent = heading.textContent.replace(/^#+\s*/, '');
             }
         });
+
+        // Inject JSON-LD structured data
+        const existingScript = document.querySelector('script[data-seo="article-ld"]');
+        if (existingScript) existingScript.remove();
+
+        const articleSchema = {
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            'headline': props.title,
+            'description': props.description,
+            'image': props.card,
+            'url': props.href,
+            'publisher': {
+                '@type': 'Organization',
+                'name': 'Sigmie',
+                'logo': {
+                    '@type': 'ImageObject',
+                    'url': 'https://sigmie.com/logo.svg'
+                }
+            },
+            'datePublished': '2024-01-01',
+            'dateModified': '2024-01-01'
+        };
+
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.setAttribute('data-seo', 'article-ld');
+        script.textContent = JSON.stringify(articleSchema);
+        document.head.appendChild(script);
     });
 });
 </script>
 
 <template>
     <Head :title="title">
+        <!-- Primary Meta Tags -->
         <meta name="title" :content="title" />
         <meta name="description" :content="description" />
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="language" content="en-us" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <link rel="canonical" :href="href" />
 
-        <meta property="og:type" content="website" />
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="article" />
         <meta property="og:url" :content="href" />
         <meta property="og:title" :content="title" />
         <meta property="og:description" :content="description" />
         <meta property="og:image" :content="card" />
+        <meta property="og:site_name" content="Sigmie Documentation" />
 
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" :content="href" />
-        <meta property="twitter:title" :content="title" />
-        <meta property="twitter:description" :content="description" />
-        <meta property="twitter:image" :content="card" />
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" :content="href" />
+        <meta name="twitter:title" :content="title" />
+        <meta name="twitter:description" :content="description" />
+        <meta name="twitter:image" :content="card" />
+
     </Head>
 
     <div class="min-h-screen bg-white dark:bg-black">
@@ -64,8 +103,8 @@ onMounted(() => {
                 <main class="min-w-0 flex-1 lg:ml-64 pt-16">
                     <div class="flex">
                         <!-- Article Content -->
-                        <article class="flex-1 min-w-0 px-6 pb-12 sm:px-8 lg:px-12 xl:px-16">
-                            <div class="max-w-3xl pt-8 pb-8">
+                        <article class="flex-1 px-6 pb-12 sm:px-8 lg:px-12 xl:px-16 flex justify-center">
+                            <div class="max-w-3xl pt-8 pb-8 w-full">
                                 <!-- Title -->
                                 <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white mb-8">
                                     {{ title }}
@@ -92,10 +131,10 @@ onMounted(() => {
                                 ></div>
                             </div>
                         </article>
-                        
+
                         <!-- Right Table of Contents -->
                         <aside class="hidden xl:block w-64 flex-shrink-0">
-                            <div class="sticky top-24 pr-8 pb-8">
+                            <div class="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto pr-8 pb-8">
                                 <TableOfContents :html="cleanedHtml" />
                             </div>
                         </aside>

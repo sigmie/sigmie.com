@@ -43,7 +43,7 @@ class AppServiceProvider extends ServiceProvider
             $environment->addExtension(new TableExtension);
             $environment->addExtension(new HeadingPermalinkExtension);
             $environment->addExtension(new SmartPunctExtension);
-            $environment->addExtension(new TableOfContentsExtension);
+            // $environment->addExtension(new TableOfContentsExtension);
             $environment->addExtension(new TorchlightExtension);
 
             $converter = new MarkdownConverter($environment);

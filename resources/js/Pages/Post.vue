@@ -14,24 +14,55 @@ navigation: Object,
 </script>
 
 <template>
-    <Head>
-        <meta name="title" :content="title" />
+    <Head :title="`${title} - Sigmie Blog`">
+        <!-- Primary Meta Tags -->
+        <meta name="title" :content="`${title} - Sigmie Blog`" />
         <meta name="description" :content="description" />
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="author" content="Sigmie Team" />
+        <meta name="language" content="en-us" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <link rel="canonical" :href="href" />
 
-        <meta property="og:type" content="website" />
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="article" />
         <meta property="og:url" :content="href" />
         <meta property="og:title" :content="title" />
-        <meta
-            property="og:description"
-            :content="description"
-        />
+        <meta property="og:description" :content="description" />
         <meta property="og:image" :content="card" />
+        <meta property="og:site_name" content="Sigmie Blog" />
 
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" :content="href" />
-        <meta property="twitter:title" :content="title" />
-        <meta property="twitter:description" :content="description" />
-        <meta property="twitter:image" :content="card" />
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" :content="href" />
+        <meta name="twitter:title" :content="title" />
+        <meta name="twitter:description" :content="description" />
+        <meta name="twitter:image" :content="card" />
+
+        <!-- Structured Data (JSON-LD) -->
+        <script type="application/ld+json" v-bind:innerHTML="`{
+  \"@context\": \"https://schema.org\",
+  \"@type\": \"BlogPosting\",
+  \"headline\": \"${title}\",
+  \"description\": \"${description}\",
+  \"image\": \"${card}\",
+  \"url\": \"${href}\",
+  \"datePublished\": \"2024-01-01\",
+  \"dateModified\": \"2024-01-01\",
+  \"author\": {
+    \"@type\": \"Organization\",
+    \"name\": \"Sigmie\"
+  },
+  \"publisher\": {
+    \"@type\": \"Organization\",
+    \"name\": \"Sigmie\",
+    \"logo\": {
+      \"@type\": \"ImageObject\",
+      \"url\": \"https://sigmie.com/logo.svg\"
+    }
+  }
+}`"></script>
     </Head>
     <div class="pt-20">
         <div class="flex flex-col font-display relative">

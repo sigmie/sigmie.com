@@ -452,20 +452,94 @@ onMounted(() => {
 
 <template>
     <Head>
+        <!-- Primary Meta Tags -->
         <title>Sigmie - A different Elasticsearch library</title>
-        <meta name="description" content="Sigmie is a modern, developer-friendly Elasticsearch library that handles all complexities, letting you focus solely on search relevance. Simple API, production-ready." />
-        <meta name="keywords" content="elasticsearch, search library, full-text search, sigmie, php, laravel, search api, elasticsearch php" />
-        <meta property="og:title" content="Sigmie - A different Elasticsearch library" />
-        <meta property="og:description" content="Sigmie is a modern, developer-friendly Elasticsearch library that handles all complexities, letting you focus solely on search relevance." />
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="description" content="Sigmie is a modern, developer-friendly Elasticsearch library that handles all complexities, letting you focus solely on search relevance. Simple API, production-ready. Semantic search, filters, facets, and more." />
+        <meta name="keywords" content="elasticsearch, search library, full-text search, sigmie, php, laravel, search api, elasticsearch php, semantic search, opensearch, vector search, hybrid search" />
+        <meta name="author" content="Sigmie Team" />
+        <meta name="language" content="en-us" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta name="theme-color" content="#000000" />
+
+        <!-- Open Graph / Facebook -->
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://sigmie.com" />
+        <meta property="og:url" content="https://sigmie.com/" />
+        <meta property="og:title" content="Sigmie - A different Elasticsearch library" />
+        <meta property="og:description" content="Sigmie is a modern, developer-friendly Elasticsearch library that handles all complexities, letting you focus solely on search relevance. Simple API, production-ready." />
         <meta property="og:image" content="https://sigmie.com/og-image.png" />
         <meta property="og:site_name" content="Sigmie" />
+        <meta property="og:locale" content="en_US" />
+
+        <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://sigmie.com/" />
         <meta name="twitter:title" content="Sigmie - A different Elasticsearch library" />
         <meta name="twitter:description" content="Sigmie is a modern, developer-friendly Elasticsearch library that handles all complexities, letting you focus solely on search relevance." />
         <meta name="twitter:image" content="https://sigmie.com/og-image.png" />
-        <link rel="canonical" href="https://sigmie.com" />
+
+        <!-- Canonical Link -->
+        <link rel="canonical" href="https://sigmie.com/" />
+        <link rel="alternate" hreflang="en-us" href="https://sigmie.com/" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+        <!-- Structured Data (JSON-LD) -->
+        <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Sigmie",
+  "description": "A modern, developer-friendly Elasticsearch library",
+  "url": "https://sigmie.com",
+  "logo": "https://sigmie.com/logo.svg",
+  "sameAs": [
+    "https://github.com/sigmie/sigmie",
+    "https://packagist.org/packages/sigmie/sigmie"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "url": "https://github.com/sigmie/sigmie/issues"
+  }
+}
+        </script>
+
+        <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Sigmie",
+  "description": "A modern, developer-friendly Elasticsearch library that handles all complexities",
+  "url": "https://sigmie.com",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://sigmie.com/search?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+        </script>
+
+        <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Sigmie",
+  "description": "A modern, developer-friendly Elasticsearch library",
+  "url": "https://sigmie.com",
+  "applicationCategory": "DeveloperApplication",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "operatingSystem": "Platform Independent",
+  "programmingLanguage": "PHP"
+}
+        </script>
     </Head>
 
     <AppLayout :navigation="navigation" :show-top-bar="false">

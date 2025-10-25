@@ -1,6 +1,27 @@
 <template>
     <div class="min-h-screen bg-white dark:bg-gray-950">
-        <Head title="Search Documentation" />
+        <Head>
+            <title>Search Documentation - Sigmie</title>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+            <meta name="description" content="Search through Sigmie documentation. Find guides, examples, and API references for the Elasticsearch library." />
+            <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+            <meta name="language" content="en-us" />
+            <link rel="canonical" href="https://sigmie.com/search" />
+
+            <!-- Open Graph / Facebook -->
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content="https://sigmie.com/search" />
+            <meta property="og:title" content="Search Documentation - Sigmie" />
+            <meta property="og:description" content="Search through Sigmie documentation. Find guides, examples, and API references." />
+            <meta property="og:site_name" content="Sigmie" />
+
+            <!-- Twitter -->
+            <meta name="twitter:card" content="summary" />
+            <meta name="twitter:url" content="https://sigmie.com/search" />
+            <meta name="twitter:title" content="Search Documentation - Sigmie" />
+            <meta name="twitter:description" content="Search through Sigmie documentation. Find guides, examples, and API references." />
+        </Head>
         
         <!-- Header -->
         <header class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 sticky top-0 z-40">

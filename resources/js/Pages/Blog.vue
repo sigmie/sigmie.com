@@ -13,20 +13,52 @@ navigation: Object
 
 <template>
     <Head>
+        <!-- Primary Meta Tags -->
         <title>Blog - Sigmie</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <meta name="description" content="Latest articles and updates about Sigmie Elasticsearch library. Learn about search implementation, best practices, and tips for using Sigmie." />
-        <meta name="keywords" content="sigmie blog, elasticsearch tutorials, search implementation, sigmie updates, elasticsearch best practices" />
-        <meta property="og:title" content="Blog - Sigmie" />
-        <meta property="og:description" content="Latest articles and updates about Sigmie Elasticsearch library. Learn about search implementation, best practices, and tips." />
+        <meta name="keywords" content="sigmie blog, elasticsearch tutorials, search implementation, sigmie updates, elasticsearch best practices, full-text search, semantic search" />
+        <meta name="author" content="Sigmie Team" />
+        <meta name="language" content="en-us" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+        <!-- Open Graph / Facebook -->
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://sigmie.com/blog" />
+        <meta property="og:title" content="Blog - Sigmie" />
+        <meta property="og:description" content="Latest articles and updates about Sigmie Elasticsearch library. Learn about search implementation, best practices, and tips." />
         <meta property="og:image" content="https://sigmie.com/og-image.png" />
         <meta property="og:site_name" content="Sigmie" />
+
+        <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://sigmie.com/blog" />
         <meta name="twitter:title" content="Blog - Sigmie" />
         <meta name="twitter:description" content="Latest articles and updates about Sigmie Elasticsearch library. Learn about search implementation and best practices." />
         <meta name="twitter:image" content="https://sigmie.com/og-image.png" />
+
+        <!-- Canonical Link -->
         <link rel="canonical" href="https://sigmie.com/blog" />
+
+        <!-- Structured Data (JSON-LD) -->
+        <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Sigmie Blog",
+  "description": "Latest articles and updates about Sigmie Elasticsearch library",
+  "url": "https://sigmie.com/blog",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Sigmie",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://sigmie.com/logo.svg"
+    }
+  }
+}
+        </script>
     </Head>
     <div class="pt-20">
         <div class="flex flex-col font-display relative">

@@ -485,6 +485,25 @@ onMounted(() => {
                     <Logo class="w-40 sm:w-48" />
                 </div>
 
+                <!-- Badges Section -->
+                <div class="mb-12 flex justify-start items-center flex-wrap gap-4">
+                    <a href="https://github.com/sigmie/sigmie/actions" target="_blank" rel="noopener noreferrer" class="inline-block">
+                        <img src="https://github.com/sigmie/sigmie/actions/workflows/test.yml/badge.svg" alt="Build Status" class="h-6 hover:opacity-80 transition-opacity" />
+                    </a>
+                    <a href="https://packagist.org/packages/sigmie/sigmie" target="_blank" rel="noopener noreferrer" class="inline-block">
+                        <img src="https://img.shields.io/packagist/v/sigmie/sigmie" alt="Latest Stable Version" class="h-6 hover:opacity-80 transition-opacity" />
+                    </a>
+                    <a href="https://packagist.org/packages/sigmie/sigmie/stats" target="_blank" rel="noopener noreferrer" class="inline-block">
+                        <img src="https://img.shields.io/packagist/dt/sigmie/sigmie.svg" alt="Downloads" class="h-6 hover:opacity-80 transition-opacity" />
+                    </a>
+                    <a href="https://codecov.io/gh/sigmie/sigmie" target="_blank" rel="noopener noreferrer" class="inline-block">
+                        <img src="https://codecov.io/gh/sigmie/sigmie/branch/master/graph/badge.svg?token=Dx6x8vPVN8" alt="Codecov" class="h-6 hover:opacity-80 transition-opacity" />
+                    </a>
+                    <a href="https://packagist.org/packages/sigmie/sigmie" target="_blank" rel="noopener noreferrer" class="inline-block">
+                        <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License" class="h-6 hover:opacity-80 transition-opacity" />
+                    </a>
+                </div>
+
                 <!-- Header Section -->
                 <div class="mb-12">
                     <div class="relative border border-gray-800 rounded-xl p-6 sm:p-8 bg-black/50 backdrop-blur-sm overflow-hidden">

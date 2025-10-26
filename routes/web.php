@@ -149,13 +149,16 @@ Route::any('/docs/{version}/{endpoint?}', function ($version, $endpoint, Markdow
         ->filter(fn ($link)  => $link['href'] === "/docs/{$version}/{$endpoint}")
         ->first();
 
+    $title = $link['title'] ?? ucfirst(str_replace('-', ' ', $endpoint ?? 'Documentation'));
+    $card = $link['card'] ?? config('app.url') . '/twitter-card.png';
+
     return Inertia::render('Document', [
         'navigation' => config("docs.{$version}.navigation"),
-        'title' => $link['title'],
+        'title' => $title,
         'html' => $html,
-        'card' => $link['card'] ?? config('app.url') . '/twitter-card.png',
-        'href' => config('app.url'),
-        'description' => config('app.description'),
+        'card' => $card,
+        'href' => config('app.url') . "/docs/{$version}/{$endpoint}",
+        'description' => $link['description'] ?? config('app.description'),
     ]);
 })
     ->where('endpoint', '.*');

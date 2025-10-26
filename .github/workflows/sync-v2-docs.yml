@@ -35,18 +35,17 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: sigmie/sigmie
-          ref: v2
           path: sigmie-source
           sparse-checkout: |
             docs
 
       - name: Create v2 docs directory
-        run: mkdir -p resources/docs/v2
+        run: mkdir -p docs/v2
 
       - name: Sync documentation files
         run: |
           # Remove existing v2 docs (except .gitkeep if exists)
-          find resources/docs/v2 -mindepth 1 -not -name '.gitkeep' -delete 2>/dev/null || true
+          find docs/v2 -mindepth 1 -not -name '.gitkeep' -delete 2>/dev/null || true
 
           # Copy new docs from source
           if [ -d "sigmie-source/docs" ]; then
@@ -60,7 +59,7 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          git add -A resources/docs/v2
+          git add -A docs/v2
           if git diff --staged --quiet; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
             echo "📄 No documentation changes detected"
@@ -77,10 +76,10 @@ jobs:
           git config --local user.name "github-actions[bot]"
 
           # Create commit message with date
-          COMMIT_MSG="chore: sync v2 documentation from sigmie/sigmie@v2
+          COMMIT_MSG="chore: sync v2 documentation from sigmie/sigmie
 
           Automated sync on $(date -u '+%Y-%m-%d %H:%M:%S UTC')
-          Source: https://github.com/sigmie/sigmie/tree/v2/docs"
+          Source: https://github.com/sigmie/sigmie/tree/master/docs"
 
           git commit -m "$COMMIT_MSG"
           git push
@@ -103,5 +102,5 @@ jobs:
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "Source: [sigmie/sigmie@v2/docs](https://github.com/sigmie/sigmie/tree/v2/docs)" >> $GITHUB_STEP_SUMMARY
-          echo "Target: resources/docs/v2/" >> $GITHUB_STEP_SUMMARY
+          echo "Source: [sigmie/sigmie/docs](https://github.com/sigmie/sigmie/tree/master/docs)" >> $GITHUB_STEP_SUMMARY
+          echo "Target: docs/v2/" >> $GITHUB_STEP_SUMMARY

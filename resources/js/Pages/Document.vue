@@ -91,7 +91,7 @@ onMounted(() => {
 
     </Head>
 
-    <div class="min-h-screen bg-white dark:bg-black">
+    <div class="min-h-screen bg-black">
         <!-- Documentation Sidebar -->
         <DocsSidebar :navigation="navigation" :current-path="$page.url" />
 
@@ -106,26 +106,26 @@ onMounted(() => {
                         <article class="flex-1 px-6 pb-12 sm:px-8 lg:px-12 xl:px-16 flex justify-center">
                             <div class="max-w-3xl pt-8 pb-8 w-full">
                                 <!-- Title -->
-                                <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white mb-8">
+                                <h1 class="text-4xl font-bold tracking-tight text-white mb-8">
                                     {{ title }}
                                 </h1>
-                                
+
                                 <!-- Content -->
-                                <div 
-                                    v-html="cleanedHtml" 
-                                    class="prose prose-gray dark:prose-invert max-w-none
+                                <div
+                                    v-html="cleanedHtml"
+                                    class="prose prose-invert max-w-none
                                            prose-headings:scroll-mt-20 prose-headings:font-semibold
-                                           prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-gray-200 dark:prose-h2:border-gray-800
+                                           prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-gray-800
                                            prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
                                            prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-3
-                                           prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-7
-                                           prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline prose-a:font-medium hover:prose-a:underline
-                                           prose-code:bg-gray-100 dark:prose-code:bg-gray-900 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-normal
-                                           prose-pre:bg-gray-950 dark:prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-800
-                                           prose-blockquote:border-l-4 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:italic
+                                           prose-p:text-gray-300 prose-p:leading-7
+                                           prose-a:text-blue-400 prose-a:no-underline prose-a:font-medium hover:prose-a:underline
+                                           prose-code:bg-gray-900 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-normal
+                                           prose-pre:bg-gray-950 prose-pre:border prose-pre:border-gray-800
+                                           prose-blockquote:border-l-4 prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:italic
                                            prose-ul:my-6 prose-ol:my-6 prose-li:my-2
-                                           prose-table:my-8 prose-thead:border-b prose-thead:border-gray-300 dark:prose-thead:border-gray-700
-                                           prose-tr:border-b prose-tr:border-gray-200 dark:prose-tr:border-gray-800
+                                           prose-table:my-8 prose-thead:border-b prose-thead:border-gray-700
+                                           prose-tr:border-b prose-tr:border-gray-800
                                            prose-th:text-left prose-th:py-2 prose-th:px-4 prose-th:font-semibold
                                            prose-td:py-2 prose-td:px-4"
                                 ></div>
@@ -151,11 +151,11 @@ pre code {
 }
 
 .prose :where(pre):not(:where([class~="not-prose"] *)) {
-    @apply bg-gray-950 dark:bg-gray-900 border border-gray-800 rounded-geist overflow-x-auto;
+    @apply bg-gray-950 border border-gray-800 rounded-geist overflow-x-auto;
 }
 
 .prose :where(code):not(:where([class~="not-prose"] *)) {
-    @apply text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-900 rounded-geist-sm px-1.5 py-0.5 text-sm font-mono;
+    @apply text-gray-300 bg-gray-900 rounded-geist-sm px-1.5 py-0.5 text-sm font-mono;
 }
 
 pre code {
@@ -163,7 +163,7 @@ pre code {
 }
 
 .heading-permalink {
-    @apply mr-2 no-underline text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors;
+    @apply mr-2 no-underline text-gray-400 hover:text-gray-300 transition-colors;
 }
 
 /* No special first-letter styling needed */
@@ -173,22 +173,22 @@ pre code {
 }
 
 .table-of-contents > li > a {
-    @apply no-underline font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400;
+    @apply no-underline font-medium text-gray-100 hover:text-blue-400;
 }
 
 .table-of-contents > li > ul > li > a {
-    @apply no-underline font-normal text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100;
+    @apply no-underline font-normal text-gray-400 hover:text-gray-100;
 }
 
 .table-of-contents > li > ul > li > ul > li > a {
-    @apply no-underline text-gray-500 dark:text-gray-500 font-normal hover:text-gray-700 dark:hover:text-gray-300;
+    @apply no-underline text-gray-500 font-normal hover:text-gray-300;
 }
 
 .prose h1,
 .prose h2,
 .prose h3,
 .prose h4 {
-    @apply text-gray-900 dark:text-gray-100 font-semibold;
+    @apply text-gray-100 font-semibold;
 }
 
 .prose h1 {
@@ -204,19 +204,19 @@ pre code {
 }
 
 .prose p {
-    @apply text-gray-600 dark:text-gray-400 leading-7;
+    @apply text-gray-400 leading-7;
 }
 
 .prose a {
-    @apply text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 no-underline hover:underline;
+    @apply text-blue-400 hover:text-blue-300 no-underline hover:underline;
 }
 
 .prose strong {
-    @apply text-gray-900 dark:text-gray-100 font-semibold;
+    @apply text-gray-100 font-semibold;
 }
 
 .prose ul, .prose ol {
-    @apply text-gray-600 dark:text-gray-400;
+    @apply text-gray-400;
 }
 
 .prose li {
@@ -224,7 +224,7 @@ pre code {
 }
 
 .prose blockquote {
-    @apply border-l-4 border-gray-300 dark:border-gray-700 pl-4 italic text-gray-600 dark:text-gray-400;
+    @apply border-l-4 border-gray-700 pl-4 italic text-gray-400;
 }
 
 .prose table {
@@ -232,11 +232,11 @@ pre code {
 }
 
 .prose th {
-    @apply text-left font-medium text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-900 p-3 border border-gray-200 dark:border-gray-800;
+    @apply text-left font-medium text-gray-100 bg-gray-900 p-3 border border-gray-800;
 }
 
 .prose td {
-    @apply p-3 border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400;
+    @apply p-3 border border-gray-800 text-gray-400;
 }
 
 /*
@@ -299,11 +299,11 @@ pre code {
 }
 
 .callout {
-    @apply bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4 rounded-geist my-6;
+    @apply bg-gray-900 border border-gray-800 p-4 rounded-geist my-6;
 }
 
 .callout.danger {
-    @apply bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400;
+    @apply bg-red-900/20 border-red-800 text-red-400;
 }
 
 .callout.danger::before {
@@ -311,7 +311,7 @@ pre code {
 }
 
 .callout.warning {
-    @apply bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400;
+    @apply bg-yellow-900/20 border-yellow-800 text-yellow-400;
 }
 
 .callout.warning::before {
@@ -323,6 +323,6 @@ pre code {
 }
 
 .callout.info {
-    @apply bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400;
+    @apply bg-blue-900/20 border-blue-800 text-blue-400;
 }
 </style>

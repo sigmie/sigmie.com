@@ -447,6 +447,64 @@ onMounted(() => {
     performSearch('zombie apocalypse');
     // Initialize cart with products
     initializeCart();
+
+    // Inject JSON-LD structured data
+    const schemas = [
+        {
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            'name': 'Sigmie',
+            'description': 'A modern, developer-friendly Elasticsearch library',
+            'url': 'https://sigmie.com',
+            'logo': 'https://sigmie.com/logo.svg',
+            'sameAs': [
+                'https://github.com/sigmie/sigmie',
+                'https://packagist.org/packages/sigmie/sigmie'
+            ],
+            'contactPoint': {
+                '@type': 'ContactPoint',
+                'url': 'https://github.com/sigmie/sigmie/issues'
+            }
+        },
+        {
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            'name': 'Sigmie',
+            'description': 'A modern, developer-friendly Elasticsearch library that handles all complexities',
+            'url': 'https://sigmie.com',
+            'potentialAction': {
+                '@type': 'SearchAction',
+                'target': {
+                    '@type': 'EntryPoint',
+                    'urlTemplate': 'https://sigmie.com/search?q={search_term_string}'
+                },
+                'query-input': 'required name=search_term_string'
+            }
+        },
+        {
+            '@context': 'https://schema.org',
+            '@type': 'SoftwareApplication',
+            'name': 'Sigmie',
+            'description': 'A modern, developer-friendly Elasticsearch library',
+            'url': 'https://sigmie.com',
+            'applicationCategory': 'DeveloperApplication',
+            'offers': {
+                '@type': 'Offer',
+                'price': '0',
+                'priceCurrency': 'USD'
+            },
+            'operatingSystem': 'Platform Independent',
+            'programmingLanguage': 'PHP'
+        }
+    ];
+
+    schemas.forEach((schema, index) => {
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.setAttribute('data-schema', `schema-${index}`);
+        script.textContent = JSON.stringify(schema);
+        document.head.appendChild(script);
+    });
 });
 </script>
 
@@ -484,62 +542,6 @@ onMounted(() => {
         <link rel="alternate" hreflang="en-us" href="https://sigmie.com/" />
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-
-        <!-- Structured Data (JSON-LD) -->
-        <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "Sigmie",
-  "description": "A modern, developer-friendly Elasticsearch library",
-  "url": "https://sigmie.com",
-  "logo": "https://sigmie.com/logo.svg",
-  "sameAs": [
-    "https://github.com/sigmie/sigmie",
-    "https://packagist.org/packages/sigmie/sigmie"
-  ],
-  "contactPoint": {
-    "@type": "ContactPoint",
-    "url": "https://github.com/sigmie/sigmie/issues"
-  }
-}
-        </script>
-
-        <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "Sigmie",
-  "description": "A modern, developer-friendly Elasticsearch library that handles all complexities",
-  "url": "https://sigmie.com",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": {
-      "@type": "EntryPoint",
-      "urlTemplate": "https://sigmie.com/search?q={search_term_string}"
-    },
-    "query-input": "required name=search_term_string"
-  }
-}
-        </script>
-
-        <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "Sigmie",
-  "description": "A modern, developer-friendly Elasticsearch library",
-  "url": "https://sigmie.com",
-  "applicationCategory": "DeveloperApplication",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  },
-  "operatingSystem": "Platform Independent",
-  "programmingLanguage": "PHP"
-}
-        </script>
     </Head>
 
     <AppLayout :navigation="navigation" :show-top-bar="false">

@@ -1,15 +1,47 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import { onMounted } from 'vue';
 import Sidebar from '../Sidebar.vue';
 import Navbar from '../Navbar.vue';
 
-defineProps({
+const props = defineProps({
 html: String,
 title: String,
 description: String,
 href: String,
 card: String,
 navigation: Object,
+});
+
+onMounted(() => {
+    const schema = {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        'headline': props.title,
+        'description': props.description,
+        'image': props.card,
+        'url': props.href,
+        'datePublished': '2024-01-01',
+        'dateModified': '2024-01-01',
+        'author': {
+            '@type': 'Organization',
+            'name': 'Sigmie'
+        },
+        'publisher': {
+            '@type': 'Organization',
+            'name': 'Sigmie',
+            'logo': {
+                '@type': 'ImageObject',
+                'url': 'https://sigmie.com/logo.svg'
+            }
+        }
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-schema', 'blog-post');
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
 });
 </script>
 
@@ -39,30 +71,6 @@ navigation: Object,
         <meta name="twitter:title" :content="title" />
         <meta name="twitter:description" :content="description" />
         <meta name="twitter:image" :content="card" />
-
-        <!-- Structured Data (JSON-LD) -->
-        <script type="application/ld+json" v-bind:innerHTML="`{
-  \"@context\": \"https://schema.org\",
-  \"@type\": \"BlogPosting\",
-  \"headline\": \"${title}\",
-  \"description\": \"${description}\",
-  \"image\": \"${card}\",
-  \"url\": \"${href}\",
-  \"datePublished\": \"2024-01-01\",
-  \"dateModified\": \"2024-01-01\",
-  \"author\": {
-    \"@type\": \"Organization\",
-    \"name\": \"Sigmie\"
-  },
-  \"publisher\": {
-    \"@type\": \"Organization\",
-    \"name\": \"Sigmie\",
-    \"logo\": {
-      \"@type\": \"ImageObject\",
-      \"url\": \"https://sigmie.com/logo.svg\"
-    }
-  }
-}`"></script>
     </Head>
     <div class="pt-20">
         <div class="flex flex-col font-display relative">

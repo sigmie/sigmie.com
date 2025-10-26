@@ -6,6 +6,7 @@ use App\Http\Controllers\NetflixSearchController;
 use App\Http\Controllers\ImageSearchController;
 use App\Http\Controllers\ResumesSearchController;
 use App\Http\Controllers\AsosProductsController;
+use App\Http\Controllers\DocsSearchController;
 use App\Services\Blog;
 use App\Services\Documentation;
 use Illuminate\Foundation\Application;
@@ -93,6 +94,9 @@ Route::get('/resumes', function () {
     return Inertia::render('Resumes');
 });
 Route::post('/api/search/resumes', [ResumesSearchController::class, 'search']);
+
+// Documentation search
+Route::post('/api/search/docs', [DocsSearchController::class, 'search']);
 
 Route::get('/blog', function () {
 

@@ -2,8 +2,9 @@
 import { Head, Link, router as Inertia } from "@inertiajs/vue3";
 import Search from "./Search.vue";
 import Banner from "./Banner.vue";
-import { onMounted, ref, computed, nextTick } from "vue";
+import { onMounted, ref, computed, nextTick, watch } from "vue";
 import { SigmieSearch } from "@sigmie/vue";
+import axios from "axios";
 
 let showMenu = ref(false);
 const toggleNav = () => (showMenu.value = !showMenu.value);
@@ -27,6 +28,8 @@ const searchFocused = ref(false);
 const showSearchModal = ref(false);
 const modalSearchQuery = ref('');
 const modalSearchInput = ref(null);
+const searchResults = ref([]);
+const isSearching = ref(false);
 
 const handleSearch = () => {
     if (searchQuery.value.trim()) {
@@ -37,6 +40,7 @@ const handleSearch = () => {
 const openSearchModal = () => {
     showSearchModal.value = true;
     modalSearchQuery.value = '';
+    searchResults.value = [];
     nextTick(() => {
         modalSearchInput.value?.focus();
     });
@@ -44,14 +48,44 @@ const openSearchModal = () => {
 
 const closeSearchModal = () => {
     showSearchModal.value = false;
+    searchResults.value = [];
 };
 
-const handleModalSearch = () => {
-    if (modalSearchQuery.value.trim()) {
-        Inertia.visit(`/search?q=${encodeURIComponent(modalSearchQuery.value)}`);
+const searchDocs = async () => {
+    if (!modalSearchQuery.value.trim()) {
+        searchResults.value = [];
+        return;
+    }
+
+    isSearching.value = true;
+
+    try {
+        const response = await axios.post('/api/search/docs', {
+            query: modalSearchQuery.value
+        });
+        searchResults.value = response.data.results || [];
+    } catch (error) {
+        console.error('Docs search error:', error);
+        searchResults.value = [];
+    } finally {
+        isSearching.value = false;
+    }
+};
+
+const handleModalSearch = (result = null) => {
+    if (result) {
+        Inertia.visit(result.url);
+        closeSearchModal();
+    } else if (searchResults.value.length > 0) {
+        Inertia.visit(searchResults.value[0].url);
         closeSearchModal();
     }
 };
+
+// Watch for query changes and search
+watch(modalSearchQuery, () => {
+    searchDocs();
+});
 
 onMounted(() => {
     const handleKeyDown = (e) => {
@@ -174,7 +208,7 @@ onMounted(() => {
                                 <input
                                     ref="modalSearchInput"
                                     v-model="modalSearchQuery"
-                                    @keyup.enter="handleModalSearch"
+                                    @keyup.enter="handleModalSearch()"
                                     type="text"
                                     placeholder="Search documentation..."
                                     class="flex-1 py-3 text-lg bg-transparent text-gray-100 placeholder-gray-500 border-0 focus:outline-none focus:ring-0"
@@ -191,10 +225,54 @@ onMounted(() => {
                         </div>
                     </div>
 
+                    <!-- Search Results -->
+                    <div v-if="modalSearchQuery.trim()" class="px-6 max-h-96 overflow-y-auto">
+                        <!-- Loading State -->
+                        <div v-if="isSearching" class="py-12 text-center">
+                            <div class="w-8 h-8 border-4 border-gray-700 border-t-gray-400 rounded-full animate-spin mx-auto"></div>
+                            <p class="mt-3 text-sm text-gray-500">Searching...</p>
+                        </div>
+
+                        <!-- Results -->
+                        <div v-else-if="searchResults.length > 0" class="py-2 space-y-1">
+                            <button
+                                v-for="result in searchResults"
+                                :key="result._id"
+                                @click="handleModalSearch(result)"
+                                class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors group"
+                            >
+                                <div class="flex items-start gap-3">
+                                    <svg class="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-medium text-gray-100 group-hover:text-white transition-colors">
+                                            {{ result.title }}
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            {{ result.version }} / {{ result.page }}
+                                        </div>
+                                        <div v-if="result.content" class="text-sm text-gray-400 mt-1 line-clamp-2">
+                                            {{ result.content.substring(0, 150) }}...
+                                        </div>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- No Results -->
+                        <div v-else class="py-12 text-center">
+                            <svg class="w-12 h-12 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <p class="text-gray-400 text-sm">No results found for "{{ modalSearchQuery }}"</p>
+                        </div>
+                    </div>
+
                     <!-- Footer with keyboard hint -->
-                    <div class="px-6 py-4 flex items-center justify-center">
+                    <div class="px-6 py-4 flex items-center justify-center border-t border-gray-800">
                         <span class="text-xs text-gray-500">
-                            Press <kbd class="px-2 py-1 mx-1 bg-gray-800 rounded border border-gray-700 text-gray-300 font-mono text-xs">Enter</kbd> to search or <kbd class="px-2 py-1 mx-1 bg-gray-800 rounded border border-gray-700 text-gray-300 font-mono text-xs">Esc</kbd> to close
+                            Press <kbd class="px-2 py-1 mx-1 bg-gray-800 rounded border border-gray-700 text-gray-300 font-mono text-xs">Enter</kbd> to open or <kbd class="px-2 py-1 mx-1 bg-gray-800 rounded border border-gray-700 text-gray-300 font-mono text-xs">Esc</kbd> to close
                         </span>
                     </div>
                 </div>

@@ -75,7 +75,7 @@ class CreateIndex extends Command
         // Read all documentation files
         $documents = [];
         $docsPath = base_path('docs');
-        $versions = ['v1', 'v2'];
+        $versions = ['v2'];
 
         foreach ($versions as $version) {
             $versionPath = "{$docsPath}/{$version}";

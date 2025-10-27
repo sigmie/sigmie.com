@@ -11,7 +11,6 @@ const props = defineProps({
         type: Array,
         default: () => [
             { value: 'v0', label: 'v0.x', status: 'stable' },
-            { value: 'v1', label: 'v1.x', status: 'beta' },
             { value: 'v2', label: 'v2.x', status: 'dev' }
         ]
     }

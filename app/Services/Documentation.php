@@ -1,14 +1,127 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use DOMDocument;
 use League\CommonMark\MarkdownConverter;
+use Symfony\Component\Yaml\Yaml;
 
 class Documentation
 {
     public function __construct(protected MarkdownConverter $converter)
     {
+    }
+
+    public function parseFrontmatter(string $markdown): array
+    {
+        if (!preg_match('/^---\s*\n(.*?)\n---\s*\n/s', $markdown, $matches)) {
+            return ['frontmatter' => [], 'content' => $markdown];
+        }
+
+        $frontmatter = Yaml::parse($matches[1]) ?? [];
+        $content = substr($markdown, strlen($matches[0]));
+
+        return [
+            'frontmatter' => $frontmatter,
+            'content' => $content
+        ];
+    }
+
+    public function getPageMetadata(string $version, string $slug): ?array
+    {
+        $path = base_path("docs/{$version}/{$slug}.md");
+
+        if (!file_exists($path)) {
+            return null;
+        }
+
+        $markdown = file_get_contents($path);
+        $parsed = $this->parseFrontmatter($markdown);
+
+        return [
+            'slug' => $slug,
+            'title' => $parsed['frontmatter']['title'] ?? ucfirst(str_replace('-', ' ', $slug)),
+            'description' => $parsed['frontmatter']['short_description'] ?? null,
+            'category' => $parsed['frontmatter']['category'] ?? 'Uncategorized',
+            'order' => $parsed['frontmatter']['order'] ?? 999,
+            'keywords' => $parsed['frontmatter']['keywords'] ?? [],
+            'related_pages' => $parsed['frontmatter']['related_pages'] ?? [],
+        ];
+    }
+
+    public function buildNavigation(string $version): array
+    {
+        $docsPath = base_path("docs/{$version}");
+
+        if (!is_dir($docsPath)) {
+            return [];
+        }
+
+        $files = glob("{$docsPath}/*.md");
+        $pages = [];
+
+        foreach ($files as $file) {
+            $slug = basename($file, '.md');
+
+            // Skip README files
+            if (strtoupper($slug) === 'README') {
+                continue;
+            }
+
+            $metadata = $this->getPageMetadata($version, $slug);
+
+            if ($metadata) {
+                $pages[] = $metadata;
+            }
+        }
+
+        // Define category order
+        $categoryOrder = [
+            'Getting Started' => 1,
+            'Core Concepts' => 2,
+            'Features' => 3,
+            'Text Analysis' => 4,
+            'Utilities' => 5,
+            'Advanced' => 6,
+            'Configuration' => 7,
+            'Integrations' => 8,
+            'Reference' => 9,
+        ];
+
+        // Group by category and sort pages within each category
+        $grouped = collect($pages)
+            ->groupBy('category')
+            ->map(fn($items) => $items->sortBy('order')->values())
+            ->toArray();
+
+        // Sort categories by predefined order
+        $sortedCategories = collect($grouped)
+            ->sortBy(fn($items, $category) => $categoryOrder[$category] ?? 999)
+            ->toArray();
+
+        // Convert to navigation format
+        $navigation = [];
+
+        foreach ($sortedCategories as $category => $items) {
+            $links = [];
+
+            foreach ($items as $item) {
+                $links[] = [
+                    'title' => $item['title'],
+                    'href' => "/docs/{$version}/{$item['slug']}",
+                    'description' => $item['description'],
+                ];
+            }
+
+            $navigation[] = [
+                'title' => $category,
+                'links' => $links,
+            ];
+        }
+
+        return $navigation;
     }
 
     public function cacheClear()
@@ -63,6 +176,10 @@ class Documentation
         abort_if(!file_exists($path), 404);
 
         $markdown = file_get_contents($path);
+
+        // Strip YAML frontmatter
+        $parsed = $this->parseFrontmatter($markdown);
+        $markdown = $parsed['content'];
 
         foreach ([
             'danger' => 'text-red-500 font-medium',

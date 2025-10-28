@@ -138,7 +138,7 @@ onMounted(() => {
         </div>
 
         <header
-            class="bg-black h-16 fixed top-0 right-0 z-40 border-b border-gray-800 lg:left-[260px] xl:left-[280px] left-0"
+            class="bg-black h-16 fixed top-0 right-0 z-40 border-b border-gray-800 lg:left-72 left-0"
         >
             <nav class="h-full flex items-center justify-center px-6">
                 <!-- Center Search - Click to open modal -->

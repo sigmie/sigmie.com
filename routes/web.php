@@ -141,24 +141,25 @@ Route::any('/docs/{version}/{endpoint?}', function ($version, $endpoint, Markdow
 
     $documentation = new Documentation($converter);
 
+    // Build dynamic navigation from YAML frontmatter
+    $navigation = $documentation->buildNavigation($version);
+
     $html = $documentation->get($version, $endpoint);
 
-    $link = collect(config("docs.{$version}.navigation"))
-        ->flatten(2)
-        ->filter(fn ($link)  => isset($link['href']))
-        ->filter(fn ($link)  => $link['href'] === "/docs/{$version}/{$endpoint}")
-        ->first();
+    // Get page metadata from YAML frontmatter
+    $metadata = $documentation->getPageMetadata($version, $endpoint);
 
-    $title = $link['title'] ?? ucfirst(str_replace('-', ' ', $endpoint ?? 'Documentation'));
-    $card = $link['card'] ?? config('app.url') . '/twitter-card.png';
+    $title = $metadata['title'] ?? ucfirst(str_replace('-', ' ', $endpoint ?? 'Documentation'));
+    $description = $metadata['description'] ?? config('app.description');
+    $card = config('app.url') . '/twitter-card.png';
 
     return Inertia::render('Document', [
-        'navigation' => config("docs.{$version}.navigation"),
+        'navigation' => $navigation,
         'title' => $title,
         'html' => $html,
         'card' => $card,
         'href' => config('app.url') . "/docs/{$version}/{$endpoint}",
-        'description' => $link['description'] ?? config('app.description'),
+        'description' => $description,
     ]);
 })
     ->where('endpoint', '.*');

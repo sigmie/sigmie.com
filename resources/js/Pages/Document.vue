@@ -97,55 +97,52 @@ onMounted(() => {
 
         <Navbar :navigation="navigation" />
 
-        <div class="mx-auto max-w-screen-2xl">
-            <div class="flex">
-                <!-- Main Content -->
-                <main class="min-w-0 flex-1 lg:ml-64 pt-16">
-                    <div class="flex">
-                        <!-- Article Content -->
-                        <article class="flex-1 px-6 pb-12 sm:px-8 lg:px-12 xl:px-16 flex justify-center">
-                            <div class="max-w-3xl pt-8 pb-8 w-full">
-                                <!-- Title -->
-                                <h1 class="text-4xl font-bold tracking-tight text-white mb-8">
-                                    {{ title }}
-                                </h1>
+        <!-- Main Content -->
+        <div class="lg:ml-72">
+            <div class="relative">
+                <!-- Article Content -->
+                <div class="xl:pr-80 px-6 sm:px-8 lg:px-12">
+                    <article class="max-w-3xl mx-auto pt-24 pb-12">
+                        <div
+                            v-html="cleanedHtml"
+                            class="prose prose-invert max-w-none
+                                   prose-headings:scroll-mt-20 prose-headings:font-semibold
+                                   prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-gray-800
+                                   prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
+                                   prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-3
+                                   prose-p:text-gray-300 prose-p:leading-7
+                                   prose-a:text-blue-400 prose-a:no-underline prose-a:font-medium hover:prose-a:underline
+                                   prose-code:bg-gray-900 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-normal
+                                   prose-pre:bg-gray-950 prose-pre:border prose-pre:border-gray-800
+                                   prose-blockquote:border-l-4 prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:italic
+                                   prose-ul:my-6 prose-ol:my-6 prose-li:my-2
+                                   prose-table:my-8 prose-thead:border-b prose-thead:border-gray-700
+                                   prose-tr:border-b prose-tr:border-gray-800
+                                   prose-th:text-left prose-th:py-2 prose-th:px-4 prose-th:font-semibold
+                                   prose-td:py-2 prose-td:px-4"
+                        ></div>
+                    </article>
+                </div>
 
-                                <!-- Content -->
-                                <div
-                                    v-html="cleanedHtml"
-                                    class="prose prose-invert max-w-none
-                                           prose-headings:scroll-mt-20 prose-headings:font-semibold
-                                           prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-gray-800
-                                           prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
-                                           prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-3
-                                           prose-p:text-gray-300 prose-p:leading-7
-                                           prose-a:text-blue-400 prose-a:no-underline prose-a:font-medium hover:prose-a:underline
-                                           prose-code:bg-gray-900 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-normal
-                                           prose-pre:bg-gray-950 prose-pre:border prose-pre:border-gray-800
-                                           prose-blockquote:border-l-4 prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:italic
-                                           prose-ul:my-6 prose-ol:my-6 prose-li:my-2
-                                           prose-table:my-8 prose-thead:border-b prose-thead:border-gray-700
-                                           prose-tr:border-b prose-tr:border-gray-800
-                                           prose-th:text-left prose-th:py-2 prose-th:px-4 prose-th:font-semibold
-                                           prose-td:py-2 prose-td:px-4"
-                                ></div>
-                            </div>
-                        </article>
-
-                        <!-- Right Table of Contents -->
-                        <aside class="hidden xl:block w-64 flex-shrink-0">
-                            <div class="sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto pr-8 pb-8">
-                                <TableOfContents :html="cleanedHtml" />
-                            </div>
-                        </aside>
+                <!-- Right Table of Contents - Fixed Position -->
+                <div class="hidden xl:block fixed top-16 right-0 w-80 h-screen overflow-y-auto border-l border-gray-800">
+                    <div class="p-8">
+                        <TableOfContents :html="cleanedHtml" />
                     </div>
-                </main>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <style type="text/css">
+/* Ensure sticky positioning works */
+.toc-sticky-container {
+    position: sticky;
+    top: 5rem; /* 80px from top (navbar height + spacing) */
+    align-self: flex-start;
+}
+
 pre code {
     @apply block p-4 rounded-geist;
 }

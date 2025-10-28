@@ -47,7 +47,7 @@ const toggleMobileMenu = () => {
 
         <!-- Sidebar -->
         <aside
-            class="fixed top-0 left-0 h-full w-64 bg-black border-r border-gray-800 transition-transform duration-300 z-40 flex flex-col"
+            class="fixed top-0 left-0 h-full w-72 bg-black border-r border-gray-800 transition-transform duration-300 z-40 flex flex-col"
             :class="[
                 isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full',
                 'lg:translate-x-0'
@@ -85,19 +85,6 @@ const toggleMobileMenu = () => {
                     </div>
                 </div>
             </nav>
-
-            <!-- Footer - Sticky at bottom -->
-            <div class="sticky bottom-0 p-4 border-t border-gray-800 bg-black">
-                <Link
-                    href="/"
-                    class="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:text-white transition-colors rounded-md hover:bg-gray-900"
-                >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                    Back to Home
-                </Link>
-            </div>
         </aside>
 
         <!-- Mobile Overlay -->

@@ -331,7 +331,7 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Footer with keyboard hint -->
-                    <div class="px-6 py-4 flex items-center justify-between border-t border-gray-800 flex-shrink-0">
+                    <div v-if="searchResults.length > 0" class="px-6 py-4 flex items-center justify-between border-t border-gray-800 flex-shrink-0">
                         <div class="flex items-center gap-4 text-xs text-gray-500">
                             <span class="flex items-center gap-1.5">
                                 <kbd class="px-2 py-1 bg-gray-800 rounded border border-gray-700 text-gray-300 font-mono">↑</kbd>

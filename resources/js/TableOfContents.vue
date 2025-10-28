@@ -82,7 +82,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <nav class="sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto" v-if="headings.length > 0">
+    <nav v-if="headings.length > 0">
         <h5 class="font-semibold text-xs uppercase tracking-wide text-gray-100 mb-4">
             On this page
         </h5>

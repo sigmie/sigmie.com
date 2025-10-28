@@ -47,21 +47,21 @@ const toggleMobileMenu = () => {
 
         <!-- Sidebar -->
         <aside
-            class="fixed top-0 left-0 h-full w-64 bg-black border-r border-gray-800 overflow-y-auto transition-transform duration-300 z-40"
+            class="fixed top-0 left-0 h-full w-64 bg-black border-r border-gray-800 transition-transform duration-300 z-40 flex flex-col"
             :class="[
                 isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full',
                 'lg:translate-x-0'
             ]"
         >
-            <!-- Logo -->
-            <div class="p-6 border-b border-gray-800">
+            <!-- Logo - Sticky at top -->
+            <div class="sticky top-0 z-10 p-6 border-b border-gray-800 bg-black">
                 <Link href="/" class="flex items-center gap-2">
                     <Logo :height="32" />
                 </Link>
             </div>
 
-            <!-- Navigation -->
-            <nav class="p-4 space-y-1">
+            <!-- Navigation - Scrollable -->
+            <nav class="p-4 space-y-1 overflow-y-auto flex-1">
                 <div v-for="(section, index) in navigation" :key="index" class="mb-4">
                     <!-- Section Header -->
                     <div class="px-3 pt-4 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -86,8 +86,8 @@ const toggleMobileMenu = () => {
                 </div>
             </nav>
 
-            <!-- Footer -->
-            <div class="p-4 border-t border-gray-800 mt-auto">
+            <!-- Footer - Sticky at bottom -->
+            <div class="sticky bottom-0 p-4 border-t border-gray-800 bg-black">
                 <Link
                     href="/"
                     class="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:text-white transition-colors rounded-md hover:bg-gray-900"

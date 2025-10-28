@@ -134,7 +134,7 @@ onMounted(() => {
 
                         <!-- Right Table of Contents -->
                         <aside class="hidden xl:block w-64 flex-shrink-0">
-                            <div class="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto pr-8 pb-8">
+                            <div class="sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto pr-8 pb-8">
                                 <TableOfContents :html="cleanedHtml" />
                             </div>
                         </aside>

@@ -30,6 +30,7 @@ const modalSearchQuery = ref('');
 const modalSearchInput = ref(null);
 const searchResults = ref([]);
 const isSearching = ref(false);
+const selectedResultIndex = ref(0);
 let searchTimeout = null;
 
 const handleSearch = () => {
@@ -42,6 +43,7 @@ const openSearchModal = () => {
     showSearchModal.value = true;
     modalSearchQuery.value = '';
     searchResults.value = [];
+    selectedResultIndex.value = 0;
     nextTick(() => {
         modalSearchInput.value?.focus();
     });
@@ -60,6 +62,7 @@ const closeSearchModal = () => {
 const searchDocs = async () => {
     if (!modalSearchQuery.value.trim()) {
         searchResults.value = [];
+        selectedResultIndex.value = 0;
         return;
     }
 
@@ -70,9 +73,11 @@ const searchDocs = async () => {
             query: modalSearchQuery.value
         });
         searchResults.value = response.data.results || [];
+        selectedResultIndex.value = 0;
     } catch (error) {
         console.error('Docs search error:', error);
         searchResults.value = [];
+        selectedResultIndex.value = 0;
     } finally {
         isSearching.value = false;
     }
@@ -83,8 +88,20 @@ const handleModalSearch = (result = null) => {
         Inertia.visit(result.url);
         closeSearchModal();
     } else if (searchResults.value.length > 0) {
-        Inertia.visit(searchResults.value[0].url);
+        Inertia.visit(searchResults.value[selectedResultIndex.value].url);
         closeSearchModal();
+    }
+};
+
+const handleKeyboardNavigation = (e) => {
+    if (!showSearchModal.value || searchResults.value.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedResultIndex.value = Math.min(selectedResultIndex.value + 1, searchResults.value.length - 1);
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedResultIndex.value = Math.max(selectedResultIndex.value - 1, 0);
     }
 };
 
@@ -119,6 +136,9 @@ onMounted(() => {
         if (e.key === 'Escape' && showSearchModal.value) {
             closeSearchModal();
         }
+
+        // Keyboard navigation
+        handleKeyboardNavigation(e);
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -222,12 +242,12 @@ onUnmounted(() => {
         <Transition name="fade">
             <div
                 v-if="showSearchModal"
-                class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-start justify-center pt-20"
+                class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-start justify-center pt-16"
                 @click.self="closeSearchModal"
             >
-                <div class="bg-gradient-to-br from-gray-900 to-gray-950 rounded-xl shadow-2xl w-full max-w-2xl mx-4 border border-gray-800">
+                <div class="bg-gradient-to-br from-gray-900 to-gray-950 rounded-xl shadow-2xl w-full max-w-4xl mx-4 border border-gray-800 max-h-[calc(100vh-8rem)] flex flex-col">
                     <!-- Search Input -->
-                    <div class="px-6 pt-6 pb-4">
+                    <div class="px-6 pt-6 pb-4 flex-shrink-0">
                         <div class="border-b border-gray-800 pb-4 focus-within:border-gray-700 transition-colors">
                             <div class="relative flex gap-3 items-center">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -254,7 +274,7 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Search Results -->
-                    <div v-if="modalSearchQuery.trim()" class="px-6 max-h-96 overflow-y-auto">
+                    <div v-if="modalSearchQuery.trim()" class="px-6 flex-1 overflow-y-auto">
                         <!-- Loading State -->
                         <div v-if="isSearching" class="py-12 text-center">
                             <div class="w-8 h-8 border-4 border-gray-700 border-t-gray-400 rounded-full animate-spin mx-auto"></div>
@@ -262,34 +282,41 @@ onUnmounted(() => {
                         </div>
 
                         <!-- Results -->
-                        <div v-else-if="searchResults.length > 0" class="py-2 space-y-1">
+                        <div v-else-if="searchResults.length > 0" class="py-2 space-y-2">
                             <button
-                                v-for="result in searchResults"
+                                v-for="(result, index) in searchResults"
                                 :key="result._id"
                                 @click="handleModalSearch(result)"
-                                class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors group"
+                                @mouseenter="selectedResultIndex = index"
+                                :class="[
+                                    'w-full text-left px-5 py-4 rounded-lg transition-all group relative',
+                                    selectedResultIndex === index
+                                        ? 'bg-gray-800 ring-2 ring-blue-500/50'
+                                        : 'hover:bg-gray-800/50'
+                                ]"
                             >
-                                <div class="flex items-start gap-3">
-                                    <svg class="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                    </svg>
+                                <div class="flex items-start gap-4">
+                                    <div class="flex-shrink-0 mt-0.5">
+                                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                    </div>
                                     <div class="flex-1 min-w-0">
-                                        <div class="font-medium text-gray-100 group-hover:text-white transition-colors">
+                                        <div class="font-semibold text-gray-100 group-hover:text-white transition-colors mb-2">
                                             {{ result.title }}
                                         </div>
-                                        <div class="text-xs text-gray-500 mt-1 flex items-center gap-1.5">
-                                            <span>{{ result.version }} / {{ result.page }}</span>
-                                            <span v-if="result.url && result.url.includes('#')" class="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-800 rounded text-blue-400 font-mono text-xs">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                                                </svg>
-                                                {{ result.url.split('#')[1] }}
-                                            </span>
+                                        <div class="mb-2">
+                                            <div class="text-xs font-mono text-blue-400 truncate">
+                                                {{ result.url }}
+                                            </div>
                                         </div>
-                                        <div v-if="result.content" class="text-sm text-gray-400 mt-1 line-clamp-2">
-                                            {{ result.content.substring(0, 150) }}...
+                                        <div v-if="result.content" class="text-sm text-gray-400 line-clamp-2 leading-relaxed">
+                                            {{ result.content.substring(0, 200) }}{{ result.content.length > 200 ? '...' : '' }}
                                         </div>
                                     </div>
+                                </div>
+                                <div v-if="selectedResultIndex === index" class="absolute right-4 top-4">
+                                    <kbd class="px-2 py-1 text-xs font-mono bg-gray-700 text-gray-300 rounded border border-gray-600">Enter</kbd>
                                 </div>
                             </button>
                         </div>
@@ -304,10 +331,25 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Footer with keyboard hint -->
-                    <div class="px-6 py-4 flex items-center justify-center border-t border-gray-800">
-                        <span class="text-xs text-gray-500">
-                            Press <kbd class="px-2 py-1 mx-1 bg-gray-800 rounded border border-gray-700 text-gray-300 font-mono text-xs">Enter</kbd> to open or <kbd class="px-2 py-1 mx-1 bg-gray-800 rounded border border-gray-700 text-gray-300 font-mono text-xs">Esc</kbd> to close
-                        </span>
+                    <div class="px-6 py-4 flex items-center justify-between border-t border-gray-800 flex-shrink-0">
+                        <div class="flex items-center gap-4 text-xs text-gray-500">
+                            <span class="flex items-center gap-1.5">
+                                <kbd class="px-2 py-1 bg-gray-800 rounded border border-gray-700 text-gray-300 font-mono">↑</kbd>
+                                <kbd class="px-2 py-1 bg-gray-800 rounded border border-gray-700 text-gray-300 font-mono">↓</kbd>
+                                <span>Navigate</span>
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <kbd class="px-2 py-1 bg-gray-800 rounded border border-gray-700 text-gray-300 font-mono">Enter</kbd>
+                                <span>Open</span>
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <kbd class="px-2 py-1 bg-gray-800 rounded border border-gray-700 text-gray-300 font-mono">Esc</kbd>
+                                <span>Close</span>
+                            </span>
+                        </div>
+                        <div class="text-xs text-gray-600">
+                            {{ searchResults.length }} result{{ searchResults.length !== 1 ? 's' : '' }}
+                        </div>
                     </div>
                 </div>
             </div>

@@ -38,7 +38,7 @@ class Docs extends AbstractIndex
         $properties->text('url');
         $properties->longText('content')->semantic(accuracy: 6, dimensions: 384, api: 'infinity-embeddings');
         $properties->text('headings')->semantic(accuracy: 6, dimensions: 384, api: 'infinity-embeddings');
-        $properties->number('paragraph_index');
+        $properties->number('section_index');
 
         return $properties;
     }
@@ -57,7 +57,7 @@ class Docs extends AbstractIndex
                 'url' => $data['url'] ?? '',
                 'content' => $data['content'] ?? '',
                 'headings' => $data['headings'] ?? [],
-                'paragraph_index' => $data['paragraph_index'] ?? 0,
+                'section_index' => $data['section_index'] ?? 0,
             ], _id: $data['_id'] ?? null),
         ];
     }

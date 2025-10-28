@@ -84,24 +84,24 @@ class IndexDocs extends Command
             $document = $converter->convert($markdownContent);
             $htmlString = (string) $document;
 
-            // Parse HTML to extract headings and content with proper association
+            // Parse HTML to extract sections (heading + content)
             $html5 = new HTML5(['encode_entities' => true]);
             $dom = $html5->loadHTML('<html><body>' . $htmlString . '</body></html>');
 
+            $sections = [];
             $allHeadings = [];
-            $contentParts = [];
 
-            // Get all body nodes in order to track current heading for each paragraph
+            // Get all body nodes
             $body = $dom->getElementsByTagName('body')->item(0);
             if (!$body || !$body->hasChildNodes()) {
                 $this->warn("Skipping {$relativePath} (no content nodes)");
                 continue;
             }
 
-            $currentHeading = $frontmatter['title'] ?? ucfirst(str_replace('-', ' ', $page));
-            $currentHeadingId = '';
+            $currentSection = null;
+            $sectionIndex = 0;
 
-            // Process all nodes in order to associate paragraphs with their headings
+            // Process all nodes and group by headings
             foreach ($body->childNodes as $node) {
                 if ($node->nodeType !== XML_ELEMENT_NODE) {
                     continue;
@@ -109,59 +109,73 @@ class IndexDocs extends Command
 
                 $tagName = $node->nodeName;
 
-                // Track headings (h1, h2, h3)
-                if (in_array($tagName, ['h1', 'h2', 'h3'])) {
+                // Start new section on heading (h2, h3 - skip h1 as it's usually the page title)
+                if (in_array($tagName, ['h2', 'h3'])) {
+                    // Save previous section if exists
+                    if ($currentSection && !empty(trim($currentSection['content']))) {
+                        $sections[] = $currentSection;
+                        $sectionIndex++;
+                    }
+
                     $headingText = $node->nodeValue;
                     $allHeadings[] = $headingText;
 
                     // Generate heading ID (same logic as TableOfContents)
-                    $currentHeading = $headingText;
-                    $currentHeadingId = strtolower(preg_replace('/[^\w\s-]/', '', $headingText));
-                    $currentHeadingId = preg_replace('/\s+/', '-', $currentHeadingId);
-                }
+                    $headingId = strtolower(preg_replace('/[^\w\s-]/', '', $headingText));
+                    $headingId = preg_replace('/\s+/', '-', $headingId);
 
-                // Process paragraphs
-                if ($tagName === 'p') {
-                    $value = $node->nodeValue;
-                    $value = str_replace('@info', '', $value);
-                    $value = str_replace('@endinfo', '', $value);
-                    $value = str_replace('@danger', '', $value);
-                    $value = str_replace('@enddanger', '', $value);
-                    $value = str_replace('@warning', '', $value);
-                    $value = str_replace('@endwarning', '', $value);
-
-                    // Skip empty paragraphs
-                    if (trim($value) === '') {
-                        continue;
-                    }
-
-                    $contentParts[] = [
-                        'content' => $value,
-                        'heading' => $currentHeading,
-                        'heading_id' => $currentHeadingId,
+                    // Start new section
+                    $currentSection = [
+                        'heading' => $headingText,
+                        'heading_id' => $headingId,
+                        'heading_level' => $tagName,
+                        'content' => '',
+                        'section_index' => $sectionIndex,
                     ];
+                } else {
+                    // Add content to current section
+                    $textContent = trim($node->nodeValue);
+
+                    if (!empty($textContent)) {
+                        // Clean up special markers
+                        $textContent = str_replace('@info', '', $textContent);
+                        $textContent = str_replace('@endinfo', '', $textContent);
+                        $textContent = str_replace('@danger', '', $textContent);
+                        $textContent = str_replace('@enddanger', '', $textContent);
+                        $textContent = str_replace('@warning', '', $textContent);
+                        $textContent = str_replace('@endwarning', '', $textContent);
+
+                        if ($currentSection) {
+                            $currentSection['content'] .= $textContent . "\n\n";
+                        }
+                    }
                 }
             }
 
-            // Skip if no content
-            if (empty($contentParts)) {
-                $this->warn("Skipping {$relativePath} (no content)");
+            // Don't forget the last section
+            if ($currentSection && !empty(trim($currentSection['content']))) {
+                $sections[] = $currentSection;
+            }
+
+            // Skip if no sections
+            if (empty($sections)) {
+                $this->warn("Skipping {$relativePath} (no sections)");
                 continue;
             }
 
             $pageTitle = $frontmatter['title'] ?? $allHeadings[0] ?? ucfirst(str_replace('-', ' ', $page));
             $baseUrl = "/docs/{$version}/{$page}";
 
-            // Create a separate document for each paragraph
-            foreach ($contentParts as $paragraphIdx => $paragraphData) {
+            // Create a separate document for each section
+            foreach ($sections as $section) {
                 $url = $baseUrl;
-                if (!empty($paragraphData['heading_id'])) {
-                    $url .= '#' . $paragraphData['heading_id'];
+                if (!empty($section['heading_id'])) {
+                    $url .= '#' . $section['heading_id'];
                 }
 
                 $docData = [
-                    '_id' => md5($file . '-' . $paragraphIdx),
-                    'title' => $paragraphData['heading'],
+                    '_id' => md5($file . '-' . $section['section_index']),
+                    'title' => $section['heading'],
                     'page_title' => $pageTitle,
                     'description' => $frontmatter['short_description'] ?? null,
                     'category' => $frontmatter['category'] ?? null,
@@ -169,9 +183,9 @@ class IndexDocs extends Command
                     'version' => $version,
                     'page' => $page,
                     'url' => $url,
-                    'content' => $paragraphData['content'],
+                    'content' => trim($section['content']),
                     'headings' => $allHeadings,
-                    'paragraph_index' => $paragraphIdx,
+                    'section_index' => $section['section_index'],
                 ];
 
                 $documents = [

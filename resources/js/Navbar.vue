@@ -2,7 +2,7 @@
 import { Head, Link, router as Inertia } from "@inertiajs/vue3";
 import Search from "./Search.vue";
 import Banner from "./Banner.vue";
-import { onMounted, ref, computed, nextTick, watch } from "vue";
+import { onMounted, onUnmounted, ref, computed, nextTick, watch } from "vue";
 import { SigmieSearch } from "@sigmie/vue";
 import axios from "axios";
 
@@ -30,6 +30,7 @@ const modalSearchQuery = ref('');
 const modalSearchInput = ref(null);
 const searchResults = ref([]);
 const isSearching = ref(false);
+let searchTimeout = null;
 
 const handleSearch = () => {
     if (searchQuery.value.trim()) {
@@ -49,6 +50,11 @@ const openSearchModal = () => {
 const closeSearchModal = () => {
     showSearchModal.value = false;
     searchResults.value = [];
+    // Clear any pending search timeout
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+        searchTimeout = null;
+    }
 };
 
 const searchDocs = async () => {
@@ -82,9 +88,26 @@ const handleModalSearch = (result = null) => {
     }
 };
 
-// Watch for query changes and search
+// Watch for query changes with debouncing
 watch(modalSearchQuery, () => {
-    searchDocs();
+    // Clear previous timeout
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+
+    // Set searching state immediately for UI feedback
+    if (modalSearchQuery.value.trim()) {
+        isSearching.value = true;
+    } else {
+        searchResults.value = [];
+        isSearching.value = false;
+        return;
+    }
+
+    // Debounce search by 300ms
+    searchTimeout = setTimeout(() => {
+        searchDocs();
+    }, 300);
 });
 
 onMounted(() => {
@@ -99,8 +122,13 @@ onMounted(() => {
     };
 
     window.addEventListener('keydown', handleKeyDown);
+});
 
-    return () => window.removeEventListener('keydown', handleKeyDown);
+onUnmounted(() => {
+    // Clean up timeout on component unmount
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
 });
 </script>
 
@@ -249,8 +277,14 @@ onMounted(() => {
                                         <div class="font-medium text-gray-100 group-hover:text-white transition-colors">
                                             {{ result.title }}
                                         </div>
-                                        <div class="text-xs text-gray-500 mt-1">
-                                            {{ result.version }} / {{ result.page }}
+                                        <div class="text-xs text-gray-500 mt-1 flex items-center gap-1.5">
+                                            <span>{{ result.version }} / {{ result.page }}</span>
+                                            <span v-if="result.url && result.url.includes('#')" class="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-800 rounded text-blue-400 font-mono text-xs">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                                </svg>
+                                                {{ result.url.split('#')[1] }}
+                                            </span>
                                         </div>
                                         <div v-if="result.content" class="text-sm text-gray-400 mt-1 line-clamp-2">
                                             {{ result.content.substring(0, 150) }}...

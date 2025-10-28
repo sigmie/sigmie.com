@@ -29,11 +29,16 @@ class Docs extends AbstractIndex
         $properties = new NewProperties;
 
         $properties->name('title')->semantic(accuracy: 6, dimensions: 384, api: 'infinity-embeddings');
+        $properties->text('page_title');
+        $properties->text('description');
+        $properties->keyword('category');
+        $properties->keyword('keywords');
         $properties->keyword('version');
         $properties->keyword('page');
         $properties->text('url');
         $properties->longText('content')->semantic(accuracy: 6, dimensions: 384, api: 'infinity-embeddings');
         $properties->text('headings')->semantic(accuracy: 6, dimensions: 384, api: 'infinity-embeddings');
+        $properties->number('paragraph_index');
 
         return $properties;
     }
@@ -43,11 +48,16 @@ class Docs extends AbstractIndex
         return [
             new Document([
                 'title' => $data['title'] ?? '',
+                'page_title' => $data['page_title'] ?? null,
+                'description' => $data['description'] ?? null,
+                'category' => $data['category'] ?? null,
+                'keywords' => $data['keywords'] ?? [],
                 'version' => $data['version'] ?? '',
                 'page' => $data['page'] ?? '',
                 'url' => $data['url'] ?? '',
                 'content' => $data['content'] ?? '',
                 'headings' => $data['headings'] ?? [],
+                'paragraph_index' => $data['paragraph_index'] ?? 0,
             ], _id: $data['_id'] ?? null),
         ];
     }

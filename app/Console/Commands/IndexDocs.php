@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Indices\Docs;
+use App\Services\Documentation;
 use Illuminate\Console\Command;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
@@ -25,6 +26,9 @@ class IndexDocs extends Command
 
         /** @var Sigmie $sigmie */
         $sigmie = $index->sigmie();
+
+        /** @var Documentation $documentation */
+        $documentation = app(Documentation::class);
 
         // Drop old index if fresh flag is set
         if ($this->option('fresh')) {
@@ -63,61 +67,118 @@ class IndexDocs extends Command
             $version = $parts[0] ?? 'v1';
             $page = str_replace('.md', '', $parts[1] ?? '');
 
-            // Read and convert markdown to HTML
+            // Skip README files
+            if (strtoupper($page) === 'README') {
+                continue;
+            }
+
+            // Read markdown file
             $fileContent = file_get_contents($file);
-            $document = $converter->convert($fileContent);
+
+            // Parse and strip YAML frontmatter
+            $parsed = $documentation->parseFrontmatter($fileContent);
+            $frontmatter = $parsed['frontmatter'];
+            $markdownContent = $parsed['content'];
+
+            // Convert markdown (without YAML) to HTML
+            $document = $converter->convert($markdownContent);
             $htmlString = (string) $document;
 
-            // Parse HTML to extract headings and content
+            // Parse HTML to extract headings and content with proper association
             $html5 = new HTML5(['encode_entities' => true]);
-            $dom = $html5->loadHTML(mb_encode_numericentity($htmlString, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
+            $dom = $html5->loadHTML('<html><body>' . $htmlString . '</body></html>');
 
-            $headings = [];
+            $allHeadings = [];
             $contentParts = [];
 
-            // Extract headings
-            foreach ($dom->getElementsByTagName('h1') as $node) {
-                $headings[] = $node->nodeValue;
-            }
-            foreach ($dom->getElementsByTagName('h2') as $node) {
-                $headings[] = $node->nodeValue;
-            }
-            foreach ($dom->getElementsByTagName('h3') as $node) {
-                $headings[] = $node->nodeValue;
+            // Get all body nodes in order to track current heading for each paragraph
+            $body = $dom->getElementsByTagName('body')->item(0);
+            if (!$body || !$body->hasChildNodes()) {
+                $this->warn("Skipping {$relativePath} (no content nodes)");
+                continue;
             }
 
-            // Extract paragraphs for content
-            foreach ($dom->getElementsByTagName('p') as $node) {
-                $value = $node->nodeValue;
-                $value = str_replace('@info', '', $value);
-                $value = str_replace('@endinfo', '', $value);
-                $contentParts[] = $value;
+            $currentHeading = $frontmatter['title'] ?? ucfirst(str_replace('-', ' ', $page));
+            $currentHeadingId = '';
+
+            // Process all nodes in order to associate paragraphs with their headings
+            foreach ($body->childNodes as $node) {
+                if ($node->nodeType !== XML_ELEMENT_NODE) {
+                    continue;
+                }
+
+                $tagName = $node->nodeName;
+
+                // Track headings (h1, h2, h3)
+                if (in_array($tagName, ['h1', 'h2', 'h3'])) {
+                    $headingText = $node->nodeValue;
+                    $allHeadings[] = $headingText;
+
+                    // Generate heading ID (same logic as TableOfContents)
+                    $currentHeading = $headingText;
+                    $currentHeadingId = strtolower(preg_replace('/[^\w\s-]/', '', $headingText));
+                    $currentHeadingId = preg_replace('/\s+/', '-', $currentHeadingId);
+                }
+
+                // Process paragraphs
+                if ($tagName === 'p') {
+                    $value = $node->nodeValue;
+                    $value = str_replace('@info', '', $value);
+                    $value = str_replace('@endinfo', '', $value);
+                    $value = str_replace('@danger', '', $value);
+                    $value = str_replace('@enddanger', '', $value);
+                    $value = str_replace('@warning', '', $value);
+                    $value = str_replace('@endwarning', '', $value);
+
+                    // Skip empty paragraphs
+                    if (trim($value) === '') {
+                        continue;
+                    }
+
+                    $contentParts[] = [
+                        'content' => $value,
+                        'heading' => $currentHeading,
+                        'heading_id' => $currentHeadingId,
+                    ];
+                }
             }
 
             // Skip if no content
-            if (empty($contentParts) && empty($headings)) {
+            if (empty($contentParts)) {
                 $this->warn("Skipping {$relativePath} (no content)");
                 continue;
             }
 
-            $title = $headings[0] ?? ucfirst(str_replace('-', ' ', $page));
-            $content = implode("\n", $contentParts);
-            $url = "/docs/{$version}/{$page}";
+            $pageTitle = $frontmatter['title'] ?? $allHeadings[0] ?? ucfirst(str_replace('-', ' ', $page));
+            $baseUrl = "/docs/{$version}/{$page}";
 
-            $docData = [
-                '_id' => md5($file),
-                'title' => $title,
-                'version' => $version,
-                'page' => $page,
-                'url' => $url,
-                'content' => $content,
-                'headings' => $headings,
-            ];
+            // Create a separate document for each paragraph
+            foreach ($contentParts as $paragraphIdx => $paragraphData) {
+                $url = $baseUrl;
+                if (!empty($paragraphData['heading_id'])) {
+                    $url .= '#' . $paragraphData['heading_id'];
+                }
 
-            $documents = [
-                ...$documents,
-                ...$index->toDocuments($docData),
-            ];
+                $docData = [
+                    '_id' => md5($file . '-' . $paragraphIdx),
+                    'title' => $paragraphData['heading'],
+                    'page_title' => $pageTitle,
+                    'description' => $frontmatter['short_description'] ?? null,
+                    'category' => $frontmatter['category'] ?? null,
+                    'keywords' => $frontmatter['keywords'] ?? [],
+                    'version' => $version,
+                    'page' => $page,
+                    'url' => $url,
+                    'content' => $paragraphData['content'],
+                    'headings' => $allHeadings,
+                    'paragraph_index' => $paragraphIdx,
+                ];
+
+                $documents = [
+                    ...$documents,
+                    ...$index->toDocuments($docData),
+                ];
+            }
 
             // Merge in batches of 50
             if (count($documents) >= 50) {

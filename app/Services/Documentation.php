@@ -182,9 +182,9 @@ class Documentation
         $markdown = $parsed['content'];
 
         foreach ([
-            'danger' => 'text-red-500 font-medium',
-            'info' => 'text-blue-500 font-medium',
-            'warning' => 'text-yellow-400 font-medium'
+            'danger' => 'bg-red-900/20 border-red-800 text-red-400',
+            'info' => 'bg-blue-900/20 border-blue-800 text-blue-400',
+            'warning' => 'bg-yellow-900/20 border-yellow-800 text-yellow-400'
         ] as $value => $classes) {
             preg_match_all('/@' . $value . '((.|\n)*?)@end' . $value . '/', $markdown, $matches);
 
@@ -192,7 +192,7 @@ class Documentation
 
             foreach ($matches[0] ?? [] as $index => $match) {
                 $replacement = $this->converter->convert($matches[1][$index]);
-                $markdown = str_replace($match, "<div class=\"p-4 mb-4 text-sm leading-relaxed rounded-lg bg-gray-50  prose border prose-xl min-w-full\"><div class=\"{$classes}\">{$title}</div>{$replacement}</div>", $markdown);
+                $markdown = str_replace($match, "<div class=\"callout {$value} p-4 mb-6 rounded-lg border\"><div class=\"font-semibold mb-2\">{$title}</div>{$replacement}</div>", $markdown);
             }
         }
 

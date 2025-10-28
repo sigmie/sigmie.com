@@ -131,13 +131,38 @@ Route::any('/blog/{endpoint?}', function ($endpoint, MarkdownConverter $converte
 Route::get('/docs', function () {
     $defaultVersion = collect(config('docs.versions', []))
         ->firstWhere('default', true);
-    
-    $version = $defaultVersion['value'] ?? 'v0';
-    
+
+    $version = $defaultVersion['value'] ?? 'v2';
+
     return redirect("/docs/{$version}/introduction");
 });
 
+// Catch docs links without version and redirect to default version
+Route::get('/docs/{endpoint}', function ($endpoint) {
+    // Strip .md extension if present
+    $endpoint = preg_replace('/\.md$/', '', $endpoint);
+
+    // Check if this is actually a version by looking at available versions
+    $versions = collect(config('docs.versions', []))->pluck('value')->toArray();
+
+    if (in_array($endpoint, $versions)) {
+        // This is a version, redirect to its introduction page
+        return redirect("/docs/{$endpoint}/introduction");
+    }
+
+    // This is an endpoint without version, redirect to default version
+    $defaultVersion = collect(config('docs.versions', []))
+        ->firstWhere('default', true);
+
+    $version = $defaultVersion['value'] ?? 'v2';
+
+    return redirect("/docs/{$version}/{$endpoint}");
+})->where('endpoint', '[^/]+');
+
 Route::any('/docs/{version}/{endpoint?}', function ($version, $endpoint, MarkdownConverter $converter) {
+
+    // Strip .md extension if present
+    $endpoint = preg_replace('/\.md$/', '', $endpoint);
 
     $documentation = new Documentation($converter);
 

@@ -1,12 +1,3 @@
----
-title: Language Support
-short_description: Configure language-specific analyzers and filters
-keywords: [languages, multilingual, greek, german, stemming, stopwords]
-category: Text Analysis
-order: 5
-related_pages: [analysis, token-filters, tokenizers]
----
-
 # Languages
 
 ```php

@@ -1,12 +1,3 @@
----
-title: Sort Parser
-short_description: Parse sort expressions for search result ordering
-keywords: [sort parser, sorting, order, search results]
-category: Utilities
-order: 2
-related_pages: [search, filter-parser]
----
-
 # Sort parser
 
 ## Introduction

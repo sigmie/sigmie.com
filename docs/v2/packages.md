@@ -1,12 +1,3 @@
----
-title: Packages
-short_description: Individual Sigmie packages for modular usage
-keywords: [packages, composer, modules, standalone packages]
-category: Reference
-order: 2
-related_pages: [installation]
----
-
 # Packages
 
 ```bash

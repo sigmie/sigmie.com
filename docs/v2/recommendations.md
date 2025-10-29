@@ -1,12 +1,3 @@
----
-title: Recommendations
-short_description: Build similar item recommendations with vector embeddings
-keywords: [recommendations, similar items, rrf, mmr, semantic similarity]
-category: Features
-order: 4
-related_pages: [semantic-search, search, rag]
----
-
 # Recommendations
 
 ## What are Recommendations?

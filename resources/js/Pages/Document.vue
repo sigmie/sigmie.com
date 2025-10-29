@@ -4,6 +4,7 @@ import { computed, onMounted, nextTick } from "vue";
 import DocsSidebar from "../components/DocsSidebar.vue";
 import Navbar from "../Navbar.vue";
 import TableOfContents from "../TableOfContents.vue";
+import { useTheme } from "../composables/useTheme";
 
 const props = defineProps({
     html: String,
@@ -13,6 +14,10 @@ const props = defineProps({
     href: String,
     card: String,
 });
+
+// Initialize theme
+const { initTheme } = useTheme();
+initTheme();
 
 // Clean up hash symbols from headings in the HTML
 const cleanedHtml = computed(() => {

@@ -83,7 +83,7 @@ onUnmounted(() => {
 
 <template>
     <nav v-if="headings.length > 0">
-        <h5 class="font-semibold text-xs uppercase tracking-wide text-gray-100 mb-4">
+        <h5 class="font-semibold text-xs uppercase tracking-wide text-gray-900 dark:text-gray-100 mb-4">
             On this page
         </h5>
         <ul class="space-y-2.5 text-sm">
@@ -99,12 +99,12 @@ onUnmounted(() => {
                     @click.prevent="scrollToHeading(heading.id)"
                     :class="[
                         activeId === heading.id
-                            ? 'text-blue-400 font-medium'
-                            : 'text-gray-400 hover:text-gray-200',
+                            ? 'text-blue-600 dark:text-blue-400 font-medium'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200',
                         'block py-1 transition-colors duration-200 border-l-2 pl-4 -ml-px',
                         activeId === heading.id
-                            ? 'border-blue-400'
-                            : 'border-transparent hover:border-gray-600'
+                            ? 'border-blue-600 dark:border-blue-400'
+                            : 'border-transparent hover:border-gray-400 dark:hover:border-gray-600'
                     ]"
                 >
                     {{ heading.text }}

@@ -21,7 +21,7 @@
 
     html,
     body {
-        @apply antialiased bg-black overflow-x-hidden;
+        @apply antialiased bg-white dark:bg-black overflow-x-hidden;
     }
 
     * {

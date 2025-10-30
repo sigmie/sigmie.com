@@ -3,7 +3,8 @@ import { Head, Link } from "@inertiajs/vue3";
 import { computed, onMounted, onUnmounted, nextTick, ref } from "vue";
 import DocsSidebar from "../components/DocsSidebar.vue";
 import Navbar from "../Navbar.vue";
-import TableOfContents from "../TableOfContents.vue";
+import LeftSidebar from "../components/LeftSidebar.vue";
+import RightSidebar from "../components/RightSidebar.vue";
 import { useTheme } from "../composables/useTheme";
 
 const props = defineProps({
@@ -24,30 +25,6 @@ const copiedMarkdown = ref(false);
 const showActionsDropdown = ref(false);
 const dropdownRef = ref(null);
 const copiedCodeBlocks = ref(new Set());
-
-// State for collapsible sections
-const collapsedSections = ref(new Set());
-
-// Toggle section collapse
-const toggleSection = (sectionTitle) => {
-    if (collapsedSections.value.has(sectionTitle)) {
-        collapsedSections.value.delete(sectionTitle);
-    } else {
-        collapsedSections.value.add(sectionTitle);
-    }
-    // Store in localStorage
-    localStorage.setItem('collapsedSections', JSON.stringify([...collapsedSections.value]));
-};
-
-// Check if section is collapsed
-const isSectionCollapsed = (sectionTitle) => {
-    return collapsedSections.value.has(sectionTitle);
-};
-
-// Check if section contains active link
-const isSectionActive = (section) => {
-    return section.links.some(link => link.href === props.navigation.find(s => s.links.some(l => l.href === window.location.pathname)));
-};
 
 // Handle click outside dropdown
 const handleClickOutside = (event) => {
@@ -253,48 +230,12 @@ onUnmounted(() => {
             <div class="max-w-[92rem] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex gap-8">
                     <!-- Left Sidebar -->
-                    <aside class="hidden lg:block w-64 flex-shrink-0 py-8 pr-6 sticky top-16 self-start h-[calc(100vh-4rem)] overflow-y-auto">
-                        <nav class="space-y-3">
-                            <div v-for="(section, index) in navigation" :key="index" class="mb-4">
-                                <!-- Section Header - Clickable -->
-                                <button
-                                    @click="toggleSection(section.title)"
-                                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-md transition-colors group"
-                                >
-                                    <span class="uppercase tracking-wide">{{ section.title }}</span>
-                                    <svg
-                                        class="w-4 h-4 transition-transform duration-200"
-                                        :class="{ 'rotate-180': !isSectionCollapsed(section.title) }"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </button>
-
-                                <!-- Section Links - Collapsible -->
-                                <div
-                                    v-show="!isSectionCollapsed(section.title)"
-                                    class="mt-2 space-y-0.5"
-                                >
-                                    <Link
-                                        v-for="link in section.links"
-                                        :key="link.href"
-                                        :href="link.href"
-                                        class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors"
-                                        :class="[
-                                            $page.url === link.href
-                                                ? 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-medium'
-                                                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-900'
-                                        ]"
-                                    >
-                                        <span>{{ link.title }}</span>
-                                    </Link>
-                                </div>
-                            </div>
-                        </nav>
-                    </aside>
+                    <LeftSidebar
+                        v-if="navigation"
+                        :navigation="navigation"
+                        :current-path="$page.url"
+                        class="hidden lg:block"
+                    />
 
                     <!-- Article Content -->
                     <main class="flex-1 min-w-0 py-8">
@@ -376,13 +317,11 @@ onUnmounted(() => {
                         </article>
                     </main>
 
-                    <!-- Right Table of Contents -->
-                    <aside class="hidden xl:block w-64 flex-shrink-0 py-8 sticky top-16 self-start">
-                        <div>
-                            <h5 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">On this page</h5>
-                            <TableOfContents :html="cleanedHtml" />
-                        </div>
-                    </aside>
+                    <!-- Right Sidebar -->
+                    <RightSidebar
+                        :html="cleanedHtml"
+                        class="hidden xl:block"
+                    />
                 </div>
             </div>
         </div>

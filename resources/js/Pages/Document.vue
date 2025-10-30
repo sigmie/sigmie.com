@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3";
-import { computed, onMounted, nextTick } from "vue";
+import { computed, onMounted, onUnmounted, nextTick, ref } from "vue";
 import DocsSidebar from "../components/DocsSidebar.vue";
 import Navbar from "../Navbar.vue";
 import TableOfContents from "../TableOfContents.vue";
@@ -16,8 +16,45 @@ const props = defineProps({
 });
 
 // Initialize theme
-const { initTheme } = useTheme();
+const { initTheme, theme, toggleTheme } = useTheme();
 initTheme();
+
+// State for copy button and dropdown
+const copiedMarkdown = ref(false);
+const showActionsDropdown = ref(false);
+const dropdownRef = ref(null);
+const copiedCodeBlocks = ref(new Set());
+
+// State for collapsible sections
+const collapsedSections = ref(new Set());
+
+// Toggle section collapse
+const toggleSection = (sectionTitle) => {
+    if (collapsedSections.value.has(sectionTitle)) {
+        collapsedSections.value.delete(sectionTitle);
+    } else {
+        collapsedSections.value.add(sectionTitle);
+    }
+    // Store in localStorage
+    localStorage.setItem('collapsedSections', JSON.stringify([...collapsedSections.value]));
+};
+
+// Check if section is collapsed
+const isSectionCollapsed = (sectionTitle) => {
+    return collapsedSections.value.has(sectionTitle);
+};
+
+// Check if section contains active link
+const isSectionActive = (section) => {
+    return section.links.some(link => link.href === props.navigation.find(s => s.links.some(l => l.href === window.location.pathname)));
+};
+
+// Handle click outside dropdown
+const handleClickOutside = (event) => {
+    if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+        showActionsDropdown.value = false;
+    }
+};
 
 // Clean up hash symbols from headings in the HTML
 const cleanedHtml = computed(() => {
@@ -26,8 +63,109 @@ const cleanedHtml = computed(() => {
     return props.html.replace(/>(\s*)#+ /g, '>$1');
 });
 
+// Compute GitHub markdown URL
+const githubMarkdownUrl = computed(() => {
+    const path = window.location.pathname.replace('/docs/v2/', '');
+    return `https://github.com/sigmie/sigmie/blob/master/docs/${path}.md`;
+});
+
+// Function to convert HTML to markdown (simple conversion)
+const htmlToMarkdown = (html) => {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+
+    const article = document.querySelector('article');
+    if (!article) return '';
+
+    let markdown = `# ${props.title}\n\n`;
+
+    // Get clean text content with basic markdown formatting
+    const content = article.innerText || article.textContent;
+    markdown += content;
+
+    return markdown;
+};
+
+// Copy page as markdown
+const copyPageAsMarkdown = async () => {
+    const markdown = htmlToMarkdown(props.html);
+
+    try {
+        await navigator.clipboard.writeText(markdown);
+        copiedMarkdown.value = true;
+        setTimeout(() => {
+            copiedMarkdown.value = false;
+        }, 2000);
+    } catch (err) {
+        console.error('Failed to copy markdown:', err);
+    }
+};
+
+// Add copy buttons to code blocks
+const addCopyButtonsToCodeBlocks = () => {
+    const codeBlocks = document.querySelectorAll('article pre');
+
+    codeBlocks.forEach((pre, index) => {
+        // Skip if already has a copy button
+        if (pre.querySelector('.copy-code-button')) return;
+
+        // Make pre relative for absolute positioning
+        pre.style.position = 'relative';
+
+        // Create copy button
+        const button = document.createElement('button');
+        button.className = 'copy-code-button';
+        button.setAttribute('aria-label', 'Copy code');
+        button.innerHTML = `
+            <svg class="copy-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+            <svg class="check-icon hidden" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        `;
+
+        button.onclick = async (e) => {
+            e.preventDefault();
+            const code = pre.querySelector('code');
+            if (code) {
+                try {
+                    await navigator.clipboard.writeText(code.textContent);
+                    const copyIcon = button.querySelector('.copy-icon');
+                    const checkIcon = button.querySelector('.check-icon');
+
+                    // Add success feedback
+                    button.classList.add('copied');
+                    copyIcon.classList.add('hidden');
+                    checkIcon.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        button.classList.remove('copied');
+                        copyIcon.classList.remove('hidden');
+                        checkIcon.classList.add('hidden');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy code:', err);
+                }
+            }
+        };
+
+        pre.appendChild(button);
+    });
+};
+
 // Also clean up after mount
 onMounted(() => {
+    // Load collapsed sections from localStorage
+    const saved = localStorage.getItem('collapsedSections');
+    if (saved) {
+        try {
+            collapsedSections.value = new Set(JSON.parse(saved));
+        } catch (e) {
+            console.error('Failed to parse collapsed sections:', e);
+        }
+    }
+
     nextTick(() => {
         const headings = document.querySelectorAll('article h1, article h2, article h3, article h4');
         headings.forEach(heading => {
@@ -35,6 +173,9 @@ onMounted(() => {
                 heading.textContent = heading.textContent.replace(/^#+\s*/, '');
             }
         });
+
+        // Add copy buttons to code blocks
+        addCopyButtonsToCodeBlocks();
 
         // Inject JSON-LD structured data
         const existingScript = document.querySelector('script[data-seo="article-ld"]');
@@ -65,6 +206,14 @@ onMounted(() => {
         script.textContent = JSON.stringify(articleSchema);
         document.head.appendChild(script);
     });
+
+    // Add click outside listener for dropdown
+    document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+    // Remove click outside listener
+    document.removeEventListener('click', handleClickOutside);
 });
 </script>
 
@@ -97,45 +246,150 @@ onMounted(() => {
     </Head>
 
     <div class="min-h-screen bg-white dark:bg-black">
-        <!-- Documentation Sidebar -->
-        <DocsSidebar :navigation="navigation" :current-path="$page.url" />
-
         <Navbar :navigation="navigation" />
 
-        <!-- Main Content -->
-        <div class="lg:ml-72">
-            <div class="relative">
-                <!-- Article Content -->
-                <div class="xl:pr-80 px-6 sm:px-8 lg:px-12">
-                    <article class="max-w-3xl mx-auto pt-24 pb-12">
-                        <div
-                            v-html="cleanedHtml"
-                            class="prose dark:prose-invert max-w-none
-                                   prose-headings:scroll-mt-20 prose-headings:font-semibold
-                                   prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-gray-300 dark:prose-h2:border-gray-800
-                                   prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
-                                   prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-3
-                                   prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-7
-                                   prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline prose-a:font-medium hover:prose-a:underline
-                                   prose-code:text-gray-300 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-normal
-                                   prose-pre:border prose-pre:border-gray-800
-                                   prose-blockquote:border-l-4 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:italic
-                                   prose-ul:my-6 prose-ol:my-6 prose-li:my-2
-                                   prose-table:my-8 prose-thead:border-b prose-thead:border-gray-300 dark:prose-thead:border-gray-700
-                                   prose-tr:border-b prose-tr:border-gray-200 dark:prose-tr:border-gray-800
-                                   prose-th:text-left prose-th:py-2 prose-th:px-4 prose-th:font-semibold
-                                   prose-td:py-2 prose-td:px-4"
-                        ></div>
-                    </article>
-                </div>
+        <!-- Main Content Container - Everything within max-w-[92rem] -->
+        <div class="pt-16">
+            <div class="max-w-[92rem] mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex gap-8">
+                    <!-- Left Sidebar -->
+                    <aside class="hidden lg:block w-64 flex-shrink-0 py-8 pr-6 sticky top-16 self-start h-[calc(100vh-4rem)] overflow-y-auto">
+                        <nav class="space-y-3">
+                            <div v-for="(section, index) in navigation" :key="index" class="mb-4">
+                                <!-- Section Header - Clickable -->
+                                <button
+                                    @click="toggleSection(section.title)"
+                                    class="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-md transition-colors group"
+                                >
+                                    <span class="uppercase tracking-wide">{{ section.title }}</span>
+                                    <svg
+                                        class="w-4 h-4 transition-transform duration-200"
+                                        :class="{ 'rotate-180': !isSectionCollapsed(section.title) }"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
 
-                <!-- Right Table of Contents - Fixed Position -->
-                <div class="hidden xl:block fixed top-16 right-0 w-80 h-screen overflow-y-auto border-l border-gray-200 dark:border-gray-800">
-                    <div class="p-8">
-                        <TableOfContents :html="cleanedHtml" />
-                    </div>
+                                <!-- Section Links - Collapsible -->
+                                <div
+                                    v-show="!isSectionCollapsed(section.title)"
+                                    class="mt-2 space-y-0.5"
+                                >
+                                    <Link
+                                        v-for="link in section.links"
+                                        :key="link.href"
+                                        :href="link.href"
+                                        class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors"
+                                        :class="[
+                                            $page.url === link.href
+                                                ? 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-medium'
+                                                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-900'
+                                        ]"
+                                    >
+                                        <span>{{ link.title }}</span>
+                                    </Link>
+                                </div>
+                            </div>
+                        </nav>
+                    </aside>
+
+                    <!-- Article Content -->
+                    <main class="flex-1 min-w-0 py-8">
+                        <article class="max-w-3xl">
+                            <!-- Page Title with Actions Split Button -->
+                            <div class="flex items-start justify-between gap-4 mb-8">
+                                <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 flex-1">{{ title }}</h1>
+
+                                <!-- Split Button (Copy page + dropdown) -->
+                                <div ref="dropdownRef" class="relative flex-shrink-0">
+                                    <div class="flex items-center border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
+                                        <!-- Main Action: Copy page -->
+                                        <button
+                                            @click="copyPageAsMarkdown"
+                                            :class="[
+                                                'flex items-center gap-2 px-3 py-2 text-sm transition-colors',
+                                                copiedMarkdown
+                                                    ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                                                    : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
+                                            ]"
+                                        >
+                                            <svg v-if="!copiedMarkdown" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                            </svg>
+                                            <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <span>{{ copiedMarkdown ? 'Copied!' : 'Copy page' }}</span>
+                                        </button>
+
+                                        <!-- Dropdown Toggle -->
+                                        <button
+                                            @click="showActionsDropdown = !showActionsDropdown"
+                                            class="px-2 py-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 border-l border-gray-300 dark:border-gray-700 transition-colors"
+                                        >
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <!-- Dropdown Menu -->
+                                    <div
+                                        v-if="showActionsDropdown"
+                                        class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg py-2 z-10"
+                                    >
+                                        <a
+                                            :href="githubMarkdownUrl"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                            @click="showActionsDropdown = false"
+                                        >
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                            </svg>
+                                            <span>View Markdown</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                v-html="cleanedHtml"
+                                class="prose dark:prose-invert max-w-none
+                                       prose-headings:scroll-mt-20 prose-headings:font-semibold
+                                       prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-gray-300 dark:prose-h2:border-gray-800
+                                       prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
+                                       prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-3
+                                       prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-7
+                                       prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline prose-a:font-medium hover:prose-a:underline
+                                       prose-blockquote:border-l-4 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-700 prose-blockquote:pl-4 prose-blockquote:italic
+                                       prose-ul:my-6 prose-ol:my-6 prose-li:my-2
+                                       prose-table:my-8 prose-thead:border-b prose-thead:border-gray-300 dark:prose-thead:border-gray-700
+                                       prose-tr:border-b prose-tr:border-gray-200 dark:prose-tr:border-gray-800
+                                       prose-th:text-left prose-th:py-2 prose-th:px-4 prose-th:font-semibold
+                                       prose-td:py-2 prose-td:px-4"
+                            ></div>
+                        </article>
+                    </main>
+
+                    <!-- Right Table of Contents -->
+                    <aside class="hidden xl:block w-64 flex-shrink-0 py-8 sticky top-16 self-start">
+                        <div>
+                            <h5 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">On this page</h5>
+                            <TableOfContents :html="cleanedHtml" />
+                        </div>
+                    </aside>
                 </div>
             </div>
+        </div>
+
+        <!-- Mobile Sidebar (keep the existing DocsSidebar for mobile) -->
+        <div class="lg:hidden">
+            <DocsSidebar :navigation="navigation" :current-path="$page.url" />
         </div>
     </div>
 </template>
@@ -148,22 +402,89 @@ onMounted(() => {
     align-self: flex-start;
 }
 
-pre code {
-    @apply block p-4 rounded-geist;
+/* Copy button for code blocks */
+.copy-code-button {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.375rem;
+    background-color: rgba(107, 114, 128, 0.1);
+    border: 1px solid rgba(107, 114, 128, 0.3);
+    border-radius: 0.375rem;
+    color: #9ca3af;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s ease;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+.copy-code-button:hover {
+    background-color: rgba(107, 114, 128, 0.2);
+    color: #d1d5db;
+    border-color: rgba(107, 114, 128, 0.4);
+}
+
+.copy-code-button.copied {
+    background-color: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #10b981;
+}
+
+pre:hover .copy-code-button {
+    opacity: 1;
+}
+
+.copy-code-button .hidden {
+    display: none;
+}
+
+/* Code block styling */
 .prose :where(pre):not(:where([class~="not-prose"] *)) {
     background-color: #0a0c11 !important;
-    @apply border border-gray-800 rounded-geist overflow-x-auto;
+    @apply border border-gray-800/50 rounded-lg overflow-x-auto my-6 shadow-sm;
+    padding: 0;
 }
 
-.prose :where(code):not(:where([class~="not-prose"] *)) {
-    background-color: #0a0c11 !important;
-    @apply text-gray-300 rounded-geist-sm px-1.5 py-0.5 text-sm font-mono;
+.prose :where(pre code):not(:where([class~="not-prose"] *)) {
+    @apply block p-4 bg-transparent;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: #e5e7eb;
 }
 
-pre code {
-    @apply bg-transparent p-4;
+/* Inline code styling */
+.prose :where(code):not(:where([class~="not-prose"] *)):not(pre code) {
+    background-color: rgba(100, 116, 139, 0.12) !important;
+    @apply text-gray-800 dark:text-gray-200 rounded px-1.5 py-0.5 text-sm font-mono;
+    border: 1px solid rgba(100, 116, 139, 0.2);
+    font-size: 0.875em;
+    font-weight: 400;
+}
+
+/* Code block improvements */
+.prose pre {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(107, 114, 128, 0.3) transparent;
+}
+
+.prose pre::-webkit-scrollbar {
+    height: 8px;
+}
+
+.prose pre::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.prose pre::-webkit-scrollbar-thumb {
+    background-color: rgba(107, 114, 128, 0.3);
+    border-radius: 4px;
+}
+
+.prose pre::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(107, 114, 128, 0.5);
 }
 
 .heading-permalink {

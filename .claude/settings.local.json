@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(curl:*)",
+      "Bash(grep:*)",
+      "Bash(php artisan:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git diff:*)",
+      "Read(//Users/nico/Downloads/**)",
+      "Bash(test:*)",
+      "Bash(rm:*)",
+      "Bash(composer show:*)",
+      "Bash(for file in /Users/nico/github.com/sigmie/sigmie.com/docs/v2/*.md)",
+      "Bash(head:*)",
+      "Bash(done)",
+      "Bash(composer dump-autoload:*)"
+    ],
+    "deny": []
+  }
+}

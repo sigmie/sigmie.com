@@ -23,6 +23,7 @@
     reindex_docs
     optimize_laravel
     restart_ssr
+    restart_mcp
     reload_php_fpm
     disable_maintenance_mode
 @endstory
@@ -149,6 +150,13 @@
     sudo supervisorctl restart daemon-523660:daemon-523660_00
     sleep 3
     sudo supervisorctl status daemon-523660:daemon-523660_00
+@endtask
+
+@task('restart_mcp', ['on' => 'production'])
+    echo "Restarting MCP server..."
+    sudo supervisorctl restart sigmie-mcp:sigmie-mcp_00
+    sleep 2
+    sudo supervisorctl status sigmie-mcp:sigmie-mcp_00
 @endtask
 
 @task('reload_php_fpm', ['on' => 'production'])

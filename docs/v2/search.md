@@ -155,17 +155,19 @@ This code sorts the **matched hits** first by their `name` in ascending directio
 
 By default, the matched hits are sorted by their `_score`, which shows how well a document matches the query.
 
-You can also use  `_score` in the sort string like this:
+You can also use `_score` in the sort string. By default, `_score` sorts in descending order (highest scores first). You can explicitly specify `_score:desc`:
 
 ```php
 $sigmie->newSearch('fairy-tales')
        ->properties($properties)
        ->queryString('Snow White')
-       ->sort('_score name:asc')
+       ->sort('_score:desc name:asc')
        ->get();
 ```
 
-This will sort the **hits** first by their `_score` and then ascending by their `name`  attribute.
+This will sort the **hits** first by their `_score` in descending order and then ascending by their `name` attribute.
+
+**Note**: `_score:asc` is not allowed. Use `_score` or `_score:desc` instead.
 
 ## Filtering
 
@@ -294,6 +296,31 @@ The `from` method specifies the number of records that should be skipped, while 
 
 In this example, the combination of the `from` and `size` values creates a paginated result set with 10 hits per page. You can use these methods to paginate the results of a search and split them into smaller, more manageable pages.
 
+## Deduplication
+
+When many documents share the same key (for example variants of the same product), you can return one hit per key and optionally include the next best matches from that group in the response.
+
+```php
+// One result per composite_key
+$sigmie->newSearch('jobs')
+    ->properties($properties)
+    ->queryString('')
+    ->uniqueBy('composite_key')
+    ->get();
+
+// One result per product_id, plus the top two other matches in that group (inner hits named `top`)
+$sigmie->newSearch('products')
+    ->properties($properties)
+    ->queryString('sneakers')
+    ->sort('price:asc')
+    ->uniqueBy('product_id', top: 3)
+    ->get();
+```
+
+The collapse field must be mapped as a single-valued field (for example `keyword`).
+
+`uniqueBy` is for `newSearch` only. If you use `newQuery` and a sort string, call `sortString` (or `sort` with a raw array) on the query builder before `bool`, `matchAll`, and other methods that return `Search` — see [Advanced Queries](/docs/query) and [Sort parser](/docs/sort-parser).
+
 ## Facets
 You can use facets to get aggregated information about your search results:
 
@@ -405,6 +432,117 @@ $hits = $response->hits();
 // Get total count
 $total = $response->total();
 ```
+
+## Iterating Over All Matching Hits
+
+Pagination works well for UI results, but some tasks — CSV exports, bulk re-processing, data migrations — need every document that matches a query. `each()` and `lazy()` stream all matching hits without holding the full result set in memory.
+
+Both methods reuse the exact query you already have: filters, query strings, field scoping, and minimum score all apply. Elasticsearch handles pagination internally using Point-in-Time (PIT) and `search_after`, so the results are consistent even if new documents arrive while you iterate.
+
+### Iterating with a Callback
+
+`each()` calls a closure for every matching `Hit`:
+
+```php
+$sigmie->newSearch('orders')
+    ->properties($properties)
+    ->filters('status:completed')
+    ->each(function (Hit $hit) use ($csv) {
+        $csv->writeRow($hit->_source);
+    });
+```
+
+Each `Hit` carries `_id`, `_source`, and `_score`:
+
+```php
+$sigmie->newSearch('products')
+    ->properties($properties)
+    ->filters('in_stock:true')
+    ->each(function (Hit $hit): void {
+        echo $hit->_id;            // document ID
+        echo $hit->_source['name']; // field value
+        echo $hit->_score;         // relevance score
+    });
+```
+
+### Iterating with a Generator
+
+`lazy()` returns a `Generator` you can drive yourself. This is useful when you need to pass an iterable to another function or process hits in batches using regular PHP:
+
+```php
+$generator = $sigmie->newSearch('orders')
+    ->properties($properties)
+    ->filters('status:completed')
+    ->lazy();
+
+foreach ($generator as $hit) {
+    processHit($hit);
+}
+```
+
+### Controlling Page Size
+
+Both `each()` and `lazy()` fetch hits in pages. The default page size is 500. Use `chunk()` to change it:
+
+```php
+$sigmie->newSearch('products')
+    ->properties($properties)
+    ->chunk(100)
+    ->each(function (Hit $hit): void {
+        // called for every product, fetched 100 at a time
+    });
+```
+
+A smaller chunk size reduces memory per request; a larger one reduces the number of round-trips to Elasticsearch. Tune it based on document size and your available memory.
+
+### Sort order during iteration
+
+Point-in-Time search must use a deterministic `sort` so `search_after` can page without skipping or duplicating hits. Sigmie builds that internally (via `PitSortPlanner`); you do not instantiate it yourself.
+
+- **`NewSearch`**: Your `sort('field:asc')` string still applies. Sorts that are only `_score` or `_doc` are replaced by the engine tiebreaker (`_shard_doc` ascending on Elasticsearch, `_id` ascending on OpenSearch). Any other sort list keeps your keys and appends the tiebreaker when it is not already the last sort key.
+
+- **`NewQuery`**: Call `sortString('price:asc')` or `sort([['price' => 'asc']])` on the query builder before you add the query clause (for example `matchAll()`). Omit `sort()` to stream in tiebreaker-only order (stable, not relevance-ranked). Use field names that exist in your mapping (for text fields you often need a `.keyword` or a `.sortable` subfield from your blueprint).
+
+- **`raw()` / `RawQuery`**: Include a top-level `sort` key in the body you pass to `raw()`:
+
+```php
+$multi->raw('orders', [
+    'query' => ['match_all' => (object) []],
+    'sort' => [['processed_at' => 'asc']],
+]);
+```
+
+When the request body includes `collapse`, Sigmie does not append `_shard_doc` / `_id`. Elasticsearch only allows a single sort key with `collapse` + `search_after`; supply that sort yourself (usually the collapsed field).
+
+### Streaming hits from a multi-search
+
+`newMultiSearch()` registers several queries. A single `_msearch` call returns only the first page per query. To stream **all** matching hits across those queries, call `lazy()` or `each()` on the multi-search instance. Each registered `NewSearch`, `NewQuery`, or `raw()` body runs its own PIT iteration; the multi-search yields hits in registration order (first query fully, then the next).
+
+```php
+use Sigmie\Document\Hit;
+
+$multi = $sigmie->newMultiSearch();
+
+$multi->newSearch('orders')
+    ->properties($orderProperties)
+    ->filters('status:pending')
+    ->chunk(200);
+
+$multi->newQuery('products')
+    ->matchAll();
+
+$multi->raw('orders', [
+    'query' => ['term' => ['status' => 'pending']]],
+])->chunk(200);
+
+foreach ($multi->lazy() as $hit) {
+    exportRow($hit);
+}
+```
+
+Set `chunk()` on each query before the next registration — the multi-search object does not expose its own `chunk()`; page size is per query. `raw()` returns a `RawQuery` instance; call `chunk()` on that return value before you register the next slot if you want a non-default page size for that raw body.
+
+> **Note:** `each()` and `lazy()` ignore `from()`, `size()`, `page()`, and `highlighting()` — these are pagination and display concerns that do not apply to full iteration. User-defined sort is still applied for streaming where you set it (`NewSearch::sort()`, `NewQuery::sortString()` / `NewQuery::sort(array)`, or a `sort` key on a raw body); see **Sort order during iteration** above.
 
 ## Promises
 For asynchronous operations, you can get a Promise instead of executing the search immediately:

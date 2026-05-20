@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "sigmie-docs": {
+      "command": "node",
+      "args": ["mcp-server/index.mjs"]
+    }
+  }
+}

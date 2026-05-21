@@ -1,5 +1,8 @@
 <script setup>
 import { computed } from 'vue';
+import { useTheme } from '../composables/useTheme';
+
+const { theme } = useTheme();
 
 const props = defineProps({
     code: {
@@ -51,7 +54,6 @@ const bottomFadeHeight = computed(() => props.fadeHeightBottom ?? props.fadeLeng
 const maskImage = computed(() => {
     const gradients = [];
 
-    // Create mask gradients - opaque in content, transparent at edges
     if (props.fadeRight) {
         gradients.push(`linear-gradient(to right, black, black calc(100% - ${rightFadeWidth.value}px), transparent 100%)`);
     } else {
@@ -233,7 +235,7 @@ const copyCode = async () => {
 
 <template>
     <div class="relative w-full">
-        <div class="relative rounded-t-lg overflow-hidden border border-gray-800 border-b-0 bg-black" :style="{ maskImage: maskImage, WebkitMaskImage: maskImage, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }">
+        <div class="relative rounded-t-lg overflow-hidden border border-light-steel dark:border-gray-800 border-b-0 bg-graphite dark:bg-black" :style="{ maskImage: maskImage, WebkitMaskImage: maskImage, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }">
             <div class="px-3 sm:px-4 pt-6 sm:pt-8 pb-8 sm:pb-12 overflow-x-auto overflow-y-hidden" style="white-space: pre-wrap;">
                 <div class="flex font-mono text-sm leading-relaxed min-h-[auto]">
                     <!-- Line Numbers -->

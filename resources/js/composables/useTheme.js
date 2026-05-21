@@ -1,17 +1,20 @@
-import { ref, watch, onMounted } from 'vue';
+import { ref } from 'vue';
 
-const theme = ref('dark');
+const getInitialTheme = () => {
+    if (typeof window === 'undefined') return 'light';
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'light') return saved;
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
+
+const theme = ref(getInitialTheme());
 
 export function useTheme() {
     const setTheme = (newTheme) => {
         theme.value = newTheme;
+        if (typeof window === 'undefined') return;
         localStorage.setItem('theme', newTheme);
-
-        if (newTheme === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+        document.documentElement.classList.toggle('dark', newTheme === 'dark');
     };
 
     const toggleTheme = () => {
@@ -19,11 +22,11 @@ export function useTheme() {
     };
 
     const initTheme = () => {
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-
-        setTheme(initialTheme);
+        if (typeof window === 'undefined') return;
+        // Ensure the html class agrees with the current ref value (covers cases
+        // where another tab updated localStorage or the inline init script ran
+        // before this module loaded).
+        document.documentElement.classList.toggle('dark', theme.value === 'dark');
     };
 
     return {

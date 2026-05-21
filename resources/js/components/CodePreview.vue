@@ -111,7 +111,7 @@ const parseTokens = (text) => {
             current = char;
         } else if (char === stringChar && inString) {
             current += char;
-            tokens.push({ type: 'string', value: current });
+            tokens.push(...expandStringToken(current));
             current = '';
             inString = false;
         } else if (inString) {
@@ -157,13 +157,108 @@ const parseTokens = (text) => {
 
     if (current) {
         if (inString) {
-            tokens.push({ type: 'string', value: current });
+            tokens.push(...expandStringToken(current));
         } else {
             tokens.push(...tokenizeNonString(current));
         }
     }
 
     return tokens;
+};
+
+// Detects strings that contain Sigmie filter DSL (field:value, AND/OR/NOT,
+// range syntax, comparison ops) and re-tokenises their contents so each
+// part gets its own colour. Falls back to a single `string` token otherwise.
+const FILTER_SHAPE = /:[^\s'"]|[<>]=?\s*\d|\bAND\b|\bOR\b|\bNOT\b|\[[^\]]*\.\.[^\]]*\]/i;
+
+const expandStringToken = (raw) => {
+    if (raw.length < 2) return [{ type: 'string', value: raw }];
+    const quote = raw[0];
+    if (quote !== "'" && quote !== '"') return [{ type: 'string', value: raw }];
+    const inner = raw.slice(1, -1);
+    if (!FILTER_SHAPE.test(inner)) return [{ type: 'string', value: raw }];
+
+    return [
+        { type: 'string', value: quote },
+        ...tokenizeFilter(inner),
+        { type: 'string', value: quote },
+    ];
+};
+
+const tokenizeFilter = (text) => {
+    const out = [];
+    let i = 0;
+    while (i < text.length) {
+        const ch = text[i];
+
+        if (/\s/.test(ch)) {
+            let start = i;
+            while (i < text.length && /\s/.test(text[i])) i++;
+            out.push({ type: 'space', value: text.slice(start, i) });
+            continue;
+        }
+
+        if (ch === '"' || ch === "'") {
+            const open = ch;
+            let start = i;
+            i++;
+            while (i < text.length && text[i] !== open) i++;
+            if (i < text.length) i++; // closing quote
+            out.push({ type: 'filter-value', value: text.slice(start, i) });
+            continue;
+        }
+
+        if ((ch === '<' || ch === '>') && text[i + 1] === '=') {
+            out.push({ type: 'filter-op', value: ch + '=' });
+            i += 2;
+            continue;
+        }
+
+        if (ch === '<' || ch === '>' || ch === ':' || ch === '=' || ch === '!') {
+            out.push({ type: 'filter-op', value: ch });
+            i++;
+            continue;
+        }
+
+        if (ch === '[' || ch === ']') {
+            out.push({ type: 'filter-bracket', value: ch });
+            i++;
+            continue;
+        }
+
+        if (ch === '.' && text[i + 1] === '.') {
+            out.push({ type: 'filter-bracket', value: '..' });
+            i += 2;
+            continue;
+        }
+
+        if (ch === '*') {
+            out.push({ type: 'filter-bracket', value: '*' });
+            i++;
+            continue;
+        }
+
+        if (/[a-zA-Z_0-9.]/.test(ch)) {
+            let start = i;
+            while (i < text.length && /[a-zA-Z_0-9.]/.test(text[i])) i++;
+            const word = text.slice(start, i);
+            const upper = word.toUpperCase();
+            if (upper === 'AND' || upper === 'OR' || upper === 'NOT') {
+                out.push({ type: 'filter-logic', value: word });
+            } else if (word === 'true' || word === 'false' || word === 'null') {
+                out.push({ type: 'filter-number', value: word });
+            } else if (/^-?\d+(\.\d+)?$/.test(word)) {
+                out.push({ type: 'filter-number', value: word });
+            } else {
+                out.push({ type: 'filter-field', value: word });
+            }
+            continue;
+        }
+
+        out.push({ type: 'filter-text', value: ch });
+        i++;
+    }
+    return out;
 };
 
 const tokenizeNonString = (text) => {
@@ -202,9 +297,20 @@ const getTokenClass = (token) => {
         case 'number':
             return 'text-magic-orange';
         case 'string':
+        case 'filter-value':
             return 'text-magic-green dark:text-emerald-300';
+        case 'filter-field':
+            return 'text-fuchsia-700 dark:text-fuchsia-300';
+        case 'filter-logic':
+            return 'font-semibold text-magic-orange';
+        case 'filter-number':
+            return 'text-magic-orange';
+        case 'filter-op':
+        case 'filter-bracket':
+            return 'text-charcoal dark:text-gray-400';
         case 'method':
         case 'text':
+        case 'filter-text':
             return 'text-graphite dark:text-gray-300';
         case 'operator':
         case 'bracket':

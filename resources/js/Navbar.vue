@@ -30,6 +30,8 @@ const isSearching = ref(false);
 const selectedResultIndex = ref(0);
 let searchTimeout = null;
 
+const popularTopics = ['semantic search', 'mappings', 'aggregations', 'filters', 'RAG', 'Laravel Scout', 'analysis'];
+
 const openSearchModal = () => {
     showSearchModal.value = true;
     modalSearchQuery.value = '';
@@ -310,14 +312,17 @@ onUnmounted(() => {
                         </div>
                     </div>
 
-                    <div v-else class="flex-1 flex items-center justify-center py-16">
-                        <div class="text-center">
-                            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-ghostly-gray dark:bg-gray-800 flex items-center justify-center">
-                                <svg class="w-8 h-8 text-subtle-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
-                            <p class="text-subtle-gray text-[14px]">Start typing to search documentation</p>
+                    <div v-else class="flex-1 px-6 py-8">
+                        <p class="text-[11px] font-semibold uppercase tracking-wider text-subtle-gray mb-3">Popular topics</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button
+                                v-for="topic in popularTopics"
+                                :key="topic"
+                                @click="modalSearchQuery = topic"
+                                class="px-3 py-1.5 text-[13px] text-charcoal dark:text-gray-300 bg-ghostly-gray dark:bg-gray-800 border border-light-steel dark:border-gray-700 rounded-full hover:bg-fog dark:hover:bg-gray-700 transition-colors"
+                            >
+                                {{ topic }}
+                            </button>
                         </div>
                     </div>
 

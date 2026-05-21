@@ -28,7 +28,7 @@
                         <span class="text-[20px] font-semibold tracking-tight text-graphite dark:text-white">Sigmie</span>
                     </Link>
 
-                    <div class="flex-1 max-w-2xl">
+                    <div class="hidden md:block flex-1 max-w-2xl">
                         <form @submit.prevent="performSearch" class="relative">
                             <input
                                 v-model="searchQuery"

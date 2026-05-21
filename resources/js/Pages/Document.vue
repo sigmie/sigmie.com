@@ -1,10 +1,11 @@
 <script setup>
-import { Head } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
 import { computed, onMounted, onUnmounted, nextTick, ref } from "vue";
 import DocsSidebar from "../components/DocsSidebar.vue";
 import Navbar from "../Navbar.vue";
 import LeftSidebar from "../components/LeftSidebar.vue";
 import RightSidebar from "../components/RightSidebar.vue";
+import TableOfContents from "../TableOfContents.vue";
 import { useTheme } from "../composables/useTheme";
 
 const props = defineProps({
@@ -15,6 +16,28 @@ const props = defineProps({
     href: String,
     card: String,
 });
+
+const flatLinks = computed(() => {
+    if (!props.navigation || !Array.isArray(props.navigation)) return [];
+    return props.navigation.flatMap((section) => section.links || []);
+});
+
+const currentIndex = computed(() => {
+    if (typeof window === 'undefined') return -1;
+    return flatLinks.value.findIndex((l) => l.href === window.location.pathname);
+});
+
+const prevLink = computed(() => {
+    const i = currentIndex.value;
+    return i > 0 ? flatLinks.value[i - 1] : null;
+});
+
+const nextLink = computed(() => {
+    const i = currentIndex.value;
+    return i >= 0 && i < flatLinks.value.length - 1 ? flatLinks.value[i + 1] : null;
+});
+
+const showMobileToc = ref(false);
 
 const { initTheme } = useTheme();
 initTheme();
@@ -180,19 +203,18 @@ onUnmounted(() => {
         <Navbar :navigation="navigation" />
 
         <div class="pt-16">
-            <div class="max-w-[92rem] mx-auto px-6 lg:px-8">
-                <div class="flex gap-12">
+            <div class="max-w-[88rem] mx-auto px-6 lg:px-8">
+                <div class="flex gap-10 xl:gap-14">
                     <LeftSidebar
                         v-if="navigation"
                         :navigation="navigation"
                         :current-path="$page.url"
-                        class="hidden lg:block"
                     />
 
-                    <main class="flex-1 min-w-0 py-12">
-                        <article class="max-w-3xl">
-                            <div class="flex items-start justify-between gap-4 mb-10">
-                                <h1 class="text-[40px] leading-[1.2] font-semibold tracking-tight text-graphite dark:text-white flex-1">
+                    <main class="flex-1 min-w-0 py-10">
+                        <article class="max-w-2xl">
+                            <div class="flex items-start justify-between gap-4 mb-6">
+                                <h1 class="text-[36px] leading-[1.15] font-semibold tracking-tight text-graphite dark:text-white flex-1">
                                     {{ title }}
                                 </h1>
 
@@ -247,11 +269,71 @@ onUnmounted(() => {
                                 </div>
                             </div>
 
+                            <p v-if="description" class="text-[16px] leading-[1.55] text-charcoal dark:text-gray-400 mb-10 -mt-2">
+                                {{ description }}
+                            </p>
+
+                            <details class="xl:hidden mb-8 rounded-lg border border-light-steel dark:border-gray-800 bg-ghostly-gray dark:bg-gray-900 [&[open]>summary>svg]:rotate-180" @toggle="(e) => showMobileToc = e.target.open">
+                                <summary class="flex items-center justify-between gap-2 px-4 py-3 cursor-pointer text-[13px] font-semibold text-graphite dark:text-white list-none">
+                                    On this page
+                                    <svg class="w-4 h-4 text-subtle-gray transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </summary>
+                                <div class="px-4 pb-3 border-t border-light-steel dark:border-gray-800 pt-3">
+                                    <TableOfContents :html="cleanedHtml" />
+                                </div>
+                            </details>
+
                             <div v-html="cleanedHtml" class="doc-content"></div>
+
+                            <footer class="mt-16 pt-8 border-t border-light-steel dark:border-gray-800">
+                                <a
+                                    :href="githubMarkdownUrl"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="inline-flex items-center gap-2 text-[13px] font-medium text-subtle-gray hover:text-graphite dark:hover:text-white transition-colors mb-10"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    Edit this page on GitHub
+                                </a>
+
+                                <nav v-if="prevLink || nextLink" class="grid grid-cols-2 gap-4">
+                                    <Link
+                                        v-if="prevLink"
+                                        :href="prevLink.href"
+                                        class="group flex flex-col items-start gap-1 p-4 rounded-xl border border-light-steel dark:border-gray-800 hover:border-graphite dark:hover:border-white transition-colors"
+                                    >
+                                        <span class="text-[12px] text-subtle-gray">Previous</span>
+                                        <span class="inline-flex items-center gap-2 text-[14px] font-semibold text-graphite dark:text-white group-hover:text-magic-orange transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                            {{ prevLink.title }}
+                                        </span>
+                                    </Link>
+                                    <div v-else></div>
+                                    <Link
+                                        v-if="nextLink"
+                                        :href="nextLink.href"
+                                        class="group flex flex-col items-end gap-1 p-4 rounded-xl border border-light-steel dark:border-gray-800 hover:border-graphite dark:hover:border-white transition-colors text-right"
+                                    >
+                                        <span class="text-[12px] text-subtle-gray">Next</span>
+                                        <span class="inline-flex items-center gap-2 text-[14px] font-semibold text-graphite dark:text-white group-hover:text-magic-orange transition-colors">
+                                            {{ nextLink.title }}
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </span>
+                                    </Link>
+                                </nav>
+                            </footer>
                         </article>
                     </main>
 
-                    <RightSidebar :html="cleanedHtml" class="hidden xl:block" />
+                    <RightSidebar :html="cleanedHtml" />
                 </div>
             </div>
         </div>
@@ -320,9 +402,12 @@ onUnmounted(() => {
 .doc-content a {
     color: var(--color-magic-orange);
     font-weight: 500;
-    text-decoration: none;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
 }
-.doc-content a:hover { text-decoration: underline; }
+.doc-content a:hover { color: var(--color-graphite); }
+.dark .doc-content a:hover { color: #fff; }
 
 .doc-content strong {
     color: var(--color-graphite);

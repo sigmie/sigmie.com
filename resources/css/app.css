@@ -95,15 +95,17 @@
   --text-geist-4xl: 36px;
   --leading-geist-4xl: 40px;
 
-  /* Spacing (DESIGN.md scale) */
-  --spacing-8: 8px;
-  --spacing-16: 16px;
-  --spacing-24: 24px;
-  --spacing-32: 32px;
-  --spacing-40: 40px;
-  --spacing-64: 64px;
-  --spacing-80: 80px;
-  --spacing-200: 200px;
+  /* DESIGN.md spacing scale (raw CSS vars only — never override Tailwind's
+     --spacing-N or `w-64`, `py-16` etc. silently change size). Reference these
+     via var(--ds-spacing-N) in custom CSS when needed. */
+  --ds-spacing-8: 8px;
+  --ds-spacing-16: 16px;
+  --ds-spacing-24: 24px;
+  --ds-spacing-32: 32px;
+  --ds-spacing-40: 40px;
+  --ds-spacing-64: 64px;
+  --ds-spacing-80: 80px;
+  --ds-spacing-200: 200px;
 
   /* Border Radius */
   --radius-lg: 8px;
@@ -148,7 +150,7 @@
   }
   html { scroll-behavior: smooth; }
   html, body {
-    @apply antialiased bg-canvas-white text-graphite dark:bg-black dark:text-white overflow-x-hidden;
+    @apply antialiased bg-canvas-white text-graphite dark:bg-black dark:text-white;
     font-family: var(--font-sans);
   }
   /* Preserve v3 default border color */

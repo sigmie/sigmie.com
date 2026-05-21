@@ -82,23 +82,21 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <nav v-if="headings.length > 0" class="font-sans border-l border-light-steel dark:border-gray-800">
-        <ul class="space-y-1 text-[13px]">
+    <nav v-if="headings.length > 0" class="font-sans">
+        <ul class="space-y-px text-[13px]">
             <li
                 v-for="heading in headings"
                 :key="heading.id"
-                :class="[
-                    heading.level === 2 ? '' : heading.level === 3 ? 'ml-3' : 'ml-6',
-                ]"
+                :class="heading.level === 2 ? '' : heading.level === 3 ? 'ml-3' : 'ml-6'"
             >
                 <a
                     :href="`#${heading.id}`"
                     @click.prevent="scrollToHeading(heading.id)"
                     :class="[
-                        '-ml-px block py-1 pl-4 border-l transition-colors duration-150',
+                        'block py-1 leading-[1.4] transition-colors duration-150',
                         activeId === heading.id
-                            ? 'text-graphite dark:text-white font-medium border-magic-orange'
-                            : 'text-subtle-gray hover:text-graphite dark:text-gray-400 dark:hover:text-gray-200 border-transparent'
+                            ? 'text-graphite dark:text-white font-medium'
+                            : 'text-subtle-gray hover:text-graphite dark:text-gray-400 dark:hover:text-gray-200'
                     ]"
                 >
                     {{ heading.text }}

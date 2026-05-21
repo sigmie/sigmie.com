@@ -1,178 +1,148 @@
-# Sigmie.com — SEO Action Plan
+# Sigmie.com — SEO Action Plan (post-100% push)
 
 Generated: 2026-05-21 — paired with `FULL-AUDIT-REPORT.md`.
 
-**Current score: 40 / 100. Realistic target after the Critical + High block: 75–80 / 100.**
-
-Most of the upside is concentrated in two fixes: (1) restoring SSR on `/docs/v2/*`, and (2) injecting per-page `<title>` / `<meta description>` / `<link rel=canonical>` from route data. Together those two unblock ~36 of the 45 indexed URLs.
+**Current score: ~88 / 100.** All structural SEO is done. The remaining gap is field-data + content investment + active acquisition (backlinks, citations, brand mentions).
 
 ---
 
-## CRITICAL — fix this week (blocks indexing or causes embarrassment)
+## What got shipped this session (already done — for the record)
 
-### C1. Restore SSR for `/docs/v2/*` pages
-**Impact:** ★★★★★ (affects 35 of 45 sitemap URLs)
-**Effort:** Medium — investigation + fix in Inertia SSR.
-**Why:** Every doc page currently returns 100–290 KB of HTML with **zero body text**. The markdown content lives only in `data-page` JSON and requires JS to hydrate. Google can render JS but with delay and reduced confidence. Bing and most AI crawlers will not see content.
+### Critical (Run 1 → Run 2)
+- ✅ SSR daemon fix (`useTheme()` `localStorage` guard) — unblocked SSR sitewide
+- ✅ Per-page `<title>` / `<meta description>` / canonical / OG via Blade fallback
+- ✅ Organization + WebSite + SoftwareApplication / Article / TechArticle JSON-LD
+- ✅ `/og-image.png` created (and resized to 1200×630)
+- ✅ Blog `"lorem"` description replaced
+- ✅ HSTS / Referrer-Policy / Permissions-Policy added; deprecated `X-XSS-Protection` removed
+- ✅ Nginx duplicate-header cleanup (manual edit on the box)
+- ✅ `/llms.txt` route, generated from sitemap + frontmatter
+- ✅ Homepage H1, viewport/robots duplicates removed, author meta consolidated, robots.txt cleaned
+
+### High → Low (Run 2 → Run 3)
+- ✅ `Post.vue` strips its rendered markdown's leading `<h1>` (no more duplicate H1 on blog posts)
+- ✅ Server-rendered `Footer` component with Docs / Blog / Search / Resumes / GitHub / Packagist / Discussions links on every page — homepage internal-link count went from 1 → 9+
+- ✅ `/search` and `/resumes` got proper SEO shells: H1 + intro paragraph, title/description/canonical via routes
+- ✅ `/search` SSR fix: deep-imported `lodash/debounce.js` to dodge the Node ESM "Named export 'debounce' not found" bootloop
+- ✅ All 37 doc page `short_description` values rewritten in `sigmie/sigmie` source repo to 143–163 chars (was 49–78)
+- ✅ BreadcrumbList JSON-LD on `/docs/v2/*` and `/blog/*` (Home → Hub → Page)
+- ✅ `datePublished` + `dateModified` on Article and TechArticle from markdown file mtime
+- ✅ CollectionPage + ItemList JSON-LD on `/blog` index
+- ✅ Content-Security-Policy-Report-Only header (ready to promote to enforcing CSP after a week of clean reports)
+- ✅ Doc titles extended to `{Topic} — Sigmie Docs for PHP` (33–43 chars); blog post titles `{Topic} — Sigmie Blog`; `pageHeading` prop split keeps visible H1 short
+- ✅ Title callback (Blade + Inertia) uses `str_contains('Sigmie')` so embedded brand name doesn't duplicate
+- ✅ Homepage SSR copy expanded from 174 → 538 words (What is Sigmie / Who it's for / What makes it different)
+- ✅ `/og-image.png` regenerated at the canonical 1200×630
+
+---
+
+## What's left to do (to break 90 → 95+)
+
+### HIGH-LEVERAGE — needs external setup
+
+#### 1. Wire Google Search Console + CrUX + GA4
+**Impact:** ★★★★ (+5 to Performance, unlocks indexation truth, real CWV, search query share)
+**Effort:** Medium — verify domain in GSC, create Google Cloud project, enable APIs, OAuth or service account.
 **How:**
-1. Confirm the SSR daemon (`inertia:start-ssr`, supervisor task `daemon-523660`) is alive on the server (`sudo supervisorctl status daemon-523660`).
-2. Check the SSR build output for the docs Vue component — does it actually render the markdown? If markdown is rendered via a Vue-side library (e.g. `marked`/`shiki` in `onMounted`), move that to server-rendered output.
-3. The Laravel side likely already parses markdown (see `app/Console/Commands/IndexDocs.php`). Pass the rendered HTML to Inertia as a prop instead of relying on client-side markdown parsing.
-4. Verify by `curl -A "Mozilla/5.0" https://sigmie.com/docs/v2/introduction | grep -c "<h2"` — expect ≥ 1.
+1. Verify `sigmie.com` in Search Console (DNS TXT record is easiest with Cloudflare DNS).
+2. Enable Search Console API, CrUX API, PageSpeed Insights API, GA4 Data API in Google Cloud.
+3. Download a service account JSON or run `python scripts/google_auth.py` from the seo-google skill.
+4. Re-run the audit with the `seo-google` agent enabled.
 
-### C2. Add per-page `<title>` and `<meta description>`
-**Impact:** ★★★★★ (affects every URL; current sitewide duplication of `<title>Sigmie</title>`)
-**Effort:** Low — 1–2 hours.
+#### 2. Submit to the HSTS preload list
+**Impact:** ★★ (browser-bundled HSTS, eliminates first-request downgrade risk)
+**Effort:** Trivial — 1 form submission.
+**How:** After 1 week of stable HSTS, submit at https://hstspreload.org. The current header already has `preload` directive.
+
+#### 3. Edge-cache HTML for read-only routes
+**Impact:** ★★★ (+3 Performance; TTFB ~80 ms → ~10 ms repeat)
+**Effort:** Medium — needs a "no-session" middleware applied to `/`, `/docs/v2/*`, `/blog/*`, `/search`, `/resumes`.
 **How:**
-- In each Inertia page component, use `<Head>` from `@inertiajs/vue3`:
-  ```vue
-  <script setup>
-  import { Head } from '@inertiajs/vue3'
-  const props = defineProps({ doc: Object })
-  </script>
-  <template>
-    <Head>
-      <title>{{ doc.title }} — Sigmie Docs</title>
-      <meta name="description" :content="doc.description" />
-      <link rel="canonical" :href="`https://sigmie.com${doc.path}`" />
-      <meta property="og:title" :content="`${doc.title} — Sigmie Docs`" />
-      <meta property="og:description" :content="doc.description" />
-      <meta property="og:url" :content="`https://sigmie.com${doc.path}`" />
-    </Head>
-  </template>
-  ```
-- Ensure SSR emits these into `<head>` (Inertia SSR does this automatically when `Head` is used and the SSR daemon is running — depends on C1).
-- For Blade fallback, render the same tags from controller data.
+- Create `WithoutSession` middleware that runs BEFORE `StartSession` and short-circuits with `Cache-Control: public, max-age=60, s-maxage=300, stale-while-revalidate=600` and no `Set-Cookie`.
+- Apply on a route-group basis. Keep the existing CSRF middleware for POST API routes only.
+- Alternative: Cloudflare Page Rule + Cookie ignore for these path patterns.
 
-### C3. Fix the missing `/og-image.png`
-**Impact:** ★★★★ (every social share is broken)
-**Effort:** Trivial — 15 minutes.
-**How:**
-1. Create a 1200×630 PNG or WebP at `public/og-image.png` (logo + tagline `Sigmie — A modern Elasticsearch library for PHP`).
-2. Confirm `curl -I https://sigmie.com/og-image.png` returns `200` and `content-type: image/png`.
-3. While there, verify the per-post `/cards/{slug}.png` assets exist for all four blog posts.
+### CONTENT — needs writing/voice approval
 
-### C4. Replace `"lorem"` description on `/blog/a-different-approach`
-**Impact:** ★★★ (one URL, but it's literally the first result on `/blog`)
-**Effort:** Trivial.
-**How:** Edit the frontmatter `description:` field in the source markdown (likely under `resources/` or in the synced `docs/v2/` directory's blog equivalent). Suggested:
+#### 4. Expand homepage to 1,000+ words
+**Impact:** ★★ (+3 Content)
+**Effort:** Medium (writing). The current 538-word section is fine; another 500 words of code samples + testimonials + comparison would push it firmly into "comprehensive landing page" territory.
+
+#### 5. Lengthen the short blog posts
+**Impact:** ★★ (+2 Content)
+**Effort:** Variable. `/blog/high-level-properties` is 265 words, `/blog/why-are-search-services-expensive` is 354. Either extend with more depth or roll into longer canonical articles.
+
+#### 6. Add `Organization.sameAs` entries
+**Impact:** ★★ (+2 Schema, AI)
+**Effort:** 5 min once you confirm handles.
+**How:** Add to `resources/views/app.blade.php`:
+```php
+'sameAs' => [
+    'https://github.com/sigmie',
+    'https://packagist.org/packages/sigmie/sigmie',
+    'https://x.com/<handle>',
+    'https://www.linkedin.com/company/<slug>',
+    'https://mastodon.social/@<handle>',
+    'https://bsky.app/profile/<handle>',
+],
 ```
-description: "Why Sigmie takes a different approach to Elasticsearch in PHP — fluent API, no boilerplate, focus on relevance instead of low-level mappings."
+
+### SCHEMA / TECHNICAL POLISH
+
+#### 7. FAQPage markup on doc pages with Q&A patterns
+**Impact:** ★★ (+2 Schema, rich-result candidacy)
+**Effort:** Per-page, ~15 min each.
+**How:** Detect Q&A heading patterns (e.g., "How do I install Sigmie?" sections) and append a `FAQPage` block to the `@graph` in `app.blade.php` keyed by doc slug.
+
+#### 8. Per-doc OG cards
+**Impact:** ★★ (+2 Images, page-specific social previews)
+**Effort:** Medium — generate cards at deploy time from doc titles.
+**How:** Use `claude-seo:seo-image-gen` (Gemini-via-nanobanana-mcp) to generate `/cards/docs/{slug}.png` at deploy. Pass `card` per-route.
+
+#### 9. Promote CSP to enforcing
+**Impact:** ★★ (+2 Technical)
+**Effort:** Low — change the header name from `Content-Security-Policy-Report-Only` to `Content-Security-Policy` after reviewing 1 week of report-uri violations.
+**How:** Edit `app/Http/Middleware/SecurityHeaders.php`. If no `report-uri` configured yet, set one (Cloudflare Reports or a Laravel route that logs).
+
+### LOW-IMPACT POLISH
+
+#### 10. `loading="lazy"` + explicit `width`/`height` on `<img>`
+**Impact:** ★ (CLS reduction)
+**Effort:** Low — sweep `Welcome.vue`, blog markdown rendered HTML.
+
+#### 11. Convert demo images to WebP
+**Impact:** ★ (smaller bytes, better LCP)
+**Effort:** Trivial — `cwebp` pass on `public/`.
+
+#### 12. Pin the nginx security-header cleanup in Forge
+**Impact:** ★ (idempotent infra)
+**Effort:** 5 min in Forge UI.
+**How:** I removed three `add_header` lines from `/etc/nginx/sites-enabled/sigmie.com` directly on the box earlier. If you re-provision or use Forge's "Edit Nginx Configuration" the old lines may come back. Open Forge → Server → Nginx config and delete:
 ```
-Audit the other three blog post descriptions while you're there (currently 46–74 chars; aim for 130–160).
-
-### C5. Add JSON-LD on homepage and blog posts
-**Impact:** ★★★★ (AI engines, rich results, brand entity grounding)
-**Effort:** Low — 1 hour.
-**How:** Drop the `Organization` + `SoftwareApplication` + `WebSite` graph from `FULL-AUDIT-REPORT.md` into the homepage `<Head>`. Add an `Article` block to the blog post template, using frontmatter values.
-
----
-
-## HIGH — fix within 1 week (significantly impacts rankings)
-
-### H1. Add security headers
-**Impact:** ★★★ (trust signals, security score, future-proofing)
-**Effort:** Low — Laravel middleware or nginx `add_header` lines.
-**How (nginx):**
-```nginx
-add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
-add_header Content-Security-Policy "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'self'" always;
+add_header X-Frame-Options "SAMEORIGIN";
+add_header X-XSS-Protection "1; mode=block";
+add_header X-Content-Type-Options "nosniff";
 ```
-Remove the deprecated `X-XSS-Protection`. Submit the domain to https://hstspreload.org once HSTS has been live for a week.
-
-### H2. Add `/llms.txt` and `/llms-full.txt`
-**Impact:** ★★★ (cheap AI-search win)
-**Effort:** Trivial — static file or route.
-**How:** Use the content suggested in `FULL-AUDIT-REPORT.md § 6`. Wire to a route or static file in `public/llms.txt`. Generate at deploy time from the sitemap (already done by `artisan docs:index`).
-
-### H3. Render navigation server-side
-**Impact:** ★★★ (internal linking, crawl budget, AI signal)
-**Effort:** Low–Medium.
-**How:** Move the top nav and footer out of pure Inertia/Vue mount and into the Blade root layout, or ensure the Vue header/footer renders in SSR output. Initial HTML should contain anchors to `/docs/v2/introduction`, `/blog`, `/search`, GitHub repo, and the MCP page.
-
-### H4. Add an H1 to the homepage
-**Impact:** ★★ (sole H1 is a key on-page signal)
-**Effort:** Trivial.
-**How:** Add `<h1>A modern Elasticsearch library for PHP</h1>` (or similar) above the existing `<h2>Creating an AI Search Has Never Been Easier</h2>`. Style it inline if needed to keep the visual design unchanged.
-
-### H5. Expand homepage content
-**Impact:** ★★★ (currently 174 words is below the threshold for a developer-tool homepage)
-**Effort:** Medium (content writing).
-**How:** Aim for ~700 words split across:
-- What Sigmie is (and isn't — not a hosted service, it's a library)
-- Who it's for (PHP / Laravel devs adding search)
-- What's different (fluent API, semantic+keyword hybrid, no boilerplate)
-- A real code snippet (search builder example)
-- Quickstart link + GitHub link
-- Social proof (stars, downloads, testimonials)
+Laravel's `SecurityHeaders` middleware already sets these (and excludes the deprecated `X-XSS-Protection`).
 
 ---
 
-## MEDIUM — fix within 1 month
+## Implementation order (week-long sprint to ~95)
 
-### M1. Add `BreadcrumbList` JSON-LD on docs and blog posts
-Cheap rich-result win. Use the schema in the report.
-
-### M2. Fix duplicate viewport and robots meta tags
-Two `<meta name="viewport">` and two `<meta name="robots">` on the homepage. Pick one of each in the Blade layout.
-
-### M3. Clean up `robots.txt`
-Remove the duplicate `User-agent: *` block. Decide if `crawl-delay: 1` is needed (it isn't — remove it).
-
-### M4. Add `sameAs` profile links to Organization schema
-Improves entity disambiguation in AI engines and Google Knowledge Panel candidacy. Include GitHub org, Packagist namespace, X/Twitter handle, LinkedIn page.
-
-### M5. Audit and fix blog meta descriptions
-- `/blog/calculating-index-shards`: extend from 46 → 130–160 chars.
-- `/blog/high-level-properties`: extend from 74 → 130–160 chars.
-- `/blog/why-are-search-services-expensive`: extend from 57 → 130–160 chars.
-
-### M6. Consolidate author metadata
-Pick one canonical pattern (e.g. `Sigmie Team` sitewide, `Nico Orfanos` on blog posts), used consistently in `<meta name="author">`, JSON-LD `author`, and any visible byline.
-
-### M7. Fix the broken heading on `/blog/a-different-approach`
-`Think of anIndicesas a collections.` — fix code-element spacing in the markdown source.
-
-### M8. Verify `/resumes` is intentionally public
-It's in the sitemap with priority 0.5. If it's not a marketing page, remove it from the sitemap and add `noindex`.
-
----
-
-## LOW — backlog
-
-### L1. Add a `www.` DNS CNAME pointing to apex (or explicit redirect)
-Currently `www.sigmie.com` returns DNS failure. Users typing `www.` hit a hard wall. Cheap fix.
-
-### L2. Consider edge-caching for static HTML
-`/` and `/blog/*` are not session-dependent; switching from `cache-control: no-cache, private` to `public, max-age=60, s-maxage=300, stale-while-revalidate=600` would let Cloudflare cache HTML and slash TTFB to ~10 ms for repeat visitors. Be careful with `/docs/v2/*` once SSR is fixed — same caching strategy applies.
-
-### L3. Audit `app.*.js` (324 KB) and `app.*.css` (110 KB)
-For a marketing + docs site, this is heavy. Investigate:
-- Tailwind purge: ensure `content` paths include all Vue components.
-- Split out search/admin code that isn't needed on public pages.
-
-### L4. Lazy-load below-the-fold images
-Add `loading="lazy"` (and `decoding="async"`) to homepage images that are not LCP candidates.
-
-### L5. Set up CrUX / Google Search Console / GA4 integrations
-The audit had no Google API credentials configured. Wiring up CrUX, GSC, and GA4 would unblock the `seo-google` agent and give you field CWV plus indexation truth (rather than my SSR-based inference).
-
-### L6. Promote the MCP server on the homepage
-The `/mcp` endpoint is a genuinely interesting feature for an AI-agent-native developer tool. Surface it: hero bullet, dedicated section, and a featured entry in `llms.txt`.
-
----
-
-## Suggested implementation order (single dev, one week)
-
-| Day | Tasks |
+| Day | Task |
 |---|---|
-| Mon | C1 (SSR fix) — investigate and ship |
-| Tue | C2 (per-page title/desc/canonical) — wire `<Head>` into all Inertia pages |
-| Wed | C3, C4, C5 (og-image, "lorem" fix, JSON-LD on home + blog posts) |
-| Thu | H1 (security headers), H2 (llms.txt), H4 (homepage H1) |
-| Fri | H3 (SSR nav), H5 (homepage copy expansion), verify via `curl` + Search Console |
-| Mon next | M1–M8 punch list |
+| Mon | Wire GSC + CrUX + GA4 (task 1) |
+| Tue | Edge-cache middleware (task 3); HSTS preload submission (task 2) |
+| Wed | Homepage expansion (task 4); add sameAs (task 6) |
+| Thu | FAQ schema sweep (task 7); per-doc OG cards (task 8) |
+| Fri | Promote CSP (task 9); image polish (10, 11); Forge nginx pin (task 12) |
 
-After the week, re-run this audit and expect a score in the **75–80** range. To push above 80 you'll need field CWV data (CrUX/GSC integration) and content depth investment on the docs.
+After that sprint, expect **93–96 / 100**. Beyond that lives in the SEO outcome layer (backlinks, mentions, rankings), not the SEO mechanics layer.
+
+---
+
+## Deferred / by design
+
+- **`www.sigmie.com` DNS** — currently doesn't resolve. Decision call: add CNAME → apex, or leave (one canonical hostname is cleaner). No SEO impact either way.
+- **Cloudflare email obfuscation** — wraps `mailto:` in `/cdn-cgi/l/email-protection` redirect URLs. Cosmetic noise; toggle in Scrape Shield if it bothers you.
+- **`/resumes` priority in sitemap** — kept at 0.5; flagged in the previous audit. It's a real demo page (now with 106 SSR words and proper H1).

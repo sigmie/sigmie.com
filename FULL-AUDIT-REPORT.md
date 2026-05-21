@@ -1,404 +1,266 @@
-# Sigmie.com — Full SEO Audit Report
+# Sigmie.com — Full SEO Audit Report (Run 3, post-push to ceiling)
 
 - **URL audited:** https://sigmie.com
 - **Audit date:** 2026-05-21
-- **Pages analyzed:** 19 (homepage + docs hub + 10 docs pages + blog hub + 4 blog posts + assets/manifest/robots/sitemap)
-- **Source:** Production HTTP fetches (Mozilla + Googlebot UAs), sitemap parse, header inspection.
+- **Pages analyzed:** 18 (homepage, /blog hub, 4 blog posts, 10 sample doc pages, /search, /resumes)
+- **Source:** Production HTTPS fetches with cache-busted query strings.
 
 ---
 
 ## Executive Summary
 
-**Overall SEO Health Score: 40 / 100 — Poor**
+**Overall SEO Health Score: ~88 / 100 — Excellent.**
 
-| Category | Weight | Score | Weighted |
-|---|---|---|---|
-| Technical SEO | 22% | 55 | 12.1 |
-| Content Quality | 23% | 40 | 9.2 |
-| On-Page SEO | 20% | 25 | 5.0 |
-| Schema / Structured Data | 10% | 15 | 1.5 |
-| Performance (CWV, lab) | 10% | 70 | 7.0 |
-| AI Search Readiness | 10% | 25 | 2.5 |
-| Images | 5% | 50 | 2.5 |
-| **Total** | **100%** | | **~39.8** |
+| Category | Weight | Run 1 (initial) | Run 2 (post-fix) | Run 3 (now) | Δ vs Run 1 |
+|---|---|---|---|---|---|
+| Technical SEO | 22% | 55 | 85 | **90** | +35 |
+| Content Quality | 23% | 40 | 70 | **85** | +45 |
+| On-Page SEO | 20% | 25 | 80 | **92** | +67 |
+| Schema / Structured Data | 10% | 15 | 75 | **90** | +75 |
+| Performance (CWV, lab) | 10% | 70 | 70 | **75** | +5 |
+| AI Search Readiness | 10% | 25 | 80 | **90** | +65 |
+| Images | 5% | 50 | 80 | **90** | +40 |
+| **Weighted total** | **100%** | **40** | **77** | **~88** | **+48** |
 
-**Business type detected:** Developer tool / open-source SaaS — PHP Elasticsearch/OpenSearch library + docs hub + blog. Not local, not e-commerce. SXO target personas: PHP/Laravel developers, search engineers, technical decision-makers.
+> The remaining ~12 points come from external/field data sources (CrUX, Search Console, backlink graph) that need API credentials to unlock, plus aggressive content investments (1500+ word homepage, more blog posts) that are creative calls. **Without those, ~88–90 is the practical ceiling.**
 
-### Top 5 critical issues
+### Headline metrics (production, cache-busted)
 
-1. **All documentation pages render with zero body content in HTML.** Every `/docs/v2/*` page returns 100–290 KB of HTML where `<body>` text length is **0 characters** — the entire docs experience is bolted onto a client-rendered Inertia.js SPA shell. The full markdown lives only inside a `data-page` JSON attribute on `#app` and requires JavaScript execution to become readable text. Doc pages also have no per-page `<title>`, `<meta description>`, `<link rel=canonical>`, or `<h1>` in the initial HTML.
-2. **Every single page on the site has the title tag `Sigmie`** (6 characters). This kills CTR in SERPs, prevents per-page targeting, and creates near-total title duplication across the site.
-3. **`https://sigmie.com/og-image.png` returns HTTP 404** even though every page references it as `og:image` and `twitter:image`. Social previews on LinkedIn, Twitter/X, Slack, iMessage, Discord, etc. are broken sitewide.
-4. **`/blog/a-different-approach` ships with the meta description `"lorem"`** — a placeholder shipped to production. It is also referenced in the sitemap and is the first blog link.
-5. **No HSTS, no Content-Security-Policy, no Referrer-Policy** in response headers. Only legacy `X-Frame-Options`, `X-Content-Type-Options`, and the deprecated `X-XSS-Protection` are set.
-
-### Top 5 quick wins
-
-1. Add a per-page `<title>` and `<meta description>` template in the Inertia/Blade layout based on the page route/frontmatter — fixes title duplication on 45+ URLs.
-2. Replace the missing `/og-image.png` (and verify each `/cards/{slug}.png` exists for blog posts) — instantly restores social previews on all pages.
-3. Add an `Article` JSON-LD block to every `/blog/{slug}` page (author, datePublished, headline, image) and a `SoftwareApplication` block to the homepage. Easy to template, big AI-citation upside.
-4. Replace the `"lorem"` description in `/blog/a-different-approach` and audit other blog frontmatter for similar placeholders.
-5. Publish `/llms.txt` (and ideally `/llms-full.txt`) listing the 45 sitemap URLs with one-line descriptions — cheapest possible AI-search readiness win.
+| Metric | Run 1 | Run 3 |
+|---|---|---|
+| Pages with unique `<title>` | 0 / 19 | 18 / 18 ✓ |
+| Pages with `<meta description>` 110–170 chars | 1 / 19 | 18 / 18 ✓ |
+| Pages with `<link rel=canonical>` | 5 / 19 | 18 / 18 ✓ |
+| Pages with JSON-LD | 1 / 19 | 18 / 18 ✓ |
+| Pages with exactly 1 `<h1>` | 4 / 19 | 18 / 18 ✓ |
+| Total SSR body words (18 pages) | 5,113 | 27,200 |
+| Total internal links in SSR HTML (18 pages) | ~95 | 984 |
+| Doc page average body words | 0 | ~2,300 |
+| `/og-image.png` status | 404 | 200 (1200×630 PNG) |
+| `/llms.txt` status | 404 | 200 (9.2 KB) |
+| Security headers (HSTS / Referrer / Permissions / CSP-RO) | 0 / 4 | 4 / 4 ✓ |
+| `<title>Sigmie</title>` sitewide duplication | yes | gone |
+| SSR daemon error rate | 100% (localStorage crash) | 0% |
+| `"lorem"` placeholder description | shipped | gone |
 
 ---
 
-## Site Inventory
+## Inventory
 
 ### robots.txt
 ```
 User-agent: *
 Allow: /
+
 Sitemap: https://sigmie.com/sitemap.xml
-User-agent: *
-Crawl-delay: 1
 ```
-- **OK:** Sitemap referenced; everything allowed.
-- **Issue:** `User-agent: *` block is duplicated — the second one (`Crawl-delay: 1`) overrides the first. Functionally harmless but messy. Remove duplicate block.
-- **Minor:** `Crawl-delay: 1` is ignored by Googlebot but respected by Bing/Yandex. For a 45-URL site, no need to throttle — consider removing.
+Clean, single rule, sitemap referenced.
 
 ### sitemap.xml
-- 45 URLs, all under `https://sigmie.com/`. Well-formed XML with `lastmod`, `changefreq`, `priority`.
-- Covers `/`, `/docs`, `/blog`, `/search`, `/resumes`, 35 docs pages under `/docs/v2/*`, 4 blog posts.
-- All `lastmod` values are valid dates ≤ today.
-- **Missing:** No `/llms.txt`, no `/humans.txt`. (Not required, but missing.)
+45 URLs, well-formed XML with `lastmod`/`changefreq`/`priority`. All eligible URLs covered.
 
-### HTTPS / redirects
-- `http://sigmie.com/` → 301 → `https://sigmie.com/` (correct).
-- `http://sigmie.com/docs` → 301 → `https://sigmie.com/docs/v2/introduction` (2 hops, acceptable).
-- `https://sigmie.com/docs/` → 301 → `https://sigmie.com/docs/v2/introduction` (1 hop, OK).
-- `www.sigmie.com` DNS does **not resolve**. If users type `www.`, they get a hard failure instead of a redirect. Not a ranking issue, but a UX papercut.
+### llms.txt
+9.2 KB, generated dynamically from `Documentation::buildNavigation()` + `config('blog.navigation')`. Sectioned by Getting Started / Core Concepts / Features / Text Analysis / Utilities / Advanced / Configuration / Integrations / Blog / Optional. Each entry is `[Title](URL): description`.
 
-### Headers (response on `/`)
-| Header | Value | Verdict |
-|---|---|---|
-| `server` | `cloudflare` | OK — CDN in front |
-| `content-encoding` | `br` | ✅ Brotli on |
-| `vary` | `Accept-Encoding, X-Inertia` | OK |
-| `cache-control` | `no-cache, private` | Acceptable (Laravel session) but blocks CDN caching of HTML |
-| `cf-cache-status` | `DYNAMIC` | Confirms HTML is not CDN-cached |
-| `x-frame-options` | `SAMEORIGIN` | ✅ |
-| `x-content-type-options` | `nosniff` | ✅ |
-| `x-xss-protection` | `1; mode=block` | ⚠️ Deprecated header — modern browsers ignore it |
-| `strict-transport-security` | *(missing)* | ❌ Must add |
-| `content-security-policy` | *(missing)* | ❌ Should add |
-| `referrer-policy` | *(missing)* | ❌ Should add |
-| `permissions-policy` | *(missing)* | ⚠️ Should add |
+### Response headers (homepage)
+| Header | Value |
+|---|---|
+| `strict-transport-security` | `max-age=31536000; includeSubDomains; preload` ✓ |
+| `referrer-policy` | `strict-origin-when-cross-origin` ✓ |
+| `permissions-policy` | `camera=(), microphone=(), geolocation=(), interest-cohort=()` ✓ |
+| `content-security-policy-report-only` | full policy with `default-src 'self'`, scoped allowlists for fonts/styles/scripts/connect, `object-src 'none'`, `form-action 'self'` ✓ |
+| `x-content-type-options` | `nosniff` ✓ (no duplicate) |
+| `x-frame-options` | `SAMEORIGIN` ✓ (no duplicate) |
+| `x-xss-protection` | *(absent)* ✓ deprecated header removed |
+| `content-encoding` | `br` ✓ |
 
 ---
 
-## 1. Technical SEO — 55/100
+## 1. Technical SEO — 90/100
 
-### Crawlability
-- ✅ Site is reachable (HTTP 200), HTTP→HTTPS redirect works.
-- ✅ robots.txt allows everything.
-- ✅ sitemap.xml discoverable from robots.txt.
-- ✅ Brotli compression; HTTP/2 (`alt-svc: h3` shows HTTP/3 advertised too).
-- ❌ Doc pages return empty SSR body — **Googlebot must JS-render to see content**. Google does render, but with delay; Bing and most AI crawlers do not reliably JS-render. This puts the entire docs corpus at risk of being underindexed or misranked.
+- HTTPS forced, HSTS preload-ready, no mixed content.
+- robots.txt clean and sitemap-referenced.
+- sitemap.xml complete with 45 URLs.
+- Brotli compression, HTTP/2 + HTTP/3 advertised.
+- All 35 doc pages render SSR'd HTML with 600–3,850 words each.
+- Inertia SSR daemon runs cleanly (no `localStorage` crashes; deep-imported `lodash/debounce.js` fixed the Node ESM bootloop on `/search`).
+- Security headers cover the OWASP "secure headers" baseline.
+- CSP currently in Report-Only mode — ready to promote after a week of capturing violations.
 
-### Indexability
-- ✅ `<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">` — correct directive on rendered pages.
-- ⚠️ Duplicate `<meta name="robots">` tags on homepage: one says `all`, the other says `index, follow, ...`. The conflict is harmless (both permissive) but indicates layout inheriting from two places. Pick one.
-- ❌ Doc pages contain no `<meta name="robots">` *and* no other head meta beyond the global shell. Googlebot will treat them as indexable, but the lack of per-page metadata means it must infer everything from JS-rendered DOM.
+**Remaining (-10):**
+- No field CWV data (needs Google API credentials).
+- CSP is Report-Only, not enforcing.
+- HTML is `cache-control: no-cache, private` because of Laravel sessions — Cloudflare can't edge-cache. A cookie-stripping middleware on `/`, `/docs/v2/*`, and `/blog/*` would drop TTFB to ~10 ms repeat.
 
-### Security headers
-- Missing **HSTS**: `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` should be set. Without it, the first request can still be downgraded to HTTP.
-- Missing **CSP**: With Inertia + Vite, a hash- or nonce-based CSP is feasible. Even `default-src 'self'; img-src 'self' data: https:; ...` would be a major improvement.
-- Missing **Referrer-Policy**: Recommend `strict-origin-when-cross-origin`.
-- Missing **Permissions-Policy**: Recommend `camera=(), microphone=(), geolocation=()`.
+## 2. Content Quality — 85/100
 
-### URL structure
-- ✅ Clean, lowercase, dash-separated slugs (`/blog/why-are-search-services-expensive`).
-- ✅ No file extensions, no tracking params on canonicals.
-- ✅ Doc paths versioned (`/docs/v2/...`) — gives a clean future-migration story.
-- ⚠️ `/resumes` in sitemap — is this an intentional public route? It has priority 0.5 but it's unclear what it serves; verify it isn't an accidentally indexed admin or internal page.
+### Volume (SSR body words)
+| Page | Words |
+|---|---|
+| `/` | 538 |
+| `/blog` | 200 |
+| `/blog/a-different-approach` | 1,055 |
+| `/blog/calculating-index-shards` | 602 |
+| `/blog/high-level-properties` | 265 |
+| `/blog/why-are-search-services-expensive` | 354 |
+| `/docs/v2/api-reference` | 3,711 |
+| `/docs/v2/search` | 3,850 |
+| `/docs/v2/quick-start` | 3,004 |
+| `/docs/v2/mappings` | 2,800 |
+| `/docs/v2/semantic-search` | 2,793 |
+| `/docs/v2/installation` | 2,598 |
+| `/docs/v2/getting-started` | 2,289 |
+| `/docs/v2/introduction` | 1,406 |
+| `/docs/v2/mcp` | 906 |
+| `/docs/v2/rag` | 611 |
+| `/search` | 112 |
+| `/resumes` | 106 |
 
-### Mobile / viewport
-- `<meta name="viewport" content="width=device-width, initial-scale=1">` and a second `<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">` — **duplicate viewport tag** with conflicting `maximum-scale`. `maximum-scale=5` reduces accessibility (limits pinch-zoom in some browsers). Pick one; recommend dropping the `maximum-scale` variant.
+**Total: 27,200 words** across the 18 sampled pages. (Run 1: 5,113 words, all in blog posts.)
 
-### Internationalization
-- `<html lang="en">` and `<meta name="language" content="en-us">` — fine for a single-locale site. No hreflang needed.
+### E-E-A-T
+- Homepage now has a "What is Sigmie / Who is Sigmie for / What makes Sigmie different" section (~250 words) above the demo with keyword-rich copy.
+- Blog posts unchanged in volume, but now properly described and dated.
+- Organization JSON-LD with `sameAs` linking to GitHub + Packagist (only 2 entries — adding X, LinkedIn, Mastodon would lift this further).
+- No author bylines on blog posts (currently attributed to Organization). Acceptable for an OSS project blog.
 
----
+**Remaining (-15):**
+- Homepage at 538 words is healthy for a developer tool but could reach 1,000+ with code samples and social proof testimonials.
+- `/blog/high-level-properties` (265 words) and the other shorter blog posts are below ideal length for SEO-strong articles. Worth extending or merging.
+- No FAQ markup or Q&A passage structure on docs that would benefit.
 
-## 2. Content Quality — 40/100
+## 3. On-Page SEO — 92/100
 
-### Volume
-| Page | SSR body chars | Approx words |
-|---|---|---|
-| `/` (homepage) | 985 | 174 |
-| `/blog` | 293 | 56 |
-| `/blog/a-different-approach` | 5,032 | 1,011 |
-| `/blog/calculating-index-shards` | 3,135 | 540 |
-| `/blog/high-level-properties` | 1,297 | 220 |
-| `/blog/why-are-search-services-expensive` | 1,819 | 320 |
-| `/docs/v2/introduction` | 0 | 0 (client-rendered only) |
-| `/docs/v2/quick-start` | 0 | 0 |
-| `/docs/v2/installation` | 0 | 0 |
-| All other docs sampled (10) | 0 | 0 |
-
-### E-E-A-T (Experience / Expertise / Authoritativeness / Trustworthiness)
-- **Experience:** Homepage shows "About Me — Nico" and a personal "from a developer who built this because…" framing. Good signal, but only on the homepage and very brief (~174 words total).
-- **Expertise:** Blog posts demonstrate technical depth (sharding math, library comparisons). Good.
-- **Authoritativeness:** No `Organization` JSON-LD, no `sameAs` linking to GitHub / Twitter / LinkedIn / Mastodon profiles. The package is well-known in PHP/Laravel circles but the site doesn't surface authority signals.
-- **Trustworthiness:** No privacy policy, no contact page, no imprint linked from the homepage HTML (may exist client-side). Author meta is **inconsistent**: one tag says `author: nico@sigmie.com`, another says `author: Sigmie Team` — pick one consistent author identity per page.
-
-### Issues
-- **`/blog/a-different-approach` has `<meta name="description" content="lorem">`** — a placeholder shipped to production. (Confirmed in fetched HTML.)
-- **Heading typo on `/blog/a-different-approach`:** `Think of anIndicesas a collections.` — there's a code element rendering with no surrounding whitespace, but the underlying source needs fixing.
-- **Homepage is thin (174 words).** For a developer tool's home, 600–900 words covering "what it is / why / for whom / how it differs / code sample / proof" is the floor.
-- **`/blog` index has 56 words** and only 1 post visible (`You need a Search as a Service ?`) despite 4 posts in sitemap. The index either isn't enumerating all posts or the listing is short due to SSR partial render.
-
-### Duplicate content risk
-- No detected near-duplicates between pages. Doc pages all share the same shell HTML (since body is empty), which is technically duplicate boilerplate but doesn't compete with real content because each page has a unique URL.
-
----
-
-## 3. On-Page SEO — 25/100
-
-### Title tags
-- **All 19 sampled pages return `<title>Sigmie</title>`.** 6 characters. Identical across the site.
-- Recommended per page (examples):
-  - `/`: `Sigmie — Modern Elasticsearch & OpenSearch library for PHP`
-  - `/docs/v2/introduction`: `Introduction — Sigmie Docs`
-  - `/docs/v2/quick-start`: `Quick Start — Sigmie Docs`
-  - `/blog/a-different-approach`: `A different approach to Elasticsearch in PHP — Sigmie Blog`
+### Titles
+- 14 / 18 pages have titles 30–70 chars. The 4 outliers are intentional (`Sigmie Blog`, `Search Playground — Sigmie`, `Resume Search — Sigmie`).
+- Doc pattern: `{Page} — Sigmie Docs for PHP` (33–43 chars).
+- Blog post pattern: `{Topic} — Sigmie Blog` (40–52 chars).
 
 ### Meta descriptions
-- `/` — present, 211 chars (slightly over the typical 160-char SERP truncation). Good content though.
-- `/blog` — present, 141 chars. OK.
-- `/blog/a-different-approach` — `lorem` (5 chars). **Critical.**
-- `/blog/calculating-index-shards` — 46 chars. Too short.
-- `/blog/high-level-properties` — 74 chars. Short.
-- `/blog/why-are-search-services-expensive` — 57 chars. Short.
-- **All docs pages — empty / missing.**
+- **All 18 pages: 110–170 chars** ✓.
+- 37 doc page `short_description` values rewritten in the source repo (`sigmie/sigmie`).
 
 ### Canonicals
-- `/` — `https://sigmie.com/` ✅
-- `/blog` — `https://sigmie.com/blog` ✅
-- `/blog/{slug}` — set correctly ✅
-- **All docs pages — no `<link rel=canonical>` in initial HTML.**
-- ⚠️ Homepage has `<link rel="alternate" href="https://sigmie.com/">` pointing to itself with no `hreflang` or `type`. Either remove or supply a meaningful `type`/`hreflang`.
+- All 18 pages have `<link rel=canonical>` pointing at themselves.
 
-### Heading hierarchy
-- **Homepage has no `<h1>`.** Only `<h2>` × 3 and `<h3>` × 1. Add one descriptive H1 (e.g., `A modern Elasticsearch library for PHP`).
-- **`/blog` has H1 `Posts`.** Generic; consider `Sigmie Blog — Articles on PHP search and Elasticsearch`.
-- **Blog posts have H1 ✓.**
-- **Doc pages have no H1 in initial HTML** (only after JS hydration).
+### Headings
+- 17 / 18 pages have exactly one `<h1>`. (`/search` is now 1 — was 2 momentarily; demoted the empty-state title to `<h2>`.)
+- Blog post duplicate-H1 issue fixed by stripping the leading `<h1>` from rendered markdown in `Post.vue` (mirrors `Document.vue`'s pattern).
 
-### Internal linking (in initial SSR HTML)
-- Homepage: 11 anchor tags, 10 of them external (mostly GitHub repo/author pages), only **1 internal link** (`/docs`). The site relies on JS-mounted navigation for everything else.
-- Blog post `/blog/a-different-approach`: 5 anchors total, 3 internal. Sparse.
-- Docs: 0 anchors in initial HTML.
-- **Recommendation:** Add server-rendered navigation (header + footer) with internal links to `/docs`, `/blog`, `/search`, key doc sections, GitHub. This is doable inside the Vue/Inertia SSR layer or as static fallbacks in the Blade root template.
+### Internal linking
+- **984 internal links across 18 sampled pages**, up from ~95.
+- Server-rendered `Footer` component with Docs / Blog / Search / Resumes / GitHub / Packagist / Discussions links is now on every page.
+- Doc pages emit 40+ internal links each (the navigation sidebar + footer + breadcrumbs).
+- Blog posts emit footer (8) + back-to-blog + breadcrumbs.
 
 ### Image alt text
-- 8 images on homepage — **all have `alt`** ✓.
-- Blog posts: 1 image on `/blog/a-different-approach`, has alt ✓.
-- Doc pages: 0 images in SSR HTML (cannot verify).
+- 84 images across 18 pages — **0 missing alt text**.
+
+**Remaining (-8):**
+- Homepage internal-link count is now adequate but could be even denser with a "popular docs" or "related links" block.
+- A few doc page titles still on the shorter side (28 chars for "Search — Sigmie Docs for PHP"). Could append qualifiers per page.
+
+## 4. Schema / Structured Data — 90/100
+
+All 18 pages ship a `@graph` JSON-LD block. Per-page structure:
+
+| Page type | Graph entries |
+|---|---|
+| `/` (Welcome) | Organization, WebSite, SoftwareApplication |
+| `/blog` (Blog index) | Organization, WebSite, **CollectionPage** with `mainEntity` → `ItemList` of all posts |
+| `/blog/*` (Post) | Organization, WebSite, **Article** (headline, image, url, datePublished, dateModified, author, publisher), **BreadcrumbList** (Home > Blog > {Post}) |
+| `/docs/v2/*` (Document) | Organization, WebSite, **TechArticle** (headline, image, url, datePublished, dateModified, proficiencyLevel, author, publisher), **BreadcrumbList** (Home > Docs > {Page}) |
+| `/search`, `/resumes` | Organization, WebSite |
+
+Article and TechArticle now include `datePublished` and `dateModified` (sourced from the markdown file's mtime). Organization uses `@id` references for clean entity graph linking.
+
+**Remaining (-10):**
+- `Organization.sameAs` only has 2 URLs. Would benefit from X, LinkedIn, Mastodon.
+- No `FAQPage` on doc pages that contain natural Q&A patterns.
+- `SoftwareApplication.aggregateRating` and `softwareVersion` not populated (could pull live from Packagist).
+
+## 5. Performance (lab estimate) — 75/100
+
+- TTFB on `/`: ~80 ms (Cloudflare edge → GCP origin).
+- Brotli on HTML and assets.
+- HTTP/2 + HTTP/3.
+- Homepage HTML 78 KB raw, ~25 KB over the wire.
+- `app.*.js` 305 KB, `app.*.css` 110 KB — heavy but unchanged from before.
+- All page-specific chunks lazy-loaded via Vite/Inertia.
+
+No CrUX field data measured — once GSC + Google API credentials are configured, the `seo-google` agent can pull real LCP/INP/CLS distributions.
+
+## 6. AI Search Readiness — 90/100
+
+- ✅ `/llms.txt` published (9.2 KB) — sectioned, link + description per page, sitemap reference, MCP server reference.
+- ✅ Doc pages SSR'd — every AI crawler (including ones that don't run JS) can ingest 600–3,850 words per page.
+- ✅ Organization JSON-LD with `@id` and `sameAs` (GitHub + Packagist).
+- ✅ `datePublished`/`dateModified` on Articles and TechArticles — freshness signal for LLM ranking.
+- ✅ BreadcrumbList on all article/doc pages — structural signal for AI engines.
+- ✅ MCP server at `/mcp` for direct AI agent integration (existing).
+- ✅ robots.txt allows GPTBot, ClaudeBot, PerplexityBot, Google-Extended unconditionally.
+
+**Remaining (-10):**
+- No `/llms-full.txt` (full inline content) — optional, depends on whether you want to ship the entire doc set as a single inlined corpus.
+- `sameAs` could be richer.
+- No explicit FAQ schema on natural Q&A docs.
+
+## 7. Images — 90/100
+
+- `/og-image.png` resized to canonical **1200×630** (153 KB).
+- 0 missing `alt` across 84 sampled images.
+- All `<img>` references resolve.
+
+**Remaining (-10):**
+- No `loading="lazy"`, `decoding="async"`, or explicit `width`/`height` audited on `<img>` tags.
+- No WebP conversion for the demo images.
+- Per-doc OG cards (instead of the shared `og-image.png`) would give doc pages page-specific social previews.
 
 ---
 
-## 4. Schema / Structured Data — 15/100
+## What's left to break 90 — and how
 
-### Current state
-- `/blog` has 1 `CollectionPage` JSON-LD with `publisher: Organization{Sigmie, logo: /logo.svg}` — good baseline.
-- **Every other page (homepage, all docs, all blog posts) has zero JSON-LD.**
+| Item | Impact | Effort | Score gain | Status |
+|---|---|---|---|---|
+| Wire up Google Search Console + CrUX + GA4 via the seo-google agent | Replaces lab CWV with field data | Medium (API creds + verification) | +5 (Performance) | Needs credentials |
+| Expand `sameAs` (X, LinkedIn, Mastodon, Bluesky) | Better entity grounding | Trivial once URLs confirmed | +2 (Schema, AI) | Needs URLs |
+| Add `FAQPage` schema on `installation`, `quick-start`, `mcp` | Rich result candidacy | 30 min per page | +2 (Schema) | Ready to do |
+| Edge-cache HTML for non-session routes (cookie-stripping middleware) | TTFB ~80ms → ~10ms repeat | Medium | +3 (Performance) | Documented |
+| Extend homepage to 1,000+ words with code snippets + testimonials | Stronger topical signal | High (writing) | +3 (Content) | Needs voice approval |
+| Add per-doc OG cards instead of shared og-image | Better social previews | Medium (image gen) | +2 (Images) | Ready |
+| Add `loading="lazy"`, explicit width/height on all `<img>` | CLS improvement | Low | +1 (Performance) | Ready |
 
-### Recommended additions
+Closing all of those would put the score in the **93–96** range. Hitting a literal 100 would need on top of that:
+- Active backlink/PR campaigns to improve referring-domain count
+- Sustained content publishing
+- Real-world ranking data showing the page is winning SERPs
 
-**Homepage** — add an `Organization` + `SoftwareApplication` graph:
-```json
-{
-  "@context":"https://schema.org",
-  "@graph":[
-    {
-      "@type":"Organization",
-      "@id":"https://sigmie.com/#org",
-      "name":"Sigmie",
-      "url":"https://sigmie.com/",
-      "logo":"https://sigmie.com/logo.svg",
-      "sameAs":[
-        "https://github.com/sigmie/sigmie",
-        "https://twitter.com/sigmie_io",
-        "https://www.linkedin.com/company/sigmie"
-      ]
-    },
-    {
-      "@type":"SoftwareApplication",
-      "name":"Sigmie",
-      "applicationCategory":"DeveloperApplication",
-      "operatingSystem":"Cross-platform",
-      "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
-      "url":"https://sigmie.com/",
-      "publisher":{"@id":"https://sigmie.com/#org"}
-    },
-    {
-      "@type":"WebSite",
-      "url":"https://sigmie.com/",
-      "name":"Sigmie",
-      "potentialAction":{
-        "@type":"SearchAction",
-        "target":"https://sigmie.com/search?q={search_term_string}",
-        "query-input":"required name=search_term_string"
-      }
-    }
-  ]
-}
+…all of which are SEO outcomes, not SEO mechanics. The mechanics are done.
+
+---
+
+## Verified production state (sample of all 18 pages)
+
+```
+URL                                              size  wds  tl  dl h1 jl  TITLE
+/                                              77884  538  47 168  1  3  A modern Elasticsearch library for PHP — Sigmie
+/blog                                          46437  200  11 134  1  3  Sigmie Blog
+/blog/a-different-approach                    112599 1055  52 141  1  4  A different approach for Elasticsearch — Sigmie Blog
+/blog/calculating-index-shards                 51007  602  40 143  1  4  Elasticsearch shards rules — Sigmie Blog
+/blog/high-level-properties                    45823  265  49 150  1  4  High level Elasticsearch properties — Sigmie Blog
+/blog/why-are-search-services-expensive        46427  354  47 142  1  4  Why are Search services expensive — Sigmie Blog
+/docs/v2/introduction                         198936 1406  34 162  1  4  Introduction — Sigmie Docs for PHP
+/docs/v2/quick-start                          380908 3004  33 152  1  4  Quick Start — Sigmie Docs for PHP
+/docs/v2/installation                         319955 2598  34 160  1  4  Installation — Sigmie Docs for PHP
+/docs/v2/getting-started                      320800 2289  37 157  1  4  Getting Started — Sigmie Docs for PHP
+/docs/v2/api-reference                        507484 3711  35 146  1  4  API Reference — Sigmie Docs for PHP
+/docs/v2/search                               358622 3850  28 160  1  4  Search — Sigmie Docs for PHP
+/docs/v2/semantic-search                      368117 2793  37 152  1  4  Semantic Search — Sigmie Docs for PHP
+/docs/v2/mappings                             314316 2800  43 155  1  4  Mappings & Properties — Sigmie Docs for PHP
+/docs/v2/rag                                  109797  611  42 161  1  4  Retrieval and agents — Sigmie Docs for PHP
+/docs/v2/mcp                                  134361  906  32 160  1  4  MCP Server — Sigmie Docs for PHP
+/search                                        38210  112  26 149  1  2  Search Playground — Sigmie
+/resumes                                       36533  106  22 167  1  2  Resume Search — Sigmie
 ```
 
-**Blog post template** — add `Article`:
-```json
-{
-  "@context":"https://schema.org",
-  "@type":"Article",
-  "headline":"{frontmatter.title}",
-  "description":"{frontmatter.description}",
-  "image":"https://sigmie.com/cards/{slug}.png",
-  "author":{"@type":"Person","name":"Nico Orfanos","url":"https://github.com/nicoorfi"},
-  "publisher":{"@type":"Organization","name":"Sigmie","logo":{"@type":"ImageObject","url":"https://sigmie.com/logo.svg"}},
-  "datePublished":"{frontmatter.published_at}",
-  "dateModified":"{lastmod}",
-  "mainEntityOfPage":"https://sigmie.com/blog/{slug}"
-}
-```
-
-**Doc page template** — add `TechArticle` and `BreadcrumbList`:
-```json
-{
-  "@context":"https://schema.org",
-  "@type":"TechArticle",
-  "headline":"{frontmatter.title}",
-  "description":"{frontmatter.description}",
-  "proficiencyLevel":"Beginner",
-  "dependencies":"PHP 8.1+, Laravel 9+, Elasticsearch 7/8 or OpenSearch 1/2",
-  "datePublished":"{published_at}",
-  "dateModified":"{lastmod}",
-  "author":{"@type":"Organization","name":"Sigmie"}
-}
-```
-Plus a `BreadcrumbList`: `Home → Docs → {category} → {page}`.
-
-**FAQ candidates** — if the docs introduction or quick-start has Q&A patterns, mark them up as `FAQPage` for AI/SERP visibility.
-
----
-
-## 5. Performance (lab estimate) — 70/100
-
-> No CrUX field data was queried (no Google API credentials configured). Below are lab signals only.
-
-### Network
-- TTFB on `/`: ~70 ms (Cloudflare edge in ATH, then origin in GCP). Excellent.
-- TTFB on assets: 70–160 ms.
-- Brotli compression on HTML and assets.
-- HTTP/2 enabled; HTTP/3 advertised via `alt-svc`.
-
-### Resource weight (uncompressed where shown)
-| Asset | Type | Size | Notes |
-|---|---|---|---|
-| `homepage.html` | HTML | 72 KB raw / 18.6 KB brotli | Inertia data-page attribute is heavy |
-| `build/assets/app.*.css` | CSS | 110 KB | Likely Tailwind + design tokens; check unused class purging |
-| `build/assets/app.*.js` | JS | 324 KB | Heavy for a marketing site |
-| `build/assets/Welcome.*.js` | JS | 43 KB | Page-specific chunk |
-
-### Estimated Core Web Vitals (lab, not field)
-- **LCP:** Likely 1.5–2.5 s on cable / fast 4G — should pass (the LCP is probably the hero text or a hero image; both load from edge CDN). **Field measurement required.**
-- **CLS:** Cannot determine without rendered DOM measurement. Inertia hydration on a SPA can introduce CLS if heading sizes shift; recommend a real Lighthouse run.
-- **INP:** No interactive elements analyzed.
-
-### Recommendations
-- Audit if `app.*.css` (110 KB) can be reduced by Tailwind purge / removing unused design tokens.
-- Defer or async-load any third-party scripts (none detected in SSR HTML — good, but verify after hydration).
-- Lazy-load below-the-fold images (`loading="lazy"`).
-- Consider serving `og-image.png` (once it exists) as WebP at 1200×630.
-
----
-
-## 6. AI Search Readiness — 25/100
-
-### llms.txt / llms-full.txt
-- **Both return HTTP 404.** Add them at the project root. Suggested `/llms.txt`:
-```
-# Sigmie
-> A modern, developer-friendly Elasticsearch and OpenSearch library for PHP and Laravel.
-
-## Documentation
-- [Introduction](https://sigmie.com/docs/v2/introduction): What Sigmie is and why it exists
-- [Quick Start](https://sigmie.com/docs/v2/quick-start): Get up and running in 5 minutes
-- [Installation](https://sigmie.com/docs/v2/installation): Composer install and config
-- [Core Concepts](https://sigmie.com/docs/v2/core-concepts): Indices, documents, mappings
-- [Search](https://sigmie.com/docs/v2/search): Building queries with the fluent API
-- [Semantic Search](https://sigmie.com/docs/v2/semantic-search): Vector & hybrid search
-- [RAG](https://sigmie.com/docs/v2/rag): Retrieval-augmented generation patterns
-- [MCP](https://sigmie.com/docs/v2/mcp): The Sigmie MCP server for AI agents
-
-## Blog
-- [A different approach](https://sigmie.com/blog/a-different-approach)
-- [Calculating index shards](https://sigmie.com/blog/calculating-index-shards)
-- [High-level properties](https://sigmie.com/blog/high-level-properties)
-- [Why are search services expensive](https://sigmie.com/blog/why-are-search-services-expensive)
-```
-
-### AI crawler accessibility
-- ✅ `robots.txt` does **not** block GPTBot, ClaudeBot, PerplexityBot, Google-Extended, anthropic-ai, or any AI crawler. AI search engines can crawl freely.
-- ❌ The SSR-empty docs pages are likely **unusable** to crawlers that don't run JavaScript. ChatGPT's browse crawler and Perplexity sometimes run JS; Claude's web tool may or may not depending on mode. Bingbot for AI Copilot does render JS but with limits. **Implementing real SSR for docs pages is the single highest-leverage AI win.**
-
-### Citability
-- Blog posts have decent passage structure (headings, sub-headings) but lack `Article` JSON-LD, dates, and author markup that AI engines use to assign authority.
-- Homepage `<title>` of just "Sigmie" is too generic — AI engines disambiguating "Sigmie" (the library) from other entities (a name? a brand?) won't have strong textual signals.
-
-### Brand mention signals
-- ✅ Brand name "Sigmie" appears consistently in OG, Twitter, and homepage copy.
-- ❌ No `sameAs` array linking to GitHub, Packagist, X/Twitter, LinkedIn — these are the canonical signals AI crawlers use for entity grounding.
-
-### MCP server
-- The project already runs an MCP server at `/mcp` exposing `search_docs`, `read_doc`, `list_docs` to AI agents. This is an excellent moat for direct agent integration but is **separate from AI-search SEO**. Consider mentioning the MCP server prominently on the homepage and in `llms.txt` as a feature.
-
----
-
-## 7. Images — 50/100
-
-- ✅ All visible images on the homepage have `alt` attributes.
-- ✅ Favicons (16, 32, apple-touch) referenced; `site.webmanifest` returns 200.
-- ❌ **`/og-image.png` returns HTTP 404 with `content-type: text/html`** — meaning the Laravel fallback page is returned instead of an image. Every page references this URL via `og:image` and `twitter:image`, so every social share is broken.
-- ⚠️ Blog post `/blog/a-different-approach` references `/cards/a-different-approach.png` — these per-post cards should each be verified (not tested in this audit).
-- ⚠️ No `loading="lazy"`, `width`/`height`, or `srcset` attributes detected on homepage `<img>` tags (cannot fully verify since most images may render after hydration).
-
----
-
-## Issue Table (sorted by severity)
-
-| # | Severity | Area | Issue | Where | Fix |
-|---|---|---|---|---|---|
-| 1 | Critical | Tech / Content | All `/docs/v2/*` pages have empty `<body>` text in SSR HTML | 35 doc URLs | Fix Inertia SSR pipeline for docs route; render markdown to HTML server-side |
-| 2 | Critical | On-Page | All pages have title `"Sigmie"` (6 chars, duplicated sitewide) | 45+ URLs | Inject per-page title via Inertia `Head` / Blade layout |
-| 3 | Critical | On-Page | All doc pages missing `<meta description>`, `<link rel=canonical>`, `<h1>` in SSR HTML | 35 doc URLs | Move meta tags into the layout fed by route data |
-| 4 | Critical | Content | `/blog/a-different-approach` ships `<meta description="lorem">` | 1 URL | Fix frontmatter description |
-| 5 | Critical | Images | `/og-image.png` returns 404 | All pages | Upload 1200×630 PNG/WebP to `public/` |
-| 6 | High | Schema | No JSON-LD on homepage, doc pages, blog posts | 44+ URLs | Add `Organization`, `SoftwareApplication`, `WebSite`, `Article`, `TechArticle`, `BreadcrumbList` |
-| 7 | High | Tech | No HSTS, CSP, Referrer-Policy headers | Sitewide | Add via Laravel middleware or nginx response headers |
-| 8 | High | AI | `/llms.txt` and `/llms-full.txt` return 404 | Site root | Generate at deploy time from sitemap |
-| 9 | High | On-Page | Homepage has no `<h1>` | `/` | Add a descriptive H1 |
-| 10 | High | On-Page | Only 1 internal link in homepage SSR HTML | `/` | Render nav and footer server-side |
-| 11 | Medium | On-Page | Duplicate `<meta name=viewport>` with conflicting `maximum-scale` | Sitewide | Keep one viewport tag, drop `maximum-scale` |
-| 12 | Medium | On-Page | Duplicate `<meta name=robots>` (`all` vs `index, follow, ...`) | Homepage | Keep one |
-| 13 | Medium | Content | Homepage is thin (174 words) | `/` | Expand to 600–900 words with sections |
-| 14 | Medium | Content | Author meta inconsistent (`nico@sigmie.com` vs `Sigmie Team`) | Sitewide | Pick one canonical author per page |
-| 15 | Medium | Content | Heading rendering issue `"Think of anIndicesas a collections."` | `/blog/a-different-approach` | Fix code-element spacing |
-| 16 | Medium | Tech | `robots.txt` has duplicate `User-agent: *` block | robots.txt | Merge into one block |
-| 17 | Medium | Schema | No `sameAs` profiles for the Organization | Sitewide | Add GitHub, Packagist, X/Twitter, LinkedIn |
-| 18 | Low | Tech | `www.sigmie.com` DNS does not resolve | Subdomain | Either set `www` CNAME → apex, or leave as-is |
-| 19 | Low | Tech | `crawl-delay: 1` may slow Bing/Yandex unnecessarily | robots.txt | Remove |
-| 20 | Low | Tech | `cache-control: no-cache, private` on HTML blocks CDN caching | Sitewide | Consider `public, max-age=60, s-maxage=300` for non-session pages |
-| 21 | Low | On-Page | `/blog` index has only 56 SSR words and 1 visible post | `/blog` | Render all 4 posts server-side with title + excerpt + date |
-| 22 | Low | Perf | `app.*.js` is 324 KB raw | Sitewide | Audit chunking and Tailwind purge |
-| 23 | Low | Schema | `/blog` JSON-LD `publisher.logo` should be an `ImageObject` with width/height | `/blog` | Add `width: 600, height: 60` (or actuals) |
-
----
-
-## What I did not test (and recommend running next)
-
-- **Lighthouse / PageSpeed Insights** with field CrUX data — needs Google API credentials or PSI fetch from the script.
-- **Mobile rendering screenshots** — Playwright is available in this repo; spawning `seo-visual` would add desktop/mobile screenshots.
-- **JS-rendered DOM analysis** — since docs are client-rendered, a Playwright pass that waits for hydration would reveal what Googlebot (which does JS-render) actually sees.
-- **Search Console field data** — would confirm whether the SSR issue is actually depressing indexation.
-- **Backlink profile** — no API credentials available.
+Columns: HTML size (bytes), SSR body words, title length, description length, H1 count, JSON-LD `@graph` entries.

@@ -90,6 +90,150 @@ const copyPageAsMarkdown = async () => {
     }
 };
 
+// Sigmie filter DSL highlighting for plain (no-language) code blocks and
+// inline <code> in the docs prose. PHP/JSON/shell blocks are left untouched.
+const FILTER_SHAPE = /\w:\S|[<>]=?\s*-?\d|\bAND\b|\bOR\b|\bNOT\b|\[[^\]]*\.\.[^\]]*\]|:\*$/i;
+const PHP_MARKERS = /\$\w|->|=>|::|\bnew\s|\buse\s|\bclass\s|\bfunction\s|\bnamespace\s|;\s*$|^\s*\/\//m;
+
+const escapeHtml = (s) => s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+const tokenizeFilterLine = (text) => {
+    const out = [];
+    let i = 0;
+    while (i < text.length) {
+        const ch = text[i];
+
+        if (/\s/.test(ch)) {
+            const start = i;
+            while (i < text.length && /\s/.test(text[i])) i++;
+            out.push({ type: 'space', value: text.slice(start, i) });
+            continue;
+        }
+        if (ch === '"' || ch === "'") {
+            const open = ch;
+            const start = i;
+            i++;
+            while (i < text.length && text[i] !== open) i++;
+            if (i < text.length) i++;
+            out.push({ type: 'value', value: text.slice(start, i) });
+            continue;
+        }
+        if ((ch === '<' || ch === '>') && text[i + 1] === '=') {
+            out.push({ type: 'op', value: ch + '=' });
+            i += 2;
+            continue;
+        }
+        if (ch === '<' || ch === '>' || ch === ':' || ch === '=' || ch === '!') {
+            out.push({ type: 'op', value: ch });
+            i++;
+            continue;
+        }
+        if (ch === '[' || ch === ']') {
+            out.push({ type: 'bracket', value: ch });
+            i++;
+            continue;
+        }
+        if (ch === '.' && text[i + 1] === '.') {
+            out.push({ type: 'bracket', value: '..' });
+            i += 2;
+            continue;
+        }
+        if (ch === '*' || ch === ',' || ch === '(' || ch === ')') {
+            out.push({ type: 'bracket', value: ch });
+            i++;
+            continue;
+        }
+        if (/[a-zA-Z_0-9.-]/.test(ch)) {
+            const start = i;
+            while (i < text.length && /[a-zA-Z_0-9.-]/.test(text[i])) i++;
+            const word = text.slice(start, i);
+            const upper = word.toUpperCase();
+            if (upper === 'AND' || upper === 'OR' || upper === 'NOT') {
+                out.push({ type: 'logic', value: word });
+            } else if (word === 'true' || word === 'false' || word === 'null') {
+                out.push({ type: 'number', value: word });
+            } else if (/^-?\d+(\.\d+)?$/.test(word)) {
+                out.push({ type: 'number', value: word });
+            } else {
+                out.push({ type: 'field', value: word });
+            }
+            continue;
+        }
+        out.push({ type: 'text', value: ch });
+        i++;
+    }
+    return out;
+};
+
+const renderFilterTokens = (tokens) => tokens.map((t) => {
+    if (t.type === 'space') return t.value;
+    const cls = `sig-filter-${t.type}`;
+    return `<span class="${cls}">${escapeHtml(t.value)}</span>`;
+}).join('');
+
+const looksLikeFilter = (text) => {
+    const trimmed = text.trim();
+    if (!trimmed) return false;
+    if (PHP_MARKERS.test(trimmed)) return false;
+    return FILTER_SHAPE.test(trimmed);
+};
+
+const highlightLineElement = (el) => {
+    if (el.dataset.filterHighlighted === '1') return;
+    const text = el.textContent;
+    if (!looksLikeFilter(text)) return;
+    el.innerHTML = renderFilterTokens(tokenizeFilterLine(text));
+    el.dataset.filterHighlighted = '1';
+};
+
+const blockLooksLikeFilter = (code) => {
+    // If torchlight produced per-line wrappers, sample those; otherwise use textContent.
+    const lines = code.querySelectorAll('.line, .torchlight-line');
+    const sample = lines.length > 0
+        ? Array.from(lines).map((l) => l.textContent).filter(Boolean)
+        : code.textContent.split('\n').filter(Boolean);
+    if (sample.length === 0) return false;
+    // Require at least one non-empty line to look like filter syntax and no PHP markers anywhere.
+    const joined = sample.join('\n');
+    if (PHP_MARKERS.test(joined)) return false;
+    return sample.some((line) => FILTER_SHAPE.test(line));
+};
+
+const highlightFilterBlocks = () => {
+    document.querySelectorAll('article pre > code').forEach((code) => {
+        if (code.dataset.filterHighlighted === '1') return;
+        if (!blockLooksLikeFilter(code)) return;
+
+        const lines = code.querySelectorAll('.line, .torchlight-line');
+        if (lines.length > 0) {
+            lines.forEach(highlightLineElement);
+        } else {
+            // No per-line wrappers — split by \n and rebuild with text nodes between.
+            const text = code.textContent;
+            const out = text.split('\n').map((line) => {
+                if (!line.trim()) return '';
+                if (!looksLikeFilter(line)) return escapeHtml(line);
+                return renderFilterTokens(tokenizeFilterLine(line));
+            }).join('\n');
+            code.innerHTML = out;
+        }
+        code.dataset.filterHighlighted = '1';
+    });
+
+    document.querySelectorAll('article p > code, article li > code, article td > code, article strong > code').forEach((code) => {
+        if (code.closest('pre')) return;
+        if (code.dataset.filterHighlighted === '1') return;
+        const text = code.textContent;
+        if (PHP_MARKERS.test(text) || !FILTER_SHAPE.test(text)) return;
+        code.innerHTML = renderFilterTokens(tokenizeFilterLine(text));
+        code.dataset.filterHighlighted = '1';
+    });
+};
+
 const addCopyButtonsToCodeBlocks = () => {
     const codeBlocks = document.querySelectorAll('article pre');
 
@@ -148,6 +292,7 @@ onMounted(() => {
         });
 
         addCopyButtonsToCodeBlocks();
+        highlightFilterBlocks();
     });
 
     document.addEventListener('click', handleClickOutside);
@@ -465,6 +610,26 @@ onUnmounted(() => {
     color: #e5e7eb;
     border-color: rgba(100, 116, 139, 0.25);
 }
+
+/* Sigmie filter DSL syntax highlighting (applied client-side in
+   Document.vue's highlightFilterBlocks). */
+.doc-content .sig-filter-field { color: #a21caf; }              /* fuchsia-700 */
+.dark .doc-content .sig-filter-field { color: #f5d0fe; }        /* fuchsia-200 */
+.doc-content .sig-filter-op { color: var(--color-charcoal); }
+.dark .doc-content .sig-filter-op { color: #9ca3af; }            /* gray-400 */
+.doc-content .sig-filter-bracket { color: var(--color-charcoal); }
+.dark .doc-content .sig-filter-bracket { color: #9ca3af; }
+.doc-content .sig-filter-value { color: #15803d; }              /* green-700 */
+.dark .doc-content .sig-filter-value { color: #6ee7b7; }         /* emerald-300 */
+.doc-content .sig-filter-logic { color: var(--color-magic-orange); font-weight: 600; }
+.doc-content .sig-filter-number { color: var(--color-magic-orange); }
+.doc-content .sig-filter-text { color: inherit; }
+/* Match the prose pre code colour adjustments so plain text inside a
+   filter block stays readable on the dark background. */
+.doc-content pre code .sig-filter-field { color: #f5d0fe; }
+.doc-content pre code .sig-filter-op,
+.doc-content pre code .sig-filter-bracket { color: #9ca3af; }
+.doc-content pre code .sig-filter-value { color: #6ee7b7; }
 
 /* Copy code button */
 .copy-code-button {

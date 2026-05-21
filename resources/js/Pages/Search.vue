@@ -314,7 +314,7 @@ import { ref, watch } from 'vue'
 import { Head, Link } from '@inertiajs/vue3'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce.js'
 import Footer from '../components/Footer.vue'
 
 defineProps({

@@ -102,7 +102,11 @@
 @task('pull_changes', ['on' => 'production'])
     echo "Pulling latest changes..."
     cd {{ $appDirectory }}
+    BEFORE_SHA=$(sudo -u forge git rev-parse HEAD)
     sudo -u forge git pull origin master
+    AFTER_SHA=$(sudo -u forge git rev-parse HEAD)
+    echo "$BEFORE_SHA" | sudo -u forge tee /tmp/sigmie-deploy-before-sha >/dev/null
+    echo "$AFTER_SHA" | sudo -u forge tee /tmp/sigmie-deploy-after-sha >/dev/null
 @endtask
 
 @task('run_composer', ['on' => 'production'])
@@ -131,8 +135,24 @@
 @endtask
 
 @task('reindex_docs', ['on' => 'production'])
-    echo "Reindexing documentation..."
     cd {{ $appDirectory }}
+
+    if [ -f /tmp/sigmie-deploy-before-sha ] && [ -f /tmp/sigmie-deploy-after-sha ]; then
+        BEFORE_SHA=$(cat /tmp/sigmie-deploy-before-sha)
+        AFTER_SHA=$(cat /tmp/sigmie-deploy-after-sha)
+
+        if [ "$BEFORE_SHA" = "$AFTER_SHA" ]; then
+            echo "ℹ️  No commits pulled — skipping reindex."
+            exit 0
+        fi
+
+        if sudo -u forge git diff --quiet "$BEFORE_SHA" "$AFTER_SHA" -- docs/; then
+            echo "ℹ️  No doc changes in this deploy — skipping reindex."
+            exit 0
+        fi
+    fi
+
+    echo "Reindexing documentation..."
     sudo -u forge {{ $phpBinary }} artisan docs:index --fresh
 @endtask
 

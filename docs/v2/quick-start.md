@@ -1,6 +1,6 @@
 ---
 title: Quick Start
-short_description: Build your first search in 5 minutes with index creation and document search
+short_description: Build your first Elasticsearch search with Sigmie in 5 minutes — create an index, mappings, ingest documents, and run a keyword + filter query from PHP.
 keywords: [quick start, tutorial, first search, getting started, index, search]
 category: Getting Started
 order: 3

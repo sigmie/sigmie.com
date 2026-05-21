@@ -1,6 +1,6 @@
 ---
 title: Core Concepts
-short_description: Understand the fundamental concepts of Sigmie and Elasticsearch
+short_description: Understand the fundamental concepts behind Sigmie and Elasticsearch — indices, documents, mappings, analyzers, search relevance, and shard topology.
 keywords: [core concepts, fundamentals, client, indices, documents, properties]
 category: Core Concepts
 order: 1

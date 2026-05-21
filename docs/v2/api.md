@@ -1,6 +1,6 @@
 ---
 title: REST API
-short_description: REST API endpoints for Sigmie Workbench application
+short_description: REST API endpoints exposed by the Sigmie Workbench application for indices, documents, search, recommendations, and admin operations over HTTP.
 keywords: [api, rest api, endpoints, workbench, http]
 category: Reference
 order: 1

@@ -1,14 +1,22 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import Navbar from '../Navbar.vue';
+import Footer from '../components/Footer.vue';
 
-defineProps({
+const props = defineProps({
     html: String,
     title: String,
+    pageHeading: String,
     description: String,
     href: String,
     card: String,
     navigation: Object,
+});
+
+const cleanedHtml = computed(() => {
+    if (!props.html) return '';
+    return props.html.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, '');
 });
 </script>
 
@@ -33,7 +41,7 @@ defineProps({
                 <header class="mb-12">
                     <p class="text-[13px] uppercase tracking-wider font-semibold text-magic-orange mb-4">Sigmie blog</p>
                     <h1 class="text-[40px] sm:text-[64px] leading-[0.9] font-semibold tracking-tight text-graphite dark:text-white text-balance mb-6">
-                        {{ title }}
+                        {{ pageHeading || title }}
                     </h1>
                     <p v-if="description" class="text-[17px] leading-[1.5] text-charcoal dark:text-gray-400 max-w-2xl">
                         {{ description }}
@@ -55,10 +63,12 @@ defineProps({
                             prose-strong:text-graphite dark:prose-strong:text-white
                             prose-blockquote:border-l-light-steel prose-blockquote:text-charcoal
                             prose-hr:border-light-steel">
-                    <div v-html="html"></div>
+                    <div v-html="cleanedHtml"></div>
                 </main>
             </article>
         </div>
+
+        <Footer />
     </div>
 </template>
 

@@ -21,6 +21,20 @@ class SecurityHeaders
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
         $response->headers->remove('X-XSS-Protection');
 
+        $csp = implode('; ', [
+            "default-src 'self'",
+            "base-uri 'self'",
+            "img-src 'self' data: https:",
+            "font-src 'self' data: https://fonts.gstatic.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "script-src 'self' 'unsafe-inline' https://analytics.sigmie.com",
+            "connect-src 'self' https://analytics.sigmie.com",
+            "frame-ancestors 'self'",
+            "object-src 'none'",
+            "form-action 'self'",
+        ]);
+        $response->headers->set('Content-Security-Policy-Report-Only', $csp);
+
         return $response;
     }
 }

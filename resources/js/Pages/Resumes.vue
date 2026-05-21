@@ -2,6 +2,14 @@
 import { Head, Link } from "@inertiajs/vue3";
 import { ref } from "vue";
 import axios from "axios";
+import Footer from "../components/Footer.vue";
+
+defineProps({
+    title: String,
+    description: String,
+    href: String,
+    card: String,
+});
 
 const jobTitle = ref("");
 const jobDescription = ref("");
@@ -41,27 +49,7 @@ const isExpanded = (resumeId) => expandedResumes.value.has(resumeId);
 </script>
 
 <template>
-    <Head>
-        <title>Resume Search - Sigmie</title>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-        <meta name="description" content="Search for the perfect candidate using AI-powered semantic search. Match job requirements with resumes intelligently with Sigmie." />
-        <meta name="keywords" content="resume search, candidate search, semantic search, AI recruiting, job matching, resume matching, talent search" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-        <meta name="language" content="en-us" />
-        <link rel="canonical" href="https://sigmie.com/resumes" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://sigmie.com/resumes" />
-        <meta property="og:title" content="Resume Search - Sigmie" />
-        <meta property="og:description" content="Search for the perfect candidate using AI-powered semantic search." />
-        <meta property="og:site_name" content="Sigmie" />
-
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:url" content="https://sigmie.com/resumes" />
-        <meta name="twitter:title" content="Resume Search - Sigmie" />
-        <meta name="twitter:description" content="Search for the perfect candidate using AI-powered semantic search." />
-    </Head>
+    <Head :title="title" />
 
     <div class="min-h-screen bg-canvas-white dark:bg-black font-sans text-graphite dark:text-white">
         <div class="border-b border-light-steel dark:border-gray-800">
@@ -91,7 +79,7 @@ const isExpanded = (resumeId) => expandedResumes.value.has(resumeId);
                         Find the perfect <span class="text-magic-orange">candidate</span>
                     </h1>
                     <p class="text-[17px] sm:text-[20px] leading-[1.5] text-charcoal dark:text-gray-400 max-w-2xl mx-auto">
-                        Describe the role and let semantic search bring the most relevant resumes to the top.
+                        Describe the role and let semantic search bring the most relevant resumes to the top. The demo runs Sigmie's hybrid keyword + vector retrieval against a sample of 200 anonymised CVs — no signup, no setup, just paste a job description and hit search.
                     </p>
                 </div>
 
@@ -235,5 +223,7 @@ const isExpanded = (resumeId) => expandedResumes.value.has(resumeId);
                 </div>
             </div>
         </div>
+
+        <Footer />
     </div>
 </template>

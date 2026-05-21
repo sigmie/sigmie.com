@@ -512,6 +512,47 @@ onMounted(() => {
                     </div>
                 </div>
 
+                <!-- SEO content section -->
+                <section class="mb-12 prose prose-neutral dark:prose-invert max-w-none
+                                prose-headings:font-semibold prose-headings:tracking-tight
+                                prose-p:text-charcoal dark:prose-p:text-gray-300 prose-p:leading-[1.7]
+                                prose-a:text-magic-orange hover:prose-a:text-graphite prose-a:no-underline">
+                    <h2 class="text-[24px] sm:text-[28px] font-semibold text-graphite dark:text-white tracking-tight !mb-4">
+                        What is Sigmie?
+                    </h2>
+                    <p class="!mt-0">
+                        <strong>Sigmie</strong> is an open-source PHP library for Elasticsearch and OpenSearch — built for developers who care about search relevance, not about wiring up low-level mappings and analyzers. It ships a single fluent API for keyword search, vector and hybrid retrieval, faceted filtering, aggregations, autocompletion, RAG-style document chunking, and Laravel Scout integration.
+                    </p>
+                    <p>
+                        If you're tired of stitching together raw Elasticsearch JSON, hand-rolling tokenizers, or paying a hosted search-as-a-service for queries you could run yourself — Sigmie gives you the ergonomics of a hosted service with the cost profile of an open-source library you control. Indices are versioned with zero-downtime aliases, mappings come with sensible defaults, and semantic search is one method call away.
+                    </p>
+
+                    <h2 class="text-[24px] sm:text-[28px] font-semibold text-graphite dark:text-white tracking-tight !mt-12 !mb-4">
+                        Who is Sigmie for?
+                    </h2>
+                    <p class="!mt-0">
+                        PHP and Laravel teams building search for SaaS, e-commerce, content sites, internal tools, and AI agents. If you're already running Elasticsearch or OpenSearch (or thinking about it) and you want a library that gets out of your way, Sigmie is the shortest path from <em>"we need search"</em> to <em>"search is shipped"</em>.
+                    </p>
+
+                    <h2 class="text-[24px] sm:text-[28px] font-semibold text-graphite dark:text-white tracking-tight !mt-12 !mb-4">
+                        What makes Sigmie different
+                    </h2>
+                    <ul class="!mt-0">
+                        <li><strong>Fluent, typed PHP API</strong> — no raw JSON, no untyped arrays, just methods that compose.</li>
+                        <li><strong>Hybrid keyword + semantic search</strong> out of the box, with RRF rank fusion and MMR diversity.</li>
+                        <li><strong>Predefined property types</strong> tuned for relevance — name, email, address, price, tag, and friends — so you don't reinvent analyzers per project.</li>
+                        <li><strong>Vector embeddings</strong> via a built-in embeddings service (or bring your own), 384-dim by default.</li>
+                        <li><strong>Versioned indices with aliases</strong> for zero-downtime reindex and safe mapping migrations.</li>
+                        <li><strong>RAG and agent-ready</strong> — passage chunking, citation-friendly retrieval, and a Model Context Protocol server at <a href="/mcp">/mcp</a> for AI agents.</li>
+                        <li><strong>First-class Laravel integration</strong> — Scout driver, Laravel AI agent tools, and a fluent search builder that feels native.</li>
+                        <li><strong>OpenSearch supported</strong> — drop-in connection swap; no vendor lock-in.</li>
+                    </ul>
+
+                    <p class="!mt-8">
+                        Get started with the <Link href="/docs/v2/quick-start" class="text-magic-orange">5-minute Quick Start</Link>, browse the <Link href="/docs/v2/introduction" class="text-magic-orange">Introduction</Link>, or jump into <Link href="/docs/v2/semantic-search" class="text-magic-orange">Semantic Search</Link> if you already know your way around Elasticsearch.
+                    </p>
+                </section>
+
                 <!-- Main Content Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Left Column: Search -->

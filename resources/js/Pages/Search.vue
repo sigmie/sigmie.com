@@ -1,25 +1,6 @@
 <template>
     <div class="min-h-screen bg-canvas-white dark:bg-black font-sans text-graphite dark:text-white">
-        <Head>
-            <title>Search Documentation - Sigmie</title>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-            <meta name="description" content="Search through Sigmie documentation. Find guides, examples, and API references for the Elasticsearch library." />
-            <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-            <meta name="language" content="en-us" />
-            <link rel="canonical" href="https://sigmie.com/search" />
-
-            <meta property="og:type" content="website" />
-            <meta property="og:url" content="https://sigmie.com/search" />
-            <meta property="og:title" content="Search Documentation - Sigmie" />
-            <meta property="og:description" content="Search through Sigmie documentation. Find guides, examples, and API references." />
-            <meta property="og:site_name" content="Sigmie" />
-
-            <meta name="twitter:card" content="summary" />
-            <meta name="twitter:url" content="https://sigmie.com/search" />
-            <meta name="twitter:title" content="Search Documentation - Sigmie" />
-            <meta name="twitter:description" content="Search through Sigmie documentation. Find guides, examples, and API references." />
-        </Head>
+        <Head :title="title" />
 
         <header class="border-b border-light-steel dark:border-gray-800 bg-canvas-white/90 dark:bg-black/90 backdrop-blur sticky top-0 z-40">
             <div class="max-w-7xl mx-auto px-6 lg:px-8">
@@ -68,6 +49,15 @@
         </header>
 
         <main class="max-w-4xl mx-auto px-6 lg:px-8 py-16">
+            <section class="mb-12 text-center">
+                <h1 class="text-[40px] sm:text-[56px] leading-[0.95] font-semibold tracking-tight text-graphite dark:text-white text-balance mb-5">
+                    Sigmie Search Playground
+                </h1>
+                <p class="text-[17px] leading-[1.5] text-charcoal dark:text-gray-400 max-w-2xl mx-auto">
+                    Try Sigmie's hybrid keyword and semantic search live against the project's own documentation. AI-Powered Search runs vector retrieval with citations; Standard Search runs a traditional Elasticsearch query.
+                </p>
+            </section>
+
             <div v-if="conversationId && searchMode === 'semantic'" class="flex items-center justify-center mb-6">
                 <div class="inline-flex items-center gap-2 px-4 py-2 bg-ghostly-gray dark:bg-gray-900 border border-light-steel dark:border-gray-800 rounded-full text-[13px]">
                     <svg class="w-4 h-4 text-magic-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -314,6 +304,8 @@
                 </div>
             </div>
         </main>
+
+        <Footer />
     </div>
 </template>
 
@@ -323,6 +315,14 @@ import { Head, Link } from '@inertiajs/vue3'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { debounce } from 'lodash'
+import Footer from '../components/Footer.vue'
+
+defineProps({
+    title: String,
+    description: String,
+    href: String,
+    card: String,
+});
 
 const searchQuery = ref('')
 const searchResults = ref([])

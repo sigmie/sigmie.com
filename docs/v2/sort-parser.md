@@ -1,6 +1,6 @@
 ---
 title: Sort Parser
-short_description: Parse sort expressions for search result ordering
+short_description: Parse human-readable sort expressions for Elasticsearch search results in Sigmie — multi-field, ascending or descending, geo-distance, and nested sort keys.
 keywords: [sort parser, sorting, order, search results]
 category: Utilities
 order: 2

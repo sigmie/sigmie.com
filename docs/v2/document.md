@@ -1,6 +1,6 @@
 ---
 title: Documents
-short_description: Create, update, and manage documents in your Elasticsearch indices
+short_description: Create, update, fetch, and bulk-manage documents inside Elasticsearch indices with Sigmie — typed payloads, partial updates, upserts, and refresh control.
 keywords: [documents, indexing, upsert, bulk operations, json]
 category: Core Concepts
 order: 3

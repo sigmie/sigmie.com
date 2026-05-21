@@ -75,7 +75,12 @@ Route::post('/api/chat', [ChatController::class, 'chat']);
 
 // Search endpoints
 Route::get('/search', function () {
-    return Inertia::render('Search');
+    return Inertia::render('Search', [
+        'title' => 'Search Playground',
+        'description' => "Try Sigmie's hybrid keyword and semantic search live against the project's own documentation. AI-Powered Search runs vector retrieval with citations.",
+        'href' => config('app.url') . '/search',
+        'card' => config('app.url') . '/og-image.png',
+    ]);
 });
 Route::post('/api/search/rag', [SearchController::class, 'rag']);
 Route::post('/api/search/rag-stream', [SearchController::class, 'ragStream']);
@@ -96,7 +101,12 @@ Route::post('/api/search/images/image', [ImageSearchController::class, 'searchBy
 
 // Resumes search
 Route::get('/resumes', function () {
-    return Inertia::render('Resumes');
+    return Inertia::render('Resumes', [
+        'title' => 'Resume Search',
+        'description' => "Find the perfect candidate with Sigmie's AI-powered resume search. Hybrid keyword + semantic retrieval matches job descriptions against a sample of 200 anonymised CVs.",
+        'href' => config('app.url') . '/resumes',
+        'card' => config('app.url') . '/og-image.png',
+    ]);
 });
 Route::post('/api/search/resumes', [ResumesSearchController::class, 'search']);
 
@@ -124,13 +134,19 @@ Route::any('/blog/{endpoint?}', function ($endpoint, MarkdownConverter $converte
         ->filter(fn ($link)  => $link['href'] === "/blog/{$endpoint}")
         ->first();
 
+    $sourcePath = base_path("blog/{$endpoint}.md");
+    $updatedAt = file_exists($sourcePath) ? date('c', (int) filemtime($sourcePath)) : null;
+
     return Inertia::render('Post', [
         'navigation' => config("blog.navigation"),
         'html' => $html,
         'card' => config('app.url') . $link['card'],
-        'title' => $link['title'],
+        'title' => $link['title'] . ' — Sigmie Blog',
+        'pageHeading' => $link['title'],
         'href' => config('app.url') . $link['href'],
-        'description' => $link['description']
+        'description' => $link['description'],
+        'publishedAt' => $updatedAt,
+        'updatedAt' => $updatedAt,
     ]);
 })
     ->where('endpoint', '.*');
@@ -182,17 +198,25 @@ Route::any('/docs/{version}/{endpoint?}', function ($version, $endpoint, Markdow
     // Get page metadata from YAML frontmatter
     $metadata = $documentation->getPageMetadata($version, $endpoint);
 
-    $title = $metadata['title'] ?? ucfirst(str_replace('-', ' ', $endpoint ?? 'Documentation'));
+    $heading = $metadata['title'] ?? ucfirst(str_replace('-', ' ', $endpoint ?? 'Documentation'));
+    $title = "{$heading} — Sigmie Docs for PHP";
     $description = $metadata['description'] ?? config('app.description');
-    $card = config('app.url') . '/twitter-card.png';
+    $card = config('app.url') . '/og-image.png';
+
+    $sourcePath = base_path("docs/{$version}/{$endpoint}.md");
+    $updatedAt = file_exists($sourcePath) ? date('c', (int) filemtime($sourcePath)) : null;
 
     return Inertia::render('Document', [
         'navigation' => $navigation,
         'title' => $title,
+        'pageHeading' => $heading,
         'html' => $html,
         'card' => $card,
         'href' => config('app.url') . "/docs/{$version}/{$endpoint}",
         'description' => $description,
+        'publishedAt' => $updatedAt,
+        'updatedAt' => $updatedAt,
+        'proficiency' => $metadata['proficiency'] ?? 'Beginner',
     ]);
 })
     ->where('endpoint', '.*');

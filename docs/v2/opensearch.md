@@ -1,6 +1,6 @@
 ---
 title: OpenSearch
-short_description: Use OpenSearch as your search engine with Sigmie
+short_description: Use OpenSearch as the search engine behind Sigmie — drop-in connection config, compatibility notes, k-NN vector search, and security plugin authentication.
 keywords: [opensearch, aws, search engine, vector search, knn, semantic search]
 category: Configuration
 order: 3

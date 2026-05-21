@@ -1,6 +1,6 @@
 ---
 title: Search
-short_description: Build powerful search queries with filtering, sorting, and highlighting
+short_description: Build powerful Elasticsearch search queries with Sigmie — filtering, sorting, highlighting, pagination, aggregations, and field selection from a fluent PHP API.
 keywords: [search, query, filters, sorting, highlighting, typo tolerance]
 category: Core Concepts
 order: 5

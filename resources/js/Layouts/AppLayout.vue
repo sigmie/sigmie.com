@@ -1,6 +1,7 @@
 <script setup>
 import { Link } from "@inertiajs/vue3";
 import Sidebar from "../Sidebar.vue";
+import Footer from "../components/Footer.vue";
 
 defineProps({
     navigation: {
@@ -45,6 +46,8 @@ defineProps({
             <div class="flex-1 overflow-x-hidden w-full">
                 <slot />
             </div>
+
+            <Footer />
         </div>
     </div>
 </template>

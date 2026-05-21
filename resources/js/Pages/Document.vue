@@ -7,10 +7,12 @@ import LeftSidebar from "../components/LeftSidebar.vue";
 import RightSidebar from "../components/RightSidebar.vue";
 import TableOfContents from "../TableOfContents.vue";
 import { useTheme } from "../composables/useTheme";
+import SiteFooter from "../components/Footer.vue";
 
 const props = defineProps({
     html: String,
     title: String,
+    pageHeading: String,
     description: String,
     navigation: Object,
     href: String,
@@ -173,7 +175,7 @@ onUnmounted(() => {
                         <article class="max-w-2xl">
                             <div class="flex items-start justify-between gap-4 mb-6">
                                 <h1 class="text-[36px] leading-[1.15] font-semibold tracking-tight text-graphite dark:text-white flex-1">
-                                    {{ title }}
+                                    {{ pageHeading || title }}
                                 </h1>
 
                                 <div ref="dropdownRef" class="relative flex-shrink-0">
@@ -299,6 +301,8 @@ onUnmounted(() => {
         <div class="lg:hidden">
             <DocsSidebar :navigation="navigation" :current-path="$page.url" />
         </div>
+
+        <SiteFooter />
     </div>
 </template>
 

@@ -1,6 +1,6 @@
 ---
 title: Mappings & Properties
-short_description: Define field types and mappings for your documents
+short_description: Define field types and mappings for Elasticsearch documents with Sigmie — keyword, text, numeric, date, vector, nested, and analyzer-bound fields from PHP.
 keywords: [mappings, properties, field types, text, keyword, number, schema]
 category: Core Concepts
 order: 4

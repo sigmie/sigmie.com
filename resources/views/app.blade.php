@@ -7,10 +7,13 @@
     $description = $props['description'] ?? $defaultDescription;
     $card = $props['card'] ?? (config('app.url') . '/og-image.png');
     $href = $props['href'] ?? (config('app.url') . ($page['url'] ?? '/'));
+    $publishedAt = $props['publishedAt'] ?? null;
+    $updatedAt = $props['updatedAt'] ?? null;
+    $proficiency = $props['proficiency'] ?? 'Beginner';
     $ogType = in_array($component, ['Post', 'Document']) ? 'article' : 'website';
     $headline = match (true) {
         ! $title => $defaultTitle,
-        str_starts_with($title, 'Sigmie') => $title,
+        str_contains($title, 'Sigmie') => $title,
         default => "{$title} — Sigmie",
     };
 
@@ -40,6 +43,13 @@
             ],
         ],
     ];
+
+    $breadcrumbHub = match ($component) {
+        'Post' => ['name' => 'Blog', 'item' => config('app.url') . '/blog'],
+        'Document' => ['name' => 'Docs', 'item' => config('app.url') . '/docs'],
+        default => null,
+    };
+
     if ($component === 'Welcome') {
         $graph[] = [
             '@type' => 'SoftwareApplication',
@@ -52,29 +62,64 @@
             'publisher' => ['@id' => $orgId],
         ];
     } elseif ($component === 'Post') {
-        $graph[] = [
+        $graph[] = array_filter([
             '@type' => 'Article',
             'headline' => $title,
             'description' => $description,
             'image' => $card,
             'url' => $href,
             'mainEntityOfPage' => $href,
+            'datePublished' => $publishedAt,
+            'dateModified' => $updatedAt ?? $publishedAt,
             'author' => ['@type' => 'Organization', 'name' => 'Sigmie', '@id' => $orgId],
             'publisher' => ['@id' => $orgId],
-        ];
+        ]);
     } elseif ($component === 'Document') {
-        $graph[] = [
+        $graph[] = array_filter([
             '@type' => 'TechArticle',
             'headline' => $title,
             'description' => $description,
             'image' => $card,
             'url' => $href,
             'mainEntityOfPage' => $href,
-            'proficiencyLevel' => 'Beginner',
+            'datePublished' => $publishedAt,
+            'dateModified' => $updatedAt ?? $publishedAt,
+            'proficiencyLevel' => $proficiency,
             'author' => ['@id' => $orgId],
             'publisher' => ['@id' => $orgId],
+        ]);
+    } elseif ($component === 'Blog') {
+        $items = collect($props['posts'][0]['links'] ?? [])
+            ->values()
+            ->map(fn (array $post, int $i) => [
+                '@type' => 'ListItem',
+                'position' => $i + 1,
+                'url' => config('app.url') . $post['href'],
+                'name' => $post['title'],
+            ])->all();
+        $graph[] = [
+            '@type' => 'CollectionPage',
+            'name' => $title ?? 'Sigmie Blog',
+            'description' => $description,
+            'url' => $href,
+            'mainEntity' => [
+                '@type' => 'ItemList',
+                'itemListElement' => $items,
+            ],
         ];
     }
+
+    if ($breadcrumbHub) {
+        $graph[] = [
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => [
+                ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => config('app.url') . '/'],
+                ['@type' => 'ListItem', 'position' => 2, 'name' => $breadcrumbHub['name'], 'item' => $breadcrumbHub['item']],
+                ['@type' => 'ListItem', 'position' => 3, 'name' => $title ?? $headline, 'item' => $href],
+            ],
+        ];
+    }
+
     $jsonLd = json_encode([
         '@context' => 'https://schema.org',
         '@graph' => $graph,

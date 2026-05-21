@@ -1,6 +1,6 @@
 ---
 title: Laravel Scout
-short_description: Integrate Sigmie with Laravel Scout for Eloquent model search
+short_description: Integrate Sigmie with Laravel Scout to power Eloquent model search — fluent search builder, vector embeddings, filters, and the standard Scout driver contract.
 keywords: [laravel scout, laravel, eloquent, integration, scout driver]
 category: Integrations
 order: 1

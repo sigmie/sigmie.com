@@ -2,6 +2,7 @@
 import { Head, Link } from "@inertiajs/vue3";
 import Navbar from '../Navbar.vue';
 import Banner from '../Banner.vue';
+import Footer from '../components/Footer.vue';
 
 defineProps({
     title: String,
@@ -63,6 +64,8 @@ defineProps({
                 </aside>
             </div>
         </div>
+
+        <Footer />
     </div>
 </template>
 

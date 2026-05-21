@@ -197,28 +197,22 @@ const tokenizeNonString = (text) => {
 const getTokenClass = (token) => {
     switch (token.type) {
         case 'keyword':
-            return 'text-fuchsia-700 dark:text-fuchsia-400';
         case 'variable':
-            return 'text-fuchsia-700 dark:text-fuchsia-400';
-        case 'string':
-            return 'text-cyan-700 dark:text-cyan-300';
         case 'function':
-            return 'text-orange-600 dark:text-orange-400';
+        case 'number':
+            return 'text-magic-orange';
+        case 'string':
+            return 'text-magic-green dark:text-emerald-300';
         case 'method':
+        case 'text':
             return 'text-graphite dark:text-gray-300';
         case 'operator':
-            return 'text-charcoal dark:text-gray-400';
         case 'bracket':
             return 'text-charcoal dark:text-gray-400';
         case 'comma':
         case 'semicolon':
-            return 'text-subtle-gray dark:text-gray-500';
-        case 'number':
-            return 'text-orange-600 dark:text-orange-400';
         case 'comment':
             return 'text-subtle-gray dark:text-gray-500';
-        case 'text':
-            return 'text-graphite dark:text-gray-300';
         default:
             return 'text-graphite dark:text-gray-300';
     }
@@ -235,7 +229,7 @@ const copyCode = async () => {
 
 <template>
     <div class="relative w-full">
-        <div class="relative rounded-t-lg overflow-hidden border border-light-steel dark:border-gray-800 border-b-0 bg-ghostly-gray dark:bg-black" :style="{ maskImage: maskImage, WebkitMaskImage: maskImage, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }">
+        <div class="relative rounded-t-lg overflow-hidden border border-light-steel dark:border-gray-800 border-b-0 bg-[#f6f6f7] dark:bg-black" :style="{ maskImage: maskImage, WebkitMaskImage: maskImage, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }">
             <div class="px-3 sm:px-4 pt-6 sm:pt-8 pb-8 sm:pb-12 overflow-x-auto overflow-y-hidden" style="white-space: pre-wrap;">
                 <div class="flex font-mono text-sm leading-relaxed min-h-[auto]">
                     <!-- Line Numbers -->
@@ -289,7 +283,7 @@ const copyCode = async () => {
 }
 
 .highlight-change {
-    background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.12) 100%);
+    background: rgba(255, 83, 16, 0.12);
     animation: highlight-pulse 0.5s ease-in-out;
 }
 
@@ -299,11 +293,11 @@ const copyCode = async () => {
         transform: translateX(0);
     }
     50% {
-        background: linear-gradient(90deg, rgba(59, 130, 246, 0.25) 0%, rgba(147, 51, 234, 0.2) 100%);
+        background: rgba(255, 83, 16, 0.22);
         transform: translateX(2px);
     }
     100% {
-        background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.12) 100%);
+        background: rgba(255, 83, 16, 0.12);
         transform: translateX(0);
     }
 }

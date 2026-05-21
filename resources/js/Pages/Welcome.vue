@@ -461,7 +461,7 @@ onMounted(() => {
             <!-- Decorative background elements -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute top-1/4 -right-64 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
-                <div class="absolute bottom-1/4 -left-64 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-1/4 -left-64 w-96 h-96 bg-magic-orange/10 rounded-full blur-3xl"></div>
             </div>
 
             <div class="relative mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 lg:py-20 lg:px-8">
@@ -535,21 +535,21 @@ onMounted(() => {
                                 <div class="flex items-center gap-2">
                                     <button
                                         @click="typeFilter = typeFilter === 'all' ? '' : 'all'"
-                                        :class="typeFilter === 'all' ? 'bg-blue-500 text-graphite dark:text-white' : 'bg-ghostly-gray dark:bg-gray-800 text-charcoal dark:text-gray-400 hover:bg-fog dark:hover:bg-fog dark:bg-gray-700'"
+                                        :class="typeFilter === 'all' ? 'bg-magic-orange text-white' : 'bg-ghostly-gray dark:bg-gray-800 text-charcoal dark:text-gray-400 hover:bg-fog dark:hover:bg-fog dark:bg-gray-700'"
                                         class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
                                     >
                                         All
                                     </button>
                                     <button
                                         @click="typeFilter = typeFilter === 'movie' ? '' : 'movie'"
-                                        :class="typeFilter === 'movie' ? 'bg-blue-500 text-graphite dark:text-white' : 'bg-ghostly-gray dark:bg-gray-800 text-charcoal dark:text-gray-400 hover:bg-fog dark:hover:bg-fog dark:bg-gray-700'"
+                                        :class="typeFilter === 'movie' ? 'bg-magic-orange text-white' : 'bg-ghostly-gray dark:bg-gray-800 text-charcoal dark:text-gray-400 hover:bg-fog dark:hover:bg-fog dark:bg-gray-700'"
                                         class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
                                     >
                                         Movies
                                     </button>
                                     <button
                                         @click="typeFilter = typeFilter === 'tv' ? '' : 'tv'"
-                                        :class="typeFilter === 'tv' ? 'bg-blue-500 text-graphite dark:text-white' : 'bg-ghostly-gray dark:bg-gray-800 text-charcoal dark:text-gray-400 hover:bg-fog dark:hover:bg-fog dark:bg-gray-700'"
+                                        :class="typeFilter === 'tv' ? 'bg-magic-orange text-white' : 'bg-ghostly-gray dark:bg-gray-800 text-charcoal dark:text-gray-400 hover:bg-fog dark:hover:bg-fog dark:bg-gray-700'"
                                         class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
                                     >
                                         TV Shows
@@ -565,7 +565,7 @@ onMounted(() => {
                                                 v-model="retrieveType"
                                                 class="sr-only peer"
                                             />
-                                            <div class="w-9 h-5 bg-fog dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                                            <div class="w-9 h-5 bg-fog dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-magic-orange"></div>
                                         </div>
                                         <span class="text-sm text-charcoal dark:text-gray-400">Type</span>
                                     </label>
@@ -576,7 +576,7 @@ onMounted(() => {
                                                 v-model="retrieveYear"
                                                 class="sr-only peer"
                                             />
-                                            <div class="w-9 h-5 bg-fog dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                                            <div class="w-9 h-5 bg-fog dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-magic-orange"></div>
                                         </div>
                                         <span class="text-sm text-charcoal dark:text-gray-400">Year</span>
                                     </label>
@@ -587,7 +587,7 @@ onMounted(() => {
                                                 v-model="retrieveDirector"
                                                 class="sr-only peer"
                                             />
-                                            <div class="w-9 h-5 bg-fog dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                                            <div class="w-9 h-5 bg-fog dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-magic-orange"></div>
                                         </div>
                                         <span class="text-sm text-charcoal dark:text-gray-400">Director</span>
                                     </label>
@@ -644,7 +644,7 @@ onMounted(() => {
         <div id="image-search" class="relative border-t border-light-steel dark:border-gray-800 bg-canvas-white dark:bg-black overflow-hidden scroll-mt-20">
             <!-- Decorative background elements -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
-                <div class="absolute top-1/3 -left-64 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+                <div class="absolute top-1/3 -left-64 w-96 h-96 bg-magic-orange/10 rounded-full blur-3xl"></div>
                 <div class="absolute bottom-1/3 -right-64 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
             </div>
 

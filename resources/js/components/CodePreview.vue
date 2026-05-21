@@ -197,30 +197,30 @@ const tokenizeNonString = (text) => {
 const getTokenClass = (token) => {
     switch (token.type) {
         case 'keyword':
-            return 'text-fuchsia-400';
+            return 'text-fuchsia-700 dark:text-fuchsia-400';
         case 'variable':
-            return 'text-fuchsia-400';
+            return 'text-fuchsia-700 dark:text-fuchsia-400';
         case 'string':
-            return 'text-cyan-300';
+            return 'text-cyan-700 dark:text-cyan-300';
         case 'function':
-            return 'text-orange-400';
+            return 'text-orange-600 dark:text-orange-400';
         case 'method':
-            return 'text-gray-300';
+            return 'text-graphite dark:text-gray-300';
         case 'operator':
-            return 'text-gray-400';
+            return 'text-charcoal dark:text-gray-400';
         case 'bracket':
-            return 'text-gray-400';
+            return 'text-charcoal dark:text-gray-400';
         case 'comma':
         case 'semicolon':
-            return 'text-gray-500';
+            return 'text-subtle-gray dark:text-gray-500';
         case 'number':
-            return 'text-orange-400';
+            return 'text-orange-600 dark:text-orange-400';
         case 'comment':
-            return 'text-gray-500';
+            return 'text-subtle-gray dark:text-gray-500';
         case 'text':
-            return 'text-gray-300';
+            return 'text-graphite dark:text-gray-300';
         default:
-            return 'text-gray-300';
+            return 'text-graphite dark:text-gray-300';
     }
 };
 
@@ -235,11 +235,11 @@ const copyCode = async () => {
 
 <template>
     <div class="relative w-full">
-        <div class="relative rounded-t-lg overflow-hidden border border-light-steel dark:border-gray-800 border-b-0 bg-graphite dark:bg-black" :style="{ maskImage: maskImage, WebkitMaskImage: maskImage, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }">
+        <div class="relative rounded-t-lg overflow-hidden border border-light-steel dark:border-gray-800 border-b-0 bg-ghostly-gray dark:bg-black" :style="{ maskImage: maskImage, WebkitMaskImage: maskImage, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }">
             <div class="px-3 sm:px-4 pt-6 sm:pt-8 pb-8 sm:pb-12 overflow-x-auto overflow-y-hidden" style="white-space: pre-wrap;">
                 <div class="flex font-mono text-sm leading-relaxed min-h-[auto]">
                     <!-- Line Numbers -->
-                    <div class="select-none pr-6 text-right text-gray-600 mr-4 min-w-[3rem]">
+                    <div class="select-none pr-6 text-right text-subtle-gray dark:text-gray-600 mr-4 min-w-[3rem]">
                         <div
                             v-for="(line, index) in parsedLines"
                             :key="`num-${index}`"

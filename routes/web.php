@@ -7,6 +7,7 @@ use App\Http\Controllers\ImageSearchController;
 use App\Http\Controllers\ResumesSearchController;
 use App\Http\Controllers\AsosProductsController;
 use App\Http\Controllers\DocsSearchController;
+use App\Http\Controllers\LlmsController;
 use App\Http\Controllers\SitemapController;
 use App\Services\Blog;
 use App\Services\Documentation;
@@ -34,9 +35,14 @@ use League\CommonMark\MarkdownConverter;
 use Torchlight\Commonmark\V2\TorchlightExtension;
 
 Route::get('/sitemap.xml', SitemapController::class);
+Route::get('/llms.txt', LlmsController::class);
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
+        'title' => 'A modern Elasticsearch library for PHP',
+        'description' => 'Sigmie is a modern, developer-friendly Elasticsearch and OpenSearch library for PHP and Laravel. Fluent search, semantic and hybrid retrieval, AI-ready, no boilerplate.',
+        'href' => config('app.url') . '/',
+        'card' => config('app.url') . '/og-image.png',
         'navigation' => [
             [
                 'title' => 'Products',
@@ -49,10 +55,6 @@ Route::get('/', function () {
                         'title' => 'Text to Image',
                         'href' => '/#image-search',
                     ],
-                    // [
-                    //     'title' => 'Smart Discovery',
-                    //     'href' => '/#recommendations',
-                    // ],
                 ]
             ],
             [
@@ -104,8 +106,11 @@ Route::post('/api/search/docs', [DocsSearchController::class, 'search']);
 Route::get('/blog', function () {
 
     return Inertia::render('Blog', [
-        'title' => 'Posts',
-        'posts' => config("blog.navigation")
+        'title' => 'Sigmie Blog',
+        'description' => 'Articles from the Sigmie team on Elasticsearch internals, PHP search patterns, sharding, semantic retrieval, and what we are building.',
+        'href' => config('app.url') . '/blog',
+        'card' => config('app.url') . '/og-image.png',
+        'posts' => config("blog.navigation"),
     ]);
 });
 

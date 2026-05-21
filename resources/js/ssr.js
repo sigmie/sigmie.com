@@ -6,12 +6,13 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
 
 const appName = 'Sigmie';
+const defaultTitle = 'Sigmie — A modern Elasticsearch library for PHP';
 
 createServer((page) =>
     createInertiaApp({
         page,
         render: renderToString,
-        title: (title) => title ? `${title} - ${appName}` : `${appName} - A different Elasticsearch library`,
+        title: (title) => !title ? defaultTitle : (title.startsWith(appName) ? title : `${title} — ${appName}`),
         resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
         setup({ App, props, plugin }) {
             return createSSRApp({ render: () => h(App, props) })

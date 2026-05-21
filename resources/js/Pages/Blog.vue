@@ -11,31 +11,7 @@ defineProps({
 </script>
 
 <template>
-    <Head>
-        <title>Blog - Sigmie</title>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-        <meta name="description" content="Latest articles and updates about Sigmie Elasticsearch library." />
-        <meta name="keywords" content="sigmie blog, elasticsearch tutorials, search implementation, sigmie updates, elasticsearch best practices, full-text search, semantic search" />
-        <meta name="author" content="Sigmie Team" />
-        <meta name="language" content="en-us" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://sigmie.com/blog" />
-        <meta property="og:title" content="Blog - Sigmie" />
-        <meta property="og:description" content="Latest articles and updates about Sigmie Elasticsearch library." />
-        <meta property="og:image" content="https://sigmie.com/og-image.png" />
-        <meta property="og:site_name" content="Sigmie" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" content="https://sigmie.com/blog" />
-        <meta name="twitter:title" content="Blog - Sigmie" />
-        <meta name="twitter:description" content="Latest articles and updates about Sigmie Elasticsearch library." />
-        <meta name="twitter:image" content="https://sigmie.com/og-image.png" />
-
-        <link rel="canonical" href="https://sigmie.com/blog" />
-    </Head>
+    <Head :title="title" />
 
     <div class="min-h-screen bg-canvas-white dark:bg-black font-sans text-graphite dark:text-white">
         <Navbar :navigation="navigation" />

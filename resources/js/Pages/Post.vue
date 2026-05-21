@@ -1,9 +1,8 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { onMounted } from 'vue';
 import Navbar from '../Navbar.vue';
 
-const props = defineProps({
+defineProps({
     html: String,
     title: String,
     description: String,
@@ -11,57 +10,10 @@ const props = defineProps({
     card: String,
     navigation: Object,
 });
-
-onMounted(() => {
-    const schema = {
-        '@context': 'https://schema.org',
-        '@type': 'BlogPosting',
-        'headline': props.title,
-        'description': props.description,
-        'image': props.card,
-        'url': props.href,
-        'datePublished': '2024-01-01',
-        'dateModified': '2024-01-01',
-        'author': { '@type': 'Organization', 'name': 'Sigmie' },
-        'publisher': {
-            '@type': 'Organization',
-            'name': 'Sigmie',
-            'logo': { '@type': 'ImageObject', 'url': 'https://sigmie.com/logo.svg' }
-        }
-    };
-
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.setAttribute('data-schema', 'blog-post');
-    script.textContent = JSON.stringify(schema);
-    document.head.appendChild(script);
-});
 </script>
 
 <template>
-    <Head :title="`${title} - Sigmie Blog`">
-        <meta name="title" :content="`${title} - Sigmie Blog`" />
-        <meta name="description" :content="description" />
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-        <meta name="author" content="Sigmie Team" />
-        <meta name="language" content="en-us" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-        <link rel="canonical" :href="href" />
-
-        <meta property="og:type" content="article" />
-        <meta property="og:url" :content="href" />
-        <meta property="og:title" :content="title" />
-        <meta property="og:description" :content="description" />
-        <meta property="og:image" :content="card" />
-        <meta property="og:site_name" content="Sigmie Blog" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" :content="href" />
-        <meta name="twitter:title" :content="title" />
-        <meta name="twitter:description" :content="description" />
-        <meta name="twitter:image" :content="card" />
-    </Head>
+    <Head :title="title" />
 
     <div class="min-h-screen bg-canvas-white dark:bg-black font-sans text-graphite dark:text-white">
         <Navbar :navigation="navigation" />

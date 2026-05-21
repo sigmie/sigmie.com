@@ -144,31 +144,6 @@ onMounted(() => {
         });
 
         addCopyButtonsToCodeBlocks();
-
-        const existingScript = document.querySelector('script[data-seo="article-ld"]');
-        if (existingScript) existingScript.remove();
-
-        const articleSchema = {
-            '@context': 'https://schema.org',
-            '@type': 'Article',
-            'headline': props.title,
-            'description': props.description,
-            'image': props.card,
-            'url': props.href,
-            'publisher': {
-                '@type': 'Organization',
-                'name': 'Sigmie',
-                'logo': { '@type': 'ImageObject', 'url': 'https://sigmie.com/logo.svg' }
-            },
-            'datePublished': '2024-01-01',
-            'dateModified': '2024-01-01'
-        };
-
-        const script = document.createElement('script');
-        script.type = 'application/ld+json';
-        script.setAttribute('data-seo', 'article-ld');
-        script.textContent = JSON.stringify(articleSchema);
-        document.head.appendChild(script);
     });
 
     document.addEventListener('click', handleClickOutside);
@@ -180,28 +155,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <Head :title="title">
-        <meta name="title" :content="title" />
-        <meta name="description" :content="description" />
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-        <meta name="language" content="en-us" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-        <link rel="canonical" :href="href" />
-
-        <meta property="og:type" content="article" />
-        <meta property="og:url" :content="href" />
-        <meta property="og:title" :content="title" />
-        <meta property="og:description" :content="description" />
-        <meta property="og:image" :content="card" />
-        <meta property="og:site_name" content="Sigmie Documentation" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" :content="href" />
-        <meta name="twitter:title" :content="title" />
-        <meta name="twitter:description" :content="description" />
-        <meta name="twitter:image" :content="card" />
-    </Head>
+    <Head :title="title" />
 
     <div class="min-h-screen bg-canvas-white dark:bg-black font-sans text-graphite dark:text-white">
         <Navbar :navigation="navigation" />

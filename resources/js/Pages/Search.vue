@@ -281,9 +281,9 @@
 
             <div v-else-if="!searchQuery" class="text-center py-20">
                 <div class="max-w-md mx-auto">
-                    <h1 class="text-[40px] leading-[1.2] font-semibold tracking-tight text-graphite dark:text-white">
+                    <h2 class="text-[40px] leading-[1.2] font-semibold tracking-tight text-graphite dark:text-white">
                         Search the docs
-                    </h1>
+                    </h2>
                     <p class="mt-4 text-[15px] text-charcoal dark:text-gray-400 leading-relaxed">
                         Get instant answers from AI or browse the full documentation with standard search.
                     </p>

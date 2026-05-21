@@ -1,76 +1,171 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@source "../views/**/*.blade.php";
+@source "../../app/Services/Documentation.php";
+
+@theme {
+  /* DESIGN.md — Colors */
+  --color-canvas-white: #ffffff;
+  --color-ghostly-gray: #faf9f7;
+  --color-carbon-black: #000000;
+  --color-graphite: #1a1a19;
+  --color-charcoal: #333331;
+  --color-light-steel: #e5e7eb;
+  --color-fog: #f0f0f0;
+  --color-subtle-gray: #808080;
+  --color-magic-orange: #ff5310;
+  --color-magic-green: #44c67f;
+  --color-accent-green: #81e9b0;
+  --color-product-blue: #0098f1;
+
+  /* Gray scale (preserved from v3 for Welcome.vue) */
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e5e5e5;
+  --color-gray-300: #d4d4d4;
+  --color-gray-400: #a3a3a3;
+  --color-gray-500: #737373;
+  --color-gray-600: #525252;
+  --color-gray-700: #404040;
+  --color-gray-800: #262626;
+  --color-gray-900: #171717;
+  --color-gray-950: #0a0a0a;
+
+  /* Blue scale (preserved) */
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #0070f3;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #1e40af;
+  --color-blue-900: #1e3a8a;
+
+  /* Geist palette (preserved for Welcome.vue) */
+  --color-geist-background: #ffffff;
+  --color-geist-foreground: #000000;
+  --color-geist-background-dark: #000000;
+  --color-geist-foreground-dark: #ffffff;
+  --color-geist-accent: #0070f3;
+  --color-geist-accent-light: #3291ff;
+  --color-geist-success: #0070f3;
+  --color-geist-error: #ee0000;
+  --color-geist-warning: #f5a623;
+  --color-geist-violet: #7928ca;
+  --color-geist-cyan: #79ffe1;
+
+  /* Typography */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'SF Mono', Monaco, Inconsolata, 'Fira Code', 'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
+
+  /* Type Scale (DESIGN.md) */
+  --text-caption: 13px;
+  --leading-caption: 1.5;
+  --text-heading: 24px;
+  --leading-heading: 1.33;
+  --text-heading-lg: 40px;
+  --leading-heading-lg: 1.2;
+  --text-display: 64px;
+  --leading-display: 0.9;
+
+  /* Preserved geist text sizes (Welcome.vue) */
+  --text-geist-xs: 12px;
+  --leading-geist-xs: 16px;
+  --text-geist-sm: 14px;
+  --leading-geist-sm: 20px;
+  --text-geist-base: 16px;
+  --leading-geist-base: 24px;
+  --text-geist-lg: 18px;
+  --leading-geist-lg: 28px;
+  --text-geist-xl: 20px;
+  --leading-geist-xl: 28px;
+  --text-geist-2xl: 24px;
+  --leading-geist-2xl: 32px;
+  --text-geist-3xl: 30px;
+  --leading-geist-3xl: 36px;
+  --text-geist-4xl: 36px;
+  --leading-geist-4xl: 40px;
+
+  /* Spacing (DESIGN.md scale) */
+  --spacing-8: 8px;
+  --spacing-16: 16px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-64: 64px;
+  --spacing-80: 80px;
+  --spacing-200: 200px;
+
+  /* Border Radius */
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+  --radius-cards: 12px;
+  --radius-forms: 9999px;
+  --radius-buttons: 9999px;
+  --radius-geist-sm: 6px;
+  --radius-geist: 12px;
+  --radius-geist-lg: 16px;
+
+  /* Shadows */
+  --shadow-xl: rgba(0, 0, 0, 0.01) 0px 94px 38px 0px, rgba(0, 0, 0, 0.02) 0px 53px 32px 0px, rgba(0, 0, 0, 0.03) 0px 24px 24px 0px, rgba(0, 0, 0, 0.04) 0px 6px 13px 0px;
+  --shadow-geist-sm: 0 0 0 1px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-geist: 0 0 0 1px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04), 0 2px 8px rgba(0,0,0,.04);
+  --shadow-geist-md: 0 0 0 1px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.04);
+  --shadow-geist-lg: 0 0 0 1px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04), 0 8px 32px rgba(0,0,0,.12);
+  --shadow-geist-hover: 0 0 0 1px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08), 0 8px 32px rgba(0,0,0,.12);
+
+  /* Animations (preserved) */
+  --animate-fade-in: fadeIn 200ms ease;
+  --animate-fade-out: fadeOut 200ms ease;
+  --animate-slide-in: slideIn 200ms ease;
+  --animate-slide-out: slideOut 200ms ease;
+}
+
+@keyframes fadeIn { 0% { opacity: 0 } 100% { opacity: 1 } }
+@keyframes fadeOut { 0% { opacity: 1 } 100% { opacity: 0 } }
+@keyframes slideIn { 0% { transform: translateY(-10px); opacity: 0 } 100% { transform: translateY(0); opacity: 1 } }
+@keyframes slideOut { 0% { transform: translateY(0); opacity: 1 } 100% { transform: translateY(-10px); opacity: 0 } }
 
 @layer base {
-    :root {
-        --geist-background: 255 255 255;
-        --geist-foreground: 0 0 0;
-    }
-
-    .dark {
-        --geist-background: 0 0 0;
-        --geist-foreground: 255 255 255;
-    }
-
-    html {
-        scroll-behavior: smooth;
-    }
-
-    html,
-    body {
-        @apply antialiased bg-white dark:bg-black overflow-x-hidden;
-    }
-
-    * {
-        @apply border-gray-200 dark:border-gray-800;
-    }
+  :root {
+    --geist-background: 255 255 255;
+    --geist-foreground: 0 0 0;
+  }
+  .dark {
+    --geist-background: 0 0 0;
+    --geist-foreground: 255 255 255;
+  }
+  html { scroll-behavior: smooth; }
+  html, body {
+    @apply antialiased bg-canvas-white text-graphite dark:bg-black dark:text-white overflow-x-hidden;
+    font-family: var(--font-sans);
+  }
+  /* Preserve v3 default border color */
+  * { border-color: var(--color-light-steel); }
+  .dark * { border-color: var(--color-gray-800); }
 }
 
 @layer utilities {
-    .text-balance {
-        text-wrap: balance;
-    }
-    
-    /* Custom Scrollbar Styles */
-    .scrollbar-thin {
-        scrollbar-width: thin;
-    }
-    
-    .scrollbar-thumb-gray-300 {
-        scrollbar-color: rgb(209 213 219) transparent;
-    }
-    
-    .dark .scrollbar-thumb-gray-700 {
-        scrollbar-color: rgb(55 65 81) transparent;
-    }
-    
-    /* Webkit Scrollbar Styles */
-    .scrollbar-thin::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-    
-    .scrollbar-thin::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    
-    .scrollbar-thin::-webkit-scrollbar-thumb {
-        background-color: rgb(209 213 219);
-        border-radius: 4px;
-    }
-    
-    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-        background-color: rgb(55 65 81);
-    }
-    
-    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-        background-color: rgb(156 163 175);
-    }
-    
-    .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-        background-color: rgb(75 85 99);
-    }
+  .text-balance { text-wrap: balance; }
+
+  .scrollbar-thin { scrollbar-width: thin; }
+  .scrollbar-thumb-gray-300 { scrollbar-color: rgb(209 213 219) transparent; }
+  .dark .scrollbar-thumb-gray-700 { scrollbar-color: rgb(55 65 81) transparent; }
+  .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background-color: rgb(209 213 219); border-radius: 4px; }
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb { background-color: rgb(55 65 81); }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover { background-color: rgb(156 163 175); }
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover { background-color: rgb(75 85 99); }
 }

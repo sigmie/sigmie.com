@@ -25,64 +25,61 @@ const navigation = [
     </Head>
 
     <DocsLayout :navigation="navigation" :current-path="$page.url">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-            <div class="prose prose-invert max-w-none">
-                <h1 class="text-3xl sm:text-4xl font-bold text-white mb-6">
-                    Welcome to Sigmie Documentation
-                </h1>
+        <div class="max-w-3xl mx-auto px-6 lg:px-8 py-20 font-sans">
+            <p class="text-[13px] uppercase tracking-wider font-semibold text-magic-orange mb-4">Documentation</p>
+            <h1 class="text-[40px] sm:text-[64px] leading-[0.9] font-semibold tracking-tight text-graphite dark:text-white text-balance mb-6">
+                Welcome to Sigmie
+            </h1>
+            <p class="text-[17px] leading-[1.5] text-charcoal dark:text-gray-400 mb-12 max-w-2xl">
+                A modern, developer-friendly Elasticsearch library. Sigmie handles the complexity so you can focus on search relevance.
+            </p>
 
-                <p class="text-lg text-gray-400 leading-relaxed mb-8">
-                    Sigmie is a modern, developer-friendly Elasticsearch library that handles all complexities,
-                    letting you focus solely on search relevance.
-                </p>
-
-                <div class="border border-gray-800 rounded-lg p-6 bg-black/50 mb-8">
-                    <h2 class="text-xl font-semibold text-white mb-4">Quick Example</h2>
-                    <pre class="bg-gray-900 text-gray-300 p-4 rounded-md overflow-x-auto"><code>$search = $index
-    ->newSearch()
-    ->semantic()
-    ->queryString('romantic comedy')
-    ->filters('type:"Movie"')
-    ->get();</code></pre>
-                </div>
-
-                <h2 class="text-2xl font-bold text-white mb-4 mt-12">
-                    Features
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    <div class="border border-gray-800 rounded-lg p-4 bg-black/50">
-                        <h3 class="text-lg font-semibold text-white mb-2">Semantic Search</h3>
-                        <p class="text-gray-400 text-sm">Natural language understanding with AI-powered search capabilities.</p>
-                    </div>
-                    <div class="border border-gray-800 rounded-lg p-4 bg-black/50">
-                        <h3 class="text-lg font-semibold text-white mb-2">Simple API</h3>
-                        <p class="text-gray-400 text-sm">Clean, fluent interface that makes complex queries simple.</p>
-                    </div>
-                    <div class="border border-gray-800 rounded-lg p-4 bg-black/50">
-                        <h3 class="text-lg font-semibold text-white mb-2">Production Ready</h3>
-                        <p class="text-gray-400 text-sm">Battle-tested in production environments at scale.</p>
-                    </div>
-                    <div class="border border-gray-800 rounded-lg p-4 bg-black/50">
-                        <h3 class="text-lg font-semibold text-white mb-2">Laravel First</h3>
-                        <p class="text-gray-400 text-sm">Built specifically for Laravel with full framework integration.</p>
-                    </div>
-                </div>
-
-                <h2 class="text-2xl font-bold text-white mb-4 mt-12">
-                    Getting Started
-                </h2>
-
-                <p class="text-gray-400 leading-relaxed mb-4">
-                    To get started with Sigmie, install it via Composer:
-                </p>
-
-                <pre class="bg-gray-900 text-gray-300 p-4 rounded-md overflow-x-auto mb-4"><code>composer require sigmie/sigmie</code></pre>
-
-                <p class="text-gray-400 leading-relaxed">
-                    Then follow our <a href="/docs/installation" class="text-blue-400 hover:text-blue-300">installation guide</a> to configure your application.
-                </p>
+            <div class="bg-ghostly-gray dark:bg-gray-900 rounded-xl p-8 mb-12">
+                <h2 class="text-[20px] font-semibold text-graphite dark:text-white mb-4">Quick example</h2>
+                <pre class="bg-graphite text-canvas-white p-5 rounded-xl overflow-x-auto text-[13px] leading-relaxed"><code>$search = $index
+    -&gt;newSearch()
+    -&gt;semantic()
+    -&gt;queryString('romantic comedy')
+    -&gt;filters('type:"Movie"')
+    -&gt;get();</code></pre>
             </div>
+
+            <h2 class="text-[24px] leading-[1.33] font-semibold tracking-tight text-graphite dark:text-white mb-6">
+                Features
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+                <div class="bg-canvas-white dark:bg-gray-900 border border-light-steel dark:border-gray-800 rounded-xl p-8 transition-shadow hover:shadow-xl">
+                    <h3 class="text-[17px] font-semibold text-graphite dark:text-white mb-2">Semantic search</h3>
+                    <p class="text-[14px] text-charcoal dark:text-gray-400 leading-relaxed">Natural language understanding with AI-powered search capabilities.</p>
+                </div>
+                <div class="bg-canvas-white dark:bg-gray-900 border border-light-steel dark:border-gray-800 rounded-xl p-8 transition-shadow hover:shadow-xl">
+                    <h3 class="text-[17px] font-semibold text-graphite dark:text-white mb-2">Simple API</h3>
+                    <p class="text-[14px] text-charcoal dark:text-gray-400 leading-relaxed">A clean, fluent interface that makes complex queries simple.</p>
+                </div>
+                <div class="bg-canvas-white dark:bg-gray-900 border border-light-steel dark:border-gray-800 rounded-xl p-8 transition-shadow hover:shadow-xl">
+                    <h3 class="text-[17px] font-semibold text-graphite dark:text-white mb-2">Production ready</h3>
+                    <p class="text-[14px] text-charcoal dark:text-gray-400 leading-relaxed">Battle-tested in production environments at scale.</p>
+                </div>
+                <div class="bg-canvas-white dark:bg-gray-900 border border-light-steel dark:border-gray-800 rounded-xl p-8 transition-shadow hover:shadow-xl">
+                    <h3 class="text-[17px] font-semibold text-graphite dark:text-white mb-2">Laravel first</h3>
+                    <p class="text-[14px] text-charcoal dark:text-gray-400 leading-relaxed">Built specifically for Laravel with full framework integration.</p>
+                </div>
+            </div>
+
+            <h2 class="text-[24px] leading-[1.33] font-semibold tracking-tight text-graphite dark:text-white mb-4">
+                Getting started
+            </h2>
+
+            <p class="text-[15px] text-charcoal dark:text-gray-400 leading-relaxed mb-4">
+                Install Sigmie via Composer:
+            </p>
+
+            <pre class="bg-graphite text-canvas-white p-5 rounded-xl overflow-x-auto text-[13px] leading-relaxed mb-6"><code>composer require sigmie/sigmie</code></pre>
+
+            <p class="text-[15px] text-charcoal dark:text-gray-400 leading-relaxed">
+                Then follow the <a href="/docs/installation" class="text-magic-orange font-medium hover:underline">installation guide</a> to configure your application.
+            </p>
         </div>
     </DocsLayout>
 </template>

@@ -1,5 +1,4 @@
 <script setup>
-import { Head } from "@inertiajs/vue3";
 import DocsSidebar from "../components/DocsSidebar.vue";
 
 defineProps({
@@ -19,23 +18,14 @@ defineProps({
 </script>
 
 <template>
-    <div class="flex min-h-screen bg-white dark:bg-black overflow-x-hidden">
-        <!-- Documentation Sidebar -->
+    <div class="flex min-h-screen bg-canvas-white dark:bg-black overflow-x-hidden font-sans text-graphite dark:text-white">
         <DocsSidebar :navigation="navigation" :current-path="currentPath" />
 
-        <!-- Main Content Area -->
-        <div class="flex-1 lg:ml-64 bg-white dark:bg-black min-w-0">
-            <!-- Mobile Header Spacer -->
+        <div class="flex-1 lg:ml-64 bg-canvas-white dark:bg-black min-w-0">
             <div class="h-14 lg:hidden"></div>
-
-            <!-- Page Content -->
-            <div class="flex-1 overflow-x-hidden bg-white dark:bg-black w-full">
+            <div class="flex-1 overflow-x-hidden w-full">
                 <slot />
             </div>
         </div>
     </div>
 </template>
-
-<style scoped>
-/* Documentation layout specific styles */
-</style>

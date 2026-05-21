@@ -1,230 +1,114 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3";
-import Sidebar from '../Sidebar.vue';
 import Navbar from '../Navbar.vue';
 import Banner from '../Banner.vue';
 
 defineProps({
-title: String,
-posts: Object,
-navigation: Object
+    title: String,
+    posts: Object,
+    navigation: Object
 });
 </script>
 
 <template>
     <Head>
-        <!-- Primary Meta Tags -->
         <title>Blog - Sigmie</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-        <meta name="description" content="Latest articles and updates about Sigmie Elasticsearch library. Learn about search implementation, best practices, and tips for using Sigmie." />
+        <meta name="description" content="Latest articles and updates about Sigmie Elasticsearch library." />
         <meta name="keywords" content="sigmie blog, elasticsearch tutorials, search implementation, sigmie updates, elasticsearch best practices, full-text search, semantic search" />
         <meta name="author" content="Sigmie Team" />
         <meta name="language" content="en-us" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
 
-        <!-- Open Graph / Facebook -->
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://sigmie.com/blog" />
         <meta property="og:title" content="Blog - Sigmie" />
-        <meta property="og:description" content="Latest articles and updates about Sigmie Elasticsearch library. Learn about search implementation, best practices, and tips." />
+        <meta property="og:description" content="Latest articles and updates about Sigmie Elasticsearch library." />
         <meta property="og:image" content="https://sigmie.com/og-image.png" />
         <meta property="og:site_name" content="Sigmie" />
 
-        <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content="https://sigmie.com/blog" />
         <meta name="twitter:title" content="Blog - Sigmie" />
-        <meta name="twitter:description" content="Latest articles and updates about Sigmie Elasticsearch library. Learn about search implementation and best practices." />
+        <meta name="twitter:description" content="Latest articles and updates about Sigmie Elasticsearch library." />
         <meta name="twitter:image" content="https://sigmie.com/og-image.png" />
 
-        <!-- Canonical Link -->
         <link rel="canonical" href="https://sigmie.com/blog" />
-
-        <!-- Structured Data (JSON-LD) -->
-        <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  "name": "Sigmie Blog",
-  "description": "Latest articles and updates about Sigmie Elasticsearch library",
-  "url": "https://sigmie.com/blog",
-  "publisher": {
-    "@type": "Organization",
-    "name": "Sigmie",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://sigmie.com/logo.svg"
-    }
-  }
-}
-        </script>
     </Head>
-    <div class="pt-20">
-        <div class="flex flex-col font-display relative">
-            <Navbar :navigation="navigation"></Navbar>
-            <div class="flex flex-row">
-                <div
-                    class="w-[500px] max-h-screen overflow-y-scroll fixed left-0 top-0 pt-20 pb-5 z-10 min-h-screen lg:block hidden"
-                >
-                    <div class="block w-[400px] float-right pt-5 pb-4">
-                        <nav
-                            class="mt-5 flex-1 space-y-1 px-2 flex-col flex space-y-5 mx-auto"
-                        >
-                            <Banner />
-                        </nav>
+
+    <div class="min-h-screen bg-canvas-white dark:bg-black font-sans text-graphite dark:text-white">
+        <Navbar :navigation="navigation" />
+
+        <div class="pt-16">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-16">
+                <main class="max-w-3xl">
+                    <div class="mb-16">
+                        <p class="text-[13px] uppercase tracking-wider font-semibold text-magic-orange mb-3">Sigmie blog</p>
+                        <h1 class="text-[40px] sm:text-[64px] leading-[0.9] font-semibold text-graphite dark:text-white tracking-tight text-balance">
+                            {{ title }}
+                        </h1>
+                        <p class="mt-6 text-[17px] text-charcoal dark:text-gray-400 leading-[1.5] max-w-2xl">
+                            Notes on search, Elasticsearch internals, and what we are building.
+                        </p>
                     </div>
-                </div>
-                <main class="mx-auto w-full max-w-3xl md:pl-52 px-2 py-10">
-                    <h1 class="text-4xl font-bold mb-5">{{ title }}</h1>
-                    <!-- <div v-html="html"></div> -->
 
                     <div
-                        class="flex flex-col space-y-1"
+                        class="space-y-6"
                         v-for="(section, index) in posts"
                         :key="index"
                     >
-                        <ul :key="index" v-for="(link, index) in section.links">
-                            <li>
-                                <Link
-                                    :href="link.href"
-                                    class="flex flex-row space-x-2 items-center p-1 text-md no-underline text-gray-700"
-                                >
-                                    <span class="text-zinc-500 text-2xl"
-                                        >#</span
-                                    >
-                                    <span
-                                        class="w-full text-md font-semibold"
-                                        >{{ link.title }}</span
-                                    >
-                                </Link>
-                            </li>
-                        </ul>
+                        <Link
+                            v-for="(link, linkIndex) in section.links"
+                            :key="linkIndex"
+                            :href="link.href"
+                            class="block rounded-xl bg-ghostly-gray dark:bg-gray-900 p-8 transition-shadow hover:shadow-xl group"
+                        >
+                            <h2 class="text-[24px] leading-[1.33] font-semibold text-graphite dark:text-white tracking-tight group-hover:text-magic-orange transition-colors">
+                                {{ link.title }}
+                            </h2>
+                            <p v-if="link.description" class="mt-3 text-[15px] text-charcoal dark:text-gray-400 leading-[1.5]">
+                                {{ link.description }}
+                            </p>
+                            <span class="mt-4 inline-flex items-center gap-2 text-[13px] font-medium text-magic-orange">
+                                Read article
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                </svg>
+                            </span>
+                        </Link>
                     </div>
                 </main>
+
+                <aside class="hidden lg:block">
+                    <div class="sticky top-24">
+                        <Banner />
+                    </div>
+                </aside>
             </div>
         </div>
     </div>
 </template>
 
-<style type="text/css">
-pre code {
-    @apply block p-3;
-}
-.prose :where(pre):not(:where([class~="not-prose"] *)) {
-    background-color: #0f111a;
-}
-
+<style>
+pre code { display: block; padding: 0.75rem; }
+.prose :where(pre):not(:where([class~="not-prose"] *)) { background-color: #0f111a; }
 code {
     background-color: #0f111a;
     color: #a6accd !important;
-    @apply rounded px-1 py-0.5 font-normal !important;
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.25rem;
+    font-weight: 400 !important;
 }
-
-.heading-permalink {
-    @apply mr-2 no-underline text-zinc-500;
-}
-
-.table-of-contents li::marker {
-    content: "#";
-    @apply text-zinc-500;
-}
-
-.table-of-contents > li > a {
-    @apply no-underline font-bold;
-}
-
-.table-of-contents > li > ul > li > a {
-    @apply no-underline font-semibold;
-}
-
-.table-of-contents > li > ul > li > ul > li > a {
-    @apply no-underline text-gray-700 font-normal;
-}
-
-/*
-  Blur and dim the lines that don't have the `.line-focus` class,
-  but are within a code block that contains any focus lines.
-*/
-.torchlight.has-focus-lines .line:not(.line-focus) {
-    transition: filter 0.35s, opacity 0.35s;
-    filter: blur(0.095rem);
-    opacity: 0.65;
-}
-
-/*
-  When the code block is hovered, bring all the lines into focus.
-*/
-.torchlight.has-focus-lines:hover .line:not(.line-focus) {
-    filter: blur(0px);
-    opacity: 1;
-}
-.torchlight summary:focus {
-    outline: none;
-}
-
-/* Hide the default markers, as we provide our own */
-.torchlight details > summary::marker,
-.torchlight details > summary::-webkit-details-marker {
-    display: none;
-}
-
-.torchlight details .summary-caret::after {
-    pointer-events: none;
-}
-
-/* Add spaces to keep everything aligned */
-.torchlight .summary-caret-empty::after,
-.torchlight details .summary-caret-middle::after,
-.torchlight details .summary-caret-end::after {
-    content: " ";
-}
-
-/* Show a minus sign when the block is open. */
-.torchlight details[open] .summary-caret-start::after {
-    content: "-";
-}
-
-/* And a plus sign when the block is closed. */
-.torchlight details:not([open]) .summary-caret-start::after {
-    content: "+";
-}
-
-/* Hide the [...] indicator when open. */
-.torchlight details[open] .summary-hide-when-open {
-    display: none;
-}
-
-/* Show the [...] indicator when closed. */
-.torchlight details:not([open]) .summary-hide-when-open {
-    display: initial;
-}
-
+.heading-permalink { margin-right: 0.5rem; text-decoration: none; color: var(--color-subtle-gray); }
 .callout {
-    @apply bg-gray-100 p-4 rounded-xl w-full min-w-full my-5;
+    background-color: var(--color-ghostly-gray);
+    padding: 1rem;
+    border-radius: 12px;
+    width: 100%;
+    margin: 1.25rem 0;
 }
-
-.callout.danger {
-    @apply bg-amber-400/70 text-amber-700/80;
-}
-
-.callout.danger::before {
-    @apply font-bold;
-}
-
-.callout.warning {
-    @apply bg-zinc-700/90 text-white;
-}
-
-.callout.warning::before {
-    @apply font-bold;
-}
-
-.callout.info::before {
-    @apply font-bold;
-}
-
-.callout.info {
-    @apply bg-sky-600/70 text-white;
-}
+.callout.danger { background-color: rgba(255, 83, 16, 0.15); color: var(--color-magic-orange); }
+.callout.warning { background-color: var(--color-graphite); color: var(--color-canvas-white); }
+.callout.info { background-color: rgba(0, 152, 241, 0.15); color: var(--color-product-blue); }
 </style>

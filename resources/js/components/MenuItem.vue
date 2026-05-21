@@ -56,10 +56,10 @@ const mainImage = computed(() => {
 </script>
 
 <template>
-    <div class="bg-gray-950 border border-gray-800 rounded-lg overflow-hidden hover:border-gray-700 transition-colors">
+    <div class="bg-canvas-white dark:bg-gray-950 border border-light-steel dark:border-gray-800 rounded-lg overflow-hidden hover:border-light-steel dark:hover:border-gray-700 transition-colors">
         <!-- Header - Always Visible -->
         <div
-            class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 cursor-pointer hover:bg-gray-900 transition-colors"
+            class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 cursor-pointer hover:bg-ghostly-gray dark:hover:bg-gray-900 transition-colors"
             @click="toggle"
         >
             <div class="flex items-center gap-3 min-w-0 flex-1">
@@ -68,11 +68,11 @@ const mainImage = computed(() => {
                     <img
                         :src="mainImage"
                         :alt="name"
-                        class="w-14 h-14 object-cover rounded border border-gray-800"
+                        class="w-14 h-14 object-cover rounded border border-light-steel dark:border-gray-800"
                     />
                 </div>
                 <div class="min-w-0 flex-1">
-                    <h5 class="text-sm sm:text-base font-medium text-white truncate mb-1">
+                    <h5 class="text-sm sm:text-base font-medium text-graphite dark:text-white truncate mb-1">
                         {{ name }}
                     </h5>
                     <!-- Product price -->
@@ -80,21 +80,21 @@ const mainImage = computed(() => {
                         £{{ price?.toFixed(2) }}
                     </p>
                     <!-- Netflix type, director, and year -->
-                    <div v-if="type || director || releaseYear" class="flex items-center gap-2 text-xs text-gray-400">
-                        <span v-if="type" class="text-gray-500">{{ type }}</span>
+                    <div v-if="type || director || releaseYear" class="flex items-center gap-2 text-xs text-charcoal dark:text-gray-400">
+                        <span v-if="type" class="text-subtle-gray dark:text-gray-500">{{ type }}</span>
                         <span v-if="type && (director || releaseYear)">•</span>
-                        <span v-if="releaseYear" class="text-gray-400">{{ releaseYear }}</span>
+                        <span v-if="releaseYear" class="text-charcoal dark:text-gray-400">{{ releaseYear }}</span>
                         <span v-if="releaseYear && director">•</span>
-                        <span v-if="director" class="text-gray-400">{{ director }}</span>
+                        <span v-if="director" class="text-charcoal dark:text-gray-400">{{ director }}</span>
                     </div>
                 </div>
             </div>
             <div class="flex items-center gap-2 flex-shrink-0 ml-2">
-                <span class="hidden sm:inline text-xs font-medium text-gray-500">
+                <span class="hidden sm:inline text-xs font-medium text-subtle-gray dark:text-gray-500">
                     {{ isExpanded ? 'Less' : 'More' }}
                 </span>
                 <svg
-                    class="w-4 h-4 text-gray-500 transition-transform duration-200"
+                    class="w-4 h-4 text-subtle-gray dark:text-gray-500 transition-transform duration-200"
                     :class="{ 'rotate-180': isExpanded }"
                     fill="none"
                     stroke="currentColor"
@@ -106,40 +106,40 @@ const mainImage = computed(() => {
         </div>
 
         <!-- Details - Collapsible -->
-        <div v-if="isExpanded" class="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-gray-800 bg-gray-900/50">
+        <div v-if="isExpanded" class="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-light-steel dark:border-gray-800 bg-ghostly-gray dark:bg-gray-900/50">
             <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 pt-4">
                 <!-- Details Column -->
                 <div class="flex-1 space-y-3 text-sm min-w-0">
                     <!-- Netflix Description -->
                     <div v-if="description" class="flex items-start gap-2">
-                        <svg class="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-subtle-gray dark:text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
                         </svg>
                         <div class="min-w-0">
-                            <span class="text-gray-500 text-xs">Description</span>
-                            <p class="text-gray-300 break-words">{{ description }}</p>
+                            <span class="text-subtle-gray dark:text-gray-500 text-xs">Description</span>
+                            <p class="text-charcoal dark:text-gray-300 break-words">{{ description }}</p>
                         </div>
                     </div>
 
                     <!-- Product Category -->
                     <div v-if="category" class="flex items-start gap-2">
-                        <svg class="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-subtle-gray dark:text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                         </svg>
                         <div class="min-w-0">
-                            <span class="text-gray-500 text-xs">Category</span>
-                            <p class="text-gray-300 break-words">{{ category }}</p>
+                            <span class="text-subtle-gray dark:text-gray-500 text-xs">Category</span>
+                            <p class="text-charcoal dark:text-gray-300 break-words">{{ category }}</p>
                         </div>
                     </div>
 
                     <!-- Product Color -->
                     <div v-if="color" class="flex items-start gap-2">
-                        <svg class="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-subtle-gray dark:text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
                         </svg>
                         <div class="min-w-0">
-                            <span class="text-gray-500 text-xs">Color</span>
-                            <p class="text-gray-300 break-words">{{ color }}</p>
+                            <span class="text-subtle-gray dark:text-gray-500 text-xs">Color</span>
+                            <p class="text-charcoal dark:text-gray-300 break-words">{{ color }}</p>
                         </div>
                     </div>
                 </div>
@@ -148,7 +148,7 @@ const mainImage = computed(() => {
                     <img
                         :src="mainImage"
                         :alt="name"
-                        class="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-lg border border-gray-800 shadow-lg"
+                        class="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-lg border border-light-steel dark:border-gray-800 shadow-lg"
                     />
                 </div>
             </div>

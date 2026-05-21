@@ -54,7 +54,11 @@ const handleClickOutside = (event) => {
 
 const cleanedHtml = computed(() => {
     if (!props.html) return '';
-    return props.html.replace(/>(\s*)#+ /g, '>$1');
+    // Strip leading # characters that leak through from the markdown heading anchors
+    let html = props.html.replace(/>(\s*)#+ /g, '>$1');
+    // Strip the leading <h1>...</h1> — page already shows the title above the article
+    html = html.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, '');
+    return html;
 });
 
 const githubMarkdownUrl = computed(() => {

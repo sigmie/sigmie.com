@@ -548,7 +548,7 @@ onMounted(() => {
         <template #default>
 
         <!-- Product Search Demo Section -->
-        <div id="semantic-search" class="relative bg-black overflow-hidden scroll-mt-20">
+        <div id="semantic-search" class="relative bg-canvas-white dark:bg-black overflow-hidden scroll-mt-20">
             <!-- Decorative background elements -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute top-1/4 -right-64 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
@@ -582,14 +582,14 @@ onMounted(() => {
 
                 <!-- Header Section -->
                 <div class="mb-12">
-                    <div class="relative border border-gray-800 rounded-xl p-6 sm:p-8 bg-black/50 backdrop-blur-sm overflow-hidden">
+                    <div class="relative border border-light-steel dark:border-gray-800 rounded-xl p-6 sm:p-8 bg-canvas-white dark:bg-black/50 backdrop-blur-sm overflow-hidden">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                         <!-- Left Column: Title & Subtitle -->
                         <div class="text-left mb-12">
-                            <h2 class="text-lg sm:text-xl font-medium text-gray-100 mb-4">
+                            <h2 class="text-lg sm:text-xl font-medium text-graphite dark:text-gray-100 mb-4">
                                 Creating an AI Search Has Never Been Easier
                             </h2>
-                            <p class="text-base sm:text-lg text-gray-400 leading-relaxed">
+                            <p class="text-base sm:text-lg text-charcoal dark:text-gray-400 leading-relaxed">
                                 Vectorization, complex filtering and more. Everything you need for modern search, ready to use with Elasticsearch or OpenSearch
                             </p>
                         </div>
@@ -606,7 +606,7 @@ onMounted(() => {
                 <!-- Main Content Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Left Column: Search -->
-                    <div class="rounded-lg p-6" style="background: linear-gradient(59.66deg, #0C0D0F 0%, #07080A 100%); border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0px 1px 0px 1px rgba(255, 255, 255, 0.1) inset;">
+                    <div class="rounded-lg p-6 border border-light-steel dark:border-white/10 bg-ghostly-gray dark:bg-[linear-gradient(59.66deg,#0C0D0F_0%,#07080A_100%)] shadow-sm">
                         <div class="space-y-8">
                             <!-- Search Form -->
                             <QueryInput
@@ -626,21 +626,21 @@ onMounted(() => {
                                 <div class="flex items-center gap-2">
                                     <button
                                         @click="typeFilter = typeFilter === 'all' ? '' : 'all'"
-                                        :class="typeFilter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
+                                        :class="typeFilter === 'all' ? 'bg-blue-500 text-graphite dark:text-white' : 'bg-ghostly-gray dark:bg-gray-800 text-charcoal dark:text-gray-400 hover:bg-fog dark:hover:bg-fog dark:bg-gray-700'"
                                         class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
                                     >
                                         All
                                     </button>
                                     <button
                                         @click="typeFilter = typeFilter === 'movie' ? '' : 'movie'"
-                                        :class="typeFilter === 'movie' ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
+                                        :class="typeFilter === 'movie' ? 'bg-blue-500 text-graphite dark:text-white' : 'bg-ghostly-gray dark:bg-gray-800 text-charcoal dark:text-gray-400 hover:bg-fog dark:hover:bg-fog dark:bg-gray-700'"
                                         class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
                                     >
                                         Movies
                                     </button>
                                     <button
                                         @click="typeFilter = typeFilter === 'tv' ? '' : 'tv'"
-                                        :class="typeFilter === 'tv' ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
+                                        :class="typeFilter === 'tv' ? 'bg-blue-500 text-graphite dark:text-white' : 'bg-ghostly-gray dark:bg-gray-800 text-charcoal dark:text-gray-400 hover:bg-fog dark:hover:bg-fog dark:bg-gray-700'"
                                         class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
                                     >
                                         TV Shows
@@ -656,9 +656,9 @@ onMounted(() => {
                                                 v-model="retrieveType"
                                                 class="sr-only peer"
                                             />
-                                            <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                                            <div class="w-9 h-5 bg-fog dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
                                         </div>
-                                        <span class="text-sm text-gray-400">Type</span>
+                                        <span class="text-sm text-charcoal dark:text-gray-400">Type</span>
                                     </label>
                                     <label class="flex items-center gap-2 cursor-pointer">
                                         <div class="relative">
@@ -667,9 +667,9 @@ onMounted(() => {
                                                 v-model="retrieveYear"
                                                 class="sr-only peer"
                                             />
-                                            <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                                            <div class="w-9 h-5 bg-fog dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
                                         </div>
-                                        <span class="text-sm text-gray-400">Year</span>
+                                        <span class="text-sm text-charcoal dark:text-gray-400">Year</span>
                                     </label>
                                     <label class="flex items-center gap-2 cursor-pointer">
                                         <div class="relative">
@@ -678,22 +678,22 @@ onMounted(() => {
                                                 v-model="retrieveDirector"
                                                 class="sr-only peer"
                                             />
-                                            <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                                            <div class="w-9 h-5 bg-fog dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
                                         </div>
-                                        <span class="text-sm text-gray-400">Director</span>
+                                        <span class="text-sm text-charcoal dark:text-gray-400">Director</span>
                                     </label>
                                 </div>
                             </div>
 
                             <!-- Preset Queries -->
                             <div v-if="!hasSearched" class="space-y-2">
-                                <p class="text-sm font-medium text-gray-400 mb-3">Try these popular searches:</p>
+                                <p class="text-sm font-medium text-charcoal dark:text-gray-400 mb-3">Try these popular searches:</p>
                                 <div class="flex flex-col gap-2">
                                     <button
                                         v-for="preset in presetQueries"
                                         :key="preset.query"
                                         @click="performSearch(preset.query)"
-                                        class="group text-left px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-400 hover:bg-gray-800 transition-all duration-200"
+                                        class="group text-left px-4 py-2 text-sm font-medium text-charcoal dark:text-gray-300 bg-ghostly-gray dark:bg-gray-800/50 border border-light-steel dark:border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-400 hover:bg-ghostly-gray dark:hover:bg-ghostly-gray dark:bg-gray-800 transition-all duration-200"
                                         :disabled="isSearching"
                                     >
                                         <span class="flex items-center gap-2">
@@ -732,7 +732,7 @@ onMounted(() => {
         </div>
 
         <!-- Image Search Demo Section -->
-        <div id="image-search" class="relative border-t border-gray-800 bg-black overflow-hidden scroll-mt-20">
+        <div id="image-search" class="relative border-t border-light-steel dark:border-gray-800 bg-canvas-white dark:bg-black overflow-hidden scroll-mt-20">
             <!-- Decorative background elements -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute top-1/3 -left-64 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
@@ -743,10 +743,10 @@ onMounted(() => {
                 <div class="max-w-6xl mx-auto">
                     <!-- Hero Text Section -->
                     <div class="mb-12">
-                        <h2 class="text-lg sm:text-xl font-medium text-gray-100 mb-4">
+                        <h2 class="text-lg sm:text-xl font-medium text-graphite dark:text-gray-100 mb-4">
                             Search beyond just keywords
                         </h2>
-                        <p class="text-base sm:text-lg text-gray-400 leading-relaxed">
+                        <p class="text-base sm:text-lg text-charcoal dark:text-gray-400 leading-relaxed">
                             Create search experiences that understand images, not just text.
                         </p>
                     </div>
@@ -784,7 +784,7 @@ onMounted(() => {
                                 v-for="suggestion in imageSuggestions"
                                 :key="suggestion.query"
                                 @click="imageQuery = suggestion.query; updateImageQuery()"
-                                class="group text-left px-3 py-1.5 text-xs font-medium text-gray-300 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-400 hover:bg-gray-800 transition-all duration-200"
+                                class="group text-left px-3 py-1.5 text-xs font-medium text-charcoal dark:text-gray-300 bg-ghostly-gray dark:bg-gray-800/50 border border-light-steel dark:border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-400 hover:bg-ghostly-gray dark:hover:bg-ghostly-gray dark:bg-gray-800 transition-all duration-200"
                                 :disabled="isLoadingImages"
                             >
                                 {{ suggestion.label }}
@@ -801,7 +801,7 @@ onMounted(() => {
                                 v-if="initialImages[0]"
                                 @click="selectImageFromGallery(initialImages[0].url)"
                                 :disabled="isLoadingImages"
-                                class="group relative col-span-1 row-span-2 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-1 row-span-2 overflow-hidden rounded-md border border-light-steel dark:border-gray-800 hover:border-fog dark:hover:border-fog dark:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[0].url" :alt="initialImages[0].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                                 <ImageHoverOverlay />
@@ -812,7 +812,7 @@ onMounted(() => {
                                 v-if="initialImages[1]"
                                 @click="selectImageFromGallery(initialImages[1].url)"
                                 :disabled="isLoadingImages"
-                                class="group relative col-span-3 row-span-2 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-3 row-span-2 overflow-hidden rounded-md border border-light-steel dark:border-gray-800 hover:border-fog dark:hover:border-fog dark:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[1].url" :alt="initialImages[1].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                                 <ImageHoverOverlay />
@@ -823,7 +823,7 @@ onMounted(() => {
                                 v-if="initialImages[2]"
                                 @click="selectImageFromGallery(initialImages[2].url)"
                                 :disabled="isLoadingImages"
-                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-light-steel dark:border-gray-800 hover:border-fog dark:hover:border-fog dark:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[2].url" :alt="initialImages[2].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                                 <ImageHoverOverlay />
@@ -834,7 +834,7 @@ onMounted(() => {
                                 v-if="initialImages[3]"
                                 @click="selectImageFromGallery(initialImages[3].url)"
                                 :disabled="isLoadingImages"
-                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-gray-800 hover:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                class="group relative col-span-2 row-span-1 overflow-hidden rounded-md border border-light-steel dark:border-gray-800 hover:border-fog dark:hover:border-fog dark:border-gray-600 transition-all duration-200 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 <img :src="initialImages[3].url" :alt="initialImages[3].title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                                 <ImageHoverOverlay />
@@ -846,13 +846,13 @@ onMounted(() => {
         </div>
 
         <!-- Recommendations Demo Section -->
-        <div v-if="false" id="recommendations" class="relative border-t border-gray-800 bg-black overflow-hidden scroll-mt-20">
+        <div v-if="false" id="recommendations" class="relative border-t border-light-steel dark:border-gray-800 bg-canvas-white dark:bg-black overflow-hidden scroll-mt-20">
             <div class="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:py-28 lg:px-8">
                 <div class="text-center mb-10 sm:mb-14">
-                    <h2 class="text-lg sm:text-xl font-medium text-white mb-4 sm:mb-6">
+                    <h2 class="text-lg sm:text-xl font-medium text-graphite dark:text-white mb-4 sm:mb-6">
                         Discover with Recommendations
                     </h2>
-                    <p class="text-base sm:text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
+                    <p class="text-base sm:text-lg text-charcoal dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
                         Select products you love and get personalized recommendations. Fine-tune diversity with MMR to balance similarity and variety.
                     </p>
                 </div>
@@ -863,9 +863,9 @@ onMounted(() => {
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <!-- Left Column: Shopping Cart -->
                         <div class="lg:col-span-1">
-                            <div class="bg-gray-950 border border-gray-800 rounded-lg p-6">
-                                <h3 class="text-base font-medium text-white mb-4 flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="bg-ghostly-gray dark:bg-gray-950 border border-light-steel dark:border-gray-800 rounded-lg p-6">
+                                <h3 class="text-base font-medium text-graphite dark:text-white mb-4 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-charcoal dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                                     </svg>
                                     Cart ({{ cartItems.length }})
@@ -873,8 +873,8 @@ onMounted(() => {
 
                                 <!-- Loading State -->
                                 <div v-if="isLoadingInitialCart" class="text-center py-12">
-                                    <div class="w-8 h-8 border-4 border-gray-800 border-t-gray-500 rounded-full animate-spin mx-auto"></div>
-                                    <p class="mt-3 text-sm text-gray-400">Loading cart...</p>
+                                    <div class="w-8 h-8 border-4 border-light-steel dark:border-gray-800 border-t-gray-500 rounded-full animate-spin mx-auto"></div>
+                                    <p class="mt-3 text-sm text-charcoal dark:text-gray-400">Loading cart...</p>
                                 </div>
 
                                 <!-- Cart Items -->
@@ -882,7 +882,7 @@ onMounted(() => {
                                     <div
                                         v-for="item in cartItems"
                                         :key="item._id"
-                                        class="relative group bg-gray-900 border border-gray-800 rounded-lg overflow-hidden hover:border-gray-700 transition-colors"
+                                        class="relative group bg-canvas-white dark:bg-gray-900 border border-light-steel dark:border-gray-800 rounded-lg overflow-hidden hover:border-light-steel dark:hover:border-light-steel dark:border-gray-700 transition-colors"
                                     >
                                         <!-- Product Image with Title Overlay -->
                                         <div class="relative aspect-square w-full">
@@ -893,8 +893,8 @@ onMounted(() => {
                                                 class="w-full h-full object-cover"
                                             />
                                             <!-- Title Overlay -->
-                                            <div class="absolute inset-x-0 bottom-0 bg-black/30 p-2">
-                                                <p class="text-xs font-medium text-white line-clamp-2">{{ item.name }}</p>
+                                            <div class="absolute inset-x-0 bottom-0 bg-canvas-white dark:bg-black/30 p-2">
+                                                <p class="text-xs font-medium text-graphite dark:text-white line-clamp-2">{{ item.name }}</p>
                                             </div>
                                         </div>
 
@@ -902,7 +902,7 @@ onMounted(() => {
                                         <div v-if="cartItems.length > 1" class="p-2 flex justify-end">
                                             <button
                                                 @click="removeFromCart(item._id)"
-                                                class="p-1.5 text-gray-500 hover:text-gray-300 transition-colors"
+                                                class="p-1.5 text-subtle-gray dark:text-gray-500 hover:text-graphite dark:hover:text-charcoal dark:text-gray-300 transition-colors"
                                                 title="Remove from cart"
                                             >
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -918,26 +918,26 @@ onMounted(() => {
                         <!-- Right Column: Recommendations & Slider -->
                         <div class="lg:col-span-2">
                             <!-- Recommendations Results -->
-                            <div class="bg-gray-950 border border-gray-800 rounded-lg p-6 min-h-[400px]">
+                            <div class="bg-ghostly-gray dark:bg-gray-950 border border-light-steel dark:border-gray-800 rounded-lg p-6 min-h-[400px]">
                                 <!-- MMR Slider -->
-                                <div class="mb-6 pb-6 border-b border-gray-800">
+                                <div class="mb-6 pb-6 border-b border-light-steel dark:border-gray-800">
                                     <div class="flex items-center justify-between mb-4">
                                         <div>
-                                            <h3 class="text-base font-medium text-white flex items-center gap-2">
-                                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <h3 class="text-base font-medium text-graphite dark:text-white flex items-center gap-2">
+                                                <svg class="w-4 h-4 text-charcoal dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
                                                 </svg>
                                                 Diversity Control (MMR)
                                             </h3>
-                                            <p class="text-xs text-gray-400 mt-1">
+                                            <p class="text-xs text-charcoal dark:text-gray-400 mt-1">
                                                 Balance similarity and variety
                                             </p>
                                         </div>
                                         <div class="text-right">
-                                            <div class="text-lg font-medium text-white">
+                                            <div class="text-lg font-medium text-graphite dark:text-white">
                                                 {{ mmrValue.toFixed(1) }}
                                             </div>
-                                            <div class="text-xs text-gray-500">
+                                            <div class="text-xs text-subtle-gray dark:text-gray-500">
                                                 {{ mmrValue === 0 ? 'Disabled' : mmrValue < 0.5 ? 'Similar' : 'Diverse' }}
                                             </div>
                                         </div>
@@ -951,9 +951,9 @@ onMounted(() => {
                                             max="1"
                                             step="0.1"
                                             :disabled="cartItems.length === 0"
-                                            class="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            class="w-full h-2 bg-ghostly-gray dark:bg-gray-800 rounded-lg appearance-none cursor-pointer accent-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
                                         />
-                                        <div class="flex justify-between text-xs text-gray-500 mt-2">
+                                        <div class="flex justify-between text-xs text-subtle-gray dark:text-gray-500 mt-2">
                                             <span>0.0</span>
                                             <span>0.5</span>
                                             <span>1.0</span>
@@ -962,23 +962,23 @@ onMounted(() => {
                                 </div>
                                 <!-- Loading State -->
                                 <div v-if="isLoadingRecommendations" class="flex flex-col items-center justify-center py-16">
-                                    <div class="w-10 h-10 border-4 border-gray-800 border-t-gray-500 rounded-full animate-spin"></div>
-                                    <p class="mt-4 text-sm text-gray-400">
+                                    <div class="w-10 h-10 border-4 border-light-steel dark:border-gray-800 border-t-gray-500 rounded-full animate-spin"></div>
+                                    <p class="mt-4 text-sm text-charcoal dark:text-gray-400">
                                         Finding recommendations...
                                     </p>
                                 </div>
 
                                 <!-- Empty Cart State -->
                                 <div v-else-if="cartItems.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
-                                    <div class="inline-flex items-center justify-center w-14 h-14 bg-gray-900 rounded-lg mb-4">
-                                        <svg class="w-7 h-7 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="inline-flex items-center justify-center w-14 h-14 bg-canvas-white dark:bg-gray-900 rounded-lg mb-4">
+                                        <svg class="w-7 h-7 text-subtle-gray dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                                         </svg>
                                     </div>
-                                    <h4 class="text-base font-medium text-white mb-2">
+                                    <h4 class="text-base font-medium text-graphite dark:text-white mb-2">
                                         Your cart is empty
                                     </h4>
-                                    <p class="text-sm text-gray-400 max-w-sm">
+                                    <p class="text-sm text-charcoal dark:text-gray-400 max-w-sm">
                                         Add products to your cart to receive personalized recommendations
                                     </p>
                                 </div>
@@ -986,10 +986,10 @@ onMounted(() => {
                                 <!-- Results Grid -->
                                 <div v-else-if="recommendationResults.length > 0" class="space-y-4">
                                     <div class="flex items-center justify-between mb-4">
-                                        <h4 class="text-base font-medium text-white">
+                                        <h4 class="text-base font-medium text-graphite dark:text-white">
                                             Recommended
                                         </h4>
-                                        <span class="text-xs text-gray-500">
+                                        <span class="text-xs text-subtle-gray dark:text-gray-500">
                                             {{ recommendationResults.length }} results
                                         </span>
                                     </div>
@@ -999,18 +999,18 @@ onMounted(() => {
                                             v-for="(result, index) in recommendationResults.slice(0, 4)"
                                             :key="`${result._id || result.name}-${index}`"
                                             @click="addToCart(result)"
-                                            class="group relative bg-gray-900 border border-gray-800 rounded-lg overflow-hidden hover:border-gray-700 transition-all cursor-pointer"
+                                            class="group relative bg-canvas-white dark:bg-gray-900 border border-light-steel dark:border-gray-800 rounded-lg overflow-hidden hover:border-light-steel dark:hover:border-light-steel dark:border-gray-700 transition-all cursor-pointer"
                                         >
                                             <!-- Product Image with Title Overlay -->
-                                            <div v-if="result.images && result.images.length > 0" class="relative aspect-square w-full overflow-hidden bg-black">
+                                            <div v-if="result.images && result.images.length > 0" class="relative aspect-square w-full overflow-hidden bg-canvas-white dark:bg-black">
                                                 <img
                                                     :src="result.images[0]"
                                                     :alt="result.name"
                                                     class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300"
                                                 />
                                                 <!-- Title Overlay on Image -->
-                                                <div class="absolute inset-x-0 bottom-0 bg-black/30 p-2">
-                                                    <p class="text-xs font-medium text-white line-clamp-2">
+                                                <div class="absolute inset-x-0 bottom-0 bg-canvas-white dark:bg-black/30 p-2">
+                                                    <p class="text-xs font-medium text-graphite dark:text-white line-clamp-2">
                                                         {{ result.name }}
                                                     </p>
                                                 </div>
@@ -1018,11 +1018,11 @@ onMounted(() => {
 
                                             <!-- Add Icon -->
                                             <div class="p-2 flex justify-center">
-                                                <div class="flex items-center gap-1.5 text-xs text-gray-500">
-                                                    <svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <div class="flex items-center gap-1.5 text-xs text-subtle-gray dark:text-gray-500">
+                                                    <svg class="w-3.5 h-3.5 text-charcoal dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                                     </svg>
-                                                    <span class="group-hover:text-gray-400 transition-colors">Add</span>
+                                                    <span class="group-hover:text-charcoal dark:group-hover:text-charcoal dark:text-gray-400 transition-colors">Add</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1031,15 +1031,15 @@ onMounted(() => {
 
                                 <!-- No Results -->
                                 <div v-else class="flex flex-col items-center justify-center py-16 text-center">
-                                    <div class="inline-flex items-center justify-center w-14 h-14 bg-gray-900 rounded-lg mb-4">
-                                        <svg class="w-7 h-7 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="inline-flex items-center justify-center w-14 h-14 bg-canvas-white dark:bg-gray-900 rounded-lg mb-4">
+                                        <svg class="w-7 h-7 text-subtle-gray dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M12 12h.01M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                     </div>
-                                    <h4 class="text-base font-medium text-white mb-2">
+                                    <h4 class="text-base font-medium text-graphite dark:text-white mb-2">
                                         No recommendations found
                                     </h4>
-                                    <p class="text-sm text-gray-400">
+                                    <p class="text-sm text-charcoal dark:text-gray-400">
                                         Try selecting different titles or adjusting the MMR slider
                                     </p>
                                 </div>
@@ -1051,34 +1051,34 @@ onMounted(() => {
         </div>
 
         <!-- About Me Section -->
-        <div id="about" class="border-t border-gray-800 bg-black scroll-mt-20">
+        <div id="about" class="border-t border-light-steel dark:border-gray-800 bg-canvas-white dark:bg-black scroll-mt-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:py-28 lg:px-8">
                 <div class="text-center mb-12 sm:mb-16">
-                    <h2 class="text-lg sm:text-xl font-medium text-gray-100 mb-4">
+                    <h2 class="text-lg sm:text-xl font-medium text-graphite dark:text-gray-100 mb-4">
                         About Me
                     </h2>
-                    <p class="text-lg text-gray-400 max-w-2xl mx-auto">
+                    <p class="text-lg text-charcoal dark:text-gray-400 max-w-2xl mx-auto">
                         Hi, I'm Nico Orfanos – passionate about building search experiences from Dortmund, Germany
                     </p>
                 </div>
 
                 <div class="max-w-6xl mx-auto">
                     <!-- Profile Card -->
-                    <div class="max-w-lg mx-auto mb-16 p-8 bg-gradient-to-br from-gray-900 to-gray-950 rounded-3xl border border-gray-800 shadow-2xl">
+                    <div class="max-w-lg mx-auto mb-16 p-8 bg-ghostly-gray dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 rounded-3xl border border-light-steel dark:border-gray-800 shadow-xl">
                         <div class="flex items-start gap-6 mb-6">
                             <img
                                 src="https://github.com/nicoorfi.png"
                                 alt="Nico Orfanos"
-                                class="w-20 h-20 rounded-2xl border-2 border-gray-700 shadow-lg flex-shrink-0"
+                                class="w-20 h-20 rounded-2xl border-2 border-light-steel dark:border-gray-700 shadow-lg flex-shrink-0"
                             />
                             <div class="flex-1 min-w-0">
-                                <h3 class="text-xl font-semibold text-white mb-1">
+                                <h3 class="text-xl font-semibold text-graphite dark:text-white mb-1">
                                     Nico
                                 </h3>
-                                <p class="text-gray-300 text-sm mb-3">
+                                <p class="text-charcoal dark:text-gray-300 text-sm mb-3">
                                     Search Relevance Engineer
                                 </p>
-                                <div class="flex items-center gap-2 text-gray-400 text-sm mb-4">
+                                <div class="flex items-center gap-2 text-charcoal dark:text-gray-400 text-sm mb-4">
                                     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -1086,16 +1086,16 @@ onMounted(() => {
                                     <span>Dortmund, Germany</span>
                                 </div>
                                 <div class="flex flex-wrap gap-2 mb-6">
-                                    <span class="px-3 py-1 bg-gray-800/70 border border-gray-700 text-gray-300 rounded-lg text-xs font-medium">
+                                    <span class="px-3 py-1 bg-ghostly-gray dark:bg-gray-800/70 border border-light-steel dark:border-gray-700 text-charcoal dark:text-gray-300 rounded-lg text-xs font-medium">
                                         Opensearch 
                                     </span>
-                                    <span class="px-3 py-1 bg-gray-800/70 border border-gray-700 text-gray-300 rounded-lg text-xs font-medium">
+                                    <span class="px-3 py-1 bg-ghostly-gray dark:bg-gray-800/70 border border-light-steel dark:border-gray-700 text-charcoal dark:text-gray-300 rounded-lg text-xs font-medium">
                                         Elasticsearch 
                                     </span>
-                                    <span class="px-3 py-1 bg-gray-800/70 border border-gray-700 text-gray-300 rounded-lg text-xs font-medium">
+                                    <span class="px-3 py-1 bg-ghostly-gray dark:bg-gray-800/70 border border-light-steel dark:border-gray-700 text-charcoal dark:text-gray-300 rounded-lg text-xs font-medium">
                                         Php
                                     </span>
-                                    <span class="px-3 py-1 bg-gray-800/70 border border-gray-700 text-gray-300 rounded-lg text-xs font-medium">
+                                    <span class="px-3 py-1 bg-ghostly-gray dark:bg-gray-800/70 border border-light-steel dark:border-gray-700 text-charcoal dark:text-gray-300 rounded-lg text-xs font-medium">
                                         Python
                                     </span>
                                 </div>
@@ -1103,11 +1103,11 @@ onMounted(() => {
                         </div>
 
                         <!-- Social Links -->
-                        <div class="flex items-center justify-center gap-8 pt-6 border-t border-gray-800">
+                        <div class="flex items-center justify-center gap-8 pt-6 border-t border-light-steel dark:border-gray-800">
                             <a
                                 href="https://github.com/nicoorfi"
                                 target="_blank"
-                                class="text-gray-400 hover:text-white transition-colors"
+                                class="text-charcoal dark:text-gray-400 hover:text-graphite dark:hover:text-white transition-colors"
                                 title="GitHub"
                             >
                                 <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
@@ -1117,7 +1117,7 @@ onMounted(() => {
                             <a
                                 href="https://www.linkedin.com/in/nicoorfi/"
                                 target="_blank"
-                                class="text-gray-400 hover:text-white transition-colors"
+                                class="text-charcoal dark:text-gray-400 hover:text-graphite dark:hover:text-white transition-colors"
                                 title="LinkedIn"
                             >
                                 <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
@@ -1127,7 +1127,7 @@ onMounted(() => {
                             <a
                                 href="https://www.upwork.com/freelancers/~0168612ffb19d75fc6"
                                 target="_blank"
-                                class="text-gray-400 hover:text-white transition-colors"
+                                class="text-charcoal dark:text-gray-400 hover:text-graphite dark:hover:text-white transition-colors"
                                 title="Upwork"
                             >
                                 <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
@@ -1137,7 +1137,7 @@ onMounted(() => {
                             <a
                                 href="https://x.com/nicoorfi"
                                 target="_blank"
-                                class="text-gray-400 hover:text-white transition-colors"
+                                class="text-charcoal dark:text-gray-400 hover:text-graphite dark:hover:text-white transition-colors"
                                 title="Twitter"
                             >
                                 <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">

@@ -22,13 +22,13 @@ defineProps({
 });
 
 const variantClass = {
-    default: "bg-gray-900/50 border border-gray-800",
-    outlined: "bg-transparent border-2 border-gray-700",
-    elevated: "bg-gray-900 border border-gray-800 shadow-lg",
+    default: "bg-ghostly-gray dark:bg-gray-900/50 border border-light-steel dark:border-gray-800",
+    outlined: "bg-transparent border-2 border-light-steel dark:border-gray-700",
+    elevated: "bg-canvas-white dark:bg-gray-900 border border-light-steel dark:border-gray-800 shadow-lg",
     ghost: "bg-transparent border border-transparent"
 };
 
-const hoverClass = hover ? "hover:border-blue-600 dark:hover:border-blue-400 hover:shadow-xl transition-all duration-300" : "";
+const hoverClass = hover ? "hover:border-graphite dark:hover:border-white hover:shadow-xl transition-all duration-300" : "";
 </script>
 
 <template>

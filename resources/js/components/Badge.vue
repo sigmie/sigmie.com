@@ -17,7 +17,7 @@ defineProps({
 });
 
 const variantClass = {
-    default: "bg-gray-800/50 text-gray-200 border border-gray-700",
+    default: "bg-ghostly-gray dark:bg-gray-800/50 text-graphite dark:text-gray-200 border border-light-steel dark:border-gray-700",
     blue: "bg-blue-900/30 text-blue-300 border border-blue-800",
     purple: "bg-purple-900/30 text-purple-300 border border-purple-800",
     green: "bg-green-900/30 text-green-300 border border-green-800",

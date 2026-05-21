@@ -31,9 +31,9 @@ defineProps({
 
 const variantClass = {
     primary: "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700",
-    secondary: "bg-gray-800 text-gray-100 hover:bg-gray-700 border border-gray-700",
-    outline: "border-2 border-gray-600 text-gray-300 hover:border-blue-500 hover:text-blue-400",
-    ghost: "text-gray-300 hover:text-white hover:bg-gray-800/50",
+    secondary: "bg-ghostly-gray dark:bg-gray-800 text-graphite dark:text-gray-100 hover:bg-fog dark:hover:bg-gray-700 border border-light-steel dark:border-gray-700",
+    outline: "border-2 border-light-steel dark:border-gray-600 text-charcoal dark:text-gray-300 hover:border-graphite hover:text-graphite dark:hover:border-blue-500 dark:hover:text-blue-400",
+    ghost: "text-charcoal dark:text-gray-300 hover:text-graphite dark:hover:text-white hover:bg-ghostly-gray dark:hover:bg-gray-800/50",
     danger: "bg-red-600 text-white hover:bg-red-700"
 };
 

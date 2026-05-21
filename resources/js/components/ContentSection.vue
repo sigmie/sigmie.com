@@ -20,12 +20,12 @@ defineProps({
 });
 
 const bgClass = {
-    default: "bg-gradient-to-b from-black to-gray-900/50",
-    dark: "bg-black",
-    light: "bg-gradient-to-b from-gray-900/50 to-black"
+    default: "bg-canvas-white dark:bg-gradient-to-b dark:from-black dark:to-gray-900/50",
+    dark: "bg-canvas-white dark:bg-black",
+    light: "bg-ghostly-gray dark:bg-gradient-to-b dark:from-gray-900/50 dark:to-black"
 };
 
-const borderClass = "border-t border-gray-800";
+const borderClass = "border-t border-light-steel dark:border-gray-800";
 </script>
 
 <template>

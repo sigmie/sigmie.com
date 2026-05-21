@@ -1,6 +1,6 @@
 ---
 title: Text Analysis
-short_description: Configure analyzers, tokenizers, and filters for text processing
+short_description: Configure Elasticsearch analyzers, tokenizers, and filters for text processing in Sigmie — covers char filters, token filters, language stemmers, and synonyms.
 keywords: [analysis, analyzers, text processing, tokenization, elasticsearch]
 category: Text Analysis
 order: 1

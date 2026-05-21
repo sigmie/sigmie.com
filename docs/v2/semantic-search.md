@@ -1,6 +1,6 @@
 ---
 title: Semantic Search
-short_description: Build AI-powered semantic search with vector embeddings
+short_description: Build AI-powered semantic search with Sigmie — vector embeddings, hybrid keyword + dense retrieval, RRF rank fusion, and citation-ready document chunks.
 keywords: [semantic search, vector search, embeddings, ai, machine learning, similarity]
 category: Features
 order: 1

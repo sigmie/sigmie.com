@@ -1,6 +1,6 @@
 ---
 title: Recommendations
-short_description: Build similar item recommendations with vector embeddings
+short_description: Build similar-item and personalized recommendations with vector embeddings in Sigmie — seed IDs, RRF rank fusion, MMR diversity, and field-weighted scoring.
 keywords: [recommendations, similar items, rrf, mmr, semantic similarity]
 category: Features
 order: 4

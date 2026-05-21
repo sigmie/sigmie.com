@@ -1,6 +1,6 @@
 ---
 title: Filter Parser
-short_description: Parse human-readable filter expressions into Elasticsearch queries
+short_description: Parse human-readable filter expressions into Elasticsearch queries with the Sigmie filter parser — booleans, ranges, wildcards, nested fields, and groups.
 keywords: [filter parser, filters, query parser, boolean queries, syntax]
 category: Utilities
 order: 1

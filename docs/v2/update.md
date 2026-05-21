@@ -1,6 +1,6 @@
 ---
 title: Document Updates
-short_description: Update and modify documents in your Elasticsearch indices
+short_description: Update and modify Elasticsearch documents with Sigmie — partial updates, upserts, scripted updates, optimistic concurrency control, and bulk update batching.
 keywords: [update, document updates, partial updates, bulk updates, upsert]
 category: Core Concepts
 order: 7

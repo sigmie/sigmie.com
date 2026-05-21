@@ -1,6 +1,6 @@
 ---
 title: API Reference
-short_description: Complete reference for Sigmie classes and methods
+short_description: Complete reference for Sigmie PHP classes, methods, and configuration options — Index, Document, Search, Query, Aggregation, Embeddings, and more.
 keywords: [api reference, class reference, methods, documentation]
 category: Reference
 order: 3

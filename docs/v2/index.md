@@ -1,6 +1,6 @@
 ---
 title: Indices
-short_description: Create and manage Elasticsearch indices to organize your documents
+short_description: Create and manage Elasticsearch indices with Sigmie — versioned aliases, zero-downtime reindex, mapping migrations, shard sizing, and analyzer configuration.
 keywords: [index, indices, create index, documents, elasticsearch]
 category: Core Concepts
 order: 2

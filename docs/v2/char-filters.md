@@ -1,6 +1,6 @@
 ---
 title: Character Filters
-short_description: Pre-process text before tokenization with character filters
+short_description: Pre-process text before tokenization in Sigmie with character filters — strip HTML, normalize punctuation, replace patterns, and shape input for analyzers.
 keywords: [char filters, character filters, html strip, char mapping, preprocessing]
 category: Text Analysis
 order: 4

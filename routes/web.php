@@ -7,6 +7,7 @@ use App\Http\Controllers\ImageSearchController;
 use App\Http\Controllers\ResumesSearchController;
 use App\Http\Controllers\AsosProductsController;
 use App\Http\Controllers\DocsSearchController;
+use App\Http\Controllers\SitemapController;
 use App\Services\Blog;
 use App\Services\Documentation;
 use Illuminate\Foundation\Application;
@@ -31,6 +32,8 @@ use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\MarkdownConverter;
 use Torchlight\Commonmark\V2\TorchlightExtension;
+
+Route::get('/sitemap.xml', SitemapController::class);
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [

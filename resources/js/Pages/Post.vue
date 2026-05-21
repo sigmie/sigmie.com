@@ -16,7 +16,9 @@ const props = defineProps({
 
 const cleanedHtml = computed(() => {
     if (!props.html) return '';
-    return props.html.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, '');
+    return props.html
+        .replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, '')
+        .replace(/<(\/?)h1(\b[^>]*)>/gi, '<$1h2$2>');
 });
 </script>
 

@@ -1,6 +1,6 @@
 ---
 title: Installation
-short_description: Install Sigmie in your PHP or Laravel project and connect to Elasticsearch or OpenSearch — Composer setup, env config, and a 5-minute first-search walk-through.
+short_description: Install Sigmie and connect to Elasticsearch or OpenSearch
 keywords: [installation, setup, composer, requirements, php, elasticsearch]
 category: Getting Started
 order: 2

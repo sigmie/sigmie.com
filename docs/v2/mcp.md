@@ -1,6 +1,6 @@
 ---
 title: MCP Server
-short_description: Connect AI agents to the Sigmie documentation via the Model Context Protocol — Streamable HTTP and stdio transports expose search_docs, read_doc, and list_docs.
+short_description: Connect AI agents to Sigmie documentation via the Model Context Protocol
 keywords: [mcp, ai, agent, claude, cursor, documentation, semantic search, tools]
 category: Integrations
 order: 3

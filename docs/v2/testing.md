@@ -1,6 +1,6 @@
 ---
 title: Testing
-short_description: Test your Elasticsearch search functionality with Sigmie — assert document indexing, query shapes, aggregation results, and embedding pipelines in PHPUnit or Pest.
+short_description: Test your Elasticsearch search functionality with Sigmie
 keywords: [testing, assertions, parallel tests, phpunit]
 category: Advanced
 order: 1

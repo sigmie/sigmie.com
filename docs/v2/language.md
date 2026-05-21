@@ -1,6 +1,6 @@
 ---
 title: Language Support
-short_description: Configure language-specific Elasticsearch analyzers and filters in Sigmie — stemmers, stopwords, decompounders, and locale-aware tokenization for 30+ languages.
+short_description: Configure language-specific analyzers and filters
 keywords: [languages, multilingual, greek, german, stemming, stopwords]
 category: Text Analysis
 order: 5

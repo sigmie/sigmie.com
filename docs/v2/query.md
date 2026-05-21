@@ -1,6 +1,6 @@
 ---
 title: Advanced Queries
-short_description: Build custom Elasticsearch queries with Sigmie for advanced use cases — typed query DSL, boolean trees, function score, painless scripts, and raw escape hatch.
+short_description: Build custom Elasticsearch queries for advanced use cases
 keywords: [query, advanced query, bool query, elasticsearch dsl, custom queries]
 category: Core Concepts
 order: 6

@@ -1,6 +1,6 @@
 ---
 title: Extending Sigmie
-short_description: Build packages that extend Sigmie with custom field types, analyzers, embedding providers, and document processing hooks — the library plugin pattern.
+short_description: Build packages that add field types and document processing hooks to Sigmie
 keywords: [extending, package, plugin, hooks, field types, collection]
 category: Advanced Features
 order: 90

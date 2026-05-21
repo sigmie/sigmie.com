@@ -1,6 +1,6 @@
 ---
 title: Packages
-short_description: The individual composer packages that make up Sigmie — pick a subset for embedded usage or install the full sigmie/sigmie metapackage with everything.
+short_description: Individual Sigmie packages for modular usage
 keywords: [packages, composer, modules, standalone packages]
 category: Reference
 order: 2

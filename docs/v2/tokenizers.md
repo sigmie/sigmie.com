@@ -1,6 +1,6 @@
 ---
 title: Tokenizers
-short_description: Split text into Elasticsearch tokens with the Sigmie tokenizer set — standard, whitespace, n-gram, edge n-gram, pattern, path hierarchy, and custom rules.
+short_description: Split text into tokens with various tokenization strategies
 keywords: [tokenizers, tokenization, tokens, text splitting, analysis]
 category: Text Analysis
 order: 2

@@ -1,6 +1,6 @@
 ---
 title: Documentation Home
-short_description: Complete documentation for the Sigmie PHP Elasticsearch and OpenSearch library — installation, search, filters, vector search, RAG, MCP, and Laravel.
+short_description: Complete documentation for Sigmie PHP library for Elasticsearch
 keywords: [documentation, sigmie, elasticsearch, php, search library]
 category: Getting Started
 order: 0

@@ -1,6 +1,6 @@
 ---
 title: Docker Setup
-short_description: Run Elasticsearch, OpenSearch, and the Sigmie AI embeddings service locally with Docker — a one-command development stack with sample configurations.
+short_description: Run Elasticsearch, OpenSearch, and AI services with Docker
 keywords: [docker, docker compose, local development, embeddings, llm]
 category: Configuration
 order: 2

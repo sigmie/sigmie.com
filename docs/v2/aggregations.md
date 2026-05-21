@@ -1,6 +1,6 @@
 ---
 title: Aggregations
-short_description: Analyze and summarize Elasticsearch data with Sigmie aggregations — terms, ranges, histograms, metrics, and nested bucket queries from a fluent PHP API.
+short_description: Analyze and summarize data with Elasticsearch aggregations
 keywords: [aggregations, facets, analytics, bucket aggregations, metrics]
 category: Features
 order: 2

@@ -1,6 +1,6 @@
 ---
 title: Token Filters
-short_description: Transform and filter Elasticsearch tokens with Sigmie — stemming, synonyms, lowercase, ASCII folding, n-grams, edge n-grams, and custom filter chains.
+short_description: Transform and filter tokens with stemming, synonyms, and more
 keywords: [token filters, stemming, synonyms, lowercase, stopwords]
 category: Text Analysis
 order: 3

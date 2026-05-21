@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-short_description: Comprehensive getting-started guide for Sigmie — install the PHP library, connect to Elasticsearch or OpenSearch, index documents, and run your first search.
+short_description: Comprehensive guide to getting started with Sigmie and Elasticsearch
 keywords: [getting started, guide, tutorial, elasticsearch, search, php]
 category: Getting Started
 order: 4

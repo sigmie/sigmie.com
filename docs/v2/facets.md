@@ -1,6 +1,6 @@
 ---
 title: Facets
-short_description: Add faceted navigation, filters, and counts to your search results with Sigmie — multi-select, hierarchical, range, and price-bucket facets in one query.
+short_description: Add faceted navigation and filters to search results
 keywords: [facets, filters, faceted search, navigation, refinement]
 category: Features
 order: 3

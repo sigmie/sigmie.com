@@ -1,6 +1,6 @@
 ---
 title: Retrieval and agents
-short_description: How Sigmie fits with retrieval-augmented generation (RAG) — vector and hybrid retrieval, citation surfacing, and where to plug in generation outside the library.
+short_description: How Sigmie fits with RAG-style applications and generation outside the library
 keywords: [rag, retrieval, llm, agents, elasticsearch, search]
 category: Advanced Features
 order: 45

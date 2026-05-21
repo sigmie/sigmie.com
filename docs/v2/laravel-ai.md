@@ -1,6 +1,6 @@
 ---
 title: Laravel AI SDK
-short_description: Expose Sigmie indices as tools for Laravel AI agents — let LLMs run hybrid search, semantic retrieval, and structured queries against your data automatically.
+short_description: Expose Sigmie indices as tools for Laravel AI agents
 keywords: [laravel ai, ai sdk, tools, agents, llm, ai tools]
 category: Integrations
 order: 2

@@ -1,6 +1,6 @@
 ---
 title: Introduction
-short_description: Learn what Sigmie is, why it exists, and when to choose it for Elasticsearch or OpenSearch in PHP — fluent API, semantic search, no boilerplate, production-ready.
+short_description: Learn what Sigmie is and when to use it for Elasticsearch search
 keywords: [introduction, overview, sigmie, elasticsearch, search library, php]
 category: Getting Started
 order: 1

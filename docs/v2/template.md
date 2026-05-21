@@ -1,6 +1,6 @@
 ---
 title: Search Templates
-short_description: Create reusable Elasticsearch search templates with Sigmie for common queries — parameterized inputs, versioned shapes, and shared relevance configuration.
+short_description: Create reusable search templates for common queries
 keywords: [templates, search templates, reusable queries, parameterized search]
 category: Advanced
 order: 2

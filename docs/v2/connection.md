@@ -1,6 +1,6 @@
 ---
 title: Connection Setup
-short_description: Configure authentication and connect Sigmie to Elasticsearch or OpenSearch — Basic auth, API keys, cloud IDs, TLS, custom transports, and connection pools.
+short_description: Configure authentication and connect to Elasticsearch or OpenSearch
 keywords: [connection, authentication, ssl, tls, api key, basic auth, opensearch, elasticsearch, docker]
 category: Configuration
 order: 1

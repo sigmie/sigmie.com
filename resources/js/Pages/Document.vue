@@ -92,7 +92,7 @@ const copyPageAsMarkdown = async () => {
 
 // Sigmie filter DSL highlighting for plain (no-language) code blocks and
 // inline <code> in the docs prose. PHP/JSON/shell blocks are left untouched.
-const FILTER_SHAPE = /\w:\S|[<>]=?\s*-?\d|\bAND\b|\bOR\b|\bNOT\b|\[[^\]]*\.\.[^\]]*\]|:\*$/i;
+const FILTER_SHAPE = /\w:\S|[<>]=?\s*\S|\bAND\b|\bOR\b|\bNOT\b|\bIN\s*\(|\.\.|:\*|^#/i;
 const PHP_MARKERS = /\$\w|->|=>|::|\bnew\s|\buse\s|\bclass\s|\bfunction\s|\bnamespace\s|;\s*$|^\s*\/\//m;
 
 const escapeHtml = (s) => s
@@ -101,70 +101,47 @@ const escapeHtml = (s) => s
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
+// Ordered regex table — first match wins. Patterns are anchored at start.
+// Number comes before identifier so 100..500 doesn't get swallowed as one
+// word; range `..` comes before single `.`; `>=`/`<=` come before `>`/`<`.
+const FILTER_PATTERNS = [
+    [/^#[^\n]*/, 'comment'],
+    [/^\s+/, 'space'],
+    [/^"[^"\n]*"/, 'value'],
+    [/^'[^'\n]*'/, 'value'],
+    [/^\.\./, 'bracket'],
+    [/^(?:>=|<=|!=)/, 'op'],
+    [/^[<>:=!]/, 'op'],
+    [/^[\[\]()*,]/, 'bracket'],
+    [/^-?\d+(?:\.\d+)?/, 'number'],
+    [/^(?:AND|OR|NOT|IN)\b/i, 'logic'],
+    [/^(?:true|false|null)\b/, 'number'],
+    [/^[a-zA-Z_][a-zA-Z_0-9.]*/, 'field'],
+    [/^./, 'text'],
+];
+
 const tokenizeFilterLine = (text) => {
     const out = [];
-    let i = 0;
-    while (i < text.length) {
-        const ch = text[i];
-
-        if (/\s/.test(ch)) {
-            const start = i;
-            while (i < text.length && /\s/.test(text[i])) i++;
-            out.push({ type: 'space', value: text.slice(start, i) });
-            continue;
+    let rest = text;
+    while (rest.length > 0) {
+        let matched = false;
+        for (const [pattern, type] of FILTER_PATTERNS) {
+            const m = pattern.exec(rest);
+            if (!m) continue;
+            const value = m[0];
+            let resolvedType = type;
+            // AND/OR/NOT can legitimately appear inside field names mid-token,
+            // but with leading word-boundary they should be the literal logic
+            // keyword.
+            out.push({ type: resolvedType, value });
+            rest = rest.slice(value.length);
+            matched = true;
+            break;
         }
-        if (ch === '"' || ch === "'") {
-            const open = ch;
-            const start = i;
-            i++;
-            while (i < text.length && text[i] !== open) i++;
-            if (i < text.length) i++;
-            out.push({ type: 'value', value: text.slice(start, i) });
-            continue;
+        if (!matched) {
+            out.push({ type: 'text', value: rest[0] });
+            rest = rest.slice(1);
         }
-        if ((ch === '<' || ch === '>') && text[i + 1] === '=') {
-            out.push({ type: 'op', value: ch + '=' });
-            i += 2;
-            continue;
-        }
-        if (ch === '<' || ch === '>' || ch === ':' || ch === '=' || ch === '!') {
-            out.push({ type: 'op', value: ch });
-            i++;
-            continue;
-        }
-        if (ch === '[' || ch === ']') {
-            out.push({ type: 'bracket', value: ch });
-            i++;
-            continue;
-        }
-        if (ch === '.' && text[i + 1] === '.') {
-            out.push({ type: 'bracket', value: '..' });
-            i += 2;
-            continue;
-        }
-        if (ch === '*' || ch === ',' || ch === '(' || ch === ')') {
-            out.push({ type: 'bracket', value: ch });
-            i++;
-            continue;
-        }
-        if (/[a-zA-Z_0-9.-]/.test(ch)) {
-            const start = i;
-            while (i < text.length && /[a-zA-Z_0-9.-]/.test(text[i])) i++;
-            const word = text.slice(start, i);
-            const upper = word.toUpperCase();
-            if (upper === 'AND' || upper === 'OR' || upper === 'NOT') {
-                out.push({ type: 'logic', value: word });
-            } else if (word === 'true' || word === 'false' || word === 'null') {
-                out.push({ type: 'number', value: word });
-            } else if (/^-?\d+(\.\d+)?$/.test(word)) {
-                out.push({ type: 'number', value: word });
-            } else {
-                out.push({ type: 'field', value: word });
-            }
-            continue;
-        }
-        out.push({ type: 'text', value: ch });
-        i++;
     }
     return out;
 };
@@ -624,12 +601,15 @@ onUnmounted(() => {
 .doc-content .sig-filter-logic { color: var(--color-magic-orange); font-weight: 600; }
 .doc-content .sig-filter-number { color: var(--color-magic-orange); }
 .doc-content .sig-filter-text { color: inherit; }
+.doc-content .sig-filter-comment { color: var(--color-subtle-gray); }
+.dark .doc-content .sig-filter-comment { color: #6b7280; }     /* gray-500 */
 /* Match the prose pre code colour adjustments so plain text inside a
    filter block stays readable on the dark background. */
 .doc-content pre code .sig-filter-field { color: #f5d0fe; }
 .doc-content pre code .sig-filter-op,
 .doc-content pre code .sig-filter-bracket { color: #9ca3af; }
 .doc-content pre code .sig-filter-value { color: #6ee7b7; }
+.doc-content pre code .sig-filter-comment { color: #6b7280; }
 
 /* Copy code button */
 .copy-code-button {

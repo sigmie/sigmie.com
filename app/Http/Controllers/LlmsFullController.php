@@ -8,7 +8,7 @@ use App\Services\Documentation;
 use Illuminate\Http\Response;
 use League\CommonMark\MarkdownConverter;
 
-class LlmsController extends Controller
+class LlmsFullController extends Controller
 {
     public function __invoke(MarkdownConverter $converter): Response
     {
@@ -18,22 +18,25 @@ class LlmsController extends Controller
         $documentation = new Documentation($converter);
         $navigation = $documentation->buildNavigation($defaultVersion);
 
-        $body = "# Sigmie\n\n";
+        $body = "# Sigmie — Full Documentation\n\n";
         $body .= "> A modern, developer-friendly Elasticsearch and OpenSearch library for PHP and Laravel. Fluent search, semantic and hybrid retrieval, AI-ready, no boilerplate.\n\n";
+        $body .= "This file concatenates the full Sigmie documentation for one-shot LLM ingestion. Individual pages live under /docs/{$defaultVersion}/{slug}.md.\n\n";
 
         foreach ($navigation as $section) {
-            $body .= "## " . $section['title'] . "\n";
             foreach ($section['links'] as $link) {
-                $line = "- [" . $link['title'] . "](" . $baseUrl . $link['href'] . ")";
-                $link['description'] ?? null and $line .= ": " . $link['description'];
-                $body .= $line . "\n";
-            }
-            $body .= "\n";
-        }
+                $slug = basename($link['href']);
+                $path = base_path("docs/{$defaultVersion}/{$slug}.md");
 
-        $body .= "## Optional\n";
-        $body .= "- [MCP Server](" . $baseUrl . "/mcp): Streamable HTTP MCP endpoint for AI agents — exposes search_docs, read_doc, and list_docs tools\n";
-        $body .= "- [Sitemap](" . $baseUrl . "/sitemap.xml): Machine-readable list of indexable URLs\n";
+                file_exists($path) || throw new \RuntimeException("Doc page missing: {$path}");
+
+                $markdown = file_get_contents($path);
+                $parsed = $documentation->parseFrontmatter($markdown);
+
+                $body .= "\n\n---\n\n";
+                $body .= "<!-- source: {$baseUrl}/docs/{$defaultVersion}/{$slug} -->\n\n";
+                $body .= trim($parsed['content']) . "\n";
+            }
+        }
 
         return response($body, 200, [
             'Content-Type' => 'text/markdown; charset=UTF-8',

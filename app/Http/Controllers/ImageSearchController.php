@@ -6,10 +6,18 @@ namespace App\Http\Controllers;
 
 use App\Indices\ImageData;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Sigmie\Document\Hit;
 
 class ImageSearchController extends Controller
 {
+    public const DEFAULT_QUERIES = [
+        'Safari', 'Owl', 'Space', 'Snow', 'Love',
+        'Balloons', 'Nature', 'Forest', 'Fox',
+    ];
+
+    private const CUSTOM_TTL = 600;
+
     public function searchByText(Request $request)
     {
         $request->validate([
@@ -18,6 +26,37 @@ class ImageSearchController extends Controller
 
         $query = $request->input('query');
 
+        $cacheKey = 'images:text:' . md5($query);
+        $isDefault = in_array($query, self::DEFAULT_QUERIES, true);
+
+        $payload = $isDefault
+            ? Cache::rememberForever($cacheKey, fn () => $this->runTextSearch($query))
+            : Cache::remember($cacheKey, self::CUSTOM_TTL, fn () => $this->runTextSearch($query));
+
+        return response()->json($payload);
+    }
+
+    public function searchByImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|string'
+        ]);
+
+        $imageData = $request->input('image');
+
+        $cacheKey = 'images:image:' . md5($imageData);
+
+        $payload = Cache::remember(
+            $cacheKey,
+            self::CUSTOM_TTL,
+            fn () => $this->runImageSearch($imageData),
+        );
+
+        return response()->json($payload);
+    }
+
+    private function runTextSearch(string $query): array
+    {
         $imageIndex = app(ImageData::class);
         $blueprint = $imageIndex->properties();
 
@@ -48,25 +87,19 @@ class ImageSearchController extends Controller
 
         $response = $search->get();
 
-        $formattedResults = collect($response->hits())->map(fn(Hit $doc) => [
+        $formattedResults = collect($response->hits())->map(fn (Hit $doc) => [
             '_id' => $doc->_id,
             'image' => $doc['image'] ?? '',
         ])->toArray();
 
-        return response()->json([
+        return [
             'results' => $formattedResults,
-            'total' => count($formattedResults)
-        ]);
+            'total' => count($formattedResults),
+        ];
     }
 
-    public function searchByImage(Request $request)
+    private function runImageSearch(string $imageData): array
     {
-        $request->validate([
-            'image' => 'required|string'
-        ]);
-
-        $imageData = $request->input('image');
-
         $imageIndex = app(ImageData::class);
         $blueprint = $imageIndex->properties();
 
@@ -80,14 +113,14 @@ class ImageSearchController extends Controller
 
         $response = $search->get();
 
-        $formattedResults = collect($response->hits())->map(fn(Hit $doc) => [
+        $formattedResults = collect($response->hits())->map(fn (Hit $doc) => [
             '_id' => $doc->_id,
             'image' => $doc['image'] ?? '',
         ])->toArray();
 
-        return response()->json([
+        return [
             'results' => $formattedResults,
-            'total' => count($formattedResults)
-        ]);
+            'total' => count($formattedResults),
+        ];
     }
 }

@@ -16,7 +16,6 @@ class SitemapController extends Controller
         $urls = [
             ...$this->staticPages(),
             ...$this->docsPages(),
-            ...$this->blogPages(),
         ];
 
         return response($this->buildXml($baseUrl, $urls), 200, [
@@ -29,11 +28,8 @@ class SitemapController extends Controller
         $today = date('Y-m-d');
 
         return [
-            ['loc' => '/',        'lastmod' => $today, 'changefreq' => 'weekly',  'priority' => '1.0'],
-            ['loc' => '/docs',    'lastmod' => $today, 'changefreq' => 'weekly',  'priority' => '0.9'],
-            ['loc' => '/blog',    'lastmod' => $today, 'changefreq' => 'weekly',  'priority' => '0.8'],
-            ['loc' => '/search',  'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.6'],
-            ['loc' => '/resumes', 'lastmod' => $today, 'changefreq' => 'monthly', 'priority' => '0.5'],
+            ['loc' => '/',     'lastmod' => $today, 'changefreq' => 'weekly', 'priority' => '1.0'],
+            ['loc' => '/docs', 'lastmod' => $today, 'changefreq' => 'weekly', 'priority' => '0.9'],
         ];
     }
 
@@ -48,18 +44,6 @@ class SitemapController extends Controller
                     'changefreq' => 'weekly',
                     'priority' => '0.7',
                 ]))
-            ->all();
-    }
-
-    private function blogPages(): array
-    {
-        return $this->markdownFiles(base_path('blog'))
-            ->map(fn (string $file) => [
-                'loc' => '/blog/' . basename($file, '.md'),
-                'lastmod' => date('Y-m-d', (int) filemtime($file)),
-                'changefreq' => 'monthly',
-                'priority' => '0.6',
-            ])
             ->all();
     }
 

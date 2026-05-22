@@ -36,16 +36,10 @@
             'url' => config('app.url') . '/',
             'name' => 'Sigmie',
             'publisher' => ['@id' => $orgId],
-            'potentialAction' => [
-                '@type' => 'SearchAction',
-                'target' => config('app.url') . '/search?q={search_term_string}',
-                'query-input' => 'required name=search_term_string',
-            ],
         ],
     ];
 
     $breadcrumbHub = match ($component) {
-        'Post' => ['name' => 'Blog', 'item' => config('app.url') . '/blog'],
         'Document' => ['name' => 'Docs', 'item' => config('app.url') . '/docs'],
         default => null,
     };
@@ -61,19 +55,6 @@
             'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'USD'],
             'publisher' => ['@id' => $orgId],
         ];
-    } elseif ($component === 'Post') {
-        $graph[] = array_filter([
-            '@type' => 'Article',
-            'headline' => $title,
-            'description' => $description,
-            'image' => $card,
-            'url' => $href,
-            'mainEntityOfPage' => $href,
-            'datePublished' => $publishedAt,
-            'dateModified' => $updatedAt ?? $publishedAt,
-            'author' => ['@type' => 'Organization', 'name' => 'Sigmie', '@id' => $orgId],
-            'publisher' => ['@id' => $orgId],
-        ]);
     } elseif ($component === 'Document') {
         $graph[] = array_filter([
             '@type' => 'TechArticle',
@@ -88,25 +69,6 @@
             'author' => ['@id' => $orgId],
             'publisher' => ['@id' => $orgId],
         ]);
-    } elseif ($component === 'Blog') {
-        $items = collect($props['posts'][0]['links'] ?? [])
-            ->values()
-            ->map(fn (array $post, int $i) => [
-                '@type' => 'ListItem',
-                'position' => $i + 1,
-                'url' => config('app.url') . $post['href'],
-                'name' => $post['title'],
-            ])->all();
-        $graph[] = [
-            '@type' => 'CollectionPage',
-            'name' => $title ?? 'Sigmie Blog',
-            'description' => $description,
-            'url' => $href,
-            'mainEntity' => [
-                '@type' => 'ItemList',
-                'itemListElement' => $items,
-            ],
-        ];
     }
 
     if ($breadcrumbHub) {
@@ -140,6 +102,10 @@
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 
     <link rel="canonical" href="{{ $href }}">
+
+    {{-- llms.txt discovery (llmstxt.org spec) --}}
+    <link rel="alternate" type="text/markdown" title="llms.txt" href="{{ config('app.url') }}/llms.txt">
+    <link rel="alternate" type="text/markdown" title="llms-full.txt" href="{{ config('app.url') }}/llms-full.txt">
 
     <meta property="og:type" content="{{ $ogType }}">
     <meta property="og:url" content="{{ $href }}">

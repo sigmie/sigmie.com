@@ -11,9 +11,4 @@ test.describe('Mobile responsive', () => {
         await expect(page.getByRole('link', { name: /Installation/i }).first()).toBeVisible();
     });
 
-    test('search page is usable on mobile', async ({ page }) => {
-        await page.goto('/search');
-        await expect(page.getByRole('heading', { name: /Search the docs/i })).toBeVisible();
-        await expect(page.getByRole('button', { name: /AI-Powered Search/i })).toBeVisible();
-    });
 });

@@ -25,6 +25,7 @@
     restart_ssr
     restart_mcp
     reload_php_fpm
+    warm_landing_cache
     disable_maintenance_mode
 @endstory
 
@@ -182,4 +183,10 @@
 @task('reload_php_fpm', ['on' => 'production'])
     echo "Reloading PHP-FPM..."
     sudo systemctl reload php8.3-fpm
+@endtask
+
+@task('warm_landing_cache', ['on' => 'production'])
+    echo "Warming landing-page cache..."
+    cd {{ $appDirectory }}
+    sudo -u forge {{ $phpBinary }} artisan landing:warm --fresh
 @endtask

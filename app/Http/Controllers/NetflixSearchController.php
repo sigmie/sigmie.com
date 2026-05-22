@@ -6,10 +6,27 @@ namespace App\Http\Controllers;
 
 use App\Indices\NetflixTitles;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Sigmie\Document\Hit;
 
 class NetflixSearchController extends Controller
 {
+    public const DEFAULT_QUERIES = [
+        'zombie apocalypse',
+        'romantic comedy light-hearted love',
+        'action thriller intense suspense',
+        'science fiction futuristic space',
+        'drama emotional powerful',
+        'documentary real-life educational',
+        'horror scary terrifying',
+    ];
+
+    public const DEFAULT_RETRIEVE = ['title', 'description', 'type', 'release_year', 'director'];
+
+    public const DEFAULT_FILTERS = 'type:"TV Show" OR type:"Movie"';
+
+    private const CUSTOM_TTL = 600;
+
     public function search(Request $request)
     {
         $request->validate([
@@ -20,8 +37,27 @@ class NetflixSearchController extends Controller
 
         $query = $request->input('query');
         $retrieve = $request->input('retrieve', ['title', 'description']);
-        $filters = $request->input('filters', 'type:"TV Show" OR type:"Movie"');
+        $filters = $request->input('filters', self::DEFAULT_FILTERS);
 
+        $cacheKey = 'netflix:search:' . md5(json_encode([
+            'q' => $query,
+            'r' => $retrieve,
+            'f' => $filters,
+        ]));
+
+        $isDefault = in_array($query, self::DEFAULT_QUERIES, true)
+            && $retrieve === self::DEFAULT_RETRIEVE
+            && $filters === self::DEFAULT_FILTERS;
+
+        $payload = $isDefault
+            ? Cache::rememberForever($cacheKey, fn () => $this->runSearch($query, $retrieve, $filters))
+            : Cache::remember($cacheKey, self::CUSTOM_TTL, fn () => $this->runSearch($query, $retrieve, $filters));
+
+        return response()->json($payload);
+    }
+
+    private function runSearch(string $query, array $retrieve, string $filters): array
+    {
         $netflixIndex = app(NetflixTitles::class);
         $blueprint = $netflixIndex->properties();
 
@@ -46,7 +82,7 @@ class NetflixSearchController extends Controller
 
         $allFields = ['_id', 'type', 'title', 'director', 'cast', 'country', 'date_added', 'release_year', 'description'];
 
-        $formattedResults = collect($results)->map(function(Hit $doc) use ($retrieve, $allFields) {
+        $formattedResults = collect($results)->map(function (Hit $doc) use ($retrieve, $allFields) {
             $result = ['_id' => $doc->_id];
 
             foreach ($allFields as $field) {
@@ -58,10 +94,10 @@ class NetflixSearchController extends Controller
             return $result;
         })->toArray();
 
-        return response()->json([
+        return [
             'results' => $formattedResults,
-            'total' => count($formattedResults)
-        ]);
+            'total' => count($formattedResults),
+        ];
     }
 
     public function recommend(Request $request)

@@ -1,15 +1,12 @@
 <?php
 
-use App\Http\Controllers\ChatController;
-use App\Http\Controllers\SearchController;
 use App\Http\Controllers\NetflixSearchController;
 use App\Http\Controllers\ImageSearchController;
-use App\Http\Controllers\ResumesSearchController;
 use App\Http\Controllers\AsosProductsController;
 use App\Http\Controllers\DocsSearchController;
 use App\Http\Controllers\LlmsController;
+use App\Http\Controllers\LlmsFullController;
 use App\Http\Controllers\SitemapController;
-use App\Services\Blog;
 use App\Services\Documentation;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Log;
@@ -36,6 +33,7 @@ use Torchlight\Commonmark\V2\TorchlightExtension;
 
 Route::get('/sitemap.xml', SitemapController::class);
 Route::get('/llms.txt', LlmsController::class);
+Route::get('/llms-full.txt', LlmsFullController::class);
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -70,23 +68,6 @@ Route::get('/', function () {
     ]);
 });
 
-// Chat API endpoint
-Route::post('/api/chat', [ChatController::class, 'chat']);
-
-// Search endpoints
-Route::get('/search', function () {
-    return Inertia::render('Search', [
-        'title' => 'Search Playground',
-        'description' => "Try Sigmie's hybrid keyword and semantic search live against the project's own documentation. AI-Powered Search runs vector retrieval with citations.",
-        'href' => config('app.url') . '/search',
-        'card' => config('app.url') . '/og-image.png',
-    ]);
-});
-Route::post('/api/search/rag', [SearchController::class, 'rag']);
-Route::post('/api/search/rag-stream', [SearchController::class, 'ragStream']);
-Route::post('/api/search/standard', [SearchController::class, 'standard']);
-Route::post('/api/search/clear-conversation', [SearchController::class, 'clearConversation']);
-
 // Netflix search
 Route::post('/api/search/netflix', [NetflixSearchController::class, 'search']);
 Route::post('/api/recommendations/netflix', [NetflixSearchController::class, 'recommend']);
@@ -99,57 +80,8 @@ Route::post('/api/recommendations/products', [AsosProductsController::class, 're
 Route::post('/api/search/images/text', [ImageSearchController::class, 'searchByText']);
 Route::post('/api/search/images/image', [ImageSearchController::class, 'searchByImage']);
 
-// Resumes search
-Route::get('/resumes', function () {
-    return Inertia::render('Resumes', [
-        'title' => 'Resume Search',
-        'description' => "Find the perfect candidate with Sigmie's AI-powered resume search. Hybrid keyword + semantic retrieval matches job descriptions against a sample of 200 anonymised CVs.",
-        'href' => config('app.url') . '/resumes',
-        'card' => config('app.url') . '/og-image.png',
-    ]);
-});
-Route::post('/api/search/resumes', [ResumesSearchController::class, 'search']);
-
 // Documentation search
 Route::post('/api/search/docs', [DocsSearchController::class, 'search']);
-
-Route::get('/blog', function () {
-
-    return Inertia::render('Blog', [
-        'title' => 'Sigmie Blog',
-        'description' => 'Articles from the Sigmie team on Elasticsearch internals, PHP search patterns, sharding, semantic retrieval, and what we are building.',
-        'href' => config('app.url') . '/blog',
-        'card' => config('app.url') . '/og-image.png',
-        'posts' => config("blog.navigation"),
-    ]);
-});
-
-Route::any('/blog/{endpoint?}', function ($endpoint, MarkdownConverter $converter) {
-
-    $blog = new Blog($converter);
-
-    $html = $blog->get($endpoint);
-
-    $link = collect(config('blog.navigation.0.links'))
-        ->filter(fn ($link)  => $link['href'] === "/blog/{$endpoint}")
-        ->first();
-
-    $sourcePath = base_path("blog/{$endpoint}.md");
-    $updatedAt = file_exists($sourcePath) ? date('c', (int) filemtime($sourcePath)) : null;
-
-    return Inertia::render('Post', [
-        'navigation' => config("blog.navigation"),
-        'html' => $html,
-        'card' => config('app.url') . $link['card'],
-        'title' => $link['title'] . ' — Sigmie Blog',
-        'pageHeading' => $link['title'],
-        'href' => config('app.url') . $link['href'],
-        'description' => $link['description'],
-        'publishedAt' => $updatedAt,
-        'updatedAt' => $updatedAt,
-    ]);
-})
-    ->where('endpoint', '.*');
 
 // Redirect /docs to the default version
 Route::get('/docs', function () {
@@ -182,6 +114,18 @@ Route::get('/docs/{endpoint}', function ($endpoint) {
 
     return redirect("/docs/{$version}/{$endpoint}");
 })->where('endpoint', '[^/]+');
+
+// Serve raw markdown for LLM/agent consumption (llms.txt spec convention).
+Route::get('/docs/{version}/{slug}.md', function (string $version, string $slug) {
+    $path = base_path("docs/{$version}/{$slug}.md");
+
+    abort_unless(file_exists($path), 404);
+
+    return response(file_get_contents($path), 200, [
+        'Content-Type' => 'text/markdown; charset=UTF-8',
+        'Cache-Control' => 'public, max-age=3600',
+    ]);
+})->where(['version' => '[^/]+', 'slug' => '[^/.]+']);
 
 Route::any('/docs/{version}/{endpoint?}', function ($version, $endpoint, MarkdownConverter $converter) {
 

@@ -2,11 +2,8 @@ import { test, expect } from '@playwright/test';
 
 const pages = [
     { path: '/', name: 'home' },
-    { path: '/search', name: 'search' },
-    { path: '/blog', name: 'blog' },
     { path: '/docs/v2/introduction', name: 'docs-intro' },
     { path: '/docs/v2/installation', name: 'docs-installation' },
-    { path: '/resumes', name: 'resumes' },
 ];
 
 for (const { path, name } of pages) {

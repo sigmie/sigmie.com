@@ -27,9 +27,6 @@ import { Link } from '@inertiajs/vue3';
                 <div>
                     <h2 class="text-[13px] uppercase tracking-wider font-semibold text-subtle-gray mb-4">Resources</h2>
                     <ul class="space-y-2 text-[14px]">
-                        <li><Link href="/blog" class="text-charcoal hover:text-magic-orange dark:text-gray-300 dark:hover:text-magic-orange transition-colors">Blog</Link></li>
-                        <li><Link href="/search" class="text-charcoal hover:text-magic-orange dark:text-gray-300 dark:hover:text-magic-orange transition-colors">Search Playground</Link></li>
-                        <li><Link href="/resumes" class="text-charcoal hover:text-magic-orange dark:text-gray-300 dark:hover:text-magic-orange transition-colors">Resume Search</Link></li>
                         <li><a href="/llms.txt" class="text-charcoal hover:text-magic-orange dark:text-gray-300 dark:hover:text-magic-orange transition-colors">llms.txt</a></li>
                         <li><a href="/sitemap.xml" class="text-charcoal hover:text-magic-orange dark:text-gray-300 dark:hover:text-magic-orange transition-colors">Sitemap</a></li>
                     </ul>

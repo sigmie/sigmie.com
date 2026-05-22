@@ -61,13 +61,6 @@ const imageSearchMode = ref('text'); // 'text' or 'image'
 const selectedImageUrl = ref(null);
 const imageGridStyle = ref(1); // 1, 2, 3, 4 for different grid styles
 
-// Cart and Recommendations state
-const cartItems = ref([]);
-const recommendationResults = ref([]);
-const mmrValue = ref(0);
-const isLoadingRecommendations = ref(false);
-const isLoadingInitialCart = ref(true);
-
 const presetQueries = [
     { label: "Romantic Comedy", query: "romantic comedy light-hearted love" },
     { label: "Action Thriller", query: "action thriller intense suspense" },
@@ -164,47 +157,6 @@ const imageCodeString = computed(() => {
 const imageHighlightedLines = computed(() => {
     // Highlight the single line when active
     return imageSearchMode.value === 'image' || imageQuery.value ? [1] : [];
-});
-
-const recommendCodeString = computed(() => {
-    const seedIdsStr = cartItems.value.length > 0
-        ? `['${cartItems.value.map(s => s._id).join("', '")}']`
-        : "['sample-product-id']";
-
-    const mmrLine = mmrValue.value > 0
-        ? `    ->mmr(${mmrValue.value.toFixed(2)})`
-        : `    // ->mmr(0.5) // Enable for diversity`;
-
-    return `$asosIndex = app(AsosProducts::class);
-$blueprint = $asosIndex->properties();
-
-$recommendations = $asosIndex
-    ->newRecommend()
-    ->properties($blueprint)
-    ->rrf(rrfRankConstant: 60, rankWindowSize: 10)
-${mmrLine}
-    ->topK(10)
-    ->seedIds(${seedIdsStr})
-    ->field(fieldName: 'name', weight: 1)
-    ->field(fieldName: 'description', weight: 1)
-    ->field(fieldName: 'category', weight: 0.5)
-    ->hits();`;
-});
-
-const recommendHighlightedLines = computed(() => {
-    const lines = [];
-
-    // Highlight MMR line when enabled
-    if (mmrValue.value > 0) {
-        lines.push(8);
-    }
-
-    // Highlight seedIds line when items in cart
-    if (cartItems.value.length > 0) {
-        lines.push(10);
-    }
-
-    return lines;
 });
 
 const filteredResults = computed(() => {
@@ -343,90 +295,6 @@ watch(selectedType, async (newVal, oldVal) => {
     }
 });
 
-// Cart and Recommendations functions
-const initializeCart = async () => {
-    isLoadingInitialCart.value = true;
-    try {
-        // Fetch initial products for the cart
-        const response = await axios.post("/api/search/products", {
-            query: "casual wear",
-        });
-
-        if (response.data.results && response.data.results.length >= 2) {
-            // Add first 2 products to cart
-            cartItems.value = response.data.results.slice(0, 2);
-            // Fetch initial recommendations
-            fetchRecommendations();
-        }
-    } catch (error) {
-        console.error("Cart initialization error:", error);
-    } finally {
-        isLoadingInitialCart.value = false;
-    }
-};
-
-const addToCart = (product) => {
-    // Check if product already in cart
-    if (!cartItems.value.find(item => item._id === product._id)) {
-        cartItems.value.push(product);
-        fetchRecommendations();
-    }
-};
-
-const removeFromCart = (productId) => {
-    // Don't allow removing if only 1 item left
-    if (cartItems.value.length <= 1) {
-        return;
-    }
-
-    cartItems.value = cartItems.value.filter(item => item._id !== productId);
-    fetchRecommendations();
-};
-
-const fetchRecommendations = async () => {
-    if (cartItems.value.length === 0) {
-        recommendationResults.value = [];
-        return;
-    }
-
-    isLoadingRecommendations.value = true;
-
-    try {
-        const seedIds = cartItems.value
-            .map(item => item._id)
-            .filter(id => id != null)
-            .map(id => String(id));
-
-        if (seedIds.length === 0) {
-            recommendationResults.value = [];
-            return;
-        }
-
-        const response = await axios.post("/api/recommendations/products", {
-            seed_ids: seedIds,
-            mmr: mmrValue.value > 0 ? mmrValue.value : null,
-        });
-
-        // Filter out products already in cart
-        const cartIds = new Set(cartItems.value.map(item => item._id));
-        recommendationResults.value = (response.data.results || []).filter(
-            result => !cartIds.has(result._id)
-        );
-    } catch (error) {
-        console.error("Recommendations error:", error);
-        recommendationResults.value = [];
-    } finally {
-        isLoadingRecommendations.value = false;
-    }
-};
-
-// Watch MMR value changes and fetch new recommendations
-watch(mmrValue, () => {
-    if (cartItems.value.length > 0) {
-        fetchRecommendations();
-    }
-});
-
 // Watch Netflix filter and toggles to auto-update search
 watch(typeFilter, () => {
     if (hasSearched.value) {
@@ -445,15 +313,13 @@ onMounted(() => {
     updateImageQuery();
     // Load initial Netflix search results
     performSearch('zombie apocalypse');
-    // Initialize cart with products
-    initializeCart();
 });
 </script>
 
 <template>
     <Head :title="title" />
 
-    <AppLayout :navigation="navigation" :show-top-bar="false">
+    <AppLayout :navigation="navigation">
         <template #default>
 
         <!-- Product Search Demo Section -->
@@ -496,11 +362,20 @@ onMounted(() => {
                         <!-- Left Column: Title & Subtitle -->
                         <div class="text-left mb-12">
                             <h1 class="text-lg sm:text-xl font-medium text-graphite dark:text-gray-100 mb-4">
-                                Sigmie — a modern Elasticsearch library for PHP
+                                Sigmie — retrieval and search for PHP, Elasticsearch, and OpenSearch
                             </h1>
-                            <p class="text-base sm:text-lg text-charcoal dark:text-gray-400 leading-relaxed">
-                                Vectorization, complex filtering and more. Everything you need for modern search, ready to use with Elasticsearch or OpenSearch.
+                            <p class="text-base sm:text-lg text-charcoal dark:text-gray-400 leading-relaxed mb-6">
+                                Keyword, vector, hybrid retrieval, and reranking — the search-and-retrieval layer behind modern PHP apps and AI agents.
                             </p>
+                            <Link
+                                href="/docs"
+                                class="group inline-flex items-center gap-2 pl-5 pr-4 py-2 text-sm font-medium rounded-full bg-graphite text-white hover:bg-charcoal dark:bg-white dark:text-graphite dark:hover:bg-gray-200 transition-colors duration-150"
+                            >
+                                Read the docs
+                                <svg class="w-3.5 h-3.5 transition-transform duration-150 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                </svg>
+                            </Link>
                         </div>
 
                         <!-- Right Column: Logo Images -->
@@ -516,15 +391,18 @@ onMounted(() => {
                 <section class="mb-12 prose prose-neutral dark:prose-invert max-w-none
                                 prose-headings:font-semibold prose-headings:tracking-tight
                                 prose-p:text-charcoal dark:prose-p:text-gray-300 prose-p:leading-[1.7]
-                                prose-a:text-magic-orange hover:prose-a:text-graphite prose-a:no-underline">
+                                prose-a:text-magic-orange prose-a:hover:text-graphite dark:prose-a:hover:text-white prose-a:no-underline">
                     <h2 class="text-[24px] sm:text-[28px] font-semibold text-graphite dark:text-white tracking-tight !mb-4">
                         What is Sigmie?
                     </h2>
                     <p class="!mt-0">
-                        <strong>Sigmie</strong> is an open-source PHP library for Elasticsearch and OpenSearch — built for developers who care about search relevance, not about wiring up low-level mappings and analyzers. It ships a single fluent API for keyword search, vector and hybrid retrieval, faceted filtering, aggregations, autocompletion, RAG-style document chunking, and Laravel Scout integration.
+                        <strong>Sigmie</strong> is an open-source PHP library for Elasticsearch and OpenSearch — built for developers who care about search relevance, not about wiring up low-level mappings and analyzers.
                     </p>
                     <p>
-                        If you're tired of stitching together raw Elasticsearch JSON, hand-rolling tokenizers, or paying a hosted search-as-a-service for queries you could run yourself — Sigmie gives you the ergonomics of a hosted service with the cost profile of an open-source library you control. Indices are versioned with zero-downtime aliases, mappings come with sensible defaults, and semantic search is one method call away.
+                        It ships a single fluent API for keyword search, vector and hybrid retrieval, faceted filtering, aggregations, autocompletion, and reranking — the building blocks you assemble into search, recommendations, or the retrieval layer of a RAG pipeline.
+                    </p>
+                    <p>
+                        If you're tired of stitching together raw Elasticsearch JSON, hand-rolling tokenizers, or paying a hosted search-as-a-service for queries you could run yourself — Sigmie gives you the ergonomics of a hosted service with the cost profile of an open-source library you control. Mappings come with sensible defaults, and semantic search is one method call away.
                     </p>
 
                     <h2 class="text-[24px] sm:text-[28px] font-semibold text-graphite dark:text-white tracking-tight !mt-12 !mb-4">
@@ -538,14 +416,15 @@ onMounted(() => {
                         What makes Sigmie different
                     </h2>
                     <ul class="!mt-0">
-                        <li><strong>Fluent, typed PHP API</strong> — no raw JSON, no untyped arrays, just methods that compose.</li>
-                        <li><strong>Hybrid keyword + semantic search</strong> out of the box, with RRF rank fusion and MMR diversity.</li>
-                        <li><strong>Predefined property types</strong> tuned for relevance — name, email, address, price, tag, and friends — so you don't reinvent analyzers per project.</li>
-                        <li><strong>Vector embeddings</strong> via a built-in embeddings service (or bring your own), 384-dim by default.</li>
-                        <li><strong>Versioned indices with aliases</strong> for zero-downtime reindex and safe mapping migrations.</li>
-                        <li><strong>RAG and agent-ready</strong> — passage chunking, citation-friendly retrieval, and a Model Context Protocol server at <a href="/mcp">/mcp</a> for AI agents.</li>
-                        <li><strong>First-class Laravel integration</strong> — Scout driver, Laravel AI agent tools, and a fluent search builder that feels native.</li>
-                        <li><strong>OpenSearch supported</strong> — drop-in connection swap; no vendor lock-in.</li>
+                        <li><strong>Hybrid keyword + semantic search</strong> out of the box.</li>
+                        <li><strong>Retrieval and reranking building blocks</strong> for RAG pipelines and AI agents.</li>
+                        <li><strong>Embeddings adapters</strong> for OpenAI, Cohere, Voyage, Jina, and Infinity — or bring your own. 384-dim vectors by default.</li>
+                        <li><strong>Image search via CLIP adapters</strong> — one method call with <code>queryImage()</code>.</li>
+                        <li><strong>Predefined property types</strong> tuned for relevance — name, email, address, price, tags, and friends.</li>
+                        <li><strong>Fluent, typed PHP API</strong> — no raw JSON, no untyped arrays.</li>
+                        <li><strong>Sigmie docs as a Model Context Protocol server</strong> at <a href="/mcp">/mcp</a> — so AI agents can search and read the library docs while writing your code.</li>
+                        <li><strong>Laravel-friendly</strong> — Scout driver and AI agent tools available as companion packages.</li>
+                        <li><strong>OpenSearch supported</strong> — drop-in connection swap.</li>
                     </ul>
 
                     <p class="!mt-8">
@@ -795,210 +674,6 @@ onMounted(() => {
             </div>
         </div>
 
-        <!-- Recommendations Demo Section -->
-        <div v-if="false" id="recommendations" class="relative border-t border-light-steel dark:border-gray-800 bg-canvas-white dark:bg-black overflow-hidden scroll-mt-20">
-            <div class="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:py-28 lg:px-8">
-                <div class="text-center mb-10 sm:mb-14">
-                    <h2 class="text-lg sm:text-xl font-medium text-graphite dark:text-white mb-4 sm:mb-6">
-                        Discover with Recommendations
-                    </h2>
-                    <p class="text-base sm:text-lg text-charcoal dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-                        Select products you love and get personalized recommendations. Fine-tune diversity with MMR to balance similarity and variety.
-                    </p>
-                </div>
-
-                <div class="max-w-6xl mx-auto">
-
-                    <!-- Main Content Area -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <!-- Left Column: Shopping Cart -->
-                        <div class="lg:col-span-1">
-                            <div class="bg-ghostly-gray dark:bg-gray-950 border border-light-steel dark:border-gray-800 rounded-lg p-6">
-                                <h3 class="text-base font-medium text-graphite dark:text-white mb-4 flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-charcoal dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                                    </svg>
-                                    Cart ({{ cartItems.length }})
-                                </h3>
-
-                                <!-- Loading State -->
-                                <div v-if="isLoadingInitialCart" class="text-center py-12">
-                                    <div class="w-8 h-8 border-4 border-light-steel dark:border-gray-800 border-t-gray-500 rounded-full animate-spin mx-auto"></div>
-                                    <p class="mt-3 text-sm text-charcoal dark:text-gray-400">Loading cart...</p>
-                                </div>
-
-                                <!-- Cart Items -->
-                                <div v-else class="space-y-3">
-                                    <div
-                                        v-for="item in cartItems"
-                                        :key="item._id"
-                                        class="relative group bg-canvas-white dark:bg-gray-900 border border-light-steel dark:border-gray-800 rounded-lg overflow-hidden hover:border-light-steel dark:hover:border-light-steel dark:border-gray-700 transition-colors"
-                                    >
-                                        <!-- Product Image with Title Overlay -->
-                                        <div class="relative aspect-square w-full">
-                                            <img
-                                                v-if="item.images && item.images.length > 0"
-                                                :src="item.images[0]"
-                                                :alt="item.name"
-                                                class="w-full h-full object-cover"
-                                            />
-                                            <!-- Title Overlay -->
-                                            <div class="absolute inset-x-0 bottom-0 bg-canvas-white dark:bg-black/30 p-2">
-                                                <p class="text-xs font-medium text-graphite dark:text-white line-clamp-2">{{ item.name }}</p>
-                                            </div>
-                                        </div>
-
-                                        <!-- Remove Button -->
-                                        <div v-if="cartItems.length > 1" class="p-2 flex justify-end">
-                                            <button
-                                                @click="removeFromCart(item._id)"
-                                                class="p-1.5 text-subtle-gray dark:text-gray-500 hover:text-graphite dark:hover:text-charcoal dark:text-gray-300 transition-colors"
-                                                title="Remove from cart"
-                                            >
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right Column: Recommendations & Slider -->
-                        <div class="lg:col-span-2">
-                            <!-- Recommendations Results -->
-                            <div class="bg-ghostly-gray dark:bg-gray-950 border border-light-steel dark:border-gray-800 rounded-lg p-6 min-h-[400px]">
-                                <!-- MMR Slider -->
-                                <div class="mb-6 pb-6 border-b border-light-steel dark:border-gray-800">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <div>
-                                            <h3 class="text-base font-medium text-graphite dark:text-white flex items-center gap-2">
-                                                <svg class="w-4 h-4 text-charcoal dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
-                                                </svg>
-                                                Diversity Control (MMR)
-                                            </h3>
-                                            <p class="text-xs text-charcoal dark:text-gray-400 mt-1">
-                                                Balance similarity and variety
-                                            </p>
-                                        </div>
-                                        <div class="text-right">
-                                            <div class="text-lg font-medium text-graphite dark:text-white">
-                                                {{ mmrValue.toFixed(1) }}
-                                            </div>
-                                            <div class="text-xs text-subtle-gray dark:text-gray-500">
-                                                {{ mmrValue === 0 ? 'Disabled' : mmrValue < 0.5 ? 'Similar' : 'Diverse' }}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="relative">
-                                        <input
-                                            v-model.number="mmrValue"
-                                            type="range"
-                                            min="0"
-                                            max="1"
-                                            step="0.1"
-                                            :disabled="cartItems.length === 0"
-                                            class="w-full h-2 bg-ghostly-gray dark:bg-gray-800 rounded-lg appearance-none cursor-pointer accent-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        />
-                                        <div class="flex justify-between text-xs text-subtle-gray dark:text-gray-500 mt-2">
-                                            <span>0.0</span>
-                                            <span>0.5</span>
-                                            <span>1.0</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Loading State -->
-                                <div v-if="isLoadingRecommendations" class="flex flex-col items-center justify-center py-16">
-                                    <div class="w-10 h-10 border-4 border-light-steel dark:border-gray-800 border-t-gray-500 rounded-full animate-spin"></div>
-                                    <p class="mt-4 text-sm text-charcoal dark:text-gray-400">
-                                        Finding recommendations...
-                                    </p>
-                                </div>
-
-                                <!-- Empty Cart State -->
-                                <div v-else-if="cartItems.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
-                                    <div class="inline-flex items-center justify-center w-14 h-14 bg-canvas-white dark:bg-gray-900 rounded-lg mb-4">
-                                        <svg class="w-7 h-7 text-subtle-gray dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                                        </svg>
-                                    </div>
-                                    <h4 class="text-base font-medium text-graphite dark:text-white mb-2">
-                                        Your cart is empty
-                                    </h4>
-                                    <p class="text-sm text-charcoal dark:text-gray-400 max-w-sm">
-                                        Add products to your cart to receive personalized recommendations
-                                    </p>
-                                </div>
-
-                                <!-- Results Grid -->
-                                <div v-else-if="recommendationResults.length > 0" class="space-y-4">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <h4 class="text-base font-medium text-graphite dark:text-white">
-                                            Recommended
-                                        </h4>
-                                        <span class="text-xs text-subtle-gray dark:text-gray-500">
-                                            {{ recommendationResults.length }} results
-                                        </span>
-                                    </div>
-
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <div
-                                            v-for="(result, index) in recommendationResults.slice(0, 4)"
-                                            :key="`${result._id || result.name}-${index}`"
-                                            @click="addToCart(result)"
-                                            class="group relative bg-canvas-white dark:bg-gray-900 border border-light-steel dark:border-gray-800 rounded-lg overflow-hidden hover:border-light-steel dark:hover:border-light-steel dark:border-gray-700 transition-all cursor-pointer"
-                                        >
-                                            <!-- Product Image with Title Overlay -->
-                                            <div v-if="result.images && result.images.length > 0" class="relative aspect-square w-full overflow-hidden bg-canvas-white dark:bg-black">
-                                                <img
-                                                    :src="result.images[0]"
-                                                    :alt="result.name"
-                                                    class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300"
-                                                />
-                                                <!-- Title Overlay on Image -->
-                                                <div class="absolute inset-x-0 bottom-0 bg-canvas-white dark:bg-black/30 p-2">
-                                                    <p class="text-xs font-medium text-graphite dark:text-white line-clamp-2">
-                                                        {{ result.name }}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <!-- Add Icon -->
-                                            <div class="p-2 flex justify-center">
-                                                <div class="flex items-center gap-1.5 text-xs text-subtle-gray dark:text-gray-500">
-                                                    <svg class="w-3.5 h-3.5 text-charcoal dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                                    </svg>
-                                                    <span class="group-hover:text-charcoal dark:group-hover:text-charcoal dark:text-gray-400 transition-colors">Add</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- No Results -->
-                                <div v-else class="flex flex-col items-center justify-center py-16 text-center">
-                                    <div class="inline-flex items-center justify-center w-14 h-14 bg-canvas-white dark:bg-gray-900 rounded-lg mb-4">
-                                        <svg class="w-7 h-7 text-subtle-gray dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M12 12h.01M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                    </div>
-                                    <h4 class="text-base font-medium text-graphite dark:text-white mb-2">
-                                        No recommendations found
-                                    </h4>
-                                    <p class="text-sm text-charcoal dark:text-gray-400">
-                                        Try selecting different titles or adjusting the MMR slider
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- About Me Section -->
         <div id="about" class="border-t border-light-steel dark:border-gray-800 bg-canvas-white dark:bg-black scroll-mt-20">

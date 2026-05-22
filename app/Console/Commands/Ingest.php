@@ -27,7 +27,7 @@ class Ingest extends Command
         // Check if class exists
         if (!class_exists($fullClassName)) {
             $this->error("Index class not found: {$fullClassName}");
-            $this->info("Available indices: NetflixTitles, ImageData, Resumes, AsosProducts");
+            $this->info("Available indices: NetflixTitles, ImageData, AsosProducts");
             return Command::FAILURE;
         }
 

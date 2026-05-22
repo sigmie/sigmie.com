@@ -1,13 +1,10 @@
 import { test } from '@playwright/test';
 
 const pages = [
-    { path: '/search', name: 'search' },
-    { path: '/blog', name: 'blog' },
-    { path: '/blog/a-different-approach', name: 'post' },
+    { path: '/', name: 'home' },
     { path: '/docs/v2/introduction', name: 'docs-intro' },
     { path: '/docs/v2/search', name: 'docs-search' },
     { path: '/docs/v2/installation', name: 'docs-installation' },
-    { path: '/resumes', name: 'resumes' },
 ];
 
 for (const { path, name } of pages) {

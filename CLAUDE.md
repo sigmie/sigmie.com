@@ -69,8 +69,61 @@ A Node.js MCP server at `mcp-server/` serves Sigmie documentation to AI agents.
 - `mcp-server/http.mjs` — HTTP transport server
 - `mcp-server/test.mjs` — MCP server tests (5 tests, `node --test test.mjs`)
 
+## Sigmie Docs Chat Agent
+
+A Claude Haiku 4.5 agent answers documentation questions, powered by `sigmie/agent-tools` and the existing Infinity embeddings stack. Sources:
+
+- `app/Agent/SigmieDocsAgent.php` — agent class (Anthropic Haiku, no rerank, single knowledge source)
+- `app/Agent/NullRerankApi.php` — placeholder satisfying `RerankApi` contract
+- `app/Knowledge/DocsKnowledgeSource.php` — yields one `KnowledgeDocument` per docs/*/*.md h2/h3 section
+- `app/Http/Controllers/DocsChatController.php` — POST `/api/agent/chat` (Vercel data protocol stream) + POST `/api/agent/clear`. Conversations persist server-side **keyed by client IP** via `$agent->continue($conversationId, $user)` (`docs-<sha256(ip)[:24]>` / `ip-<sha256(ip)[:24]>`), giving real multi-turn memory across requests/reloads. `clear` wipes the IP's rows in `agent_conversation_messages` / `agent_conversations`.
+- `resources/js/components/ChatWidget.vue` — chat column with a **Clear** button (resets UI + server history)
+- `resources/js/composables/useChatPanel.js` — shared singleton (`open`, `openChat()`); the Navbar **"Ask AI"** button opens/focuses the panel
+- `packages/sigmie-agent-tools/` — path-copied fork of the package, with three patches:
+  - `Tools/UnifiedSearchTool.php` — `RerankApi` made nullable, pass-through respects `topK` when null
+  - `Elasticsearch/Agent{Knowledge,Conversations,UserMemory}ElasticsearchIndex.php` — semantic dim 256 → 384 to match `infinity-embeddings`
+  - `Laravel/AgentToolsPromptCommand.php` — removed required Cohere rerank API lookup
+
+Indices:
+- `sigmie_agent_knowledge` — chunks (~400) with 384-dim embeddings + magic-tags topic labels
+- `sigmie_agent_tools_conversations` / `sigmie_agent_tools_memory` — auto-created sidecars (not queried by this agent but kept for `SyncConversationTurnJob` writes)
+
+Env: `SIGMIE_AGENT_AUTO_REGISTER_APIS=false`, `SIGMIE_AGENT_RERANK_API=` (empty), `SIGMIE_AGENT_EMBEDDINGS_DOC_API=infinity-embeddings`, `AI_DEFAULT=anthropic`.
+
+### Opt-in & disabled by default
+
+The chat is **off by default**. Set `AGENT_CHAT_ENABLED=true` to expose it.
+- Server: `config('agent.chat.enabled')`; `DocsChatController` 404s both routes when off; flag shared to the frontend via `HandleInertiaRequests` → `agentChat.enabled`.
+- UI: when enabled, the column is still **opt-in** — closed by default, opened via the topbar **"Ask AI"** button or the floating launcher, remembered in `localStorage` (`sigmie-chat-open`). Close button opts out. Layouts/Navbar reserve the 400px column only when `useChatPanel().showColumn` is true.
+
+### Streaming behind nginx (502 fix)
+
+Streamed responses 502 behind nginx when the proxy buffers them. `App\Http\Middleware\DisableResponseBuffering` (on the `/api/agent/chat` route) sets `X-Accel-Buffering: no` + `Cache-Control: no-transform`. If a 502 persists on Forge, also set in the site's nginx server block:
+
+```nginx
+location /api/agent/ {
+    fastcgi_buffering off;
+    fastcgi_read_timeout 300s;
+    try_files $uri $uri/ /index.php?$query_string;
+}
+```
+
+### Public abuse protection (`config/agent.php`)
+
+The chat endpoint is public, so cost is bounded on three axes:
+- **Per-IP throttle** — `RateLimiter::for('agent-chat')` in `AppServiceProvider` (`AGENT_CHAT_PER_MINUTE`=6, `AGENT_CHAT_PER_HOUR`=30), applied as `throttle:agent-chat` on the route.
+- **Global daily budget** — `DocsChatController::enforceDailyBudget()` increments a Redis day-keyed counter (`AGENT_CHAT_DAILY_BUDGET`=2000), 429s when exhausted, counts only valid LLM-bound requests.
+- **Per-request caps** — `SigmieDocsAgent::maxTokens()` (600) + `maxConversationMessages()` (6), and `AGENT_CHAT_MAX_PROMPT_CHARS` (2000) prompt-length guard.
+
+### Chat UI (`ChatWidget.vue`)
+
+Permanent full-height right column (`xl:w-[400px]`), slide-over below `xl`. Mounted in `AppLayout`, `DocsLayout`, and `Pages/Document.vue` (which reserves `xl:pr-[400px]` + `Navbar` `xl:right-[400px]`). Uses `@ai-sdk/vue` `Chat`, `marked` + `marked-highlight` + `highlight.js` (github-dark) for syntax-highlighted snippets, animated "Thinking…" indicator, and input focus retained across turns.
+
 ## Commands
 
-- `envoy run deploy` — full deploy with doc sync + reindex
+- `envoy run deploy` — full deploy with doc sync + reindex (now also runs `sigmie:agent-tools:kb-populate`)
 - `php artisan docs:index --fresh` — reindex documentation into Elasticsearch
+- `php artisan sigmie:agent-tools:indices-create` — create agent ES indices (idempotent on alias conflicts; safe to ignore)
+- `php artisan sigmie:agent-tools:kb-populate` — dispatch batched jobs to (re)populate the agent knowledge index
+- `php artisan sigmie:agent-tools:prompt "question"` — CLI smoke test against the agent
 - `cd mcp-server && node --test test.mjs` — run MCP server tests

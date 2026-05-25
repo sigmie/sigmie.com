@@ -5,8 +5,10 @@ import DocsSidebar from "../components/DocsSidebar.vue";
 import Navbar from "../Navbar.vue";
 import LeftSidebar from "../components/LeftSidebar.vue";
 import RightSidebar from "../components/RightSidebar.vue";
+import ChatWidget from "../components/ChatWidget.vue";
 import TableOfContents from "../TableOfContents.vue";
 import { useTheme } from "../composables/useTheme";
+import { useChatPanel } from "../composables/useChatPanel";
 import SiteFooter from "../components/Footer.vue";
 
 const props = defineProps({
@@ -42,6 +44,7 @@ const nextLink = computed(() => {
 const showMobileToc = ref(false);
 
 const { initTheme } = useTheme();
+const { showColumn } = useChatPanel();
 initTheme();
 
 const copiedMarkdown = ref(false);
@@ -286,7 +289,7 @@ onUnmounted(() => {
     <div class="min-h-screen bg-canvas-white dark:bg-black font-sans text-graphite dark:text-white">
         <Navbar :navigation="navigation" />
 
-        <div class="pt-16">
+        <div class="pt-16" :class="{ 'xl:pr-[400px]': showColumn }">
             <div class="max-w-[88rem] mx-auto px-6 lg:px-8">
                 <div class="flex gap-10 xl:gap-14">
                     <LeftSidebar
@@ -427,6 +430,8 @@ onUnmounted(() => {
         </div>
 
         <SiteFooter />
+
+        <ChatWidget />
     </div>
 </template>
 

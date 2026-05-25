@@ -155,6 +155,12 @@
 
     echo "Reindexing documentation..."
     sudo -u forge {{ $phpBinary }} artisan docs:index --fresh
+
+    echo "Ensuring agent knowledge indices exist..."
+    sudo -u forge {{ $phpBinary }} artisan sigmie:agent-tools:indices-create || true
+
+    echo "Repopulating agent knowledge base..."
+    sudo -u forge {{ $phpBinary }} artisan sigmie:agent-tools:kb-populate
 @endtask
 
 @task('optimize_laravel', ['on' => 'production'])
@@ -184,6 +190,29 @@
     echo "Reloading PHP-FPM..."
     sudo systemctl reload php8.3-fpm
 @endtask
+
+{{--
+    Production supervisor config required for the agent queue worker.
+    The kb-populate command dispatches batched jobs that need a worker to drain,
+    and SyncConversationTurnJob / GenerateTagsJob run async after each turn.
+
+    /etc/supervisor/conf.d/sigmie-agent-queue.conf:
+
+        [program:sigmie-agent-queue]
+        process_name=%(program_name)s_%(process_num)02d
+        command=/usr/bin/php8.3 /home/forge/sigmie.com/artisan queue:work --queue=default --sleep=3 --tries=3 --max-time=3600
+        autostart=true
+        autorestart=true
+        stopasgroup=true
+        killasgroup=true
+        user=forge
+        numprocs=1
+        redirect_stderr=true
+        stdout_logfile=/home/forge/sigmie.com/storage/logs/agent-queue.log
+        stopwaitsecs=3600
+
+    Then: sudo supervisorctl reread && sudo supervisorctl update
+--}}
 
 @task('warm_landing_cache', ['on' => 'production'])
     echo "Warming landing-page cache..."

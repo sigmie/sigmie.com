@@ -3,6 +3,7 @@
 use App\Http\Controllers\NetflixSearchController;
 use App\Http\Controllers\ImageSearchController;
 use App\Http\Controllers\AsosProductsController;
+use App\Http\Controllers\DocsChatController;
 use App\Http\Controllers\DocsSearchController;
 use App\Http\Controllers\LlmsController;
 use App\Http\Controllers\LlmsFullController;
@@ -82,6 +83,13 @@ Route::post('/api/search/images/image', [ImageSearchController::class, 'searchBy
 
 // Documentation search
 Route::post('/api/search/docs', [DocsSearchController::class, 'search']);
+
+// Documentation chat agent (Claude Haiku + Sigmie RAG)
+// Per-IP throttle; a global daily budget is enforced inside the controller.
+Route::post('/api/agent/chat', DocsChatController::class)
+    ->middleware(['throttle:agent-chat', \App\Http\Middleware\DisableResponseBuffering::class]);
+Route::post('/api/agent/clear', [DocsChatController::class, 'clear'])
+    ->middleware('throttle:30,1');
 
 // Redirect /docs to the default version
 Route::get('/docs', function () {

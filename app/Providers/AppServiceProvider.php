@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Agent\SigmieDocsAgent;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use League\CommonMark\CommonMarkConverter;
@@ -16,6 +20,7 @@ use League\CommonMark\MarkdownConverter;
 use Torchlight\Commonmark\V2\TorchlightExtension;
 use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\Extension\TableOfContents\TableOfContentsExtension;
+use Sigmie\AgentTools\AgentTools;
 use Sigmie\AI\APIs\InfinityClipApi;
 use Sigmie\AI\APIs\InfinityEmbeddingsApi;
 use Sigmie\AI\APIs\OpenAIEmbeddingsApi;
@@ -33,6 +38,11 @@ class AppServiceProvider extends ServiceProvider
         if (app()->environment('production')) {
             URL::forceScheme('https');
         }
+
+        RateLimiter::for('agent-chat', fn (Request $request) => [
+            Limit::perMinute((int) config('agent.chat.per_minute', 6))->by($request->ip()),
+            Limit::perHour((int) config('agent.chat.per_hour', 30))->by($request->ip()),
+        ]);
     }
 
     public function register(): void
@@ -69,5 +79,7 @@ class AppServiceProvider extends ServiceProvider
 
             return $sigmie;
         });
+
+        AgentTools::defaultAgent(SigmieDocsAgent::class);
     }
 }

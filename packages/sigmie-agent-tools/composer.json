@@ -1,0 +1,44 @@
+{
+    "name": "sigmie/agent-tools",
+    "description": "Laravel AI SDK agent base (SigmieAgent) with Elasticsearch-backed knowledge, memory, history, and unified search tools",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "guzzlehttp/guzzle": "^7.0",
+        "illuminate/bus": "^12.0",
+        "illuminate/console": "^12.0",
+        "illuminate/http": "^12.0",
+        "illuminate/queue": "^12.0",
+        "illuminate/routing": "^12.0",
+        "illuminate/support": "^12.0",
+        "laravel/ai": "^0.4 || ^0.5 || ^0.6",
+        "psr/log": "^3.0",
+        "symfony/yaml": "^7.0|^8.0",
+        "sigmie/sigmie": "dev-master#a3acaf0d705e77ad49e4d5818328632ac5a137f4"
+    },
+    "suggest": {
+        "inertiajs/inertia-laravel": "Required for the included headless chat UI (set enable_routes=false if not using)",
+        "sentry/sentry": "Required for Sentry AI Agent Insights when agent-tools.sentry_insights is true (sentry/sentry-laravel includes this)"
+    },
+    "autoload": {
+        "psr-4": {
+            "Sigmie\\AgentTools\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Sigmie\\AgentTools\\SigmieAgentToolsServiceProvider"
+            ],
+            "config": {
+                "agent-tools": "config/agent-tools.php"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

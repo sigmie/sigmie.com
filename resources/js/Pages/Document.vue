@@ -65,6 +65,8 @@ const cleanedHtml = computed(() => {
     html = html.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, '');
     // Downgrade any further <h1> in the body to <h2> so the page has a single H1
     html = html.replace(/<(\/?)h1(\b[^>]*)>/gi, '<$1h2$2>');
+    // Wide tables scroll inside their own box instead of widening the page on phones
+    html = html.replace(/<table\b/gi, '<div class="table-scroll"><table').replace(/<\/table>/gi, '</table></div>');
     return html;
 });
 
@@ -300,8 +302,8 @@ onUnmounted(() => {
 
                     <main class="flex-1 min-w-0 py-10">
                         <article class="max-w-2xl">
-                            <div class="flex items-start justify-between gap-4 mb-6">
-                                <h1 class="text-[36px] leading-[1.15] font-semibold tracking-tight text-graphite dark:text-white flex-1">
+                            <div class="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 mb-6">
+                                <h1 class="min-w-0 flex-1 basis-[16rem] break-words text-[30px] leading-[1.15] font-semibold tracking-tight text-graphite sm:text-[36px] dark:text-white">
                                     {{ pageHeading || title }}
                                 </h1>
 
@@ -523,10 +525,15 @@ onUnmounted(() => {
     margin: 1.5rem 0;
 }
 
+.doc-content .table-scroll {
+    overflow-x: auto;
+    margin: 2rem 0;
+    scrollbar-width: thin;
+}
+
 .doc-content table {
     width: 100%;
     border-collapse: collapse;
-    margin: 2rem 0;
 }
 
 .doc-content th {
@@ -544,6 +551,12 @@ onUnmounted(() => {
     border: 1px solid var(--color-light-steel);
 }
 .dark .doc-content td { border-color: #262626; }
+
+@media (max-width: 639px) {
+    .doc-content th,
+    .doc-content td { padding: 0.5rem 0.75rem; font-size: 14px; }
+    .doc-content pre code { font-size: 13px; }
+}
 
 .doc-content hr {
     border: 0;
@@ -586,6 +599,7 @@ onUnmounted(() => {
     padding: 0.125rem 0.375rem;
     font-size: 0.875em;
     font-family: var(--font-mono);
+    overflow-wrap: break-word;
 }
 .dark .doc-content code:not(pre code) {
     background-color: rgba(100, 116, 139, 0.15);
@@ -644,6 +658,9 @@ onUnmounted(() => {
     color: var(--color-magic-green);
 }
 pre:hover .copy-code-button { opacity: 1; }
+@media (hover: none) {
+    .copy-code-button { opacity: 1; }
+}
 .copy-code-button .hidden { display: none; }
 
 .heading-permalink {

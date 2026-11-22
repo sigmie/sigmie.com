@@ -161,6 +161,9 @@
   input, textarea { caret-color: var(--color-magic-orange); }
   :focus-visible { outline: 2px solid var(--color-orange-ink); outline-offset: 2px; }
   .dark :focus-visible { outline-color: #ff7b47; }
+  /* JetBrains Mono draws -> and => as single arrows; code must show the
+     characters a reader types. */
+  code, pre, kbd, .font-mono { font-variant-ligatures: none; }
   /* Preserve v3 default border color */
   * { border-color: var(--color-light-steel); }
   .dark * { border-color: var(--color-gray-800); }
@@ -168,7 +171,31 @@
 
 @layer utilities {
   .text-balance { text-wrap: balance; }
-  .no-ligatures { font-variant-ligatures: none; }
+
+  /* Each ranking mode owns one brand colour. It marks the active mode, rank 1
+     and rank gains, so colour tells the reader which mode produced a ranking.
+     Light values hold 4.5:1 against white text, dark values against black. */
+  .mode-keyword { --mode: #0062d1; --mode-on: #ffffff; }
+  .mode-hybrid { --mode: var(--color-orange-ink); --mode-on: #ffffff; }
+  .mode-vector { --mode: #0f7a3d; --mode-on: #ffffff; }
+  .dark .mode-keyword { --mode: #3ba7ff; --mode-on: #000000; }
+  .dark .mode-hybrid { --mode: var(--color-magic-orange); --mode-on: #000000; }
+  .dark .mode-vector { --mode: var(--color-magic-green); --mode-on: #000000; }
+
+  /* Decorative wash of the three mode colours behind the hero and the closing
+     call to action. */
+  .brand-glow {
+    background:
+      radial-gradient(40% 75% at 90% 0%, rgb(255 83 16 / 0.24), transparent 72%),
+      radial-gradient(34% 65% at 62% 0%, rgb(0 152 241 / 0.2), transparent 72%),
+      radial-gradient(34% 70% at 100% 100%, rgb(68 198 127 / 0.22), transparent 72%);
+  }
+  .dark .brand-glow {
+    background:
+      radial-gradient(40% 75% at 90% 0%, rgb(255 83 16 / 0.3), transparent 72%),
+      radial-gradient(34% 65% at 62% 0%, rgb(0 152 241 / 0.24), transparent 72%),
+      radial-gradient(34% 70% at 100% 100%, rgb(68 198 127 / 0.22), transparent 72%);
+  }
 
   /* Rank changes are the page's one motion moment: the orbit nodes and the
      ranked rows travel to their new places on the same curve and duration. */

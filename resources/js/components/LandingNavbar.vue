@@ -130,12 +130,6 @@ const headerClass = computed(() => ({
                 </Link>
 
                 <nav class="hidden items-center gap-6 md:flex" aria-label="Primary">
-                    <a
-                        href="#playground"
-                        class="text-[14px] font-medium text-charcoal/80 transition-colors hover:text-graphite dark:text-[#a3a3a0] dark:hover:text-white"
-                    >
-                        Playground
-                    </a>
                     <Link
                         href="/docs"
                         class="text-[14px] font-medium text-charcoal/80 transition-colors hover:text-graphite dark:text-[#a3a3a0] dark:hover:text-white"
@@ -232,13 +226,6 @@ const headerClass = computed(() => ({
         :class="{ 'xl:right-[400px]': showColumn }"
     >
         <nav class="mx-auto flex max-w-6xl flex-col gap-1 px-5 py-4 sm:px-6" aria-label="Mobile">
-            <a
-                href="#playground"
-                class="rounded-xl px-3 py-2.5 text-[15px] font-medium text-graphite hover:bg-ghostly-gray dark:text-[#f5f5f4] dark:hover:bg-[#141413]"
-                @click="closeMenu"
-            >
-                Playground
-            </a>
             <Link href="/docs" class="rounded-xl px-3 py-2.5 text-[15px] font-medium text-graphite hover:bg-ghostly-gray dark:text-[#f5f5f4] dark:hover:bg-[#141413]" @click="closeMenu">
                 Docs
             </Link>

@@ -146,11 +146,10 @@ const formatDelta = (delta) => {
                     :cx="CX"
                     :cy="CY"
                     :r="ring.r"
-                    fill="none"
                     :stroke-dasharray="idx === 2 ? '2 4' : undefined"
                     :class="idx === 0
-                        ? 'stroke-black/22 dark:stroke-white/24'
-                        : 'stroke-black/12 dark:stroke-white/12'"
+                        ? 'fill-(--mode)/8 stroke-(--mode)/50'
+                        : 'fill-none stroke-black/12 dark:stroke-white/12'"
                     :stroke-width="idx === 0 ? 1.25 : 1"
                 />
                 <text
@@ -188,7 +187,7 @@ const formatDelta = (delta) => {
                     :cy="CY"
                     r="26"
                     fill="none"
-                    class="orbital-pulse stroke-orange-ink dark:stroke-magic-orange"
+                    class="orbital-pulse stroke-(--mode)"
                     stroke-width="1.5"
                 />
             </g>
@@ -220,7 +219,7 @@ const formatDelta = (delta) => {
                     cy="0"
                     :r="node.isTop || node.isActive ? 11 : 9.5"
                     :class="node.isTop
-                        ? 'fill-orange-ink stroke-white dark:fill-magic-orange dark:stroke-black'
+                        ? 'fill-(--mode) stroke-white dark:stroke-black'
                         : 'fill-white stroke-[#171717]/40 dark:fill-[#141414] dark:stroke-white/40'"
                     stroke-width="1.75"
                 />
@@ -230,7 +229,7 @@ const formatDelta = (delta) => {
                     text-anchor="middle"
                     class="text-[10.5px] font-semibold tabular-nums"
                     :class="node.isTop
-                        ? 'fill-white dark:fill-black'
+                        ? 'fill-(--mode-on)'
                         : 'fill-[#171717] dark:fill-[#fafafa]'"
                 >
                     {{ node.rank }}
@@ -255,7 +254,7 @@ const formatDelta = (delta) => {
                     :text-anchor="node.side === 'right' ? 'start' : 'end'"
                     class="text-[10.5px] tabular-nums"
                     :class="(typeof node.delta === 'number' && node.delta > 0) || node.delta === 'new'
-                        ? 'fill-orange-ink dark:fill-[#ff7b47]'
+                        ? 'fill-(--mode)'
                         : 'fill-[#737373] dark:fill-[#8b8b93]'"
                 >
                     {{ node.score !== undefined ? Number(node.score).toFixed(2) : '' }}{{ formatDelta(node.delta) ? `  ${formatDelta(node.delta)}` : '' }}

@@ -270,9 +270,10 @@ const statusLine = computed(() => (
 </script>
 
 <template>
-    <section id="playground" class="relative scroll-mt-16 bg-white dark:bg-black">
-        <div class="grid lg:grid-cols-12">
-            <div class="px-6 pt-10 pb-8 sm:px-10 sm:pt-16 sm:pb-12 lg:col-span-7">
+    <section class="relative bg-white dark:bg-black" :class="`mode-${activeMode}`">
+        <div class="relative grid overflow-hidden lg:grid-cols-12">
+            <div aria-hidden="true" class="brand-glow pointer-events-none absolute inset-0"></div>
+            <div class="relative px-6 pt-10 pb-8 sm:px-10 sm:pt-16 sm:pb-12 lg:col-span-7">
                 <h1 class="max-w-[15ch] text-balance text-[38px] leading-[1] sm:leading-[0.98] font-semibold tracking-[-0.04em] text-[#171717] sm:text-[60px] lg:text-[68px] dark:text-[#fafafa]">
                     See what makes a result rank.
                 </h1>
@@ -293,7 +294,7 @@ const statusLine = computed(() => (
             </div>
 
             <form
-                class="flex flex-col justify-center gap-5 border-t border-[#eaeaea] bg-[#fafafa] px-6 py-7 sm:px-10 lg:col-span-5 lg:border-t-0 lg:border-l lg:px-8 dark:border-white/[0.1] dark:bg-[#0a0a0a]"
+                class="relative flex flex-col justify-center gap-5 border-t border-[#eaeaea] bg-white/45 px-6 py-7 sm:px-10 lg:col-span-5 lg:border-t-0 lg:border-l lg:px-8 dark:border-white/[0.1] dark:bg-black/35"
                 @submit.prevent="submitQuery"
             >
                 <div>
@@ -344,12 +345,17 @@ const statusLine = computed(() => (
                             :key="mode.id"
                             type="button"
                             :aria-pressed="activeMode === mode.id"
-                            class="press rounded-full py-1.5 text-[13.5px] font-medium"
-                            :class="activeMode === mode.id
-                                ? 'bg-[#171717] text-white dark:bg-[#fafafa] dark:text-[#171717]'
-                                : 'text-[#525252] hover:text-[#171717] dark:text-[#a1a1aa] dark:hover:text-white'"
+                            class="press inline-flex items-center justify-center gap-1.5 rounded-full py-1.5 text-[13.5px] font-medium"
+                            :class="[`mode-${mode.id}`, activeMode === mode.id
+                                ? 'bg-(--mode) text-(--mode-on)'
+                                : 'text-[#525252] hover:text-[#171717] dark:text-[#a1a1aa] dark:hover:text-white']"
                             @click="selectMode(mode.id)"
                         >
+                            <span
+                                aria-hidden="true"
+                                class="h-1.5 w-1.5 rounded-full"
+                                :class="activeMode === mode.id ? 'bg-(--mode-on)' : 'bg-(--mode)'"
+                            ></span>
                             {{ mode.label }}
                         </button>
                     </div>
@@ -439,7 +445,7 @@ const statusLine = computed(() => (
                             <span
                                 class="mt-px flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold tabular-nums"
                                 :class="index === 0
-                                    ? 'bg-orange-ink text-white dark:bg-magic-orange dark:text-black'
+                                    ? 'bg-(--mode) text-(--mode-on)'
                                     : 'border border-[#e5e5e5] text-[#404040] dark:border-white/[0.16] dark:text-[#d4d4d8]'"
                             >
                                 {{ index + 1 }}
@@ -460,7 +466,7 @@ const statusLine = computed(() => (
                                 <span
                                     v-if="deltaLabel(item._id)"
                                     class="text-[12px] font-medium"
-                                    :class="deltaLabel(item._id).tone === 'up' ? 'text-orange-ink dark:text-[#ff7b47]' : 'text-[#737373] dark:text-[#8b8b93]'"
+                                    :class="deltaLabel(item._id).tone === 'up' ? 'text-(--mode)' : 'text-[#737373] dark:text-[#8b8b93]'"
                                 >
                                     <span aria-hidden="true">{{ deltaLabel(item._id).text }}</span>
                                     <span class="sr-only">{{ deltaLabel(item._id).label }}</span>

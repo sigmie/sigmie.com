@@ -39,12 +39,35 @@ const copiedConfig = ref(false);
 let copyTimer;
 let mcpReqSeq = 0;
 
-const cleanedPassage = computed(() => (
-    String(activeMcpResult.value?.content || '')
-        .replace(/\s*\/\/\s*\[tl!.*?\]/g, '')
-        .trim()
-        .slice(0, 420)
-));
+// The search index stores a passage as plain text with code fences removed,
+// so blocks split on blank lines and a block reads as PHP when a line opens
+// like a statement or ends with a semicolon. Adjacent code blocks merge.
+const PHP_LINE = /^\s*(\$|->|use\s|new\s|[})\]])|;\s*$/m;
+const PASSAGE_BUDGET = 420;
+
+const passageBlocks = computed(() => {
+    const blocks = [];
+    let used = 0;
+
+    for (const text of String(activeMcpResult.value?.content || '')
+        .replace(/[ \t]*\/\/[ \t]*\[tl![^\]]*\]/g, '')
+        .split(/\n{2,}/)
+        .map((part) => part.replace(/\s+$/, ''))
+        .filter(Boolean)) {
+        if (used >= PASSAGE_BUDGET) break;
+        used += text.length;
+
+        const code = PHP_LINE.test(text);
+        const last = blocks.at(-1);
+        if (code && last?.code) {
+            last.text += `\n\n${text}`;
+        } else {
+            blocks.push({ code, text });
+        }
+    }
+
+    return blocks;
+});
 
 const runMcpSample = async (sample, idx) => {
     activeMcpIndex.value = idx;
@@ -216,7 +239,20 @@ onUnmounted(() => clearTimeout(copyTimer));
                             </span>
                         </div>
 
-                        <pre class="no-ligatures mt-4 overflow-x-auto rounded-xl border border-[#eaeaea] bg-[#fafafa] p-4 font-mono text-[12px] leading-[1.65] whitespace-pre-wrap text-[#262626] dark:border-white/[0.1] dark:bg-[#0b0d11] dark:text-[#d4d4d8]"><code>{{ cleanedPassage }}</code></pre>
+                        <div class="mt-4 space-y-3 text-[14px] leading-[1.6] text-[#404040] dark:text-[#d4d4d8]">
+                            <template v-for="(block, index) in passageBlocks" :key="`${activeMcpResult.url}-${index}`">
+                                <div v-if="block.code" class="overflow-hidden rounded-xl border border-black/[0.06] dark:border-white/[0.1]">
+                                    <CodePreview
+                                        :code="block.text"
+                                        filename="passage.php"
+                                        language="php"
+                                        :frameless="true"
+                                        :compact="true"
+                                    />
+                                </div>
+                                <p v-else>{{ block.text }}</p>
+                            </template>
+                        </div>
                     </div>
 
                     <div class="mt-6 flex flex-wrap items-center gap-6 border-t border-[#eaeaea] pt-4 text-[13px] font-medium dark:border-white/[0.08]">

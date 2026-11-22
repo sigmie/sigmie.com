@@ -49,7 +49,7 @@ const languageLabel = computed(() => (props.language === 'json' ? 'JSON' : 'PHP'
 const parsedLines = computed(() => {
     const parse = props.language === 'json' ? parseJsonLine : parsePhpLine;
 
-    return props.code.split('\n').map((line, index) => ({
+    return props.code.replace(/\n+$/, '').split('\n').map((line, index) => ({
         text: line,
         tokens: parse(line),
         isHighlighted: props.highlightLines.includes(index + 1),

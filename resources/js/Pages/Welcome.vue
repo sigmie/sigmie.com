@@ -35,10 +35,11 @@ defineProps({
                 <ImageSearchDemo :initial="initialClip" />
                 <PlatformAndMcp :initial-mcp="initialMcp" />
 
-                <section class="relative border-t border-[#eaeaea] bg-white dark:border-white/[0.1] dark:bg-black">
+                <section class="relative overflow-hidden border-t border-[#eaeaea] bg-white dark:border-white/[0.1] dark:bg-black">
+                    <div aria-hidden="true" class="brand-glow pointer-events-none absolute inset-0 rotate-180"></div>
                     <GridCrosshairs />
 
-                    <div class="grid gap-8 px-6 py-20 sm:px-10 sm:py-28 lg:grid-cols-12 lg:items-end">
+                    <div class="relative grid gap-8 px-6 py-20 sm:px-10 sm:py-28 lg:grid-cols-12 lg:items-end">
                         <h2 class="text-balance text-[36px] leading-[1.02] font-semibold tracking-[-0.04em] text-[#171717] sm:text-[52px] lg:col-span-6 dark:text-[#fafafa]">
                             Run it against your own cluster.
                         </h2>

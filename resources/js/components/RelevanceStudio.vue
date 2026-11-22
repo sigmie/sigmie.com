@@ -1,10 +1,9 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import axios from 'axios';
 import CodePreview from './CodePreview.vue';
 import CopyCommand from './CopyCommand.vue';
-import GridCrosshairs from './GridCrosshairs.vue';
 import OrbitalRelevancePlot from './OrbitalRelevancePlot.vue';
 import { RELEVANCE_MODES, RELEVANCE_PRESETS, TYPE_FILTERS } from '../data/landingExamples';
 
@@ -30,13 +29,11 @@ const searchQuery = ref(initialPayload.query || RELEVANCE_PRESETS[0].query);
 const activeMode = ref(initialPayload.mode || defaultMode);
 const activeFilterId = ref('all');
 const results = ref(initialPayload.results || []);
-const totalHits = ref(initialPayload.total || 0);
 const engineName = ref(initialPayload.engine || 'Elasticsearch');
 const rawDsl = ref(initialPayload.dsl || {});
 const activeIndex = ref(0);
 const isLoading = ref(false);
 const errorMessage = ref('');
-const statusSource = ref('Recorded preset');
 const latencyMs = ref(null);
 const inspectOpen = ref(false);
 const pulseKey = ref(0);
@@ -92,12 +89,6 @@ const formattedDsl = computed(() => {
 });
 
 const dslLineCount = computed(() => formattedDsl.value.split('\n').length);
-
-const hitCountLabel = computed(() => (
-    activeMode.value === 'vector'
-        ? `${totalHits.value.toLocaleString()} vector candidates`
-        : `${totalHits.value.toLocaleString()} indexed hits`
-));
 
 const dslHighlightLines = computed(() => {
     const lines = formattedDsl.value.split('\n');
@@ -163,15 +154,13 @@ const computeDeltas = (nextResults, comparePrevious) => {
     rankDeltas.value = deltas;
 };
 
-const applyPayload = (payload, { comparePrevious, sourceLabel, elapsed }) => {
+const applyPayload = (payload, { comparePrevious, elapsed }) => {
     const nextResults = payload.results || [];
     computeDeltas(nextResults, comparePrevious);
     results.value = nextResults;
-    totalHits.value = payload.total ?? nextResults.length;
     engineName.value = payload.engine || 'Elasticsearch';
     rawDsl.value = payload.dsl || {};
     activeIndex.value = 0;
-    statusSource.value = sourceLabel;
     latencyMs.value = elapsed;
     pulseKey.value += 1;
 
@@ -205,7 +194,6 @@ const runSearch = async ({ comparePrevious = true } = {}) => {
         const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
         applyPayload(response.data, {
             comparePrevious,
-            sourceLabel: 'Live',
             elapsed: Math.max(1, Math.round(now - startedAt)),
         });
     } catch {
@@ -216,7 +204,6 @@ const runSearch = async ({ comparePrevious = true } = {}) => {
         if (fallback && isDefaultQuery) {
             applyPayload(fallback, {
                 comparePrevious,
-                sourceLabel: 'Recorded preset',
                 elapsed: null,
             });
         } else {
@@ -250,179 +237,155 @@ const submitQuery = () => {
     runSearch({ comparePrevious: false });
 };
 
-const onResultKeyDown = (event, index) => {
-    if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        activeIndex.value = Math.min(index + 1, results.value.length - 1);
-    } else if (event.key === 'ArrowUp') {
-        event.preventDefault();
-        activeIndex.value = Math.max(index - 1, 0);
-    }
+const onResultKeyDown = (event) => {
+    const row = event.currentTarget.closest('li');
+    const target = event.key === 'ArrowDown' ? row?.nextElementSibling : event.key === 'ArrowUp' ? row?.previousElementSibling : null;
+    if (!target) return;
+    event.preventDefault();
+    target.querySelector('button')?.focus();
+};
+
+const showRequestButton = ref(null);
+const hideRequestButton = ref(null);
+
+const setInspectOpen = async (open) => {
+    inspectOpen.value = open;
+    await nextTick();
+    (open ? hideRequestButton : showRequestButton).value?.focus();
 };
 
 const deltaLabel = (id) => {
     const delta = rankDeltas.value[id];
     if (delta === undefined || delta === null || delta === 0) return null;
-    if (delta === 'new') return { text: 'new', tone: 'up' };
-    if (delta > 0) return { text: `↑ ${delta}`, tone: 'up' };
-    return { text: `↓ ${Math.abs(delta)}`, tone: 'down' };
+    if (delta === 'new') return { text: 'New', tone: 'up', label: 'new in the top 5' };
+    if (delta > 0) return { text: `↑ ${delta}`, tone: 'up', label: `up ${delta} places` };
+    return { text: `↓ ${Math.abs(delta)}`, tone: 'down', label: `down ${Math.abs(delta)} places` };
 };
+
+const statusLine = computed(() => (
+    latencyMs.value === null
+        ? `${activeModeMeta.value.short}, recorded preset`
+        : `${activeModeMeta.value.short}, live from ${engineName.value} in ${latencyMs.value} ms`
+));
 </script>
 
 <template>
-    <section class="relative overflow-hidden bg-white dark:bg-black">
-        <div class="vercel-hero-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
-        <div class="vercel-prism-glow pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <section id="playground" class="relative scroll-mt-16 bg-white dark:bg-black">
+        <div class="grid lg:grid-cols-12">
+            <div class="px-6 pt-10 pb-8 sm:px-10 sm:pt-16 sm:pb-12 lg:col-span-7">
+                <h1 class="max-w-[15ch] text-balance text-[38px] leading-[1] sm:leading-[0.98] font-semibold tracking-[-0.04em] text-[#171717] sm:text-[60px] lg:text-[68px] dark:text-[#fafafa]">
+                    See what makes a result rank.
+                </h1>
 
-        <div class="relative mx-auto max-w-3xl px-6 pt-12 pb-11 text-center sm:px-10 sm:pt-16 sm:pb-14">
-            <p class="font-mono text-[11.5px] font-medium uppercase tracking-[0.14em] text-muted-ink dark:text-[#a1a1aa]">
-                Elasticsearch 7–9 · OpenSearch 2–3 · PHP 8.1+
-            </p>
+                <p class="mt-5 max-w-[34rem] text-[16.5px] leading-[1.6] text-[#525252] sm:text-[18px] dark:text-[#a1a1aa]">
+                    Sigmie is a PHP library for keyword, semantic and hybrid search on Elasticsearch and OpenSearch. Change one line of the query and watch the ranking reorder live.
+                </p>
 
-            <h1 class="mt-4 text-balance text-[40px] leading-[1.03] font-semibold tracking-[-0.045em] text-[#171717] sm:text-[54px] lg:text-[62px] dark:text-[#fafafa]">
-                See what makes a result rank.
-            </h1>
-
-            <p class="mx-auto mt-4 max-w-2xl text-balance text-[16.5px] leading-[1.55] text-[#525252] sm:text-[18px] dark:text-[#a1a1aa]">
-                Fluent keyword, semantic, and hybrid search for PHP. Change one line in the builder and watch live rankings reorganize below.
-            </p>
-
-            <div class="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Link
-                    href="/docs/v2/quick-start"
-                    class="group inline-flex items-center gap-2 rounded-full bg-[#171717] px-5 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-black dark:bg-[#fafafa] dark:text-[#171717] dark:hover:bg-white"
-                >
-                    <span>Start building</span>
-                    <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
-                </Link>
-                <CopyCommand command="composer require sigmie/sigmie" />
-            </div>
-        </div>
-    </section>
-
-    <section id="playground" class="relative scroll-mt-16 border-t border-[#eaeaea] bg-white dark:border-white/[0.1] dark:bg-black">
-        <GridCrosshairs />
-
-        <div class="flex flex-col gap-3 border-b border-[#eaeaea] bg-[#fafafa] px-5 py-3.5 sm:px-6 lg:flex-row lg:items-center lg:justify-between dark:border-white/[0.1] dark:bg-[#0a0a0a]">
-            <form class="flex min-w-0 flex-1 items-center gap-2" @submit.prevent="submitQuery">
-                <label for="relevance-query" class="sr-only">Search movie and TV titles</label>
-                <div class="relative min-w-0 flex-1">
-                    <svg
-                        class="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-ink dark:text-[#a1a1aa]"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
+                <div class="mt-7 flex flex-wrap items-center gap-3">
+                    <Link
+                        href="/docs/v2/quick-start"
+                        class="press inline-flex items-center rounded-full bg-[#171717] px-5 whitespace-nowrap py-2.5 text-[14px] font-medium text-white hover:bg-black dark:bg-[#fafafa] dark:text-[#171717] dark:hover:bg-white"
                     >
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.2-5.2m1.7-4.3a6 6 0 11-12 0 6 6 0 0112 0z" />
-                    </svg>
-                    <input
-                        id="relevance-query"
-                        v-model="searchQuery"
-                        type="text"
-                        placeholder="Describe a plot or mood..."
-                        class="w-full rounded-full border border-[#e5e5e5] bg-white py-1.5 pr-3 pl-9 text-[13.5px] text-[#171717] placeholder:text-muted-ink focus:border-[#171717] focus:ring-0 focus:outline-none dark:border-white/[0.14] dark:bg-black dark:text-[#fafafa] dark:placeholder:text-[#a1a1aa] dark:focus:border-white/40"
-                    />
-                </div>
-                <button
-                    type="submit"
-                    :disabled="isLoading"
-                    class="shrink-0 rounded-full bg-[#171717] px-4 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-black disabled:opacity-50 dark:bg-[#fafafa] dark:text-[#171717] dark:hover:bg-white"
-                >
-                    Run
-                </button>
-            </form>
-
-            <div class="flex flex-wrap items-center justify-between gap-2.5 lg:justify-end">
-                <div
-                    class="inline-flex rounded-full border border-[#e5e5e5] bg-white p-0.5 dark:border-white/[0.14] dark:bg-black"
-                    role="radiogroup"
-                    aria-label="Search relevance mode"
-                >
-                    <button
-                        v-for="mode in RELEVANCE_MODES"
-                        :key="mode.id"
-                        type="button"
-                        role="radio"
-                        :aria-checked="activeMode === mode.id"
-                        class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[12.5px] font-medium transition-colors"
-                        :class="activeMode === mode.id
-                            ? 'bg-[#171717] text-white dark:bg-[#fafafa] dark:text-[#171717]'
-                            : 'text-[#525252] hover:text-[#171717] dark:text-[#a1a1aa] dark:hover:text-white'"
-                        @click="selectMode(mode.id)"
-                    >
-                        <span
-                            v-if="activeMode === mode.id"
-                            class="h-1.5 w-1.5 rounded-full bg-magic-orange"
-                            aria-hidden="true"
-                        ></span>
-                        <span>{{ mode.label }}</span>
-                    </button>
-                </div>
-
-                <div
-                    class="inline-flex items-center gap-0.5 rounded-full border border-[#e5e5e5] bg-white p-0.5 dark:border-white/[0.14] dark:bg-black"
-                    role="radiogroup"
-                    aria-label="Filter by title type"
-                >
-                    <button
-                        v-for="opt in TYPE_FILTERS"
-                        :key="opt.id"
-                        type="button"
-                        role="radio"
-                        :aria-checked="activeFilterId === opt.id"
-                        class="rounded-full px-2.5 py-1 text-[12px] font-medium transition-colors"
-                        :class="activeFilterId === opt.id
-                            ? 'bg-[#f4f4f5] text-[#171717] dark:bg-white/[0.14] dark:text-white'
-                            : 'text-muted-ink hover:text-[#171717] dark:text-[#a1a1aa] dark:hover:text-white'"
-                        @click="selectFilter(opt.id)"
-                    >
-                        {{ opt.label }}
-                    </button>
+                        Read the quick start
+                    </Link>
+                    <CopyCommand command="composer require sigmie/sigmie" />
                 </div>
             </div>
-        </div>
 
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#eaeaea] bg-white px-5 py-2 sm:px-6 dark:border-white/[0.1] dark:bg-black">
-            <div class="flex flex-wrap items-center gap-1.5">
-                <span class="mr-1 font-mono text-[11px] uppercase tracking-[0.06em] text-muted-ink dark:text-[#a1a1aa]">
-                    Presets
-                </span>
-                <button
-                    v-for="preset in RELEVANCE_PRESETS"
-                    :key="preset.query"
-                    type="button"
-                    class="rounded-full border px-2.5 py-0.5 text-[11.5px] font-medium transition-colors"
-                    :class="searchQuery.trim() === preset.query
-                        ? 'border-[#171717] bg-[#171717] text-white dark:border-[#fafafa] dark:bg-[#fafafa] dark:text-[#171717]'
-                        : 'border-[#e5e5e5] bg-white text-[#404040] hover:border-[#171717]/40 dark:border-white/[0.12] dark:bg-[#0a0a0a] dark:text-[#d4d4d8] dark:hover:text-white'"
-                    @click="selectPreset(preset.query)"
-                >
-                    {{ preset.label }}
-                </button>
-            </div>
-
-            <span class="font-mono text-[11px] text-muted-ink dark:text-[#a1a1aa]">
-                {{ activeModeMeta.short }} · {{ statusSource }}<template v-if="latencyMs !== null"> · {{ engineName }} · {{ latencyMs }}ms</template>
-            </span>
-        </div>
-
-        <div class="grid divide-y divide-[#eaeaea] lg:grid-cols-12 lg:divide-x lg:divide-y-0 dark:divide-white/[0.1]">
-            <div class="flex min-w-0 flex-col bg-white lg:col-span-6 dark:bg-[#050505]">
-                <div class="flex items-center justify-between border-b border-[#eaeaea] px-5 py-2.5 sm:px-6 dark:border-white/[0.08]">
-                    <div class="flex items-center gap-2">
-                        <span class="h-1.5 w-1.5 rounded-full bg-magic-orange" aria-hidden="true"></span>
-                        <span class="font-mono text-[11.5px] font-medium text-[#171717] dark:text-[#fafafa]">
-                            Rank orbit · {{ activeModeMeta.label }}
-                        </span>
+            <form
+                class="flex flex-col justify-center gap-5 border-t border-[#eaeaea] bg-[#fafafa] px-6 py-7 sm:px-10 lg:col-span-5 lg:border-t-0 lg:border-l lg:px-8 dark:border-white/[0.1] dark:bg-[#0a0a0a]"
+                @submit.prevent="submitQuery"
+            >
+                <div>
+                    <label for="relevance-query" class="text-[13px] font-medium text-[#171717] dark:text-[#fafafa]">
+                        Search movie and TV show plots
+                    </label>
+                    <div class="mt-2 flex items-center gap-2">
+                        <input
+                            id="relevance-query"
+                            v-model="searchQuery"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="Describe a plot or mood…"
+                            class="min-w-0 flex-1 rounded-full border border-[#e5e5e5] bg-white px-4 py-2 text-[14px] text-[#171717] placeholder:text-[#737373] focus:border-[#171717] focus:ring-0 dark:border-white/[0.14] dark:bg-black dark:text-[#fafafa] dark:placeholder:text-[#8b8b93] dark:focus:border-white/50"
+                        />
+                        <button
+                            type="submit"
+                            :disabled="isLoading"
+                            class="press shrink-0 rounded-full bg-[#171717] px-4 py-2 text-[13.5px] font-medium text-white hover:bg-black disabled:opacity-50 dark:bg-[#fafafa] dark:text-[#171717] dark:hover:bg-white"
+                        >
+                            Search
+                        </button>
                     </div>
-                    <span class="font-mono text-[11px] text-muted-ink dark:text-[#a1a1aa]">
-                        Inner ring = #1
-                    </span>
+                    <div class="mt-3 flex flex-wrap gap-1.5" role="group" aria-label="Example queries">
+                        <button
+                            v-for="preset in RELEVANCE_PRESETS"
+                            :key="preset.query"
+                            type="button"
+                            class="press rounded-full border px-2.5 py-1 text-[12.5px]"
+                            :class="searchQuery.trim() === preset.query
+                                ? 'border-[#171717] text-[#171717] dark:border-[#fafafa] dark:text-[#fafafa]'
+                                : 'border-[#e5e5e5] text-[#525252] hover:border-[#a3a3a3] hover:text-[#171717] dark:border-white/[0.14] dark:text-[#a1a1aa] dark:hover:text-white'"
+                            @click="selectPreset(preset.query)"
+                        >
+                            {{ preset.label }}
+                        </button>
+                    </div>
                 </div>
 
-                <div class="flex flex-1 items-center justify-center px-3 py-4 sm:px-5">
+                <div>
+                    <div
+                        class="grid grid-cols-3 rounded-full border border-[#e5e5e5] bg-white p-1 dark:border-white/[0.14] dark:bg-black"
+                        role="group"
+                        aria-label="Ranking mode"
+                    >
+                        <button
+                            v-for="mode in RELEVANCE_MODES"
+                            :key="mode.id"
+                            type="button"
+                            :aria-pressed="activeMode === mode.id"
+                            class="press rounded-full py-1.5 text-[13.5px] font-medium"
+                            :class="activeMode === mode.id
+                                ? 'bg-[#171717] text-white dark:bg-[#fafafa] dark:text-[#171717]'
+                                : 'text-[#525252] hover:text-[#171717] dark:text-[#a1a1aa] dark:hover:text-white'"
+                            @click="selectMode(mode.id)"
+                        >
+                            {{ mode.label }}
+                        </button>
+                    </div>
+                    <p class="mt-2.5 min-h-[2.6em] text-[13px] leading-[1.45] text-[#525252] dark:text-[#a1a1aa]">
+                        {{ activeModeMeta.detail }}
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span id="type-filter-label" class="text-[13px] text-[#525252] dark:text-[#a1a1aa]">Show</span>
+                    <div class="inline-flex gap-1" role="group" aria-labelledby="type-filter-label">
+                        <button
+                            v-for="opt in TYPE_FILTERS"
+                            :key="opt.id"
+                            type="button"
+                            :aria-pressed="activeFilterId === opt.id"
+                            class="press rounded-full px-3 py-1 text-[13px] font-medium"
+                            :class="activeFilterId === opt.id
+                                ? 'bg-[#e9e9eb] text-[#171717] dark:bg-white/[0.14] dark:text-white'
+                                : 'text-[#525252] hover:text-[#171717] dark:text-[#a1a1aa] dark:hover:text-white'"
+                            @click="selectFilter(opt.id)"
+                        >
+                            {{ opt.label }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="grid border-t border-[#eaeaea] lg:grid-cols-12 dark:border-white/[0.1]">
+            <div class="flex min-w-0 flex-col border-b border-[#eaeaea] lg:col-span-6 lg:border-r lg:border-b-0 dark:border-white/[0.1]">
+                <div class="flex items-baseline justify-between px-6 pt-5 sm:px-10 lg:px-8">
+                    <h2 class="text-[14px] font-medium text-[#171717] dark:text-[#fafafa]">Rank orbit</h2>
+                    <span class="text-[13px] text-[#737373] dark:text-[#8b8b93]">Inner ring is rank 1</span>
+                </div>
+                <div class="flex flex-1 items-center justify-center px-3 py-4 sm:px-6">
                     <OrbitalRelevancePlot
                         :query="searchQuery"
                         :mode="activeMode"
@@ -436,87 +399,76 @@ const deltaLabel = (id) => {
                 </div>
             </div>
 
-            <div class="flex min-w-0 flex-col bg-white lg:col-span-6 dark:bg-black">
-                <div class="flex items-center justify-between border-b border-[#eaeaea] px-5 py-2.5 sm:px-6 dark:border-white/[0.08]">
-                    <span class="font-mono text-[11.5px] font-medium text-[#171717] dark:text-[#fafafa]">
-                        Top 5 ranked titles
-                    </span>
-                    <span class="font-mono text-[11px] text-muted-ink dark:text-[#a1a1aa]">
-                        {{ hitCountLabel }}
-                    </span>
+            <div class="flex min-w-0 flex-col lg:col-span-6">
+                <div class="flex items-baseline justify-between gap-4 px-6 pt-5 pb-3 sm:px-10 lg:px-8">
+                    <h2 class="text-[14px] font-medium text-[#171717] dark:text-[#fafafa]">Top 5</h2>
+                    <span class="truncate text-[13px] tabular-nums text-[#737373] dark:text-[#8b8b93]">{{ statusLine }}</span>
                 </div>
 
                 <div class="sr-only" aria-live="polite" aria-atomic="true">
                     {{ liveAnnouncement }}
                 </div>
 
-                <div v-if="errorMessage" class="p-6 text-[14px] text-[#525252] dark:text-[#a1a1aa]">
-                    {{ errorMessage }}
-                </div>
+                <p v-if="errorMessage" class="px-6 pb-8 text-[14px] text-[#525252] sm:px-10 lg:px-8 dark:text-[#a1a1aa]">
+                    {{ errorMessage }} Try one of the example queries above.
+                </p>
 
-                <ol
+                <TransitionGroup
                     v-else
-                    class="flex-1 divide-y divide-[#eaeaea] dark:divide-white/[0.08]"
+                    tag="ol"
+                    move-class="rank-move"
+                    class="flex-1 transition-opacity duration-200"
+                    :class="isLoading ? 'opacity-60' : ''"
                     aria-label="Ranked search results"
                 >
                     <li
                         v-for="(item, index) in results"
                         :key="item._id || index"
+                        class="border-t border-[#f0f0f0] bg-white dark:border-white/[0.07] dark:bg-black"
                     >
                         <button
                             type="button"
-                            class="group flex w-full items-start gap-3.5 px-5 py-3.5 text-left transition-colors sm:px-6"
-                            :class="activeIndex === index
-                                ? 'bg-[#fafafa] dark:bg-white/[0.04]'
-                                : 'hover:bg-[#fafafa]/70 dark:hover:bg-white/[0.02]'"
+                            class="flex w-full items-start gap-4 px-6 py-3.5 text-left sm:px-10 lg:px-8"
+                            :class="activeIndex === index ? 'bg-[#fafafa] dark:bg-white/[0.04]' : ''"
                             :aria-current="activeIndex === index ? 'true' : undefined"
                             @mouseenter="activeIndex = index"
                             @focus="activeIndex = index"
                             @click="activeIndex = index"
-                            @keydown="onResultKeyDown($event, index)"
+                            @keydown="onResultKeyDown"
                         >
                             <span
-                                class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-colors"
-                                :class="activeIndex === index
-                                    ? 'bg-[#171717] text-white ring-2 ring-magic-orange/75 dark:bg-[#fafafa] dark:text-[#171717]'
-                                    : index === 0
-                                        ? 'bg-[#171717] text-white dark:bg-[#fafafa] dark:text-[#171717]'
-                                        : 'border border-[#e5e5e5] bg-white text-[#404040] dark:border-white/[0.16] dark:bg-black dark:text-[#d4d4d8]'"
+                                class="mt-px flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold tabular-nums"
+                                :class="index === 0
+                                    ? 'bg-orange-ink text-white dark:bg-magic-orange dark:text-black'
+                                    : 'border border-[#e5e5e5] text-[#404040] dark:border-white/[0.16] dark:text-[#d4d4d8]'"
                             >
                                 {{ index + 1 }}
                             </span>
 
-                            <div class="min-w-0 flex-1">
-                                <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                                    <span class="text-[14.5px] font-semibold text-[#171717] dark:text-[#fafafa]">
-                                        {{ item.title }}
-                                    </span>
-                                    <span class="font-mono text-[11px] text-muted-ink dark:text-[#a1a1aa]">
-                                        {{ item.type }} · {{ item.release_year }}
-                                    </span>
-                                    <span
-                                        v-if="deltaLabel(item._id)"
-                                        class="rounded px-1.5 py-0.2 font-mono text-[10.5px] font-medium"
-                                        :class="deltaLabel(item._id).tone === 'up'
-                                            ? 'bg-magic-orange/12 text-orange-ink dark:text-[#ff7b47]'
-                                            : deltaLabel(item._id).tone === 'down'
-                                                ? 'bg-black/[0.06] text-[#404040] dark:bg-white/10 dark:text-[#d4d4d8]'
-                                                : 'text-muted-ink dark:text-[#a1a1aa]'"
-                                    >
-                                        {{ deltaLabel(item._id).text }}
-                                    </span>
-                                </div>
-                                <p class="mt-0.5 line-clamp-1 text-[13px] leading-snug text-[#525252] dark:text-[#a1a1aa]">
+                            <span class="min-w-0 flex-1">
+                                <span class="flex flex-wrap items-baseline gap-x-2">
+                                    <span class="text-[15px] font-semibold text-[#171717] dark:text-[#fafafa]">{{ item.title }}</span>
+                                    <span class="text-[13px] text-[#737373] dark:text-[#8b8b93]">{{ item.type }}, {{ item.release_year }}</span>
+                                </span>
+                                <span class="mt-0.5 line-clamp-1 text-[13.5px] leading-snug text-[#525252] dark:text-[#a1a1aa]">
                                     {{ item.description }}
-                                </p>
-                            </div>
+                                </span>
+                            </span>
 
-                            <span class="mt-0.5 shrink-0 font-mono text-[11.5px] tabular-nums text-muted-ink dark:text-[#a1a1aa]">
-                                {{ Number(item._score ?? 0).toFixed(2) }}
+                            <span class="flex shrink-0 flex-col items-end gap-0.5 tabular-nums">
+                                <span class="text-[13px] text-[#404040] dark:text-[#d4d4d8]">{{ Number(item._score ?? 0).toFixed(2) }}</span>
+                                <span
+                                    v-if="deltaLabel(item._id)"
+                                    class="text-[12px] font-medium"
+                                    :class="deltaLabel(item._id).tone === 'up' ? 'text-orange-ink dark:text-[#ff7b47]' : 'text-[#737373] dark:text-[#8b8b93]'"
+                                >
+                                    <span aria-hidden="true">{{ deltaLabel(item._id).text }}</span>
+                                    <span class="sr-only">{{ deltaLabel(item._id).label }}</span>
+                                </span>
                             </span>
                         </button>
                     </li>
-                </ol>
+                </TransitionGroup>
             </div>
         </div>
 
@@ -532,38 +484,31 @@ const deltaLabel = (id) => {
                 >
                     <template #badge>
                         <button
+                            ref="showRequestButton"
                             type="button"
-                            class="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-3 py-1 font-mono text-[11px] text-[#e4e4e7] transition-colors hover:border-white/30 hover:text-white"
-                            :aria-expanded="inspectOpen"
-                            aria-controls="request-inspector-panel"
-                            @click="inspectOpen = true"
+                            class="press inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1 text-[12px] text-[#e4e4e7] hover:border-white/35 hover:text-white"
+                            aria-expanded="false"
+                            @click="setInspectOpen(true)"
                         >
-                            <span>Inspect {{ engineName }} JSON</span>
-                            <span class="text-[#a1a1aa]">{{ dslLineCount }} lines</span>
+                            Show the {{ engineName }} request
                         </button>
                     </template>
                 </CodePreview>
             </div>
 
             <div v-else id="request-inspector-panel">
-                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] bg-[#111318] px-5 py-2.5">
-                    <div class="flex flex-wrap items-center gap-2.5">
-                        <span class="font-mono text-[12px] font-medium text-white">
-                            Request inspector
-                        </span>
-                        <span class="rounded border border-white/15 bg-white/[0.05] px-2 py-0.5 font-mono text-[10.5px] text-[#d4d4d8]">
-                            Engine: {{ engineName }}
-                        </span>
-                        <span class="font-mono text-[11px] text-[#a1a1aa]">
-                            Serialized directly by the Sigmie builder that ran this search.
-                        </span>
-                    </div>
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-6 py-3 sm:px-10 lg:px-8">
+                    <p class="text-[13px] text-[#a1a1aa]">
+                        The JSON the builder sent to {{ engineName }} for this search, {{ dslLineCount }} lines.
+                    </p>
                     <button
+                        ref="hideRequestButton"
                         type="button"
-                        class="rounded-full border border-white/15 px-3 py-1 font-mono text-[11px] text-[#d4d4d8] transition-colors hover:border-white/30 hover:text-white"
-                        @click="inspectOpen = false"
+                        class="press rounded-full border border-white/15 px-3 py-1 text-[12px] text-[#d4d4d8] hover:border-white/35 hover:text-white"
+                        aria-expanded="true"
+                        @click="setInspectOpen(false)"
                     >
-                        Hide JSON
+                        Hide request
                     </button>
                 </div>
 
@@ -581,7 +526,7 @@ const deltaLabel = (id) => {
                     <div class="min-w-0 lg:col-span-7">
                         <CodePreview
                             :code="formattedDsl"
-                            :filename="`elasticsearch-request.json (${dslLineCount} lines)`"
+                            :filename="`${engineName.toLowerCase()}-request.json`"
                             language="json"
                             :flat="true"
                             :compact="true"

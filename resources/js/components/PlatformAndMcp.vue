@@ -95,12 +95,9 @@ onUnmounted(() => clearTimeout(copyTimer));
 
         <div class="grid divide-y divide-[#eaeaea] lg:grid-cols-12 lg:divide-x lg:divide-y-0 dark:divide-white/[0.1]">
             <div class="flex min-w-0 flex-col lg:col-span-6">
-                <div class="border-b border-[#eaeaea] px-5 py-7 sm:px-8 dark:border-white/[0.1]">
-                    <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-orange-ink dark:text-[#ff7b47]">
-                        Reference
-                    </p>
-                    <h2 class="mt-2 text-[26px] leading-[1.1] font-semibold tracking-[-0.035em] text-[#171717] sm:text-[30px] dark:text-[#fafafa]">
-                        One fluent API across your search stack.
+                <div class="border-b border-[#eaeaea] px-6 pt-16 pb-8 sm:px-10 dark:border-white/[0.1]">
+                    <h2 class="text-balance text-[28px] leading-[1.08] font-semibold tracking-[-0.035em] text-[#171717] sm:text-[34px] dark:text-[#fafafa]">
+                        One builder for the whole index.
                     </h2>
                 </div>
 
@@ -108,7 +105,7 @@ onUnmounted(() => clearTimeout(copyTimer));
                     <div
                         v-for="item in PLATFORM_REFERENCES"
                         :key="item.id"
-                        class="flex items-start justify-between gap-4 px-5 py-3.5 transition-colors sm:px-8"
+                        class="flex items-start justify-between gap-4 px-6 py-3.5 transition-colors duration-150 sm:px-10"
                         :class="activeRefId === item.id ? 'bg-[#fafafa] dark:bg-white/[0.04]' : 'hover:bg-[#fafafa]/60 dark:hover:bg-white/[0.02]'"
                     >
                         <button
@@ -118,25 +115,20 @@ onUnmounted(() => clearTimeout(copyTimer));
                             @click="activeRefId = item.id"
                         >
                             <span
-                                class="inline-flex items-center gap-2 text-[14px] font-semibold transition-colors"
-                                :class="activeRefId === item.id ? 'text-orange-ink dark:text-[#ff7b47]' : 'text-[#171717] dark:text-[#fafafa]'"
+                                class="text-[14.5px] font-semibold text-[#171717] dark:text-[#fafafa]"
                             >
-                                <span
-                                    v-if="activeRefId === item.id"
-                                    class="h-1.5 w-1.5 rounded-full bg-magic-orange"
-                                    aria-hidden="true"
-                                ></span>
                                 {{ item.title }}
                             </span>
-                            <span class="mt-0.5 block text-[13px] leading-snug text-[#525252] dark:text-[#a1a1aa]">
+                            <span class="mt-0.5 block text-[13.5px] leading-snug text-[#525252] dark:text-[#a1a1aa]">
                                 {{ item.summary }}
                             </span>
                         </button>
                         <Link
                             :href="item.href"
-                            class="mt-0.5 shrink-0 font-mono text-[11.5px] font-medium text-[#525252] transition-colors hover:text-orange-ink dark:text-[#a1a1aa] dark:hover:text-[#ff7b47]"
+                            class="mt-0.5 shrink-0 text-[13px] font-medium text-[#525252] underline decoration-[#d4d4d4] underline-offset-4 transition-colors hover:text-[#171717] hover:decoration-[#171717] dark:text-[#a1a1aa] dark:decoration-white/25 dark:hover:text-white"
+                            :aria-label="`${item.title} docs`"
                         >
-                            Docs →
+                            Docs
                         </Link>
                     </div>
                 </div>
@@ -153,28 +145,25 @@ onUnmounted(() => clearTimeout(copyTimer));
             </div>
 
             <div class="flex min-w-0 flex-col lg:col-span-6">
-                <div class="border-b border-[#eaeaea] px-5 py-7 sm:px-8 dark:border-white/[0.1]">
-                    <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-orange-ink dark:text-[#ff7b47]">
-                        MCP · sigmie.com/mcp
-                    </p>
-                    <h2 class="mt-2 text-[26px] leading-[1.1] font-semibold tracking-[-0.035em] text-[#171717] sm:text-[30px] dark:text-[#fafafa]">
-                        What your coding agent actually retrieves.
+                <div class="border-b border-[#eaeaea] px-6 pt-16 pb-8 sm:px-10 dark:border-white/[0.1]">
+                    <h2 class="text-balance text-[28px] leading-[1.08] font-semibold tracking-[-0.035em] text-[#171717] sm:text-[34px] dark:text-[#fafafa]">
+                        The docs, inside your coding agent.
                     </h2>
-                    <p class="mt-2.5 text-[14px] leading-relaxed text-[#525252] dark:text-[#a1a1aa]">
+                    <p class="mt-3 text-[15px] leading-relaxed text-[#525252] dark:text-[#a1a1aa]">
                         Connect Claude Code or Cursor to <code class="font-mono text-[13px] text-[#171717] dark:text-[#fafafa]">https://sigmie.com/mcp</code> to query <code class="font-mono text-[13px] text-[#171717] dark:text-[#fafafa]">search_docs</code>, <code class="font-mono text-[13px] text-[#171717] dark:text-[#fafafa]">read_doc</code>, and <code class="font-mono text-[13px] text-[#171717] dark:text-[#fafafa]">list_docs</code> against Sigmie v2.
                     </p>
 
                     <div class="mt-4 flex flex-wrap items-center gap-2">
                         <button
                             type="button"
-                            class="inline-flex items-center gap-1.5 rounded-full bg-[#171717] px-3.5 py-1.5 font-mono text-[12px] font-medium text-white transition-colors hover:bg-black dark:bg-[#fafafa] dark:text-[#171717] dark:hover:bg-white"
+                            class="press rounded-full bg-[#171717] px-4 py-2 text-[13px] font-medium text-white hover:bg-black dark:bg-[#fafafa] dark:text-[#171717] dark:hover:bg-white"
                             @click="copyMcpConfig"
                         >
                             <span>{{ copiedConfig ? 'Copied .mcp.json' : 'Copy .mcp.json' }}</span>
                         </button>
                         <button
                             type="button"
-                            class="rounded-full border border-[#e5e5e5] bg-white px-3.5 py-1.5 font-mono text-[12px] text-[#404040] transition-colors hover:border-[#171717]/40 hover:text-[#171717] dark:border-white/[0.14] dark:bg-[#0a0a0a] dark:text-[#d4d4d8] dark:hover:text-white"
+                            class="press rounded-full border border-[#e5e5e5] bg-white px-4 py-2 text-[13px] font-medium text-[#404040] hover:border-[#171717]/40 hover:text-[#171717] dark:border-white/[0.14] dark:bg-[#0a0a0a] dark:text-[#d4d4d8] dark:hover:text-white"
                             :aria-expanded="showConfig"
                             @click="showConfig = !showConfig"
                         >
@@ -193,41 +182,36 @@ onUnmounted(() => clearTimeout(copyTimer));
                     />
                 </div>
 
-                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#eaeaea] bg-[#fafafa] px-5 py-3 sm:px-8 dark:border-white/[0.08] dark:bg-[#0a0a0a]">
-                    <span class="font-mono text-[11.5px] font-medium text-[#171717] dark:text-[#e4e4e7]">
-                        tool: search_docs
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#eaeaea] bg-[#fafafa] px-6 py-3 sm:px-10 dark:border-white/[0.08] dark:bg-[#0a0a0a]">
+                    <span class="text-[13px] text-[#525252] dark:text-[#a1a1aa]">
+                        Ask <code class="font-mono text-[12.5px] text-[#171717] dark:text-[#fafafa]">search_docs</code>
                     </span>
                     <div class="flex flex-wrap gap-1.5">
                         <button
                             v-for="(sample, idx) in mcpSamples"
                             :key="sample.query"
                             type="button"
-                            class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[11px] transition-colors"
+                            class="press rounded-full border px-2.5 py-1 text-[12.5px]"
                             :class="activeMcpIndex === idx
                                 ? 'border-[#171717] bg-[#171717] text-white dark:border-[#fafafa] dark:bg-[#fafafa] dark:text-[#171717]'
                                 : 'border-[#e5e5e5] bg-white text-[#404040] hover:border-[#171717]/40 dark:border-white/[0.14] dark:bg-black dark:text-[#d4d4d8]'"
                             @click="runMcpSample(sample, idx)"
                         >
-                            <span
-                                v-if="activeMcpIndex === idx"
-                                class="h-1.5 w-1.5 rounded-full bg-magic-orange"
-                                aria-hidden="true"
-                            ></span>
                             {{ sample.query }}
                         </button>
                     </div>
                 </div>
 
-                <div class="flex flex-1 flex-col justify-between p-5 sm:p-8" :class="loadingMcp ? 'opacity-65 transition-opacity' : ''">
+                <div class="flex flex-1 flex-col justify-between px-6 py-8 sm:px-10" :class="loadingMcp ? 'opacity-65 transition-opacity' : ''">
                     <div>
                         <div class="flex flex-wrap items-baseline justify-between gap-2">
                             <Link
                                 :href="activeMcpResult.url || '/docs/v2/search'"
                                 class="text-[15.5px] font-semibold text-[#171717] transition-colors hover:text-orange-ink dark:text-[#fafafa] dark:hover:text-[#ff7b47]"
                             >
-                                {{ activeMcpResult.title }} →
+                                {{ activeMcpResult.title }}
                             </Link>
-                            <span class="font-mono text-[11px] text-muted-ink dark:text-[#a1a1aa]">
+                            <span class="text-[13px] text-[#737373] dark:text-[#8b8b93]">
                                 {{ activeMcpResult.url }}
                             </span>
                         </div>
@@ -237,7 +221,7 @@ onUnmounted(() => clearTimeout(copyTimer));
 
                     <div class="mt-6 flex flex-wrap items-center gap-6 border-t border-[#eaeaea] pt-4 text-[13px] font-medium dark:border-white/[0.08]">
                         <Link href="/docs/v2/mcp" class="text-[#171717] transition-colors hover:text-orange-ink dark:text-[#fafafa] dark:hover:text-[#ff7b47]">
-                            MCP guide →
+                            Read the MCP guide
                         </Link>
                         <a href="/llms.txt" class="text-muted-ink transition-colors hover:text-[#171717] dark:text-[#a1a1aa] dark:hover:text-white">llms.txt</a>
                         <a href="/llms-full.txt" class="text-muted-ink transition-colors hover:text-[#171717] dark:text-[#a1a1aa] dark:hover:text-white">llms-full.txt</a>

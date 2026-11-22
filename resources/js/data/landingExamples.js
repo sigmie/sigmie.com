@@ -9,20 +9,20 @@ export const RELEVANCE_MODES = [
     {
         id: 'keyword',
         label: 'Keyword',
-        short: 'BM25 only',
-        detail: 'Matches exact and fuzzy tokens in title and description.',
+        short: 'Word match only',
+        detail: 'Scores titles and plots by the words they share with the query, typos included.',
     },
     {
         id: 'hybrid',
         label: 'Hybrid',
-        short: 'BM25 + 384-dim kNN',
-        detail: 'Blends lexical matches with semantic vector proximity via textScoreMultiplier(0.05).',
+        short: 'Word match plus meaning',
+        detail: 'Blends word matches with meaning. The code below sets the weight of each.',
     },
     {
         id: 'vector',
         label: 'Vector',
-        short: '384-dim kNN only',
-        detail: 'Ranks purely by cosine similarity with disableKeywordSearch().',
+        short: 'Meaning only',
+        detail: 'Ranks by meaning alone, so a plot can match without sharing a word.',
     },
 ];
 

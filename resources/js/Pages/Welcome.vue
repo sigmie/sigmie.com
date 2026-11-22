@@ -35,27 +35,26 @@ defineProps({
                 <ImageSearchDemo :initial="initialClip" />
                 <PlatformAndMcp :initial-mcp="initialMcp" />
 
-                <section class="relative overflow-hidden border-t border-[#eaeaea] bg-white py-16 text-center sm:py-20 dark:border-white/[0.1] dark:bg-black">
+                <section class="relative border-t border-[#eaeaea] bg-white dark:border-white/[0.1] dark:bg-black">
                     <GridCrosshairs />
-                    <div class="vercel-prism-glow pointer-events-none absolute inset-0 opacity-75" aria-hidden="true"></div>
 
-                    <div class="relative mx-auto max-w-2xl px-6">
-                        <h2 class="text-balance text-[30px] leading-[1.08] font-semibold tracking-[-0.04em] text-[#171717] sm:text-[42px] dark:text-[#fafafa]">
-                            Ready to ship better search?
+                    <div class="grid gap-8 px-6 py-20 sm:px-10 sm:py-28 lg:grid-cols-12 lg:items-end">
+                        <h2 class="text-balance text-[36px] leading-[1.02] font-semibold tracking-[-0.04em] text-[#171717] sm:text-[52px] lg:col-span-6 dark:text-[#fafafa]">
+                            Run it against your own cluster.
                         </h2>
-                        <p class="mt-3 text-[16px] leading-relaxed text-[#525252] dark:text-[#a1a1aa]">
-                            Install via Composer and query your own Elasticsearch or OpenSearch cluster in minutes.
-                        </p>
-
-                        <div class="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                            <Link
-                                href="/docs/v2/quick-start"
-                                class="group inline-flex items-center gap-2 rounded-full bg-[#171717] px-5 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-black dark:bg-[#fafafa] dark:text-[#171717] dark:hover:bg-white"
-                            >
-                                <span>Quick start</span>
-                                <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
-                            </Link>
-                            <CopyCommand command="composer require sigmie/sigmie" />
+                        <div class="lg:col-span-6">
+                            <p class="text-[16px] leading-relaxed text-[#525252] dark:text-[#a1a1aa]">
+                                Sigmie supports Elasticsearch 7 to 9 and OpenSearch 2 to 3 on PHP 8.1 and up.
+                            </p>
+                            <div class="mt-6 flex flex-wrap items-center gap-3">
+                                <Link
+                                    href="/docs/v2/quick-start"
+                                    class="press inline-flex items-center rounded-full bg-[#171717] px-5 whitespace-nowrap py-2.5 text-[14px] font-medium text-white hover:bg-black dark:bg-[#fafafa] dark:text-[#171717] dark:hover:bg-white"
+                                >
+                                    Read the quick start
+                                </Link>
+                                <CopyCommand command="composer require sigmie/sigmie" />
+                            </div>
                         </div>
                     </div>
                 </section>

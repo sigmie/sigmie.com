@@ -39,6 +39,15 @@ class DocsMarkdownTest extends TestCase
         $this->assertStringNotContainsString('[tl!', $html);
     }
 
+    public function test_docs_page_links_open_pages_not_their_markdown(): void
+    {
+        $html = app(Documentation::class)->get('v2', 'search');
+
+        $this->assertStringContainsString('href="facets"', $html);
+        $this->assertStringContainsString('href="filter-parser#errors"', $html);
+        $this->assertDoesNotMatchRegularExpression('/href="[a-z0-9-]+\.md/', $html);
+    }
+
     public function test_docs_page_answers_markdown_when_the_client_prefers_it(): void
     {
         $response = $this->get('/docs/v2/search', ['Accept' => 'text/markdown, text/html;q=0.8'])->assertOk();

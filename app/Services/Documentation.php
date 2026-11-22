@@ -255,7 +255,10 @@ class Documentation
 
         $html = str_replace('¶', '#', $html->getContent());
 
-        return $html;
+        // The source links pages as `facets.md` (right on GitHub and for
+        // agents). On the site that URL serves raw markdown, so the HTML
+        // points at the page itself.
+        return preg_replace('/href="([a-z0-9][a-z0-9-]*)\.md(#[^"]*)?"/', 'href="$1$2"', $html);
     }
 
 

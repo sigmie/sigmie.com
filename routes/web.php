@@ -124,13 +124,13 @@ Route::get('/docs/{endpoint}', function ($endpoint) {
     return redirect("/docs/{$version}/{$endpoint}");
 })->where('endpoint', '[^/]+');
 
-// Serve raw markdown for LLM/agent consumption (llms.txt spec convention).
-Route::get('/docs/{version}/{slug}.md', function (string $version, string $slug) {
-    $path = base_path("docs/{$version}/{$slug}.md");
+// Serve page markdown for LLM/agent consumption (llms.txt spec convention).
+Route::get('/docs/{version}/{slug}.md', function (string $version, string $slug, MarkdownConverter $converter) {
+    $markdown = (new Documentation($converter))->agentPage($version, $slug);
 
-    abort_unless(file_exists($path), 404);
+    abort_if($markdown === null, 404);
 
-    return response(file_get_contents($path), 200, [
+    return response($markdown, 200, [
         'Content-Type' => 'text/markdown; charset=UTF-8',
         'Cache-Control' => 'public, max-age=3600',
     ]);

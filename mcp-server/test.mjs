@@ -78,6 +78,24 @@ describe("sigmie-docs MCP server", () => {
     await client.close();
   });
 
+  it("read_doc and list_docs refuse paths outside the docs folder", async () => {
+    const client = await createClient();
+
+    try {
+      for (const args of [
+        { name: "read_doc", arguments: { page: "AGENTS", version: ".." } },
+        { name: "read_doc", arguments: { page: "../../AGENTS", version: "v2" } },
+        { name: "list_docs", arguments: { version: ".." } },
+      ]) {
+        const result = await client.callTool(args);
+        assert.ok(result.isError, `${args.name} ${JSON.stringify(args.arguments)} should fail`);
+        assert.ok(!result.content[0].text.includes("Agent Instructions"));
+      }
+    } finally {
+      await client.close();
+    }
+  });
+
   it("search_docs returns results from semantic search API", async () => {
     const client = await createClient();
 

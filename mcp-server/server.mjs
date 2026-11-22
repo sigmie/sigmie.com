@@ -1,10 +1,22 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { readdir, readFile } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import { join, basename, extname } from "node:path";
 
 const DOCS_DIR = join(import.meta.dirname, "..", "docs");
-const SEARCH_URL = "https://sigmie.com/api/search/docs";
+const SITE_URL = "https://sigmie.com";
+const SEARCH_URL = `${SITE_URL}/api/search/docs`;
+
+// Version and page reach a file path, so both must be plain slugs.
+const VERSION = z
+  .string()
+  .regex(/^v\d+$/, "A version looks like 'v2'.")
+  .default("v2")
+  .describe("Doc version, e.g. 'v2'");
+const PAGE = z
+  .string()
+  .regex(/^[a-z0-9][a-z0-9-]*$/, "A page is a slug from list_docs, e.g. 'search'.")
+  .describe("Page slug, e.g. 'installation', 'search'");
 
 async function searchDocs(query) {
   const response = await fetch(SEARCH_URL, {
@@ -32,9 +44,16 @@ async function listDocFiles(version) {
     .map((f) => basename(f, ".md"));
 }
 
+// The site serves each page as agents should read it (Torchlight
+// annotations removed, links absolute), so read_doc returns that.
 async function readDoc(page, version) {
-  const filePath = join(DOCS_DIR, version, `${page}.md`);
-  return readFile(filePath, "utf-8");
+  const response = await fetch(`${SITE_URL}/docs/${version}/${page}.md`);
+
+  if (!response.ok) {
+    throw new Error(`No ${version} page named "${page}". Call list_docs for the page names.`);
+  }
+
+  return response.text();
 }
 
 export function createServer() {
@@ -70,13 +89,7 @@ export function createServer() {
   server.tool(
     "read_doc",
     "Read the full content of a documentation page by its slug.",
-    {
-      page: z.string().describe("Page slug, e.g. 'installation', 'search'"),
-      version: z
-        .string()
-        .default("v2")
-        .describe("Doc version, e.g. 'v1', 'v2'"),
-    },
+    { page: PAGE, version: VERSION },
     async ({ page, version }) => {
       const content = await readDoc(page, version);
 
@@ -89,12 +102,7 @@ export function createServer() {
   server.tool(
     "list_docs",
     "List all available documentation pages for a given version.",
-    {
-      version: z
-        .string()
-        .default("v2")
-        .describe("Doc version, e.g. 'v1', 'v2'"),
-    },
+    { version: VERSION },
     async ({ version }) => {
       const pages = await listDocFiles(version);
 

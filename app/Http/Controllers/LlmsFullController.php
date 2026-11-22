@@ -25,16 +25,15 @@ class LlmsFullController extends Controller
         foreach ($navigation as $section) {
             foreach ($section['links'] as $link) {
                 $slug = basename($link['href']);
-                $path = base_path("docs/{$defaultVersion}/{$slug}.md");
-
-                file_exists($path) || throw new \RuntimeException("Doc page missing: {$path}");
+                $path = $documentation->pagePath($defaultVersion, $slug)
+                    ?? throw new \RuntimeException("Doc page missing: {$defaultVersion}/{$slug}");
 
                 $markdown = file_get_contents($path);
                 $parsed = $documentation->parseFrontmatter($markdown);
 
                 $body .= "\n\n---\n\n";
                 $body .= "<!-- source: {$baseUrl}/docs/{$defaultVersion}/{$slug} -->\n\n";
-                $body .= trim($parsed['content']) . "\n";
+                $body .= trim($documentation->agentMarkdown($defaultVersion, $parsed['content'])) . "\n";
             }
         }
 

@@ -42,11 +42,53 @@ class Documentation
         ];
     }
 
-    public function getPageMetadata(string $version, string $slug): ?array
+    /**
+     * The source file of a docs page, or null when there is none.
+     *
+     * Version and slug come from the URL, so every request-driven read goes
+     * through here: an encoded "../" in either one would otherwise reach any
+     * .md file outside docs/ (it did, until 2026-11-22).
+     */
+    public function pagePath(string $version, ?string $slug): ?string
     {
+        $versions = collect(config('docs.versions', []))->pluck('value')->all();
+
+        if (! in_array($version, $versions, true) || ! preg_match('/^[a-z0-9][a-z0-9-]*$/', (string) $slug)) {
+            return null;
+        }
+
         $path = base_path("docs/{$version}/{$slug}.md");
 
-        if (!file_exists($path)) {
+        return is_file($path) ? $path : null;
+    }
+
+    /**
+     * A page's markdown as agents read it: Torchlight annotations removed and
+     * relative page links made absolute, so the text works outside the site.
+     */
+    public function agentMarkdown(string $version, string $markdown): string
+    {
+        $base = rtrim((string) config('app.url'), '/') . "/docs/{$version}";
+
+        $markdown = preg_replace('/[ \t]*\[tl![^\]]*\]/', '', $markdown);
+        $markdown = preg_replace('/[ \t]+\/\/[ \t]*$/m', '', $markdown);
+
+        return preg_replace('/\]\(([a-z0-9][a-z0-9-]*\.md(?:#[^)]*)?)\)/', "]({$base}/$1)", $markdown);
+    }
+
+    /** The page as agents read it, or null when the page does not exist. */
+    public function agentPage(string $version, ?string $slug): ?string
+    {
+        $path = $this->pagePath($version, $slug);
+
+        return $path === null ? null : $this->agentMarkdown($version, file_get_contents($path));
+    }
+
+    public function getPageMetadata(string $version, string $slug): ?array
+    {
+        $path = $this->pagePath($version, $slug);
+
+        if ($path === null) {
             return null;
         }
 
@@ -229,16 +271,14 @@ class Documentation
     }
 
 
-    public function get(string $version, string $endpoint): string
+    public function get(string $version, ?string $endpoint): string
     {
-        $path = storage_path("docs/{$version}/{$endpoint}.html");
+        $source = $this->pagePath($version, $endpoint);
 
-        if (file_exists($path)) {
-            return file_get_contents($path);
-        }
+        abort_if($source === null, 404);
 
-        $path = base_path("docs/{$version}/{$endpoint}.md");
+        $cached = storage_path("docs/{$version}/{$endpoint}.html");
 
-        return $this->buildPage($path);
+        return file_exists($cached) ? file_get_contents($cached) : $this->buildPage($source);
     }
 }

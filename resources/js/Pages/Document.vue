@@ -1,10 +1,11 @@
 <script setup>
-import { Head, Link } from "@inertiajs/vue3";
-import { computed, onMounted, onUnmounted, nextTick, ref } from "vue";
+import { Head, Link, usePage } from "@inertiajs/vue3";
+import { computed, onMounted, nextTick, ref } from "vue";
 import AppLayout from "../Layouts/AppLayout.vue";
 import LeftSidebar from "../components/LeftSidebar.vue";
 import RightSidebar from "../components/RightSidebar.vue";
 import TableOfContents from "../TableOfContents.vue";
+import GridCrosshairs from "../components/GridCrosshairs.vue";
 import { useTheme } from "../composables/useTheme";
 
 const props = defineProps({
@@ -37,20 +38,16 @@ const nextLink = computed(() => {
     return i >= 0 && i < flatLinks.value.length - 1 ? flatLinks.value[i + 1] : null;
 });
 
-const showMobileToc = ref(false);
+const currentSection = computed(() => {
+    const i = currentIndex.value;
+    if (i < 0) return null;
+    return props.navigation.find((section) => section.links?.some((l) => l.href === flatLinks.value[i].href))?.title ?? null;
+});
 
 const { initTheme } = useTheme();
 initTheme();
 
 const copiedMarkdown = ref(false);
-const showActionsDropdown = ref(false);
-const dropdownRef = ref(null);
-
-const handleClickOutside = (event) => {
-    if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
-        showActionsDropdown.value = false;
-    }
-};
 
 const cleanedHtml = computed(() => {
     if (!props.html) return '';
@@ -60,10 +57,14 @@ const cleanedHtml = computed(() => {
     html = html.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, '');
     // Downgrade any further <h1> in the body to <h2> so the page has a single H1
     html = html.replace(/<(\/?)h1(\b[^>]*)>/gi, '<$1h2$2>');
-    // Wide tables scroll inside their own box instead of widening the page on phones
-    html = html.replace(/<table\b/gi, '<div class="table-scroll"><table').replace(/<\/table>/gi, '</table></div>');
+    // Wide tables scroll inside their own box instead of widening the page on
+    // phones; tabindex lets keyboard users scroll it.
+    html = html.replace(/<table\b/gi, '<div class="table-scroll" tabindex="0"><table').replace(/<\/table>/gi, '</table></div>');
     return html;
 });
+
+const page = usePage();
+const markdownUrl = computed(() => `${page.url.split(/[?#]/)[0]}.md`);
 
 const githubMarkdownUrl = computed(() => {
     if (typeof window === 'undefined') return '';
@@ -71,18 +72,11 @@ const githubMarkdownUrl = computed(() => {
     return `https://github.com/sigmie/sigmie/blob/master/docs/${path}.md`;
 });
 
-const htmlToMarkdown = () => {
-    const article = document.querySelector('article');
-    if (!article) return '';
-
-    let markdown = `# ${props.title}\n\n`;
-    markdown += article.innerText || article.textContent;
-    return markdown;
-};
-
+// Copies the page's own Markdown, served at the same path plus `.md`.
 const copyPageAsMarkdown = async () => {
     try {
-        await navigator.clipboard.writeText(htmlToMarkdown());
+        const response = await fetch(`${window.location.pathname}.md`);
+        await navigator.clipboard.writeText(await response.text());
         copiedMarkdown.value = true;
         setTimeout(() => { copiedMarkdown.value = false; }, 2000);
     } catch (err) {
@@ -255,12 +249,6 @@ onMounted(() => {
         addCopyButtonsToCodeBlocks();
         highlightFilterBlocks();
     });
-
-    document.addEventListener('click', handleClickOutside);
-});
-
-onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside);
 });
 </script>
 
@@ -268,258 +256,244 @@ onUnmounted(() => {
     <Head :title="title" />
 
     <AppLayout :navigation="navigation">
-        <div class="mx-auto max-w-site border-x border-[#eaeaea] px-6 sm:px-10 dark:border-white/[0.1]">
-            <div class="flex gap-10">
-                <LeftSidebar
-                    v-if="navigation"
-                    :navigation="navigation"
-                    :current-path="$page.url"
-                />
+        <div class="relative mx-auto flex max-w-site border-x border-[#eaeaea] dark:border-white/[0.1]">
+            <GridCrosshairs />
 
-                <main class="flex-1 min-w-0 py-10">
-                    <article class="max-w-2xl">
-                        <div class="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 mb-6">
-                            <h1 class="min-w-0 flex-1 basis-[16rem] break-words text-[30px] leading-[1.15] font-semibold tracking-tight text-graphite sm:text-[36px] dark:text-white">
-                                {{ pageHeading || title }}
-                            </h1>
+            <LeftSidebar
+                v-if="navigation"
+                :navigation="navigation"
+                :current-path="$page.url"
+            />
 
-                            <div ref="dropdownRef" class="relative flex-shrink-0">
-                                <div class="flex items-center border border-light-steel dark:border-gray-700 rounded-full overflow-hidden bg-canvas-white dark:bg-gray-900">
-                                    <button
-                                        @click="copyPageAsMarkdown"
-                                        :class="[
-                                            'flex items-center gap-2 px-4 py-2 text-[13px] font-medium transition-colors',
-                                            copiedMarkdown
-                                                ? 'bg-magic-green/15 text-magic-green'
-                                                : 'text-charcoal hover:text-graphite hover:bg-ghostly-gray dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800'
-                                        ]"
-                                    >
-                                        <svg v-if="!copiedMarkdown" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                        </svg>
-                                        <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        <span>{{ copiedMarkdown ? 'Copied' : 'Copy page' }}</span>
-                                    </button>
+            <main class="min-w-0 flex-1">
+                <header class="relative overflow-hidden border-b border-[#eaeaea] px-6 pt-12 pb-9 sm:px-10 sm:pt-16 dark:border-white/[0.1]">
+                    <div aria-hidden="true" class="brand-glow pointer-events-none absolute inset-0 opacity-60"></div>
 
-                                    <button
-                                        @click="showActionsDropdown = !showActionsDropdown"
-                                        aria-label="More page actions"
-                                        class="px-2.5 py-2 text-charcoal hover:text-graphite hover:bg-ghostly-gray dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800 border-l border-light-steel dark:border-gray-700 transition-colors"
-                                    >
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </button>
-                                </div>
-
-                                <div
-                                    v-if="showActionsDropdown"
-                                    class="absolute right-0 mt-2 w-56 bg-canvas-white dark:bg-gray-900 border border-light-steel dark:border-gray-800 rounded-xl shadow-xl py-2 z-10"
-                                >
-                                    <a
-                                        :href="githubMarkdownUrl"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="flex items-center gap-3 px-4 py-2 text-[13px] text-charcoal dark:text-gray-300 hover:bg-ghostly-gray dark:hover:bg-gray-800 transition-colors"
-                                        @click="showActionsDropdown = false"
-                                    >
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                                        </svg>
-                                        <span>View markdown</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <p v-if="description" class="text-[16px] leading-[1.55] text-charcoal dark:text-gray-400 mb-10 -mt-2">
+                    <div class="relative max-w-2xl">
+                        <p v-if="currentSection" class="text-[13px] font-medium text-[#737373] dark:text-[#8b8b93]">
+                            {{ currentSection }}
+                        </p>
+                        <h1 class="mt-2 text-balance break-words text-[34px] leading-[1.06] font-semibold tracking-[-0.04em] text-[#171717] sm:text-[44px] dark:text-[#fafafa]">
+                            {{ pageHeading || title }}
+                        </h1>
+                        <p v-if="description" class="mt-4 text-[16px] leading-relaxed text-[#525252] sm:text-[17px] dark:text-[#a1a1aa]">
                             {{ description }}
                         </p>
 
-                        <details class="xl:hidden mb-8 rounded-lg border border-light-steel dark:border-gray-800 bg-ghostly-gray dark:bg-gray-900 [&[open]>summary>svg]:rotate-180" @toggle="(e) => showMobileToc = e.target.open">
-                            <summary class="flex items-center justify-between gap-2 px-4 py-3 cursor-pointer text-[13px] font-semibold text-graphite dark:text-white list-none">
+                        <div class="mt-6 flex flex-wrap items-center gap-2">
+                            <button
+                                type="button"
+                                class="press inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-medium"
+                                :class="copiedMarkdown
+                                    ? 'border-[#0f7a3d]/40 bg-white text-[#0f7a3d] dark:border-[#44c67f]/40 dark:bg-[#0a0a0a] dark:text-[#44c67f]'
+                                    : 'border-[#e5e5e5] bg-white text-[#404040] hover:border-[#171717]/40 hover:text-[#171717] dark:border-white/[0.14] dark:bg-[#0a0a0a] dark:text-[#d4d4d8] dark:hover:text-white'"
+                                @click="copyPageAsMarkdown"
+                            >
+                                <svg v-if="!copiedMarkdown" class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                <svg v-else class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                {{ copiedMarkdown ? 'Copied' : 'Copy page' }}
+                            </button>
+                            <a
+                                :href="markdownUrl"
+                                class="press inline-flex items-center rounded-full border border-[#e5e5e5] bg-white px-4 py-2 text-[13px] font-medium text-[#404040] hover:border-[#171717]/40 hover:text-[#171717] dark:border-white/[0.14] dark:bg-[#0a0a0a] dark:text-[#d4d4d8] dark:hover:text-white"
+                            >
+                                View as Markdown
+                            </a>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="px-6 pt-8 pb-16 sm:px-10 sm:pt-10">
+                    <article class="max-w-2xl">
+                        <details class="group mb-8 rounded-xl border border-[#eaeaea] bg-[#fafafa] xl:hidden dark:border-white/[0.1] dark:bg-[#0a0a0a]">
+                            <summary class="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-[13px] font-medium text-[#171717] dark:text-[#fafafa]">
                                 On this page
-                                <svg class="w-4 h-4 text-subtle-gray transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="h-4 w-4 text-[#737373] transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </summary>
-                            <div class="px-4 pb-3 border-t border-light-steel dark:border-gray-800 pt-3">
+                            <div class="border-t border-[#eaeaea] px-4 py-3 dark:border-white/[0.1]">
                                 <TableOfContents :html="cleanedHtml" />
                             </div>
                         </details>
 
                         <div v-html="cleanedHtml" class="doc-content"></div>
 
-                        <footer class="mt-16 pt-8 border-t border-light-steel dark:border-gray-800">
-                            <a
-                                :href="githubMarkdownUrl"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="inline-flex items-center gap-2 text-[13px] font-medium text-subtle-gray hover:text-graphite dark:hover:text-white transition-colors mb-10"
-                            >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                                Edit this page on GitHub
-                            </a>
-
-                            <nav v-if="prevLink || nextLink" class="grid grid-cols-2 gap-4">
-                                <Link
-                                    v-if="prevLink"
-                                    :href="prevLink.href"
-                                    class="group flex flex-col items-start gap-1 p-4 rounded-xl border border-light-steel dark:border-gray-800 hover:border-graphite dark:hover:border-white transition-colors"
-                                >
-                                    <span class="text-[12px] text-subtle-gray">Previous</span>
-                                    <span class="inline-flex items-center gap-2 text-[14px] font-semibold text-graphite dark:text-white group-hover:text-magic-orange transition-colors">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                                        </svg>
-                                        {{ prevLink.title }}
-                                    </span>
-                                </Link>
-                                <div v-else></div>
-                                <Link
-                                    v-if="nextLink"
-                                    :href="nextLink.href"
-                                    class="group flex flex-col items-end gap-1 p-4 rounded-xl border border-light-steel dark:border-gray-800 hover:border-graphite dark:hover:border-white transition-colors text-right"
-                                >
-                                    <span class="text-[12px] text-subtle-gray">Next</span>
-                                    <span class="inline-flex items-center gap-2 text-[14px] font-semibold text-graphite dark:text-white group-hover:text-magic-orange transition-colors">
-                                        {{ nextLink.title }}
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </span>
-                                </Link>
-                            </nav>
-                        </footer>
+                        <a
+                            :href="githubMarkdownUrl"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="mt-14 inline-flex items-center gap-2 text-[13px] font-medium text-[#525252] underline decoration-[#d4d4d4] underline-offset-4 transition-colors hover:text-[#171717] hover:decoration-[#171717] dark:text-[#a1a1aa] dark:decoration-white/25 dark:hover:text-white"
+                        >
+                            Edit this page on GitHub
+                        </a>
                     </article>
-                </main>
+                </div>
 
-                <RightSidebar :html="cleanedHtml" />
-            </div>
+                <nav
+                    v-if="prevLink || nextLink"
+                    aria-label="Previous and next page"
+                    class="grid grid-cols-2 divide-x divide-[#eaeaea] border-t border-[#eaeaea] dark:divide-white/[0.1] dark:border-white/[0.1]"
+                >
+                    <Link
+                        v-if="prevLink"
+                        :href="prevLink.href"
+                        class="group flex flex-col gap-1 px-6 py-6 transition-colors hover:bg-[#fafafa] sm:px-10 dark:hover:bg-white/[0.03]"
+                    >
+                        <span class="text-[13px] text-[#737373] dark:text-[#8b8b93]">Previous</span>
+                        <span class="text-[15px] font-semibold text-[#171717] transition-colors group-hover:text-orange-ink dark:text-[#fafafa] dark:group-hover:text-[#ff7b47]">
+                            {{ prevLink.title }}
+                        </span>
+                    </Link>
+                    <div v-else></div>
+                    <Link
+                        v-if="nextLink"
+                        :href="nextLink.href"
+                        class="group flex flex-col items-end gap-1 px-6 py-6 text-right transition-colors hover:bg-[#fafafa] sm:px-10 dark:hover:bg-white/[0.03]"
+                    >
+                        <span class="text-[13px] text-[#737373] dark:text-[#8b8b93]">Next</span>
+                        <span class="text-[15px] font-semibold text-[#171717] transition-colors group-hover:text-orange-ink dark:text-[#fafafa] dark:group-hover:text-[#ff7b47]">
+                            {{ nextLink.title }}
+                        </span>
+                    </Link>
+                </nav>
+            </main>
+
+            <RightSidebar :html="cleanedHtml" />
         </div>
     </AppLayout>
 </template>
 
 <style type="text/css">
-.toc-sticky-container {
-    position: sticky;
-    top: 5rem;
-    align-self: flex-start;
-}
-
-/* Doc content typography */
+/* Doc prose in the landing page's neutrals: ink #171717, body #404040,
+   secondary #525252, muted #737373, lines #eaeaea (dark: #fafafa, #d4d4d8,
+   #a1a1aa, #8b8b93, white/10). */
 .doc-content {
     font-size: 16px;
-    line-height: 1.7;
-    color: var(--color-charcoal);
+    line-height: 1.75;
+    color: #404040;
 }
-.dark .doc-content { color: rgb(209 213 219); }
+.dark .doc-content { color: #d4d4d8; }
 
-.doc-content h1,
 .doc-content h2,
 .doc-content h3,
 .doc-content h4 {
-    color: var(--color-graphite);
+    color: #171717;
     font-weight: 600;
-    letter-spacing: -0.01em;
     scroll-margin-top: 5rem;
 }
-.dark .doc-content h1,
 .dark .doc-content h2,
 .dark .doc-content h3,
-.dark .doc-content h4 { color: #fff; }
+.dark .doc-content h4 { color: #fafafa; }
 
 .doc-content h2 {
-    font-size: 24px;
-    line-height: 1.33;
-    margin-top: 3rem;
+    font-size: 26px;
+    line-height: 1.2;
+    letter-spacing: -0.035em;
+    margin-top: 3.5rem;
     margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--color-light-steel);
 }
-.dark .doc-content h2 { border-bottom-color: #262626; }
 
 .doc-content h3 {
     font-size: 20px;
+    line-height: 1.3;
+    letter-spacing: -0.025em;
     margin-top: 2.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .doc-content h4 {
     font-size: 17px;
+    letter-spacing: -0.015em;
     margin-top: 2rem;
     margin-bottom: 0.75rem;
 }
+
+.doc-content > :first-child { margin-top: 0; }
 
 .doc-content p {
     margin: 1.25rem 0;
 }
 
 .doc-content a {
-    color: var(--color-orange-ink);
+    color: #171717;
     font-weight: 500;
     text-decoration: underline;
+    text-decoration-color: rgb(195 58 4 / 0.45);
     text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
+    text-underline-offset: 4px;
+    transition: color 150ms, text-decoration-color 150ms;
 }
-.doc-content a:hover { color: var(--color-graphite); }
-.dark .doc-content a { color: var(--color-magic-orange); }
-.dark .doc-content a:hover { color: #fff; }
+.doc-content a:hover {
+    color: var(--color-orange-ink);
+    text-decoration-color: currentColor;
+}
+.dark .doc-content a { color: #fafafa; text-decoration-color: rgb(255 123 71 / 0.5); }
+.dark .doc-content a:hover { color: #ff7b47; }
 
 .doc-content strong {
-    color: var(--color-graphite);
+    color: #171717;
     font-weight: 600;
 }
-.dark .doc-content strong { color: #fff; }
+.dark .doc-content strong { color: #fafafa; }
 
 .doc-content ul,
 .doc-content ol {
-    margin: 1.5rem 0;
-    padding-left: 1.5rem;
+    margin: 1.25rem 0;
+    padding-left: 1.25rem;
 }
-.doc-content li { margin: 0.5rem 0; }
+.doc-content li { margin: 0.4rem 0; padding-left: 0.25rem; }
 .doc-content ul li { list-style-type: disc; }
 .doc-content ol li { list-style-type: decimal; }
+.doc-content li::marker { color: #a1a1aa; }
+.dark .doc-content li::marker { color: #52525b; }
 
 .doc-content blockquote {
-    border-left: 2px solid var(--color-light-steel);
+    border-left: 2px solid #eaeaea;
     padding-left: 1rem;
-    color: var(--color-charcoal);
-    font-style: italic;
+    color: #525252;
     margin: 1.5rem 0;
 }
-.dark .doc-content blockquote { color: #a1a1a1; border-left-color: #262626; }
+.dark .doc-content blockquote { color: #a1a1aa; border-left-color: rgb(255 255 255 / 0.1); }
 
+/* Tables sit in a framed card like the landing panels; rows divide. */
 .doc-content .table-scroll {
     overflow-x: auto;
     margin: 2rem 0;
+    border: 1px solid #eaeaea;
+    border-radius: 12px;
     scrollbar-width: thin;
 }
+.dark .doc-content .table-scroll { border-color: rgb(255 255 255 / 0.1); }
 
 .doc-content table {
     width: 100%;
     border-collapse: collapse;
+    font-size: 14.5px;
 }
+
+.doc-content th,
+.doc-content td {
+    padding: 0.7rem 1rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid #eaeaea;
+}
+.doc-content tr:last-child td { border-bottom: 0; }
+.dark .doc-content th,
+.dark .doc-content td { border-bottom-color: rgb(255 255 255 / 0.1); }
 
 .doc-content th {
-    text-align: left;
-    font-weight: 600;
-    color: var(--color-graphite);
-    background-color: var(--color-ghostly-gray);
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--color-light-steel);
+    font-size: 13px;
+    font-weight: 500;
+    color: #525252;
+    background-color: #fafafa;
 }
-.dark .doc-content th { color: #fff; background-color: #111827; border-color: #262626; }
-
-.doc-content td {
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--color-light-steel);
-}
-.dark .doc-content td { border-color: #262626; }
+.dark .doc-content th { color: #a1a1aa; background-color: #0a0a0a; }
 
 @media (max-width: 639px) {
     .doc-content th,
@@ -529,10 +503,10 @@ onUnmounted(() => {
 
 .doc-content hr {
     border: 0;
-    border-top: 1px solid var(--color-light-steel);
+    border-top: 1px solid #eaeaea;
     margin: 3rem 0;
 }
-.dark .doc-content hr { border-top-color: #262626; }
+.dark .doc-content hr { border-top-color: rgb(255 255 255 / 0.1); }
 
 /* Code blocks */
 .doc-content pre {
@@ -566,19 +540,19 @@ onUnmounted(() => {
 
 /* Inline code */
 .doc-content code:not(pre code) {
-    background-color: var(--color-ghostly-gray);
-    color: var(--color-graphite);
-    border: 1px solid var(--color-light-steel);
+    background-color: #fafafa;
+    color: #171717;
+    border: 1px solid #eaeaea;
     border-radius: 6px;
-    padding: 0.125rem 0.375rem;
-    font-size: 0.875em;
+    padding: 0.1rem 0.35rem;
+    font-size: 0.85em;
     font-family: var(--font-mono);
     overflow-wrap: break-word;
 }
 .dark .doc-content code:not(pre code) {
-    background-color: rgba(100, 116, 139, 0.15);
-    color: #e5e7eb;
-    border-color: rgba(100, 116, 139, 0.25);
+    background-color: rgb(255 255 255 / 0.06);
+    color: #fafafa;
+    border-color: rgb(255 255 255 / 0.1);
 }
 
 /* Sigmie filter DSL syntax highlighting (applied client-side in
@@ -621,51 +595,26 @@ pre:hover .copy-code-button { opacity: 1; }
 .heading-permalink {
     margin-right: 0.5rem;
     text-decoration: none;
-    color: var(--color-subtle-gray);
+    color: #a1a1aa;
     transition: color 0.15s;
 }
-.heading-permalink:hover { color: var(--color-graphite); }
-.dark .heading-permalink:hover { color: #fff; }
+.heading-permalink:hover { color: #171717; }
+.dark .heading-permalink:hover { color: #fafafa; }
 
-/* Table of contents */
-.table-of-contents li::marker { content: ""; }
-.table-of-contents > li > a {
-    text-decoration: none;
-    font-weight: 500;
-    color: var(--color-graphite);
-}
-.table-of-contents > li > a:hover { color: var(--color-magic-orange); }
-.table-of-contents > li > ul > li > a {
-    text-decoration: none;
-    color: var(--color-charcoal);
-}
-.table-of-contents > li > ul > li > a:hover { color: var(--color-graphite); }
-
-/* Callouts */
-.callout {
+/* Callouts take the ranking mode colours: info keyword blue, danger
+   hybrid orange, warning ink. */
+.doc-content .callout {
     padding: 1rem 1.25rem;
     border-radius: 12px;
     margin: 1.5rem 0;
-    border: 1px solid var(--color-light-steel);
-    background-color: var(--color-ghostly-gray);
+    border: 1px solid #eaeaea;
+    border-left: 3px solid var(--callout, #171717);
+    background-color: #fafafa;
+    color: #404040;
 }
-.dark .callout { background-color: rgba(31, 41, 55, 0.5); border-color: #262626; }
-.callout.danger {
-    background-color: rgba(255, 83, 16, 0.08);
-    border-color: rgba(255, 83, 16, 0.3);
-    color: var(--color-magic-orange);
-}
-.callout.warning {
-    background-color: var(--color-graphite);
-    border-color: var(--color-graphite);
-    color: var(--color-canvas-white);
-}
-.callout.info {
-    background-color: rgba(0, 152, 241, 0.08);
-    border-color: rgba(0, 152, 241, 0.3);
-    color: var(--color-product-blue);
-}
-.callout.danger::before,
-.callout.warning::before,
-.callout.info::before { font-weight: 600; }
+.dark .doc-content .callout { background-color: #0a0a0a; border-color: rgb(255 255 255 / 0.1); border-left-color: var(--callout, #fafafa); color: #d4d4d8; }
+.doc-content .callout.info { --callout: #0062d1; }
+.doc-content .callout.danger { --callout: var(--color-orange-ink); }
+.dark .doc-content .callout.info { --callout: #3ba7ff; }
+.dark .doc-content .callout.danger { --callout: #ff7b47; }
 </style>

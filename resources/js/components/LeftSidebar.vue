@@ -36,21 +36,24 @@ onMounted(() => {
 </script>
 
 <template>
-    <aside class="hidden lg:block w-56 flex-shrink-0 font-sans">
-        <div class="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto py-10 pr-4 scrollbar-thin">
-            <nav class="space-y-7">
-                <div v-for="(section, index) in navigation" :key="index">
+    <aside class="hidden w-60 shrink-0 border-r border-[#eaeaea] lg:block dark:border-white/[0.1]">
+        <div class="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto py-12 pr-5 pl-10 scrollbar-thin sm:py-16">
+            <nav class="space-y-6" aria-label="Documentation">
+                <div v-for="section in navigation" :key="section.title">
                     <button
+                        type="button"
+                        class="mb-1.5 flex w-full items-center justify-between text-[13px] font-semibold text-[#171717] dark:text-[#fafafa]"
+                        :aria-expanded="!isSectionCollapsed(section.title)"
                         @click="toggleSection(section.title)"
-                        class="w-full flex items-center justify-between mb-2 text-[11px] font-semibold text-subtle-gray uppercase tracking-wider hover:text-graphite dark:hover:text-white transition-colors"
                     >
                         <span>{{ section.title }}</span>
                         <svg
-                            class="w-3.5 h-3.5 transition-transform duration-200"
+                            class="h-3.5 w-3.5 text-[#a1a1aa] transition-transform duration-200"
                             :class="{ '-rotate-90': isSectionCollapsed(section.title) }"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
+                            aria-hidden="true"
                         >
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
@@ -60,12 +63,11 @@ onMounted(() => {
                         <li v-for="link in section.links" :key="link.href">
                             <Link
                                 :href="link.href"
-                                class="block py-1.5 pl-3 -ml-px text-[14px] leading-[1.4] border-l transition-colors"
-                                :class="
-                                    currentPath === link.href
-                                        ? 'text-graphite font-medium border-graphite dark:text-white dark:border-white'
-                                        : 'text-charcoal hover:text-graphite border-transparent hover:border-light-steel dark:text-gray-400 dark:hover:text-white'
-                                "
+                                class="-mx-2.5 block rounded-md px-2.5 py-1.5 text-[14px] leading-[1.35] transition-colors"
+                                :class="currentPath === link.href
+                                    ? 'bg-[#f4f4f5] font-medium text-[#171717] dark:bg-white/[0.07] dark:text-[#fafafa]'
+                                    : 'text-[#525252] hover:bg-[#fafafa] hover:text-[#171717] dark:text-[#a1a1aa] dark:hover:bg-white/[0.03] dark:hover:text-white'"
+                                :aria-current="currentPath === link.href ? 'page' : undefined"
                             >
                                 {{ link.title }}
                             </Link>

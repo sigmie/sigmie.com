@@ -472,7 +472,7 @@ const statusLine = computed(() => (
             </div>
         </div>
 
-        <div class="border-t border-[#eaeaea] bg-[#0b0d11] dark:border-white/[0.1]">
+        <div class="border-t border-[#eaeaea] bg-[#0F111A] dark:border-white/[0.1]">
             <div v-if="!inspectOpen">
                 <CodePreview
                     :code="phpCode"

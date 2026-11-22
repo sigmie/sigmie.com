@@ -306,40 +306,38 @@ const parseJsonLine = (text) => {
     return tokens;
 };
 
+// Colours follow Torchlight's material-theme-ocean (config/torchlight.php),
+// so code on the landing page reads the same as code in the docs.
 const getTokenClass = (token) => {
     switch (token.type) {
         case 'keyword':
         case 'filter-logic':
         case 'boolean':
-            return 'text-[#ff7b47]';
-        case 'operator':
-        case 'filter-op':
-            return 'text-[#ff8f61]';
-        case 'string':
-        case 'filter-value':
-            return 'text-[#63df9a]';
-        case 'variable':
-            return 'text-[#f4f4f5]';
-        case 'function':
-            return 'text-[#93c5fd]';
-        case 'class':
-        case 'key':
-            return 'text-[#e2e8f0]';
         case 'number':
         case 'filter-number':
-            return 'text-[#fbbf24]';
-        case 'filter-field':
-            return 'text-[#e9d5ff]';
-        case 'comment':
-            return 'text-[#8b8b93] italic';
+            return 'text-[#F78C6C]';
+        case 'operator':
+        case 'filter-op':
         case 'comma':
         case 'semicolon':
         case 'bracket':
         case 'punctuation':
         case 'filter-bracket':
-            return 'text-[#8b8b93]';
+            return 'text-[#89DDFF]';
+        case 'string':
+        case 'filter-value':
+            return 'text-[#C3E88D]';
+        case 'function':
+            return 'text-[#82AAFF]';
+        case 'class':
+            return 'text-[#FFCB6B]';
+        case 'key':
+        case 'filter-field':
+            return 'text-[#C792EA]';
+        case 'comment':
+            return 'text-[#8087A8] italic';
         default:
-            return 'text-[#e4e4e7]';
+            return 'text-[#A6ACCD]';
     }
 };
 
@@ -361,12 +359,12 @@ onUnmounted(() => clearTimeout(copyTimer));
 
 <template>
     <div
-        class="overflow-hidden bg-[#0b0d11] text-[#e4e4e7]"
+        class="overflow-hidden bg-[#0F111A] text-[#A6ACCD]"
         :class="frameless || flat ? '' : 'rounded-2xl border border-white/[0.11] shadow-[0_24px_48px_-24px_rgba(0,0,0,0.28)]'"
     >
         <div
             v-if="!frameless"
-            class="flex items-center justify-between gap-2 border-b border-white/[0.08] bg-[#111318] px-4 py-2"
+            class="flex items-center justify-between gap-2 border-b border-white/[0.07] bg-[#0B0D14] px-4 py-2"
         >
             <div class="flex min-w-0 items-center gap-2">
                 <span class="truncate font-mono text-[12px] text-[#e4e4e7]">{{ filename }}</span>
@@ -402,10 +400,10 @@ onUnmounted(() => clearTimeout(copyTimer));
             :class="maxHeightClass"
         >
             <div
-                class="no-ligatures flex min-w-max font-mono whitespace-pre"
+                class="flex min-w-max font-mono whitespace-pre"
                 :class="compact ? 'px-3.5 py-3 text-[12px] leading-[1.6]' : 'px-4 py-4 text-[13px] leading-[1.7] sm:px-5 sm:py-5'"
             >
-                <div class="select-none pr-4 text-right text-[#8b8b93]">
+                <div class="select-none pr-4 text-right text-[#8087A8]">
                     <div
                         v-for="(line, index) in parsedLines"
                         :key="`n-${index}`"
@@ -448,14 +446,13 @@ onUnmounted(() => clearTimeout(copyTimer));
 }
 
 .highlight-change {
-    background: rgba(255, 83, 16, 0.16);
-    box-shadow: inset 2px 0 0 #ff5310;
-    animation: highlight-pulse 0.55s ease-out;
+    background: rgba(130, 170, 255, 0.14);
+    animation: highlight-pulse 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 @keyframes highlight-pulse {
-    0% { background: rgba(255, 83, 16, 0.32); }
-    100% { background: rgba(255, 83, 16, 0.16); }
+    0% { background: rgba(130, 170, 255, 0.3); }
+    100% { background: rgba(130, 170, 255, 0.14); }
 }
 
 @media (prefers-reduced-motion: reduce) {

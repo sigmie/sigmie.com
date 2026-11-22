@@ -106,6 +106,9 @@
     {{-- llms.txt discovery (llmstxt.org spec) --}}
     <link rel="alternate" type="text/markdown" title="llms.txt" href="{{ config('app.url') }}/llms.txt">
     <link rel="alternate" type="text/markdown" title="llms-full.txt" href="{{ config('app.url') }}/llms-full.txt">
+    @if (request()->is('docs/*/*'))
+    <link rel="alternate" type="text/markdown" title="This page as markdown" href="{{ $href }}.md">
+    @endif
 
     <meta property="og:type" content="{{ $ogType }}">
     <meta property="og:url" content="{{ $href }}">

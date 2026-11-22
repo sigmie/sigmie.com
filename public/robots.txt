@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 
+# For agents: an index at https://sigmie.com/llms.txt, every docs page as
+# markdown at its URL plus .md (or send Accept: text/markdown), and a docs
+# MCP server at https://sigmie.com/mcp
 Sitemap: https://sigmie.com/sitemap.xml

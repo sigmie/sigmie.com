@@ -1,17 +1,26 @@
 <script setup>
-defineProps({
+import { computed } from 'vue';
+
+const props = defineProps({
     width: {
         type: [String, Number],
-        default: null
+        default: null,
     },
     height: {
         type: [String, Number],
-        default: null
+        default: null,
     },
     icon: {
         type: Boolean,
-        default: false
-    }
+        default: false,
+    },
+});
+
+const imgStyle = computed(() => {
+    const style = {};
+    if (props.height) style.height = typeof props.height === 'number' ? `${props.height}px` : props.height;
+    if (props.width) style.width = typeof props.width === 'number' ? `${props.width}px` : props.width;
+    return style;
 });
 </script>
 
@@ -20,16 +29,14 @@ defineProps({
         <img
             :src="icon ? '/logo/logo-icon-black.svg' : '/logo/logo-full-black.svg'"
             alt="Sigmie"
-            class="block dark:hidden"
-            :width="width || undefined"
-            :height="height || undefined"
+            class="block w-auto dark:hidden"
+            :style="imgStyle"
         />
         <img
             :src="icon ? '/logo/logo-icon-white.svg' : '/logo/logo-full-white.svg'"
             alt="Sigmie"
-            class="hidden dark:block"
-            :width="width || undefined"
-            :height="height || undefined"
+            class="hidden w-auto dark:block"
+            :style="imgStyle"
         />
     </span>
 </template>

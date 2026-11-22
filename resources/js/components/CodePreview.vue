@@ -1,92 +1,61 @@
 <script setup>
-import { computed } from 'vue';
-import { useTheme } from '../composables/useTheme';
-
-const { theme } = useTheme();
+import { computed, onUnmounted, ref } from 'vue';
 
 const props = defineProps({
     code: {
         type: String,
-        required: true
+        required: true,
     },
     filename: {
         type: String,
-        default: 'code.php'
+        default: 'code.php',
+    },
+    language: {
+        type: String,
+        default: 'php',
+        validator: (value) => value === 'php' || value === 'json',
     },
     highlightLines: {
         type: Array,
-        default: () => []
+        default: () => [],
     },
-    fadeRight: {
+    live: {
         type: Boolean,
-        default: true
+        default: false,
     },
-    fadeBottom: {
+    maxHeightClass: {
+        type: String,
+        default: '',
+    },
+    frameless: {
         type: Boolean,
-        default: true
+        default: false,
     },
-    fadeLeft: {
-        type: Boolean,
-        default: false
-    },
-    fadeLength: {
-        type: Number,
-        default: 64 // pixels - for backwards compatibility
-    },
-    fadeWidthRight: {
-        type: Number,
-        default: null // uses fadeLength if not specified
-    },
-    fadeWidthLeft: {
-        type: Number,
-        default: null // uses fadeLength if not specified
-    },
-    fadeHeightBottom: {
-        type: Number,
-        default: null // uses fadeLength if not specified
-    }
 });
 
-const rightFadeWidth = computed(() => props.fadeWidthRight ?? props.fadeLength);
-const leftFadeWidth = computed(() => props.fadeWidthLeft ?? props.fadeLength);
-const bottomFadeHeight = computed(() => props.fadeHeightBottom ?? props.fadeLength);
+const copied = ref(false);
+let copyTimer;
 
-const maskImage = computed(() => {
-    const gradients = [];
-
-    if (props.fadeRight) {
-        gradients.push(`linear-gradient(to right, black, black calc(100% - ${rightFadeWidth.value}px), transparent 100%)`);
-    } else {
-        gradients.push(`linear-gradient(to right, black, black)`);
-    }
-
-    if (props.fadeBottom) {
-        gradients.push(`linear-gradient(to bottom, black, black calc(100% - ${bottomFadeHeight.value}px), transparent 100%)`);
-    } else {
-        gradients.push(`linear-gradient(to bottom, black, black)`);
-    }
-
-    if (props.fadeLeft) {
-        gradients.push(`linear-gradient(to left, black, black calc(100% - ${leftFadeWidth.value}px), transparent 100%)`);
-    } else {
-        gradients.push(`linear-gradient(to left, black, black)`);
-    }
-
-    return gradients.join(', ');
-});
+const languageLabel = computed(() => (props.language === 'json' ? 'JSON' : 'PHP'));
 
 const parsedLines = computed(() => {
-    const lines = props.code.split('\n');
-    return lines.map((line, index) => ({
-        tokens: parseTokens(line),
-        isHighlighted: props.highlightLines.includes(index + 1)
+    const parse = props.language === 'json' ? parseJsonLine : parsePhpLine;
+
+    return props.code.split('\n').map((line, index) => ({
+        text: line,
+        tokens: parse(line),
+        isHighlighted: props.highlightLines.includes(index + 1),
     }));
 });
 
-const parseTokens = (text) => {
-    if (!text) return [];
+const PHP_KEYWORDS = new Set([
+    'use', 'class', 'extends', 'implements', 'new', 'public', 'protected',
+    'private', 'function', 'return', 'array', 'namespace', 'interface',
+    'string', 'int', 'void', 'bool', 'true', 'false', 'null',
+]);
 
-    // Check if line is a comment
+const parsePhpLine = (text) => {
+    if (!text) return [];
     if (text.trim().startsWith('//')) {
         return [{ type: 'comment', value: text }];
     }
@@ -96,79 +65,97 @@ const parseTokens = (text) => {
     let inString = false;
     let stringChar = '';
 
+    const flush = () => {
+        if (!current) return;
+        tokens.push(...tokenizePhpWord(current));
+        current = '';
+    };
+
     for (let i = 0; i < text.length; i++) {
         const char = text[i];
         const next = text[i + 1] || '';
 
-        // Handle strings
         if ((char === "'" || char === '"') && !inString) {
-            if (current) {
-                tokens.push(...tokenizeNonString(current));
-                current = '';
-            }
+            flush();
             inString = true;
             stringChar = char;
             current = char;
-        } else if (char === stringChar && inString) {
+            continue;
+        }
+
+        if (char === stringChar && inString) {
             current += char;
             tokens.push(...expandStringToken(current));
             current = '';
             inString = false;
-        } else if (inString) {
-            current += char;
+            continue;
         }
-        // Handle method calls ->
-        else if (char === '-' && next === '>') {
-            if (current) {
-                tokens.push(...tokenizeNonString(current));
-                current = '';
-            }
+
+        if (inString) {
+            current += char;
+            continue;
+        }
+
+        if (char === '/' && next === '/') {
+            flush();
+            tokens.push({ type: 'comment', value: text.slice(i) });
+            break;
+        }
+
+        if (char === '=' && next === '>') {
+            flush();
+            tokens.push({ type: 'operator', value: '=>' });
+            i += 1;
+            continue;
+        }
+
+        if (char === '-' && next === '>') {
+            flush();
             tokens.push({ type: 'operator', value: '->' });
-            i++; // skip next char
+            i += 1;
+            continue;
         }
-        // Handle double colon
-        else if (char === ':' && next === ':') {
-            if (current) {
-                tokens.push(...tokenizeNonString(current));
-                current = '';
-            }
+
+        if (char === ':' && next === ':') {
+            flush();
             tokens.push({ type: 'operator', value: '::' });
-            i++;
+            i += 1;
+            continue;
         }
-        // Handle special chars
-        else if (['(', ')', '[', ']', ',', ';', '='].includes(char)) {
-            if (current) {
-                tokens.push(...tokenizeNonString(current));
-                current = '';
-            }
-            tokens.push({ type: char === ',' ? 'comma' : char === ';' ? 'semicolon' : 'bracket', value: char });
+
+        if ('()[]{},;:=?\\'.includes(char)) {
+            flush();
+            const type = char === ',' ? 'comma' : char === ';' ? 'semicolon' : 'bracket';
+            tokens.push({ type, value: char });
+            continue;
         }
-        // Handle whitespace
-        else if (char === ' ') {
-            if (current) {
-                tokens.push(...tokenizeNonString(current));
-                current = '';
-            }
+
+        if (char === ' ') {
+            flush();
             tokens.push({ type: 'space', value: ' ' });
-        } else {
-            current += char;
+            continue;
         }
+
+        current += char;
     }
 
     if (current) {
-        if (inString) {
-            tokens.push(...expandStringToken(current));
-        } else {
-            tokens.push(...tokenizeNonString(current));
-        }
+        tokens.push(...(inString ? expandStringToken(current) : tokenizePhpWord(current)));
     }
 
     return tokens;
 };
 
-// Detects strings that contain Sigmie filter DSL (field:value, AND/OR/NOT,
-// range syntax, comparison ops) and re-tokenises their contents so each
-// part gets its own colour. Falls back to a single `string` token otherwise.
+const tokenizePhpWord = (text) => {
+    if (!text) return [];
+    if (PHP_KEYWORDS.has(text)) return [{ type: 'keyword', value: text }];
+    if (text.startsWith('$')) return [{ type: 'variable', value: text }];
+    if (/^[A-Z][A-Za-z0-9]+$/.test(text)) return [{ type: 'class', value: text }];
+    if (/^[a-z][A-Za-z0-9]*$/.test(text) && text.length > 1) return [{ type: 'function', value: text }];
+    if (/^-?\d+(\.\d+)?$/.test(text)) return [{ type: 'number', value: text }];
+    return [{ type: 'text', value: text }];
+};
+
 const FILTER_SHAPE = /:[^\s'"]|[<>]=?\s*\d|\bAND\b|\bOR\b|\bNOT\b|\[[^\]]*\.\.[^\]]*\]/i;
 
 const expandStringToken = (raw) => {
@@ -188,22 +175,23 @@ const expandStringToken = (raw) => {
 const tokenizeFilter = (text) => {
     const out = [];
     let i = 0;
+
     while (i < text.length) {
         const ch = text[i];
 
         if (/\s/.test(ch)) {
-            let start = i;
-            while (i < text.length && /\s/.test(text[i])) i++;
+            const start = i;
+            while (i < text.length && /\s/.test(text[i])) i += 1;
             out.push({ type: 'space', value: text.slice(start, i) });
             continue;
         }
 
         if (ch === '"' || ch === "'") {
             const open = ch;
-            let start = i;
-            i++;
-            while (i < text.length && text[i] !== open) i++;
-            if (i < text.length) i++; // closing quote
+            const start = i;
+            i += 1;
+            while (i < text.length && text[i] !== open) i += 1;
+            if (i < text.length) i += 1;
             out.push({ type: 'filter-value', value: text.slice(start, i) });
             continue;
         }
@@ -214,15 +202,15 @@ const tokenizeFilter = (text) => {
             continue;
         }
 
-        if (ch === '<' || ch === '>' || ch === ':' || ch === '=' || ch === '!') {
+        if ('<>:=!'.includes(ch)) {
             out.push({ type: 'filter-op', value: ch });
-            i++;
+            i += 1;
             continue;
         }
 
         if (ch === '[' || ch === ']') {
             out.push({ type: 'filter-bracket', value: ch });
-            i++;
+            i += 1;
             continue;
         }
 
@@ -232,22 +220,14 @@ const tokenizeFilter = (text) => {
             continue;
         }
 
-        if (ch === '*') {
-            out.push({ type: 'filter-bracket', value: '*' });
-            i++;
-            continue;
-        }
-
-        if (/[a-zA-Z_0-9.]/.test(ch)) {
-            let start = i;
-            while (i < text.length && /[a-zA-Z_0-9.]/.test(text[i])) i++;
+        if (/[A-Za-z0-9_.]/.test(ch)) {
+            const start = i;
+            while (i < text.length && /[A-Za-z0-9_.]/.test(text[i])) i += 1;
             const word = text.slice(start, i);
             const upper = word.toUpperCase();
             if (upper === 'AND' || upper === 'OR' || upper === 'NOT') {
                 out.push({ type: 'filter-logic', value: word });
-            } else if (word === 'true' || word === 'false' || word === 'null') {
-                out.push({ type: 'filter-number', value: word });
-            } else if (/^-?\d+(\.\d+)?$/.test(word)) {
+            } else if (word === 'true' || word === 'false' || word === 'null' || /^-?\d+(\.\d+)?$/.test(word)) {
                 out.push({ type: 'filter-number', value: word });
             } else {
                 out.push({ type: 'filter-field', value: word });
@@ -256,155 +236,216 @@ const tokenizeFilter = (text) => {
         }
 
         out.push({ type: 'filter-text', value: ch });
-        i++;
+        i += 1;
     }
+
     return out;
 };
 
-const tokenizeNonString = (text) => {
-    if (!text) return [];
+const parseJsonLine = (text) => {
+    const tokens = [];
+    let i = 0;
 
-    // Check if it's a keyword
-    const keywords = ['function', 'var', 'for', 'if', 'else', 'return', 'const', 'let', 'class', 'new'];
-    if (keywords.includes(text)) {
-        return [{ type: 'keyword', value: text }];
+    while (i < text.length) {
+        const ch = text[i];
+
+        if (ch === ' ' || ch === '\t') {
+            tokens.push({ type: 'space', value: ch });
+            i += 1;
+            continue;
+        }
+
+        if (ch === '"') {
+            let j = i + 1;
+            let value = '"';
+            while (j < text.length) {
+                value += text[j];
+                if (text[j] === '"' && text[j - 1] !== '\\') {
+                    j += 1;
+                    break;
+                }
+                j += 1;
+            }
+            let k = j;
+            while (k < text.length && text[k] === ' ') k += 1;
+            tokens.push({ type: text[k] === ':' ? 'key' : 'string', value });
+            i = j;
+            continue;
+        }
+
+        if (ch === '-' || (ch >= '0' && ch <= '9')) {
+            let j = i + 1;
+            while (j < text.length && /[0-9.]/.test(text[j])) j += 1;
+            tokens.push({ type: 'number', value: text.slice(i, j) });
+            i = j;
+            continue;
+        }
+
+        if (/[A-Za-z]/.test(ch)) {
+            let j = i + 1;
+            while (j < text.length && /[A-Za-z]/.test(text[j])) j += 1;
+            const word = text.slice(i, j);
+            const type = word === 'true' || word === 'false' || word === 'null' ? 'boolean' : 'text';
+            tokens.push({ type, value: word });
+            i = j;
+            continue;
+        }
+
+        tokens.push({ type: 'punctuation', value: ch });
+        i += 1;
     }
 
-    // Check if it's a variable
-    if (text.startsWith('$')) {
-        return [{ type: 'variable', value: text }];
-    }
-
-    // Check if it's a function/method name (camelCase)
-    if (/^[a-z][a-zA-Z0-9]*$/.test(text) && text.length > 1) {
-        return [{ type: 'function', value: text }];
-    }
-
-    // Check if it's a number
-    if (/^\d+$/.test(text)) {
-        return [{ type: 'number', value: text }];
-    }
-
-    // Otherwise it's text
-    return [{ type: 'text', value: text }];
+    return tokens;
 };
 
 const getTokenClass = (token) => {
     switch (token.type) {
         case 'keyword':
-        case 'variable':
-        case 'function':
-        case 'number':
-            return 'text-magic-orange';
+        case 'filter-logic':
+        case 'boolean':
+            return 'text-[#ff7b47]';
+        case 'operator':
+        case 'filter-op':
+            return 'text-[#ff8f61]';
         case 'string':
         case 'filter-value':
-            return 'text-magic-green dark:text-emerald-300';
-        case 'filter-field':
-            return 'text-fuchsia-700 dark:text-fuchsia-300';
-        case 'filter-logic':
-            return 'font-semibold text-magic-orange';
+            return 'text-[#63df9a]';
+        case 'variable':
+            return 'text-[#f4f4f5]';
+        case 'function':
+            return 'text-[#93c5fd]';
+        case 'class':
+        case 'key':
+            return 'text-[#e2e8f0]';
+        case 'number':
         case 'filter-number':
-            return 'text-magic-orange';
-        case 'filter-op':
-        case 'filter-bracket':
-            return 'text-charcoal dark:text-gray-400';
-        case 'method':
-        case 'text':
-        case 'filter-text':
-            return 'text-graphite dark:text-gray-300';
-        case 'operator':
-        case 'bracket':
-            return 'text-charcoal dark:text-gray-400';
+            return 'text-[#fbbf24]';
+        case 'filter-field':
+            return 'text-[#e9d5ff]';
+        case 'comment':
+            return 'text-[#6b7280] italic';
         case 'comma':
         case 'semicolon':
-        case 'comment':
-            return 'text-subtle-gray dark:text-gray-500';
+        case 'bracket':
+        case 'punctuation':
+        case 'filter-bracket':
+            return 'text-[#71717a]';
         default:
-            return 'text-graphite dark:text-gray-300';
+            return 'text-[#e4e4e7]';
     }
 };
 
 const copyCode = async () => {
     try {
         await navigator.clipboard.writeText(props.code);
-    } catch (err) {
-        console.error('Failed to copy code:', err);
+        copied.value = true;
+        clearTimeout(copyTimer);
+        copyTimer = setTimeout(() => {
+            copied.value = false;
+        }, 1600);
+    } catch {
+        copied.value = false;
     }
 };
+
+onUnmounted(() => clearTimeout(copyTimer));
 </script>
 
 <template>
-    <div class="relative w-full">
-        <div class="relative rounded-t-lg overflow-hidden border border-light-steel dark:border-gray-800 border-b-0 bg-[#f6f6f7] dark:bg-black" :style="{ maskImage: maskImage, WebkitMaskImage: maskImage, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }">
-            <div class="px-3 sm:px-4 pt-6 sm:pt-8 pb-8 sm:pb-12 overflow-x-auto overflow-y-hidden" style="white-space: pre-wrap;">
-                <div class="flex font-mono text-sm leading-relaxed min-h-[auto]">
-                    <!-- Line Numbers -->
-                    <div class="select-none pr-6 text-right text-subtle-gray dark:text-gray-600 mr-4 min-w-[3rem]">
-                        <div
-                            v-for="(line, index) in parsedLines"
-                            :key="`num-${index}`"
-                            class="code-line-num"
-                        >
-                            {{ index + 1 }}
-                        </div>
+    <div
+        class="overflow-hidden bg-[#0b0d11] text-[#e4e4e7]"
+        :class="frameless ? '' : 'rounded-2xl border border-white/[0.11] shadow-[0_24px_48px_-24px_rgba(0,0,0,0.28)]'"
+    >
+        <div
+            v-if="!frameless"
+            class="flex items-center justify-between gap-3 border-b border-white/[0.08] bg-[#111318] px-4 py-2.5"
+        >
+            <div class="flex min-w-0 items-center gap-2.5">
+                <div class="flex items-center gap-1.5" aria-hidden="true">
+                    <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
+                </div>
+                <span class="truncate font-mono text-[12px] text-[#a1a1aa]">{{ filename }}</span>
+                <span class="shrink-0 rounded-md border border-white/10 bg-white/[0.04] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[#71717a]">
+                    {{ languageLabel }}
+                </span>
+            </div>
+
+            <div class="flex shrink-0 items-center gap-2">
+                <span
+                    v-if="live"
+                    class="inline-flex items-center gap-1.5 rounded-full border border-magic-green/25 bg-magic-green/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[#63df9a]"
+                >
+                    <span class="h-1.5 w-1.5 rounded-full bg-magic-green" aria-hidden="true"></span>
+                    Live
+                </span>
+                <slot name="badge" />
+                <button
+                    type="button"
+                    class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[11px] text-[#a1a1aa] transition-colors hover:border-white/20 hover:text-white"
+                    :class="copied ? 'border-magic-green/40 text-[#63df9a]' : ''"
+                    @click="copyCode"
+                >
+                    <svg v-if="copied" class="h-3 w-3 text-[#63df9a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <svg v-else class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    {{ copied ? 'Copied' : 'Copy' }}
+                </button>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto scrollbar-thin" :class="maxHeightClass">
+            <div class="no-ligatures flex min-w-max px-4 py-4 font-mono text-[13px] leading-[1.7] whitespace-pre sm:px-5 sm:py-5">
+                <div class="select-none pr-5 text-right text-[#52525b]">
+                    <div v-for="(line, index) in parsedLines" :key="`n-${index}`" class="code-line">
+                        {{ index + 1 }}
                     </div>
-                    <!-- Code Content -->
-                    <div class="flex-1">
-                        <div
-                            v-for="(line, index) in parsedLines"
-                            :key="`line-${index}`"
-                            class="code-line"
-                            :class="{
-                                'highlight-change': line.isHighlighted,
-                                'opacity-50': line.tokens.length === 0
-                            }"
-                        >
-                            <template v-if="line.tokens.length > 0">
-                                <span
-                                    v-for="(token, tIndex) in line.tokens"
-                                    :key="`${index}-${tIndex}`"
-                                    :class="getTokenClass(token)"
-                                >{{ token.value }}</span>
-                            </template>
-                            <span v-else>&nbsp;</span>
-                        </div>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div
+                        v-for="(line, index) in parsedLines"
+                        :key="`${index}-${line.text}-${line.isHighlighted}`"
+                        class="code-line rounded-sm px-2 -mx-2"
+                        :class="line.isHighlighted ? 'highlight-change' : ''"
+                    >
+                        <template v-if="line.tokens.length">
+                            <span
+                                v-for="(token, tokenIndex) in line.tokens"
+                                :key="`${index}-${tokenIndex}`"
+                                :class="getTokenClass(token)"
+                            >{{ token.value }}</span>
+                        </template>
+                        <span v-else> </span>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Content fade overlays - now handled by background gradient -->
-        <!-- Keeping this div for potential future use, but overlays removed -->
     </div>
 </template>
 
 <style scoped>
-.code-line-num {
-    line-height: 1.75rem;
-}
-
 .code-line {
-    line-height: 1.75rem;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    line-height: 1.7rem;
+    transition: background-color 0.3s ease;
 }
 
 .highlight-change {
-    background: rgba(255, 83, 16, 0.12);
-    animation: highlight-pulse 0.5s ease-in-out;
+    background: rgba(255, 83, 16, 0.16);
+    box-shadow: inset 2px 0 0 #ff5310;
+    animation: highlight-pulse 0.55s ease-out;
 }
 
 @keyframes highlight-pulse {
-    0% {
-        background: transparent;
-        transform: translateX(0);
-    }
-    50% {
-        background: rgba(255, 83, 16, 0.22);
-        transform: translateX(2px);
-    }
-    100% {
-        background: rgba(255, 83, 16, 0.12);
-        transform: translateX(0);
-    }
+    0% { background: rgba(255, 83, 16, 0.32); }
+    100% { background: rgba(255, 83, 16, 0.16); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .code-line { transition: none; }
+    .highlight-change { animation: none; }
 }
 </style>

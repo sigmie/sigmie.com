@@ -44,27 +44,23 @@ Route::get('/', function () {
         'card' => config('app.url') . '/og-image.png',
         'navigation' => [
             [
-                'title' => 'Products',
+                'title' => 'On this page',
                 'links' => [
-                    [
-                        'title' => 'Semantic Search',
-                        'href' => '/#semantic-search',
-                    ],
-                    [
-                        'title' => 'Text to Image',
-                        'href' => '/#image-search',
-                    ],
-                ]
+                    ['title' => 'Examples', 'href' => '/#examples'],
+                    ['title' => 'Live semantic search', 'href' => '/#semantic-search'],
+                    ['title' => 'Image search', 'href' => '/#image-search'],
+                    ['title' => 'Capabilities', 'href' => '/#capabilities'],
+                    ['title' => 'MCP', 'href' => '/#mcp'],
+                    ['title' => 'About', 'href' => '/#about'],
+                ],
             ],
             [
-                'title' => 'Resources',
+                'title' => 'Docs',
                 'links' => [
-                    [
-                        'title' => 'About',
-                        'href' => '/#about',
-                    ],
-                ]
-            ]
+                    ['title' => 'Docs', 'href' => '/docs'],
+                    ['title' => 'Quick start', 'href' => '/docs/v2/quick-start'],
+                ],
+            ],
         ]
     ]);
 });

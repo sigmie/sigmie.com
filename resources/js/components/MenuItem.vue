@@ -1,47 +1,51 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
+    rank: {
+        type: Number,
+        default: null,
+    },
     name: {
         type: String,
-        required: true
+        required: true,
     },
     price: {
         type: Number,
-        default: 0
+        default: 0,
     },
     category: {
         type: String,
-        default: null
+        default: null,
     },
     color: {
         type: String,
-        default: null
+        default: null,
     },
     images: {
         type: Array,
-        default: () => []
+        default: () => [],
     },
     type: {
         type: String,
-        default: null
+        default: null,
     },
     director: {
         type: String,
-        default: null
+        default: null,
     },
     description: {
         type: String,
-        default: null
+        default: null,
     },
     releaseYear: {
         type: [Number, String],
-        default: null
+        default: null,
     },
     defaultExpanded: {
         type: Boolean,
-        default: false
-    }
+        default: false,
+    },
 });
 
 const isExpanded = ref(props.defaultExpanded);
@@ -50,106 +54,91 @@ const toggle = () => {
     isExpanded.value = !isExpanded.value;
 };
 
-const mainImage = computed(() => {
-    return props.images && props.images.length > 0 ? props.images[0] : null;
-});
+const mainImage = computed(() => (
+    props.images && props.images.length > 0 ? props.images[0] : null
+));
 </script>
 
 <template>
-    <div class="bg-canvas-white dark:bg-gray-950 border border-light-steel dark:border-gray-800 rounded-lg overflow-hidden hover:border-light-steel dark:hover:border-gray-700 transition-colors">
-        <!-- Header - Always Visible -->
-        <div
-            class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 cursor-pointer hover:bg-ghostly-gray dark:hover:bg-gray-900 transition-colors"
-            @click="toggle"
-        >
-            <div class="flex items-center gap-3 min-w-0 flex-1">
-                <!-- Product Image Thumbnail -->
-                <div v-if="mainImage" class="flex-shrink-0">
-                    <img
-                        :src="mainImage"
-                        :alt="name"
-                        class="w-14 h-14 object-cover rounded border border-light-steel dark:border-gray-800"
-                    />
-                </div>
-                <div class="min-w-0 flex-1">
-                    <h5 class="text-sm sm:text-base font-medium text-graphite dark:text-white truncate mb-1">
-                        {{ name }}
-                    </h5>
-                    <!-- Product price -->
-                    <p v-if="price" class="text-base font-bold text-blue-400">
-                        £{{ price?.toFixed(2) }}
-                    </p>
-                    <!-- Netflix type, director, and year -->
-                    <div v-if="type || director || releaseYear" class="flex items-center gap-2 text-xs text-charcoal dark:text-gray-400">
-                        <span v-if="type" class="text-subtle-gray dark:text-gray-500">{{ type }}</span>
-                        <span v-if="type && (director || releaseYear)">•</span>
-                        <span v-if="releaseYear" class="text-charcoal dark:text-gray-400">{{ releaseYear }}</span>
-                        <span v-if="releaseYear && director">•</span>
-                        <span v-if="director" class="text-charcoal dark:text-gray-400">{{ director }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center gap-2 flex-shrink-0 ml-2">
-                <span class="hidden sm:inline text-xs font-medium text-subtle-gray dark:text-gray-500">
-                    {{ isExpanded ? 'Less' : 'More' }}
+    <div
+        class="overflow-hidden rounded-xl border transition-colors"
+        :class="isExpanded
+            ? 'border-graphite/20 bg-canvas-white dark:border-white/15 dark:bg-[#111113]'
+            : 'border-light-steel bg-canvas-white hover:border-graphite/20 dark:border-[#262624] dark:bg-[#0e0e10] dark:hover:border-white/15'"
+    >
+        <h3>
+            <button
+                type="button"
+                class="flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors hover:bg-ghostly-gray/70 sm:px-5 dark:hover:bg-white/[0.02]"
+                :aria-expanded="isExpanded"
+                @click="toggle"
+            >
+                <span
+                    v-if="rank"
+                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-ghostly-gray font-mono text-[11px] font-medium text-subtle-gray dark:bg-white/[0.06] dark:text-[#a1a1aa]"
+                >
+                    0{{ rank }}
+                </span>
+                <img
+                    v-if="mainImage"
+                    :src="mainImage"
+                    :alt="name"
+                    class="h-12 w-12 shrink-0 rounded-lg border border-light-steel object-cover dark:border-[#262624]"
+                />
+                <span class="min-w-0 flex-1">
+                    <span class="block truncate text-[15px] font-semibold text-graphite dark:text-[#f5f5f4]">{{ name }}</span>
+                    <span v-if="price" class="mt-0.5 block text-[14px] font-semibold text-graphite dark:text-[#f5f5f4]">£{{ price.toFixed(2) }}</span>
+                    <span v-if="type || director || releaseYear" class="mt-1.5 flex flex-wrap items-center gap-1.5">
+                        <span
+                            v-if="type"
+                            class="rounded-full bg-ghostly-gray px-2 py-0.5 text-[11px] font-medium text-charcoal dark:bg-white/[0.06] dark:text-[#d4d4d8]"
+                        >
+                            {{ type }}
+                        </span>
+                        <span
+                            v-if="releaseYear"
+                            class="rounded-full bg-ghostly-gray px-2 py-0.5 font-mono text-[11px] text-charcoal dark:bg-white/[0.06] dark:text-[#a1a1aa]"
+                        >
+                            {{ releaseYear }}
+                        </span>
+                        <span
+                            v-if="director"
+                            class="truncate text-[12px] text-subtle-gray dark:text-[#a1a1aa]"
+                        >
+                            {{ director }}
+                        </span>
+                    </span>
                 </span>
                 <svg
-                    class="w-4 h-4 text-subtle-gray dark:text-gray-500 transition-transform duration-200"
+                    class="h-4 w-4 shrink-0 text-subtle-gray transition-transform duration-200 motion-reduce:transition-none"
                     :class="{ 'rotate-180': isExpanded }"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                 >
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
-            </div>
-        </div>
+            </button>
+        </h3>
 
-        <!-- Details - Collapsible -->
-        <div v-if="isExpanded" class="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-light-steel dark:border-gray-800 bg-ghostly-gray dark:bg-gray-900/50">
-            <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 pt-4">
-                <!-- Details Column -->
-                <div class="flex-1 space-y-3 text-sm min-w-0">
-                    <!-- Netflix Description -->
-                    <div v-if="description" class="flex items-start gap-2">
-                        <svg class="w-4 h-4 text-subtle-gray dark:text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
-                        </svg>
-                        <div class="min-w-0">
-                            <span class="text-subtle-gray dark:text-gray-500 text-xs">Description</span>
-                            <p class="text-charcoal dark:text-gray-300 break-words">{{ description }}</p>
-                        </div>
+        <div
+            class="grid transition-[grid-template-rows] duration-200 motion-reduce:transition-none"
+            :class="isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'"
+        >
+            <div class="overflow-hidden">
+                <div class="border-t border-light-steel/80 bg-ghostly-gray/60 px-4 py-3.5 sm:px-5 dark:border-[#262624] dark:bg-white/[0.02]">
+                    <p v-if="description" class="text-[14px] leading-relaxed text-charcoal dark:text-[#a3a3a0]">
+                        {{ description }}
+                    </p>
+                    <div v-if="category" class="mt-3">
+                        <p class="font-mono text-[11px] uppercase tracking-[0.06em] text-subtle-gray">Category</p>
+                        <p class="mt-0.5 text-[14px] text-charcoal dark:text-[#a3a3a0]">{{ category }}</p>
                     </div>
-
-                    <!-- Product Category -->
-                    <div v-if="category" class="flex items-start gap-2">
-                        <svg class="w-4 h-4 text-subtle-gray dark:text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                        </svg>
-                        <div class="min-w-0">
-                            <span class="text-subtle-gray dark:text-gray-500 text-xs">Category</span>
-                            <p class="text-charcoal dark:text-gray-300 break-words">{{ category }}</p>
-                        </div>
+                    <div v-if="color" class="mt-3">
+                        <p class="font-mono text-[11px] uppercase tracking-[0.06em] text-subtle-gray">Color</p>
+                        <p class="mt-0.5 text-[14px] text-charcoal dark:text-[#a3a3a0]">{{ color }}</p>
                     </div>
-
-                    <!-- Product Color -->
-                    <div v-if="color" class="flex items-start gap-2">
-                        <svg class="w-4 h-4 text-subtle-gray dark:text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
-                        </svg>
-                        <div class="min-w-0">
-                            <span class="text-subtle-gray dark:text-gray-500 text-xs">Color</span>
-                            <p class="text-charcoal dark:text-gray-300 break-words">{{ color }}</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Product Image -->
-                <div v-if="mainImage" class="flex-shrink-0 self-center sm:self-start">
-                    <img
-                        :src="mainImage"
-                        :alt="name"
-                        class="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-lg border border-light-steel dark:border-gray-800 shadow-lg"
-                    />
                 </div>
             </div>
         </div>

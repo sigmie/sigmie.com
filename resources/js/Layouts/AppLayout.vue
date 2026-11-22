@@ -1,32 +1,32 @@
 <script setup>
-import Sidebar from "../Sidebar.vue";
-import Footer from "../components/Footer.vue";
-import ChatWidget from "../components/ChatWidget.vue";
-import { useChatPanel } from "../composables/useChatPanel";
+import LandingNavbar from '../components/LandingNavbar.vue';
+import Footer from '../components/Footer.vue';
+import ChatWidget from '../components/ChatWidget.vue';
+import { useChatPanel } from '../composables/useChatPanel';
 
 const { showColumn } = useChatPanel();
 
 defineProps({
     navigation: {
         type: Object,
-        default: () => ({})
+        default: () => ({}),
     },
     title: {
         type: String,
-        default: "Sigmie"
-    }
+        default: 'Sigmie',
+    },
 });
 </script>
 
 <template>
-    <div class="flex min-h-screen bg-canvas-white dark:bg-black overflow-x-hidden font-sans text-graphite dark:text-white">
-        <Sidebar :navigation="navigation" />
+    <div class="flex min-h-screen flex-col overflow-x-hidden bg-canvas-white font-sans text-graphite dark:bg-black dark:text-[#f5f5f4]">
+        <LandingNavbar />
 
         <div
-            class="flex-1 flex flex-col lg:ml-[100px] xl:ml-[280px] bg-canvas-white dark:bg-black min-w-0"
+            class="flex min-w-0 flex-1 flex-col pt-16"
             :class="{ 'xl:mr-[400px]': showColumn }"
         >
-            <div class="flex-1 overflow-x-hidden w-full">
+            <div class="w-full flex-1">
                 <slot />
             </div>
 

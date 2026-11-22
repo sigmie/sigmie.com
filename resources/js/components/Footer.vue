@@ -3,8 +3,8 @@ import { Link } from '@inertiajs/vue3';
 </script>
 
 <template>
-    <footer class="border-t border-light-steel dark:border-gray-800 bg-ghostly-gray dark:bg-black/40 mt-24">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8 py-14">
+    <footer class="mt-0 border-t border-light-steel bg-ghostly-gray dark:border-[#262624] dark:bg-black">
+        <div class="mx-auto max-w-6xl px-5 py-14 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-10 mb-10">
                 <div>
                     <h2 class="text-[13px] uppercase tracking-wider font-semibold text-subtle-gray mb-4">Sigmie</h2>
@@ -20,6 +20,8 @@ import { Link } from '@inertiajs/vue3';
                         <li><Link href="/docs/v2/quick-start" class="text-charcoal hover:text-magic-orange dark:text-gray-300 dark:hover:text-magic-orange transition-colors">Quick Start</Link></li>
                         <li><Link href="/docs/v2/installation" class="text-charcoal hover:text-magic-orange dark:text-gray-300 dark:hover:text-magic-orange transition-colors">Installation</Link></li>
                         <li><Link href="/docs/v2/semantic-search" class="text-charcoal hover:text-magic-orange dark:text-gray-300 dark:hover:text-magic-orange transition-colors">Semantic Search</Link></li>
+                        <li><Link href="/docs/v2/mappings" class="text-charcoal hover:text-magic-orange dark:text-gray-300 dark:hover:text-magic-orange transition-colors">Mappings</Link></li>
+                        <li><Link href="/docs/v2/analytics" class="text-charcoal hover:text-magic-orange dark:text-gray-300 dark:hover:text-magic-orange transition-colors">Analytics</Link></li>
                         <li><Link href="/docs/v2/mcp" class="text-charcoal hover:text-magic-orange dark:text-gray-300 dark:hover:text-magic-orange transition-colors">MCP Server</Link></li>
                     </ul>
                 </div>
@@ -28,6 +30,7 @@ import { Link } from '@inertiajs/vue3';
                     <h2 class="text-[13px] uppercase tracking-wider font-semibold text-subtle-gray mb-4">Resources</h2>
                     <ul class="space-y-2 text-[14px]">
                         <li><a href="/llms.txt" class="text-charcoal hover:text-magic-orange dark:text-gray-300 dark:hover:text-magic-orange transition-colors">llms.txt</a></li>
+                        <li><a href="/llms-full.txt" class="text-charcoal hover:text-magic-orange dark:text-gray-300 dark:hover:text-magic-orange transition-colors">llms-full.txt</a></li>
                         <li><a href="/sitemap.xml" class="text-charcoal hover:text-magic-orange dark:text-gray-300 dark:hover:text-magic-orange transition-colors">Sitemap</a></li>
                     </ul>
                 </div>

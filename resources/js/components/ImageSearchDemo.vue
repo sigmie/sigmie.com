@@ -132,7 +132,7 @@ const resetToText = () => {
 </script>
 
 <template>
-    <section id="image-search" class="relative scroll-mt-16 border-t border-[#eaeaea] bg-[#0a0a0a] text-[#fafafa] dark:border-white/[0.1]">
+    <section id="image-search" class="dark relative scroll-mt-16 border-t border-[#eaeaea] bg-[#0a0a0a] text-[#fafafa] dark:border-white/[0.1]">
         <GridCrosshairs />
 
         <div class="flex flex-col gap-6 border-b border-white/[0.08] px-6 pt-16 pb-8 sm:px-10 lg:flex-row lg:items-end lg:justify-between">

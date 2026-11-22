@@ -1,7 +1,6 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3";
 import { computed, onMounted, onUnmounted, nextTick, ref } from "vue";
-import DocsSidebar from "../components/DocsSidebar.vue";
 import Navbar from "../Navbar.vue";
 import LeftSidebar from "../components/LeftSidebar.vue";
 import RightSidebar from "../components/RightSidebar.vue";
@@ -173,11 +172,7 @@ const highlightLineElement = (el) => {
 };
 
 const blockLooksLikeFilter = (code) => {
-    // If torchlight produced per-line wrappers, sample those; otherwise use textContent.
-    const lines = code.querySelectorAll('.line, .torchlight-line');
-    const sample = lines.length > 0
-        ? Array.from(lines).map((l) => l.textContent).filter(Boolean)
-        : code.textContent.split('\n').filter(Boolean);
+    const sample = Array.from(code.querySelectorAll('.line'), (l) => l.textContent.trim()).filter(Boolean);
     if (sample.length === 0) return false;
     // Require at least one non-empty line to look like filter syntax and no PHP markers anywhere.
     const joined = sample.join('\n');
@@ -190,19 +185,7 @@ const highlightFilterBlocks = () => {
         if (code.dataset.filterHighlighted === '1') return;
         if (!blockLooksLikeFilter(code)) return;
 
-        const lines = code.querySelectorAll('.line, .torchlight-line');
-        if (lines.length > 0) {
-            lines.forEach(highlightLineElement);
-        } else {
-            // No per-line wrappers — split by \n and rebuild with text nodes between.
-            const text = code.textContent;
-            const out = text.split('\n').map((line) => {
-                if (!line.trim()) return '';
-                if (!looksLikeFilter(line)) return escapeHtml(line);
-                return renderFilterTokens(tokenizeFilterLine(line));
-            }).join('\n');
-            code.innerHTML = out;
-        }
+        code.querySelectorAll('.line').forEach(highlightLineElement);
         code.dataset.filterHighlighted = '1';
     });
 
@@ -427,10 +410,6 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <div class="lg:hidden">
-            <DocsSidebar :navigation="navigation" :current-path="$page.url" />
-        </div>
-
         <SiteFooter />
 
         <ChatWidget />
@@ -493,13 +472,14 @@ onUnmounted(() => {
 }
 
 .doc-content a {
-    color: var(--color-magic-orange);
+    color: var(--color-orange-ink);
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
 }
 .doc-content a:hover { color: var(--color-graphite); }
+.dark .doc-content a { color: var(--color-magic-orange); }
 .dark .doc-content a:hover { color: #fff; }
 
 .doc-content strong {
@@ -524,6 +504,7 @@ onUnmounted(() => {
     font-style: italic;
     margin: 1.5rem 0;
 }
+.dark .doc-content blockquote { color: #a1a1a1; border-left-color: #262626; }
 
 .doc-content .table-scroll {
     overflow-x: auto;
@@ -567,8 +548,8 @@ onUnmounted(() => {
 
 /* Code blocks */
 .doc-content pre {
-    background-color: #0a0c11;
-    border: 1px solid #1f2937;
+    background-color: var(--code-bg);
+    border: 1px solid var(--code-border);
     border-radius: 12px;
     overflow-x: auto;
     margin: 1.5rem 0;
@@ -581,14 +562,19 @@ onUnmounted(() => {
 .doc-content pre::-webkit-scrollbar-thumb { background-color: rgba(107, 114, 128, 0.3); border-radius: 4px; }
 .doc-content pre::-webkit-scrollbar-thumb:hover { background-color: rgba(107, 114, 128, 0.5); }
 
+/* One grid row per Phiki .line, as wide as the longest line, so a
+   highlighted line paints a band across the whole block. */
 .doc-content pre code {
-    display: block;
-    padding: 1rem;
+    display: grid;
+    width: max-content;
+    min-width: 100%;
+    padding: 1rem 0;
     background-color: transparent;
     font-size: 0.875rem;
     line-height: 1.7;
-    color: #e5e7eb;
 }
+.doc-content pre code .line { padding: 0 1rem; }
+.doc-content pre code .line.highlight { background-color: var(--code-highlight); }
 
 /* Inline code */
 .doc-content code:not(pre code) {
@@ -608,27 +594,15 @@ onUnmounted(() => {
 }
 
 /* Sigmie filter DSL syntax highlighting (applied client-side in
-   Document.vue's highlightFilterBlocks). */
-.doc-content .sig-filter-field { color: #a21caf; }              /* fuchsia-700 */
-.dark .doc-content .sig-filter-field { color: #f5d0fe; }        /* fuchsia-200 */
-.doc-content .sig-filter-op { color: var(--color-charcoal); }
-.dark .doc-content .sig-filter-op { color: #9ca3af; }            /* gray-400 */
-.doc-content .sig-filter-bracket { color: var(--color-charcoal); }
-.dark .doc-content .sig-filter-bracket { color: #9ca3af; }
-.doc-content .sig-filter-value { color: #15803d; }              /* green-700 */
-.dark .doc-content .sig-filter-value { color: #6ee7b7; }         /* emerald-300 */
-.doc-content .sig-filter-logic { color: var(--color-magic-orange); font-weight: 600; }
-.doc-content .sig-filter-number { color: var(--color-magic-orange); }
+   Document.vue's highlightFilterBlocks), in the shared code palette. */
+.doc-content .sig-filter-field { color: var(--code-property); }
+.doc-content .sig-filter-op,
+.doc-content .sig-filter-bracket { color: var(--code-punctuation); }
+.doc-content .sig-filter-value { color: var(--code-string); }
+.doc-content .sig-filter-logic { color: var(--code-keyword); }
+.doc-content .sig-filter-number { color: var(--code-number); }
 .doc-content .sig-filter-text { color: inherit; }
-.doc-content .sig-filter-comment { color: var(--color-subtle-gray); }
-.dark .doc-content .sig-filter-comment { color: #6b7280; }     /* gray-500 */
-/* Match the prose pre code colour adjustments so plain text inside a
-   filter block stays readable on the dark background. */
-.doc-content pre code .sig-filter-field { color: #f5d0fe; }
-.doc-content pre code .sig-filter-op,
-.doc-content pre code .sig-filter-bracket { color: #9ca3af; }
-.doc-content pre code .sig-filter-value { color: #6ee7b7; }
-.doc-content pre code .sig-filter-comment { color: #6b7280; }
+.doc-content .sig-filter-comment { color: var(--code-comment); }
 
 /* Copy code button */
 .copy-code-button {
@@ -636,27 +610,20 @@ onUnmounted(() => {
     top: 0.75rem;
     right: 0.75rem;
     padding: 0.375rem;
-    background-color: rgba(107, 114, 128, 0.15);
-    border: 1px solid rgba(107, 114, 128, 0.3);
+    background-color: var(--code-bar);
+    border: 1px solid var(--code-border);
     border-radius: 9999px;
-    color: #9ca3af;
+    color: var(--code-muted);
     cursor: pointer;
     opacity: 0;
-    transition: all 0.2s ease;
+    transition: opacity 0.2s ease, color 0.2s ease;
     z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-.copy-code-button:hover {
-    background-color: rgba(107, 114, 128, 0.25);
-    color: #d1d5db;
-}
-.copy-code-button.copied {
-    background-color: rgba(68, 198, 127, 0.2);
-    border-color: rgba(68, 198, 127, 0.4);
-    color: var(--color-magic-green);
-}
+.copy-code-button:hover { color: var(--code-fg); }
+.copy-code-button.copied { color: var(--code-string); }
 pre:hover .copy-code-button { opacity: 1; }
 @media (hover: none) {
     .copy-code-button { opacity: 1; }
@@ -685,28 +652,6 @@ pre:hover .copy-code-button { opacity: 1; }
     color: var(--color-charcoal);
 }
 .table-of-contents > li > ul > li > a:hover { color: var(--color-graphite); }
-
-/* Torchlight code focus */
-.torchlight.has-focus-lines .line:not(.line-focus) {
-    transition: filter 0.35s, opacity 0.35s;
-    filter: blur(0.095rem);
-    opacity: 0.5;
-}
-.torchlight.has-focus-lines:hover .line:not(.line-focus) {
-    filter: blur(0px);
-    opacity: 1;
-}
-.torchlight summary:focus { outline: none; }
-.torchlight details > summary::marker,
-.torchlight details > summary::-webkit-details-marker { display: none; }
-.torchlight details .summary-caret::after { pointer-events: none; }
-.torchlight .summary-caret-empty::after,
-.torchlight details .summary-caret-middle::after,
-.torchlight details .summary-caret-end::after { content: " "; }
-.torchlight details[open] .summary-caret-start::after { content: "-"; }
-.torchlight details:not([open]) .summary-caret-start::after { content: "+"; }
-.torchlight details[open] .summary-hide-when-open { display: none; }
-.torchlight details:not([open]) .summary-hide-when-open { display: initial; }
 
 /* Callouts */
 .callout {

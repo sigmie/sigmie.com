@@ -306,16 +306,16 @@ const parseJsonLine = (text) => {
     return tokens;
 };
 
-// Colours follow Torchlight's material-theme-ocean (config/torchlight.php),
-// so code on the landing page reads the same as code in the docs.
+// The palette lives in app.css (--code-*), shared with the docs.
 const getTokenClass = (token) => {
     switch (token.type) {
         case 'keyword':
         case 'filter-logic':
+            return 'text-(--code-keyword)';
         case 'boolean':
         case 'number':
         case 'filter-number':
-            return 'text-[#F78C6C]';
+            return 'text-(--code-number)';
         case 'operator':
         case 'filter-op':
         case 'comma':
@@ -323,21 +323,21 @@ const getTokenClass = (token) => {
         case 'bracket':
         case 'punctuation':
         case 'filter-bracket':
-            return 'text-[#89DDFF]';
+            return 'text-(--code-punctuation)';
         case 'string':
         case 'filter-value':
-            return 'text-[#C3E88D]';
+            return 'text-(--code-string)';
         case 'function':
-            return 'text-[#82AAFF]';
+            return 'text-(--code-function)';
         case 'class':
-            return 'text-[#FFCB6B]';
+            return 'text-(--code-type)';
         case 'key':
         case 'filter-field':
-            return 'text-[#C792EA]';
+            return 'text-(--code-property)';
         case 'comment':
-            return 'text-[#8087A8] italic';
+            return 'text-(--code-comment) italic';
         default:
-            return 'text-[#A6ACCD]';
+            return 'text-(--code-variable)';
     }
 };
 
@@ -359,16 +359,16 @@ onUnmounted(() => clearTimeout(copyTimer));
 
 <template>
     <div
-        class="overflow-hidden bg-[#0F111A] text-[#A6ACCD]"
-        :class="frameless || flat ? '' : 'rounded-2xl border border-white/[0.11] shadow-[0_24px_48px_-24px_rgba(0,0,0,0.28)]'"
+        class="overflow-hidden bg-(--code-bg) text-(--code-fg)"
+        :class="frameless || flat ? '' : 'rounded-2xl border border-(--code-border)'"
     >
         <div
             v-if="!frameless"
-            class="flex items-center justify-between gap-2 border-b border-white/[0.07] bg-[#0B0D14] px-4 py-2"
+            class="flex items-center justify-between gap-2 border-b border-(--code-border) bg-(--code-bar) px-4 py-2"
         >
             <div class="flex min-w-0 items-center gap-2">
-                <span class="truncate font-mono text-[12px] text-[#e4e4e7]">{{ filename }}</span>
-                <span class="shrink-0 rounded border border-white/12 bg-white/[0.04] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[#a1a1aa]">
+                <span class="truncate font-mono text-[12px] text-(--code-fg)">{{ filename }}</span>
+                <span class="shrink-0 rounded border border-(--code-border) px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] text-(--code-muted)">
                     {{ languageLabel }}
                 </span>
             </div>
@@ -377,11 +377,11 @@ onUnmounted(() => clearTimeout(copyTimer));
                 <slot name="badge" />
                 <button
                     type="button"
-                    class="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-1 font-mono text-[11px] text-[#d4d4d8] transition-colors hover:border-white/25 hover:text-white"
-                    :class="copied ? 'border-magic-green/40 text-[#63df9a]' : ''"
+                    class="inline-flex items-center gap-1.5 rounded-full border border-(--code-border) px-2.5 py-1 font-mono text-[11px] transition-colors hover:text-(--code-fg)"
+                    :class="copied ? 'text-(--code-string)' : 'text-(--code-muted)'"
                     @click="copyCode"
                 >
-                    <svg v-if="copied" class="h-3 w-3 text-[#63df9a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                    <svg v-if="copied" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                     <svg v-else class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -403,7 +403,7 @@ onUnmounted(() => clearTimeout(copyTimer));
                 class="flex min-w-max font-mono whitespace-pre"
                 :class="compact ? 'px-3.5 py-3 text-[12px] leading-[1.6]' : 'px-4 py-4 text-[13px] leading-[1.7] sm:px-5 sm:py-5'"
             >
-                <div class="select-none pr-4 text-right text-[#8087A8]">
+                <div class="select-none pr-4 text-right text-(--code-muted)">
                     <div
                         v-for="(line, index) in parsedLines"
                         :key="`n-${index}`"
@@ -446,13 +446,13 @@ onUnmounted(() => clearTimeout(copyTimer));
 }
 
 .highlight-change {
-    background: rgba(130, 170, 255, 0.14);
+    background: var(--code-highlight);
     animation: highlight-pulse 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 @keyframes highlight-pulse {
-    0% { background: rgba(130, 170, 255, 0.3); }
-    100% { background: rgba(130, 170, 255, 0.14); }
+    0% { background: var(--code-highlight-strong); }
+    100% { background: var(--code-highlight); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -205,6 +205,17 @@ const headerClass = computed(() => ({
                 <button
                     type="button"
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full text-charcoal hover:bg-ghostly-gray md:hidden dark:text-[#a3a3a0] dark:hover:bg-[#141413]"
+                    aria-label="Search docs"
+                    @click="openSearchModal"
+                >
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+
+                <button
+                    type="button"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full text-charcoal hover:bg-ghostly-gray md:hidden dark:text-[#a3a3a0] dark:hover:bg-[#141413]"
                     :aria-expanded="menuOpen"
                     :aria-label="menuOpen ? 'Close menu' : 'Open menu'"
                     @click="menuOpen = !menuOpen"
@@ -256,13 +267,6 @@ const headerClass = computed(() => ({
             >
                 Switch to light mode
             </button>
-            <button
-                type="button"
-                class="rounded-xl px-3 py-2.5 text-left text-[15px] text-charcoal hover:bg-ghostly-gray dark:text-[#a3a3a0] dark:hover:bg-[#141413]"
-                @click="openSearchModal"
-            >
-                Search docs
-            </button>
         </nav>
     </div>
 
@@ -282,7 +286,7 @@ const headerClass = computed(() => ({
                     type="text"
                     placeholder="Search documentation..."
                     aria-label="Search documentation"
-                    class="flex-1 border-0 bg-transparent py-1 text-[16px] text-graphite placeholder:text-subtle-gray focus:ring-0 focus:outline-none dark:text-[#f5f5f4]"
+                    class="min-w-0 flex-1 border-0 bg-transparent py-1 text-[16px] text-graphite placeholder:text-subtle-gray focus:ring-0 focus:outline-none dark:text-[#f5f5f4]"
                     @keyup.enter="handleModalSearch()"
                 />
                 <button

@@ -241,7 +241,7 @@ onUnmounted(() => clearTimeout(copyTimer));
 
                         <div class="mt-4 space-y-3 text-[14px] leading-[1.6] text-[#404040] dark:text-[#d4d4d8]">
                             <template v-for="(block, index) in passageBlocks" :key="`${activeMcpResult.url}-${index}`">
-                                <div v-if="block.code" class="overflow-hidden rounded-xl border border-black/[0.06] dark:border-white/[0.1]">
+                                <div v-if="block.code" class="overflow-hidden rounded-xl border border-(--code-border)">
                                     <CodePreview
                                         :code="block.text"
                                         filename="passage.php"

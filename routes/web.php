@@ -26,11 +26,9 @@ use Inertia\Inertia;
 */
 
 use League\CommonMark\CommonMarkConverter;
-use Torchlight\Block;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\MarkdownConverter;
-use Torchlight\Commonmark\V2\TorchlightExtension;
 
 Route::get('/sitemap.xml', SitemapController::class);
 Route::get('/llms.txt', LlmsController::class);
@@ -50,23 +48,6 @@ Route::get('/', function () {
         'initialRelevance' => $presets['relevance'] ?? [],
         'initialClip' => $presets['clip'] ?? ['query' => 'Owl', 'results' => []],
         'initialMcp' => $presets['mcp'] ?? [],
-        'navigation' => [
-            [
-                'title' => 'On this page',
-                'links' => [
-                    ['title' => 'Playground', 'href' => '/#playground'],
-                    ['title' => 'CLIP Gallery', 'href' => '/#image-search'],
-                    ['title' => 'Platform & MCP', 'href' => '/#platform'],
-                ],
-            ],
-            [
-                'title' => 'Docs',
-                'links' => [
-                    ['title' => 'Docs', 'href' => '/docs'],
-                    ['title' => 'Quick start', 'href' => '/docs/v2/quick-start'],
-                ],
-            ],
-        ],
     ]);
 });
 

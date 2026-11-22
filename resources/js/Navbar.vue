@@ -190,6 +190,16 @@ onUnmounted(() => {
 
                 <div class="flex items-center gap-1 flex-shrink-0">
                     <button
+                        @click="openSearchModal"
+                        aria-label="Search documentation"
+                        class="md:hidden p-2 rounded-full text-charcoal hover:text-graphite hover:bg-ghostly-gray dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-900 transition-colors"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+
+                    <button
                         v-if="enabled"
                         @click="openChat"
                         aria-label="Ask AI"
@@ -259,7 +269,7 @@ onUnmounted(() => {
                                 @keyup.enter="handleModalSearch()"
                                 type="text"
                                 placeholder="Search documentation..."
-                                class="flex-1 py-2 text-[17px] bg-transparent text-graphite dark:text-gray-100 placeholder-subtle-gray border-0 focus:outline-none focus:ring-0"
+                                class="min-w-0 flex-1 py-2 text-[17px] bg-transparent text-graphite dark:text-gray-100 placeholder-subtle-gray border-0 focus:outline-none focus:ring-0"
                             />
                             <button
                                 @click="closeSearchModal"

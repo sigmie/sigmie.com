@@ -20,13 +20,13 @@
         "league/commonmark": "^2.3",
         "league/csv": "^9.0",
         "masterminds/html5": "^2.8",
+        "phiki/phiki": "^2.2",
         "sigmie/agent-tools": "*",
         "sigmie/app-sdk": "^1.0",
         "sigmie/sigmie": "dev-master",
         "spatie/laravel-ray": "^1.40",
         "symfony/http-client": "^7.0",
-        "tightenco/ziggy": "^2.0",
-        "torchlight/torchlight-commonmark": "^0.6.0"
+        "tightenco/ziggy": "^2.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

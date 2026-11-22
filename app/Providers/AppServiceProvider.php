@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Agent\SigmieDocsAgent;
+use App\Markdown\HighlightedCodeRenderer;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use League\CommonMark\CommonMarkConverter;
-use Torchlight\Block;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+use League\CommonMark\Extension\CommonMark\Node\Block\FencedCode;
 use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
 use League\CommonMark\Extension\SmartPunct\SmartPunctExtension;
 use League\CommonMark\MarkdownConverter;
-use Torchlight\Commonmark\V2\TorchlightExtension;
 use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\Extension\TableOfContents\TableOfContentsExtension;
 use Sigmie\AgentTools\AgentTools;
@@ -54,7 +54,7 @@ class AppServiceProvider extends ServiceProvider
             $environment->addExtension(new HeadingPermalinkExtension);
             $environment->addExtension(new SmartPunctExtension);
             // $environment->addExtension(new TableOfContentsExtension);
-            $environment->addExtension(new TorchlightExtension);
+            $environment->addRenderer(FencedCode::class, new HighlightedCodeRenderer, 10);
 
             $converter = new MarkdownConverter($environment);
 

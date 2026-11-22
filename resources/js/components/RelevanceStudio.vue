@@ -478,7 +478,7 @@ const statusLine = computed(() => (
             </div>
         </div>
 
-        <div class="border-t border-[#eaeaea] bg-[#0F111A] dark:border-white/[0.1]">
+        <div class="border-t border-[#eaeaea] bg-(--code-bg) dark:border-white/[0.1]">
             <div v-if="!inspectOpen">
                 <CodePreview
                     :code="phpCode"
@@ -492,7 +492,7 @@ const statusLine = computed(() => (
                         <button
                             ref="showRequestButton"
                             type="button"
-                            class="press inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1 text-[12px] text-[#e4e4e7] hover:border-white/35 hover:text-white"
+                            class="press inline-flex items-center gap-1.5 rounded-full border border-(--code-border) px-3 py-1 text-[12px] text-(--code-fg) hover:border-(--code-muted)"
                             aria-expanded="false"
                             @click="setInspectOpen(true)"
                         >
@@ -503,14 +503,14 @@ const statusLine = computed(() => (
             </div>
 
             <div v-else id="request-inspector-panel">
-                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-6 py-3 sm:px-10 lg:px-8">
-                    <p class="text-[13px] text-[#a1a1aa]">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-(--code-border) bg-(--code-bar) px-6 py-3 sm:px-10 lg:px-8">
+                    <p class="text-[13px] text-(--code-muted)">
                         The JSON the builder sent to {{ engineName }} for this search, {{ dslLineCount }} lines.
                     </p>
                     <button
                         ref="hideRequestButton"
                         type="button"
-                        class="press rounded-full border border-white/15 px-3 py-1 text-[12px] text-[#d4d4d8] hover:border-white/35 hover:text-white"
+                        class="press rounded-full border border-(--code-border) px-3 py-1 text-[12px] text-(--code-fg) hover:border-(--code-muted)"
                         aria-expanded="true"
                         @click="setInspectOpen(false)"
                     >
@@ -518,7 +518,7 @@ const statusLine = computed(() => (
                     </button>
                 </div>
 
-                <div class="grid divide-y divide-white/[0.08] lg:grid-cols-12 lg:divide-x lg:divide-y-0">
+                <div class="grid divide-y divide-(--code-border) lg:grid-cols-12 lg:divide-x lg:divide-y-0">
                     <div class="min-w-0 lg:col-span-5">
                         <CodePreview
                             :code="phpCode"

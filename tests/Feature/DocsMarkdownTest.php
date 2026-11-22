@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Services\Documentation;
 use Tests\TestCase;
 
 class DocsMarkdownTest extends TestCase
@@ -27,6 +28,15 @@ class DocsMarkdownTest extends TestCase
         $this->assertStringContainsString('# Search', $response->getContent());
         $this->assertStringNotContainsString('[tl!', $response->getContent());
         $this->assertStringContainsString('](' . config('app.url') . '/docs/v2/query.md)', $response->getContent());
+    }
+
+    public function test_docs_code_is_highlighted_with_the_site_palette(): void
+    {
+        $html = app(Documentation::class)->get('v2', 'search');
+
+        $this->assertStringContainsString('style="color: var(--code-function);">newSearch</span>', $html);
+        $this->assertStringContainsString('<span class="line highlight">', $html);
+        $this->assertStringNotContainsString('[tl!', $html);
     }
 
     public function test_docs_page_answers_markdown_when_the_client_prefers_it(): void

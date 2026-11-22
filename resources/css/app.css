@@ -152,6 +152,48 @@
     --geist-background: 0 0 0;
     --geist-foreground: 255 255 255;
   }
+
+  /* The code palette, one home for the docs (Phiki theme
+     resources/highlight/sigmie.json names these variables) and the landing
+     page (CodePreview.vue). Code sits on the page's own neutral surface and
+     takes the brand hues: orange keywords, green strings, blue calls. Every
+     colour holds 4.5:1 against --code-bg and --code-highlight. */
+  :root {
+    --code-bg: #fafafa;
+    --code-bar: #f4f4f4;
+    --code-border: #eaeaea;
+    --code-fg: #171717;
+    --code-muted: #6b6b6b;
+    --code-keyword: #c23a04;
+    --code-number: #c23a04;
+    --code-string: #0f7a3d;
+    --code-function: #0062d1;
+    --code-property: #0062d1;
+    --code-type: #171717;
+    --code-variable: #171717;
+    --code-punctuation: #6b6b6b;
+    --code-comment: #6b6b6b;
+    --code-highlight: rgb(0 0 0 / 0.05);
+    --code-highlight-strong: rgb(0 0 0 / 0.1);
+  }
+  .dark {
+    --code-bg: #0a0a0a;
+    --code-bar: #111111;
+    --code-border: rgb(255 255 255 / 0.1);
+    --code-fg: #ededed;
+    --code-muted: #8f8f8f;
+    --code-keyword: #ff7b47;
+    --code-number: #ff7b47;
+    --code-string: #44c67f;
+    --code-function: #52a8ff;
+    --code-property: #52a8ff;
+    --code-type: #ededed;
+    --code-variable: #ededed;
+    --code-punctuation: #a1a1a1;
+    --code-comment: #8f8f8f;
+    --code-highlight: rgb(255 255 255 / 0.07);
+    --code-highlight-strong: rgb(255 255 255 / 0.14);
+  }
   html { scroll-behavior: smooth; scroll-padding-top: 4.5rem; }
   html, body {
     @apply antialiased bg-canvas-white text-graphite dark:bg-black dark:text-white;

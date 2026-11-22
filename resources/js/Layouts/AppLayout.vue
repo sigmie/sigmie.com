@@ -6,16 +6,6 @@ import { useChatPanel } from '../composables/useChatPanel';
 
 const { showColumn } = useChatPanel();
 
-defineProps({
-    navigation: {
-        type: Object,
-        default: () => ({}),
-    },
-    title: {
-        type: String,
-        default: 'Sigmie',
-    },
-});
 </script>
 
 <template>

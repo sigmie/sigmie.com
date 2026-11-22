@@ -9,7 +9,6 @@ import PlatformAndMcp from '../components/PlatformAndMcp.vue';
 
 defineProps({
     title: String,
-    navigation: Object,
     initialRelevance: {
         type: Object,
         default: () => ({}),
@@ -28,7 +27,7 @@ defineProps({
 <template>
     <Head :title="title" />
 
-    <AppLayout :navigation="navigation">
+    <AppLayout>
         <div class="bg-white dark:bg-black">
             <div class="mx-auto max-w-[1120px] border-x border-[#eaeaea] dark:border-white/[0.1]">
                 <RelevanceStudio :initial="initialRelevance" />

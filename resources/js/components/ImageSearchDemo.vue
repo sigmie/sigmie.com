@@ -1,226 +1,298 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import axios from 'axios';
 import CodePreview from './CodePreview.vue';
-import QueryInput from './QueryInput.vue';
-import ImageIcon from './icons/ImageIcon.vue';
-import ImageHoverOverlay from './ImageHoverOverlay.vue';
 import { IMAGE_SUGGESTIONS } from '../data/landingExamples';
 
-const imageQuery = ref('Owl');
-const images = ref([]);
+const props = defineProps({
+    initial: {
+        type: Object,
+        default: () => ({ query: 'Owl', results: [] }),
+    },
+});
+
+const imageQuery = ref(props.initial?.query || 'Owl');
+const images = ref(
+    (props.initial?.results || []).slice(0, 4).map((item, idx) => ({
+        id: item._id || `clip-${idx}`,
+        url: item.image,
+        label: `${props.initial?.query || 'Owl'} match ${idx + 1}`,
+    })),
+);
 const isLoading = ref(false);
 const mode = ref('text');
-const selectedImageUrl = ref('');
+const selectedImage = ref(null);
 const error = ref('');
+const statusText = ref('Recorded preset');
+
+let requestSeq = 0;
 
 const phpQuote = (value) => String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
-const previewArg = (value) => {
-    if (!value) return '';
-    if (value.length <= 72) return value;
-    return 'https://img.sigmie.com/selected.jpg';
-};
-
 const imageCode = computed(() => {
-    const call = mode.value === 'image'
-        ? `    ->queryImage('${phpQuote(previewArg(selectedImageUrl.value))}')`
-        : `    ->queryString('${phpQuote(imageQuery.value || 'Owl')}')`;
+    if (mode.value === 'image' && selectedImage.value) {
+        const refId = phpQuote(selectedImage.value.id || 'selected.jpg');
+        return [
+            `$selectedImage = base64_encode(file_get_contents('${refId}'));`,
+            '',
+            '$images->newSearch()',
+            '    ->semantic()',
+            '    ->queryImage($selectedImage)',
+            '    ->size(4)',
+            '    ->hits();',
+        ].join('\n');
+    }
 
     return [
         '$images->newSearch()',
         '    ->semantic()',
-        call,
+        `    ->queryString('${phpQuote(imageQuery.value.trim() || 'Owl')}')`,
         '    ->size(4)',
         '    ->hits();',
     ].join('\n');
 });
 
-const highlightedLines = computed(() => [3]);
+const highlightedLines = computed(() => (mode.value === 'image' ? [1, 5] : [3]));
 
-const tileClass = [
-    'col-span-1 aspect-[4/3] md:col-span-1 md:row-span-2 md:aspect-auto',
-    'col-span-1 aspect-[4/3] md:col-span-3 md:row-span-2 md:aspect-auto',
-    'col-span-1 aspect-[4/3] md:col-span-2 md:row-span-1 md:aspect-auto',
-    'col-span-1 aspect-[4/3] md:col-span-2 md:row-span-1 md:aspect-auto',
+const tileClasses = [
+    'col-span-2 aspect-[16/10] md:col-span-6 md:row-span-2 md:aspect-auto',
+    'col-span-2 aspect-[16/9] md:col-span-6 md:row-span-1 md:aspect-auto',
+    'col-span-1 aspect-[4/3] md:col-span-3 md:row-span-1 md:aspect-auto',
+    'col-span-1 aspect-[4/3] md:col-span-3 md:row-span-1 md:aspect-auto',
 ];
 
-const applyResults = (payload) => {
+const applyResults = (payload, labelPrefix) => {
     images.value = (payload || []).slice(0, 4).map((result, index) => ({
-        id: result._id || index,
+        id: result._id || `clip-${index}`,
         url: result.image,
-        title: mode.value === 'image' ? `Similar image ${index + 1}` : `${imageQuery.value} ${index + 1}`,
+        label: `${labelPrefix} rank ${index + 1}`,
     }));
 };
 
-const updateImageQuery = async () => {
-    const query = imageQuery.value.trim();
+const runTextSearch = async (term = null) => {
+    const query = (term ?? imageQuery.value).trim();
     if (!query) return;
 
+    if (term !== null) imageQuery.value = term;
     mode.value = 'text';
-    selectedImageUrl.value = '';
-    isLoading.value = true;
+    selectedImage.value = null;
     error.value = '';
+    const seq = ++requestSeq;
+    isLoading.value = true;
 
     try {
         const response = await axios.post('/api/search/images/text', { query });
-        applyResults(response.data.results);
+        if (seq !== requestSeq) return;
+        applyResults(response.data.results, query);
+        statusText.value = 'Live · CLIP 512-dim';
     } catch {
-        images.value = [];
+        if (seq !== requestSeq) return;
         error.value = 'The live CLIP image index is currently unreachable.';
     } finally {
-        isLoading.value = false;
+        if (seq === requestSeq) isLoading.value = false;
     }
 };
 
-const selectImage = async (imageUrl) => {
-    selectedImageUrl.value = imageUrl;
+const selectPhoto = async (photo) => {
+    selectedImage.value = photo;
     mode.value = 'image';
-    isLoading.value = true;
     error.value = '';
+    const seq = ++requestSeq;
+    isLoading.value = true;
 
     try {
-        const response = await axios.post('/api/search/images/image', { image: imageUrl });
-        applyResults(response.data.results);
+        const response = await axios.post('/api/search/images/image', { image: photo.url });
+        if (seq !== requestSeq) return;
+        applyResults(response.data.results, 'Visually similar');
+        statusText.value = `Live · queryImage(${photo.id})`;
     } catch {
-        error.value = 'The live CLIP image index could not search by that photo.';
+        if (seq !== requestSeq) return;
+        error.value = 'Could not run image-to-image similarity against the live CLIP index.';
     } finally {
-        isLoading.value = false;
+        if (seq === requestSeq) isLoading.value = false;
     }
 };
 
-const runSuggestion = (suggestion) => {
-    imageQuery.value = suggestion;
-    updateImageQuery();
+const resetToText = () => {
+    if (imageQuery.value.trim() === (props.initial?.query || 'Owl') && props.initial?.results?.length) {
+        mode.value = 'text';
+        selectedImage.value = null;
+        error.value = '';
+        images.value = props.initial.results.slice(0, 4).map((item, idx) => ({
+            id: item._id || `clip-${idx}`,
+            url: item.image,
+            label: `${imageQuery.value} rank ${idx + 1}`,
+        }));
+        statusText.value = 'Recorded preset';
+        return;
+    }
+    runTextSearch();
 };
-
-onMounted(() => {
-    updateImageQuery();
-});
 </script>
 
 <template>
-    <section id="image-search" class="scroll-mt-20 border-t border-light-steel bg-canvas-white py-20 sm:py-24 lg:py-28 dark:border-white/[0.08] dark:bg-black">
+    <section id="image-search" class="scroll-mt-20 border-y border-white/[0.08] bg-[#0a0a0c] py-16 text-[#f5f5f4] sm:py-20 lg:py-24">
         <div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-            <div class="max-w-2xl">
-                <p class="inline-flex items-center gap-2 font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-magic-orange">
-                    <span class="h-1.5 w-1.5 rounded-full bg-magic-orange" aria-hidden="true"></span>
-                    02 · Multimodal CLIP search
-                </p>
-                <h2 class="mt-3 text-[28px] leading-[1.12] font-semibold tracking-[-0.03em] text-graphite sm:text-[40px] dark:text-[#f5f5f4]">
-                    Text-to-image and image-to-image in one call.
-                </h2>
-                <p class="mt-4 text-[16px] leading-relaxed text-charcoal dark:text-[#a3a3a0]">
-                    CLIP embeds words and photographs into one vector space. Search with plain text, or click any photograph below to find visually similar images with queryImage().
-                </p>
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                <div class="max-w-xl">
+                    <p class="font-mono text-[11.5px] uppercase tracking-[0.09em] text-[#ff7b47]">
+                        Multimodal · CLIP 512-dim
+                    </p>
+                    <h2 class="mt-2.5 text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] text-white sm:text-[38px]">
+                        Search photographs with words, or click any frame to pivot.
+                    </h2>
+                </div>
+
+                <form class="flex w-full max-w-md items-center gap-2" @submit.prevent="runTextSearch()">
+                    <label for="clip-query" class="sr-only">Search images with CLIP</label>
+                    <input
+                        id="clip-query"
+                        v-model="imageQuery"
+                        type="text"
+                        placeholder="Describe a scene or subject..."
+                        class="w-full rounded-xl border border-white/15 bg-white/[0.05] px-3.5 py-2 text-[14px] text-white placeholder:text-[#71717a] focus:border-magic-orange focus:ring-0 focus:outline-none"
+                    />
+                    <button
+                        type="submit"
+                        :disabled="isLoading"
+                        class="shrink-0 rounded-xl bg-white px-4 py-2 text-[13px] font-medium text-graphite transition-colors hover:bg-[#e4e4e7] disabled:opacity-50"
+                    >
+                        Search
+                    </button>
+                </form>
             </div>
 
-            <div class="mt-10 grid gap-6 lg:grid-cols-12 lg:items-center">
-                <div class="rounded-2xl border border-light-steel bg-ghostly-gray/70 p-5 sm:p-6 lg:col-span-7 dark:border-[#262624] dark:bg-[#111113]">
-                    <QueryInput
-                        v-model="imageQuery"
-                        placeholder="Describe a scene or subject..."
-                        input-label="Search images"
+            <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap gap-1.5">
+                    <button
+                        v-for="suggestion in IMAGE_SUGGESTIONS"
+                        :key="suggestion"
+                        type="button"
+                        class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12px] font-medium transition-colors"
+                        :class="mode === 'text' && imageQuery === suggestion
+                            ? 'border-white bg-white text-graphite'
+                            : 'border-white/15 bg-white/[0.04] text-[#d4d4d8] hover:border-white/35 hover:text-white'"
                         :disabled="isLoading"
-                        @submit="updateImageQuery"
+                        @click="runTextSearch(suggestion)"
                     >
-                        <template #icon>
-                            <ImageIcon />
-                        </template>
-                    </QueryInput>
-
-                    <div class="mt-4 flex flex-wrap gap-1.5">
-                        <button
-                            v-for="suggestion in IMAGE_SUGGESTIONS"
-                            :key="suggestion"
-                            type="button"
-                            class="rounded-full border px-3 py-1 text-[12px] font-medium transition-colors"
-                            :class="mode === 'text' && imageQuery === suggestion
-                                ? 'border-graphite bg-graphite text-white dark:border-[#f5f5f4] dark:bg-[#f5f5f4] dark:text-graphite'
-                                : 'border-light-steel bg-canvas-white text-charcoal hover:border-graphite/40 dark:border-[#262624] dark:bg-black/40 dark:text-[#a3a3a0] dark:hover:border-white/25 dark:hover:text-white'"
-                            :disabled="isLoading"
-                            @click="runSuggestion(suggestion)"
-                        >
-                            {{ suggestion }}
-                        </button>
-                    </div>
-
-                    <div
-                        v-if="mode === 'image'"
-                        class="mt-4 flex items-center gap-3 rounded-xl border border-light-steel bg-canvas-white px-3.5 py-2.5 dark:border-[#262624] dark:bg-black"
-                    >
-                        <img
-                            :src="selectedImageUrl"
-                            alt="Selected seed photo"
-                            class="h-10 w-10 rounded-lg border border-light-steel object-cover dark:border-[#262624]"
-                        />
-                        <p class="min-w-0 flex-1 text-[13px] font-medium text-graphite dark:text-[#f5f5f4]">
-                            Finding images visually similar to your selection
-                        </p>
-                        <button
-                            type="button"
-                            class="shrink-0 rounded-full border border-light-steel bg-ghostly-gray px-3 py-1 text-[12px] font-medium text-graphite transition-colors hover:bg-fog dark:border-[#262624] dark:bg-[#161618] dark:text-[#f5f5f4]"
-                            @click="updateImageQuery"
-                        >
-                            Reset to text
-                        </button>
-                    </div>
+                        <span
+                            v-if="mode === 'text' && imageQuery === suggestion"
+                            class="h-1.5 w-1.5 rounded-full bg-magic-orange"
+                            aria-hidden="true"
+                        ></span>
+                        {{ suggestion }}
+                    </button>
                 </div>
-
-                <div class="min-w-0 lg:col-span-5">
-                    <CodePreview
-                        :code="imageCode"
-                        filename="ImageSearch.php"
-                        language="php"
-                        :live="true"
-                        :highlight-lines="highlightedLines"
-                    />
-                </div>
+                <span class="font-mono text-[11px] text-[#a1a1aa]">
+                    {{ statusText }}
+                </span>
             </div>
 
             <div
                 v-if="error"
-                class="mt-6 rounded-2xl border border-light-steel bg-ghostly-gray px-5 py-6 text-[14px] text-charcoal dark:border-[#262624] dark:bg-[#111113] dark:text-[#a3a3a0]"
+                class="mt-6 rounded-2xl border border-white/12 bg-white/[0.03] px-5 py-6 text-[14px] text-[#d4d4d8]"
             >
                 {{ error }}
             </div>
 
-            <div v-else class="mt-8">
-                <div
-                    class="grid grid-cols-2 gap-3.5 transition-opacity duration-200 md:h-[440px] md:grid-cols-6 md:grid-rows-2"
-                    :class="isLoading ? 'opacity-55' : ''"
+            <div
+                v-else
+                class="mt-6 grid grid-cols-2 gap-3 transition-opacity duration-200 md:h-[460px] md:grid-cols-12 md:grid-rows-2"
+                :class="isLoading ? 'opacity-55' : ''"
+            >
+                <button
+                    v-for="(image, index) in images"
+                    :key="`${image.id}-${index}`"
+                    type="button"
+                    class="group relative overflow-hidden rounded-2xl border bg-[#141417] text-left transition-colors"
+                    :class="[
+                        tileClasses[index],
+                        selectedImage?.id === image.id
+                            ? 'border-magic-orange ring-1 ring-magic-orange/60'
+                            : 'border-white/10 hover:border-white/30',
+                    ]"
+                    :disabled="isLoading"
+                    @click="selectPhoto(image)"
                 >
-                    <template v-if="images.length">
-                        <button
-                            v-for="(image, index) in images"
-                            :key="image.id"
-                            type="button"
-                            class="group relative overflow-hidden rounded-2xl border border-light-steel bg-ghostly-gray text-left shadow-xs dark:border-[#262624] dark:bg-[#111113]"
-                            :class="tileClass[index]"
-                            :disabled="isLoading"
-                            @click="selectImage(image.url)"
+                    <img
+                        :src="image.url"
+                        :alt="image.label"
+                        loading="lazy"
+                        decoding="async"
+                        class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transform-none"
+                    />
+                    <div class="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between p-3">
+                        <span
+                            class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-mono text-[11px] font-semibold backdrop-blur-md"
+                            :class="index === 0
+                                ? 'bg-white text-graphite'
+                                : 'bg-black/75 text-white'"
                         >
-                            <img
-                                :src="image.url"
-                                :alt="image.title"
-                                class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transform-none"
-                            />
-                            <ImageHoverOverlay />
+                            <span v-if="index === 0" class="h-1.5 w-1.5 rounded-full bg-magic-orange" aria-hidden="true"></span>
+                            #{{ index + 1 }}
+                        </span>
+                        <span class="rounded-full bg-black/65 px-2.5 py-0.5 font-mono text-[10.5px] text-white/90 opacity-0 backdrop-blur-md transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
+                            Find similar →
+                        </span>
+                    </div>
+                </button>
+            </div>
+
+            <div class="mt-6 grid gap-5 lg:grid-cols-12 lg:items-center">
+                <div class="lg:col-span-5">
+                    <div
+                        v-if="mode === 'image' && selectedImage"
+                        class="flex items-center gap-4 rounded-2xl border border-magic-orange/45 bg-white/[0.04] p-4"
+                    >
+                        <img
+                            :src="selectedImage.url"
+                            :alt="`Pinned query image ${selectedImage.id}`"
+                            class="h-16 w-16 shrink-0 rounded-xl border border-magic-orange/50 object-cover"
+                        />
+                        <div class="min-w-0 flex-1">
+                            <p class="font-mono text-[11px] uppercase tracking-[0.07em] text-magic-orange">
+                                Pinned query image
+                            </p>
+                            <p class="mt-0.5 truncate text-[14px] font-medium text-white">
+                                {{ selectedImage.id }}
+                            </p>
+                            <p class="mt-0.5 text-[12.5px] text-[#a1a1aa]">
+                                Showing the 4 nearest visual neighbors in rank order.
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            class="shrink-0 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-white/15"
+                            @click="resetToText"
+                        >
+                            Back to text
                         </button>
-                    </template>
-                    <template v-else-if="isLoading">
-                        <div
-                            v-for="i in 4"
-                            :key="`img-skel-${i}`"
-                            class="rounded-2xl border border-light-steel bg-ghostly-gray animate-pulse dark:border-[#262624] dark:bg-[#141413]"
-                            :class="tileClass[i - 1]"
-                        ></div>
-                    </template>
+                    </div>
+
+                    <div
+                        v-else
+                        class="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+                    >
+                        <p class="font-mono text-[11px] uppercase tracking-[0.07em] text-[#8e8e93]">
+                            Active vector query
+                        </p>
+                        <p class="mt-1 text-[15px] font-medium text-white">
+                            “{{ imageQuery }}”
+                        </p>
+                        <p class="mt-1 text-[13px] leading-relaxed text-[#a1a1aa]">
+                            Click any photograph above to pin it as the query image and switch the live PHP call from <code class="font-mono text-[#e4e4e7]">queryString()</code> to <code class="font-mono text-[#ff8f61]">queryImage()</code>.
+                        </p>
+                    </div>
                 </div>
 
-                <p class="mt-3 text-right font-mono text-[12px] text-subtle-gray">
-                    Click any photo to run an image-to-image similarity search
-                </p>
+                <div class="min-w-0 lg:col-span-7">
+                    <CodePreview
+                        :code="imageCode"
+                        filename="ClipImageSearch.php"
+                        language="php"
+                        :highlight-lines="highlightedLines"
+                    />
+                </div>
             </div>
         </div>
     </section>

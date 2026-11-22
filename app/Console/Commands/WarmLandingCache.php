@@ -32,14 +32,32 @@ class WarmLandingCache extends Command
 
     private function warmNetflix(NetflixSearchController $controller): void
     {
-        foreach (NetflixSearchController::DEFAULT_QUERIES as $query) {
-            $request = Request::create('/api/search/netflix', 'POST', [
-                'query' => $query,
-                'retrieve' => NetflixSearchController::DEFAULT_RETRIEVE,
-                'filters' => NetflixSearchController::DEFAULT_FILTERS,
-            ]);
+        foreach (NetflixSearchController::DEFAULT_QUERIES as $index => $query) {
+            foreach (NetflixSearchController::DEFAULT_MODES as $mode) {
+                $request = Request::create('/api/search/netflix', 'POST', [
+                    'query' => $query,
+                    'retrieve' => NetflixSearchController::DEFAULT_RETRIEVE,
+                    'filters' => NetflixSearchController::DEFAULT_FILTERS,
+                    'mode' => $mode,
+                    'size' => NetflixSearchController::DEFAULT_SIZE,
+                ]);
 
-            $this->runQuietly("netflix: {$query}", fn () => $controller->search($request));
+                $this->runQuietly("netflix[{$mode}]: {$query}", fn () => $controller->search($request));
+            }
+
+            if ($index === 0) {
+                foreach (['type:"Movie"', 'type:"TV Show"'] as $filter) {
+                    $request = Request::create('/api/search/netflix', 'POST', [
+                        'query' => $query,
+                        'retrieve' => NetflixSearchController::DEFAULT_RETRIEVE,
+                        'filters' => $filter,
+                        'mode' => 'hybrid',
+                        'size' => NetflixSearchController::DEFAULT_SIZE,
+                    ]);
+
+                    $this->runQuietly("netflix[hybrid,{$filter}]: {$query}", fn () => $controller->search($request));
+                }
+            }
         }
     }
 

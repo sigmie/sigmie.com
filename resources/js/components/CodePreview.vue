@@ -31,6 +31,14 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    flat: {
+        type: Boolean,
+        default: false,
+    },
+    compact: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const copied = ref(false);
@@ -354,36 +362,24 @@ onUnmounted(() => clearTimeout(copyTimer));
 <template>
     <div
         class="overflow-hidden bg-[#0b0d11] text-[#e4e4e7]"
-        :class="frameless ? '' : 'rounded-2xl border border-white/[0.11] shadow-[0_24px_48px_-24px_rgba(0,0,0,0.28)]'"
+        :class="frameless || flat ? '' : 'rounded-2xl border border-white/[0.11] shadow-[0_24px_48px_-24px_rgba(0,0,0,0.28)]'"
     >
         <div
             v-if="!frameless"
-            class="flex items-center justify-between gap-3 border-b border-white/[0.08] bg-[#111318] px-4 py-2.5"
+            class="flex items-center justify-between gap-2 border-b border-white/[0.08] bg-[#111318] px-4 py-2"
         >
-            <div class="flex min-w-0 items-center gap-2.5">
-                <div class="flex items-center gap-1.5" aria-hidden="true">
-                    <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
-                    <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
-                    <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
-                </div>
-                <span class="truncate font-mono text-[12px] text-[#a1a1aa]">{{ filename }}</span>
-                <span class="shrink-0 rounded-md border border-white/10 bg-white/[0.04] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[#71717a]">
+            <div class="flex min-w-0 items-center gap-2">
+                <span class="truncate font-mono text-[12px] text-[#e4e4e7]">{{ filename }}</span>
+                <span class="shrink-0 rounded border border-white/12 bg-white/[0.04] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[#a1a1aa]">
                     {{ languageLabel }}
                 </span>
             </div>
 
             <div class="flex shrink-0 items-center gap-2">
-                <span
-                    v-if="live"
-                    class="inline-flex items-center gap-1.5 rounded-full border border-magic-green/25 bg-magic-green/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[#63df9a]"
-                >
-                    <span class="h-1.5 w-1.5 rounded-full bg-magic-green" aria-hidden="true"></span>
-                    Live
-                </span>
                 <slot name="badge" />
                 <button
                     type="button"
-                    class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[11px] text-[#a1a1aa] transition-colors hover:border-white/20 hover:text-white"
+                    class="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-1 font-mono text-[11px] text-[#d4d4d8] transition-colors hover:border-white/25 hover:text-white"
                     :class="copied ? 'border-magic-green/40 text-[#63df9a]' : ''"
                     @click="copyCode"
                 >
@@ -398,10 +394,23 @@ onUnmounted(() => clearTimeout(copyTimer));
             </div>
         </div>
 
-        <div class="overflow-x-auto scrollbar-thin" :class="maxHeightClass">
-            <div class="no-ligatures flex min-w-max px-4 py-4 font-mono text-[13px] leading-[1.7] whitespace-pre sm:px-5 sm:py-5">
-                <div class="select-none pr-5 text-right text-[#52525b]">
-                    <div v-for="(line, index) in parsedLines" :key="`n-${index}`" class="code-line">
+        <div
+            tabindex="0"
+            role="region"
+            :aria-label="`${filename} source code`"
+            class="overflow-x-auto scrollbar-thin focus:outline-none focus-visible:ring-1 focus-visible:ring-magic-orange"
+            :class="maxHeightClass"
+        >
+            <div
+                class="no-ligatures flex min-w-max font-mono whitespace-pre"
+                :class="compact ? 'px-3.5 py-3 text-[12px] leading-[1.6]' : 'px-4 py-4 text-[13px] leading-[1.7] sm:px-5 sm:py-5'"
+            >
+                <div class="select-none pr-4 text-right text-[#71717a]">
+                    <div
+                        v-for="(line, index) in parsedLines"
+                        :key="`n-${index}`"
+                        :class="compact ? 'code-line-compact' : 'code-line'"
+                    >
                         {{ index + 1 }}
                     </div>
                 </div>
@@ -409,8 +418,8 @@ onUnmounted(() => clearTimeout(copyTimer));
                     <div
                         v-for="(line, index) in parsedLines"
                         :key="`${index}-${line.text}-${line.isHighlighted}`"
-                        class="code-line rounded-sm px-2 -mx-2"
-                        :class="line.isHighlighted ? 'highlight-change' : ''"
+                        class="rounded-sm px-2 -mx-2"
+                        :class="[compact ? 'code-line-compact' : 'code-line', line.isHighlighted ? 'highlight-change' : '']"
                     >
                         <template v-if="line.tokens.length">
                             <span
@@ -430,6 +439,11 @@ onUnmounted(() => clearTimeout(copyTimer));
 <style scoped>
 .code-line {
     line-height: 1.7rem;
+    transition: background-color 0.3s ease;
+}
+
+.code-line-compact {
+    line-height: 1.45rem;
     transition: background-color 0.3s ease;
 }
 

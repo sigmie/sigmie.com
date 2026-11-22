@@ -9,13 +9,6 @@ import { useChatPanel } from '../composables/useChatPanel';
 const { toggleTheme } = useTheme();
 const { enabled, showColumn, openChat } = useChatPanel();
 
-const anchorLinks = [
-    { label: 'Examples', href: '#examples' },
-    { label: 'Live demos', href: '#semantic-search' },
-    { label: 'Capabilities', href: '#capabilities' },
-    { label: 'MCP', href: '#mcp' },
-];
-
 const menuOpen = ref(false);
 const showSearchModal = ref(false);
 const modalSearchQuery = ref('');
@@ -127,23 +120,21 @@ const headerClass = computed(() => ({
 
 <template>
     <header
-        class="fixed top-0 left-0 right-0 z-40 h-16 border-b border-light-steel/80 bg-canvas-white/80 backdrop-blur-xl dark:border-white/[0.08] dark:bg-black/80"
+        class="fixed top-0 left-0 right-0 z-40 h-16 border-b border-light-steel/80 bg-canvas-white/85 backdrop-blur-xl dark:border-white/[0.08] dark:bg-[#08080a]/85"
         :class="headerClass"
     >
         <div class="mx-auto flex h-full w-full max-w-6xl items-center justify-between gap-4 px-5 sm:px-6 lg:px-8">
             <div class="flex items-center gap-8">
                 <Link href="/" aria-label="Sigmie home" class="shrink-0" @click="closeMenu">
-                    <Logo :height="26" />
+                    <Logo :height="24" />
                 </Link>
 
-                <nav class="hidden items-center gap-6 md:flex" aria-label="Page">
+                <nav class="hidden items-center gap-6 md:flex" aria-label="Primary">
                     <a
-                        v-for="link in anchorLinks"
-                        :key="link.href"
-                        :href="link.href"
+                        href="#playground"
                         class="text-[14px] font-medium text-charcoal/80 transition-colors hover:text-graphite dark:text-[#a3a3a0] dark:hover:text-white"
                     >
-                        {{ link.label }}
+                        Playground
                     </a>
                     <Link
                         href="/docs"
@@ -151,26 +142,32 @@ const headerClass = computed(() => ({
                     >
                         Docs
                     </Link>
+                    <Link
+                        href="/docs/v2/quick-start"
+                        class="text-[14px] font-medium text-charcoal/80 transition-colors hover:text-graphite dark:text-[#a3a3a0] dark:hover:text-white"
+                    >
+                        Quick start
+                    </Link>
                 </nav>
             </div>
 
             <div class="flex items-center gap-2">
                 <button
                     type="button"
-                    class="hidden items-center gap-2.5 rounded-full border border-light-steel bg-ghostly-gray py-1.5 pr-2 pl-3.5 text-[13px] text-subtle-gray transition-colors hover:border-graphite/30 hover:text-graphite md:inline-flex dark:border-[#262624] dark:bg-[#111113] dark:hover:border-white/20 dark:hover:text-[#f5f5f4]"
+                    class="hidden items-center gap-2.5 rounded-full border border-light-steel bg-ghostly-gray py-1.5 pr-2 pl-3.5 text-[13px] text-muted-ink transition-colors hover:border-graphite/30 hover:text-graphite md:inline-flex dark:border-[#242422] dark:bg-[#111113] dark:text-[#9ca3af] dark:hover:border-white/20 dark:hover:text-[#f5f5f4]"
                     @click="openSearchModal"
                 >
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <span>Search docs</span>
-                    <kbd class="rounded-full border border-light-steel bg-canvas-white px-1.5 py-0.5 font-mono text-[10px] text-charcoal dark:border-[#262624] dark:bg-black dark:text-[#a3a3a0]">⌘K</kbd>
+                    <kbd class="rounded-full border border-light-steel bg-canvas-white px-1.5 py-0.5 font-mono text-[10px] text-charcoal dark:border-[#242422] dark:bg-black dark:text-[#a3a3a0]">⌘K</kbd>
                 </button>
 
                 <button
                     v-if="enabled"
                     type="button"
-                    class="rounded-full border border-light-steel bg-canvas-white px-3.5 py-1.5 text-[13px] font-medium text-graphite transition-colors hover:bg-ghostly-gray dark:border-[#262624] dark:bg-[#111113] dark:text-[#f5f5f4] dark:hover:bg-[#1c1c1e]"
+                    class="rounded-full border border-light-steel bg-canvas-white px-3.5 py-1.5 text-[13px] font-medium text-graphite transition-colors hover:bg-ghostly-gray dark:border-[#242422] dark:bg-[#111113] dark:text-[#f5f5f4] dark:hover:bg-[#1c1c1e]"
                     @click="openChat"
                 >
                     Ask AI
@@ -211,13 +208,6 @@ const headerClass = computed(() => ({
                     </svg>
                 </a>
 
-                <Link
-                    href="/docs/v2/quick-start"
-                    class="hidden rounded-full bg-graphite px-4 py-1.5 text-[13px] font-medium text-white shadow-xs transition-colors hover:bg-black sm:inline-flex dark:bg-[#f5f5f4] dark:text-graphite dark:hover:bg-white"
-                >
-                    Quick start
-                </Link>
-
                 <button
                     type="button"
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full text-charcoal hover:bg-ghostly-gray md:hidden dark:text-[#a3a3a0] dark:hover:bg-[#141413]"
@@ -243,16 +233,17 @@ const headerClass = computed(() => ({
     >
         <nav class="mx-auto flex max-w-6xl flex-col gap-1 px-5 py-4 sm:px-6" aria-label="Mobile">
             <a
-                v-for="link in anchorLinks"
-                :key="link.href"
-                :href="link.href"
+                href="#playground"
                 class="rounded-xl px-3 py-2.5 text-[15px] font-medium text-graphite hover:bg-ghostly-gray dark:text-[#f5f5f4] dark:hover:bg-[#141413]"
                 @click="closeMenu"
             >
-                {{ link.label }}
+                Playground
             </a>
             <Link href="/docs" class="rounded-xl px-3 py-2.5 text-[15px] font-medium text-graphite hover:bg-ghostly-gray dark:text-[#f5f5f4] dark:hover:bg-[#141413]" @click="closeMenu">
                 Docs
+            </Link>
+            <Link href="/docs/v2/quick-start" class="rounded-xl px-3 py-2.5 text-[15px] font-medium text-graphite hover:bg-ghostly-gray dark:text-[#f5f5f4] dark:hover:bg-[#141413]" @click="closeMenu">
+                Quick start
             </Link>
             <a
                 href="https://github.com/sigmie/sigmie"
@@ -263,12 +254,10 @@ const headerClass = computed(() => ({
             >
                 GitHub
             </a>
-            <div class="my-2 border-t border-light-steel dark:border-[#262624]"></div>
+            <div class="my-2 border-t border-light-steel dark:border-[#242422]"></div>
             <button
                 type="button"
                 class="block rounded-xl px-3 py-2.5 text-left text-[15px] text-charcoal hover:bg-ghostly-gray dark:hidden"
-                title="Switch to dark mode"
-                aria-label="Switch to dark mode"
                 @click="toggleTheme"
             >
                 Switch to dark mode
@@ -276,8 +265,6 @@ const headerClass = computed(() => ({
             <button
                 type="button"
                 class="hidden rounded-xl px-3 py-2.5 text-left text-[15px] text-[#a3a3a0] hover:bg-[#141413] dark:block"
-                title="Switch to light mode"
-                aria-label="Switch to light mode"
                 @click="toggleTheme"
             >
                 Switch to light mode
@@ -297,8 +284,8 @@ const headerClass = computed(() => ({
         class="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4 pt-20 backdrop-blur-sm"
         @click.self="closeSearchModal"
     >
-        <div class="flex max-h-[calc(100vh-8rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-light-steel bg-canvas-white shadow-2xl dark:border-[#262624] dark:bg-[#0c0c0b]">
-            <div class="flex items-center gap-3 border-b border-light-steel px-5 py-4 dark:border-[#262624]">
+        <div class="flex max-h-[calc(100vh-8rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-light-steel bg-canvas-white shadow-2xl dark:border-[#242422] dark:bg-[#0c0c0b]">
+            <div class="flex items-center gap-3 border-b border-light-steel px-5 py-4 dark:border-[#242422]">
                 <svg class="h-4 w-4 shrink-0 text-subtle-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -313,7 +300,7 @@ const headerClass = computed(() => ({
                 />
                 <button
                     type="button"
-                    class="rounded-md border border-light-steel px-2 py-0.5 font-mono text-[11px] text-subtle-gray hover:text-graphite dark:border-[#262624] dark:hover:text-white"
+                    class="rounded-md border border-light-steel px-2 py-0.5 font-mono text-[11px] text-subtle-gray hover:text-graphite dark:border-[#242422] dark:hover:text-white"
                     aria-label="Close search"
                     @click="closeSearchModal"
                 >
@@ -347,7 +334,7 @@ const headerClass = computed(() => ({
                         v-for="topic in popularTopics"
                         :key="topic"
                         type="button"
-                        class="rounded-full border border-light-steel px-3 py-1.5 text-[13px] text-charcoal transition-colors hover:border-graphite hover:text-graphite dark:border-[#262624] dark:text-[#a3a3a0] dark:hover:border-white/30 dark:hover:text-white"
+                        class="rounded-full border border-light-steel px-3 py-1.5 text-[13px] text-charcoal transition-colors hover:border-graphite hover:text-graphite dark:border-[#242422] dark:text-[#a3a3a0] dark:hover:border-white/30 dark:hover:text-white"
                         @click="modalSearchQuery = topic"
                     >
                         {{ topic }}

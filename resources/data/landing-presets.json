@@ -1,0 +1,988 @@
+{
+    "relevance": {
+        "keyword": {
+            "query": "secret agent undercover spy mission",
+            "mode": "keyword",
+            "filters": "type:\"TV Show\" OR type:\"Movie\"",
+            "engine": "Elasticsearch",
+            "total": 767,
+            "results": [
+                {
+                    "_id": "s1171",
+                    "_score": 36.337,
+                    "title": "Secret Magic Control Agency",
+                    "description": "Hansel and Gretel of fairy tale fame \u2014 now acting as secret agents \u2014 must use magic, clever thinking and teamwork on a mission to find a missing king.",
+                    "type": "Movie",
+                    "release_year": "2021",
+                    "director": "Aleksey Tsitsilin"
+                },
+                {
+                    "_id": "s4808",
+                    "_score": 33.763,
+                    "title": "Churchill\u2019s Secret Agents: The New Recruits",
+                    "description": "In this history-steeped reality series, 14 contestants undergo the same rigorous four-day selection process as Britain's top-secret World War II spies.",
+                    "type": "TV Show",
+                    "release_year": "2018",
+                    "director": ""
+                },
+                {
+                    "_id": "s3535",
+                    "_score": 30.92,
+                    "title": "The Spy",
+                    "description": "In the 1960s, Israeli clerk-turned-secret agent Eli Cohen goes deep undercover inside Syria on a perilous, years-long mission to spy for Mossad.",
+                    "type": "TV Show",
+                    "release_year": "2019",
+                    "director": ""
+                },
+                {
+                    "_id": "s3112",
+                    "_score": 29.2,
+                    "title": "Agent",
+                    "description": "A former footballer tries to make it as a player agent in the world of African soccer, but a secret from his past threatens to destroy everything.",
+                    "type": "TV Show",
+                    "release_year": "2019",
+                    "director": ""
+                },
+                {
+                    "_id": "s7979",
+                    "_score": 27.65,
+                    "title": "Secrets of Underground London",
+                    "description": "Experts examine the ruins and relics hidden beneath London's surface, unearthing a Roman amphitheater, plague pits, air raid shelters and more.",
+                    "type": "Movie",
+                    "release_year": "2014",
+                    "director": "Vicky Matthews, Gareth Sacala"
+                }
+            ],
+            "dsl": {
+                "query": {
+                    "bool": {
+                        "must": [
+                            {
+                                "bool": {
+                                    "filter": [
+                                        {
+                                            "bool": {
+                                                "should": [
+                                                    {
+                                                        "bool": {
+                                                            "must": [
+                                                                {
+                                                                    "term": {
+                                                                        "type.keyword": {
+                                                                            "value": "TV Show",
+                                                                            "boost": 1
+                                                                        }
+                                                                    }
+                                                                }
+                                                            ],
+                                                            "boost": 1
+                                                        }
+                                                    },
+                                                    {
+                                                        "bool": {
+                                                            "must": [
+                                                                {
+                                                                    "term": {
+                                                                        "type.keyword": {
+                                                                            "value": "Movie",
+                                                                            "boost": 1
+                                                                        }
+                                                                    }
+                                                                }
+                                                            ],
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                ],
+                                                "boost": 1
+                                            }
+                                        }
+                                    ],
+                                    "boost": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "bool": {
+                                                "should": [
+                                                    {
+                                                        "function_score": {
+                                                            "query": {
+                                                                "bool": {
+                                                                    "should": [
+                                                                        {
+                                                                            "match_none": {
+                                                                                "boost": 1
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "match": {
+                                                                                "type": {
+                                                                                    "query": "secret agent undercover spy mission",
+                                                                                    "boost": 1,
+                                                                                    "analyzer": "default"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "term": {
+                                                                                "type.keyword": {
+                                                                                    "value": "secret agent undercover spy mission",
+                                                                                    "boost": 1
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "match_phrase_prefix": {
+                                                                                "type": {
+                                                                                    "query": "secret agent undercover spy mission",
+                                                                                    "boost": 1,
+                                                                                    "analyzer": "default"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "match": {
+                                                                                "title": {
+                                                                                    "query": "secret agent undercover spy mission",
+                                                                                    "boost": 1,
+                                                                                    "analyzer": "name_ngram_field_analyzer"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "match_phrase_prefix": {
+                                                                                "title.title_text": {
+                                                                                    "query": "secret agent undercover spy mission",
+                                                                                    "boost": 1,
+                                                                                    "analyzer": "name_text_field_analyzer"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "match_bool_prefix": {
+                                                                                "title.title_text": {
+                                                                                    "query": "secret agent undercover spy mission",
+                                                                                    "boost": 1,
+                                                                                    "analyzer": "name_text_field_analyzer"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "match": {
+                                                                                "description": {
+                                                                                    "query": "secret agent undercover spy mission",
+                                                                                    "boost": 1,
+                                                                                    "analyzer": "default"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    ],
+                                                                    "boost": 1
+                                                                }
+                                                            },
+                                                            "boost": 1,
+                                                            "script_score": {
+                                                                "script": {
+                                                                    "source": "return _score * 1;",
+                                                                    "params": []
+                                                                }
+                                                            },
+                                                            "boost_mode": "replace"
+                                                        }
+                                                    }
+                                                ],
+                                                "boost": 1
+                                            }
+                                        }
+                                    ],
+                                    "boost": 1
+                                }
+                            }
+                        ],
+                        "boost": 1
+                    }
+                },
+                "from": 0,
+                "size": 5,
+                "min_score": 0,
+                "sort": [
+                    "_score"
+                ],
+                "aggs": {
+                    "type": {
+                        "filter": {
+                            "bool": {
+                                "must": [
+                                    {
+                                        "match_all": {
+                                            "boost": 1
+                                        }
+                                    }
+                                ],
+                                "boost": 1
+                            }
+                        },
+                        "aggs": {
+                            "type": {
+                                "terms": {
+                                    "field": "type.keyword",
+                                    "size": 10
+                                }
+                            }
+                        }
+                    }
+                },
+                "_source": [
+                    "title",
+                    "description",
+                    "type",
+                    "release_year",
+                    "director"
+                ],
+                "highlight": {
+                    "require_field_match": false,
+                    "no_match_size": 100,
+                    "fields": []
+                },
+                "track_total_hits": true
+            }
+        },
+        "hybrid": {
+            "query": "secret agent undercover spy mission",
+            "mode": "hybrid",
+            "filters": "type:\"TV Show\" OR type:\"Movie\"",
+            "engine": "Elasticsearch",
+            "total": 771,
+            "results": [
+                {
+                    "_id": "s3535",
+                    "_score": 2.437,
+                    "title": "The Spy",
+                    "description": "In the 1960s, Israeli clerk-turned-secret agent Eli Cohen goes deep undercover inside Syria on a perilous, years-long mission to spy for Mossad.",
+                    "type": "TV Show",
+                    "release_year": "2019",
+                    "director": ""
+                },
+                {
+                    "_id": "s8661",
+                    "_score": 2.037,
+                    "title": "Undercover: How to Operate Behind Enemy Lines",
+                    "description": "This World War II-era training film dramatizes how secret agents should act while undercover and how to avoid capture by enemies.",
+                    "type": "Movie",
+                    "release_year": "1943",
+                    "director": "John Ford"
+                },
+                {
+                    "_id": "s544",
+                    "_score": 2.032,
+                    "title": "Undercover",
+                    "description": "Undercover agents infiltrate a drug kingpin's operation by posing as a couple at the campground where he spends his weekends. Inspired by real events.",
+                    "type": "TV Show",
+                    "release_year": "2020",
+                    "director": ""
+                },
+                {
+                    "_id": "s4360",
+                    "_score": 1.98,
+                    "title": "Spy Kids: Mission Critical",
+                    "description": "In this animated spinoff series, Juni and Carmen Cortez must battle the evil organization S.W.A.M.P. \u2013 without the help of their super-spy parents.",
+                    "type": "TV Show",
+                    "release_year": "2018",
+                    "director": ""
+                },
+                {
+                    "_id": "s8516",
+                    "_score": 1.864,
+                    "title": "The Spy Next Door",
+                    "description": "While babysitting, an undercover agent is thrust back into the world of top-secret adventure when one his young charges downloads a classified file.",
+                    "type": "Movie",
+                    "release_year": "2010",
+                    "director": "Brian Levant"
+                }
+            ],
+            "dsl": {
+                "query": {
+                    "bool": {
+                        "must": [
+                            {
+                                "bool": {
+                                    "filter": [
+                                        {
+                                            "bool": {
+                                                "should": [
+                                                    {
+                                                        "bool": {
+                                                            "must": [
+                                                                {
+                                                                    "term": {
+                                                                        "type.keyword": {
+                                                                            "value": "TV Show",
+                                                                            "boost": 1
+                                                                        }
+                                                                    }
+                                                                }
+                                                            ],
+                                                            "boost": 1
+                                                        }
+                                                    },
+                                                    {
+                                                        "bool": {
+                                                            "must": [
+                                                                {
+                                                                    "term": {
+                                                                        "type.keyword": {
+                                                                            "value": "Movie",
+                                                                            "boost": 1
+                                                                        }
+                                                                    }
+                                                                }
+                                                            ],
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                ],
+                                                "boost": 1
+                                            }
+                                        }
+                                    ],
+                                    "boost": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "bool": {
+                                                "should": [
+                                                    {
+                                                        "function_score": {
+                                                            "query": {
+                                                                "bool": {
+                                                                    "should": [
+                                                                        {
+                                                                            "match_none": {
+                                                                                "boost": 1
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "match": {
+                                                                                "type": {
+                                                                                    "query": "secret agent undercover spy mission",
+                                                                                    "boost": 1,
+                                                                                    "analyzer": "default"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "term": {
+                                                                                "type.keyword": {
+                                                                                    "value": "secret agent undercover spy mission",
+                                                                                    "boost": 1
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "match_phrase_prefix": {
+                                                                                "type": {
+                                                                                    "query": "secret agent undercover spy mission",
+                                                                                    "boost": 1,
+                                                                                    "analyzer": "default"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "match": {
+                                                                                "title": {
+                                                                                    "query": "secret agent undercover spy mission",
+                                                                                    "boost": 1,
+                                                                                    "analyzer": "name_ngram_field_analyzer"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "match_phrase_prefix": {
+                                                                                "title.title_text": {
+                                                                                    "query": "secret agent undercover spy mission",
+                                                                                    "boost": 1,
+                                                                                    "analyzer": "name_text_field_analyzer"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "match_bool_prefix": {
+                                                                                "title.title_text": {
+                                                                                    "query": "secret agent undercover spy mission",
+                                                                                    "boost": 1,
+                                                                                    "analyzer": "name_text_field_analyzer"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "match": {
+                                                                                "description": {
+                                                                                    "query": "secret agent undercover spy mission",
+                                                                                    "boost": 1,
+                                                                                    "analyzer": "default"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    ],
+                                                                    "boost": 1
+                                                                }
+                                                            },
+                                                            "boost": 1,
+                                                            "script_score": {
+                                                                "script": {
+                                                                    "source": "return _score * 0.05;",
+                                                                    "params": []
+                                                                }
+                                                            },
+                                                            "boost_mode": "replace"
+                                                        }
+                                                    }
+                                                ],
+                                                "boost": 1
+                                            }
+                                        }
+                                    ],
+                                    "boost": 1
+                                }
+                            }
+                        ],
+                        "boost": 1
+                    }
+                },
+                "from": 0,
+                "size": 5,
+                "min_score": 0,
+                "sort": [
+                    "_score"
+                ],
+                "aggs": {
+                    "type": {
+                        "filter": {
+                            "bool": {
+                                "must": [
+                                    {
+                                        "match_all": {
+                                            "boost": 1
+                                        }
+                                    }
+                                ],
+                                "boost": 1
+                            }
+                        },
+                        "aggs": {
+                            "type": {
+                                "terms": {
+                                    "field": "type.keyword",
+                                    "size": 10
+                                }
+                            }
+                        }
+                    }
+                },
+                "_source": [
+                    "title",
+                    "description",
+                    "type",
+                    "release_year",
+                    "director"
+                ],
+                "knn": [
+                    {
+                        "field": "_embeddings.type.m59_efc490_dims384_cosine_avg",
+                        "query_vector": "[384-dim float vector]",
+                        "k": 5,
+                        "filter": {
+                            "bool": {
+                                "should": [
+                                    {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "term": {
+                                                        "type.keyword": {
+                                                            "value": "TV Show",
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "boost": 1
+                                        }
+                                    },
+                                    {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "term": {
+                                                        "type.keyword": {
+                                                            "value": "Movie",
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "boost": 1
+                                        }
+                                    }
+                                ],
+                                "boost": 1
+                            }
+                        },
+                        "num_candidates": 1000,
+                        "boost": 1
+                    },
+                    {
+                        "field": "_embeddings.title.m59_efc490_dims384_cosine_avg",
+                        "query_vector": "[384-dim float vector]",
+                        "k": 5,
+                        "filter": {
+                            "bool": {
+                                "should": [
+                                    {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "term": {
+                                                        "type.keyword": {
+                                                            "value": "TV Show",
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "boost": 1
+                                        }
+                                    },
+                                    {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "term": {
+                                                        "type.keyword": {
+                                                            "value": "Movie",
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "boost": 1
+                                        }
+                                    }
+                                ],
+                                "boost": 1
+                            }
+                        },
+                        "num_candidates": 1000,
+                        "boost": 1
+                    },
+                    {
+                        "field": "_embeddings.description.m59_efc490_dims384_cosine_avg",
+                        "query_vector": "[384-dim float vector]",
+                        "k": 5,
+                        "filter": {
+                            "bool": {
+                                "should": [
+                                    {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "term": {
+                                                        "type.keyword": {
+                                                            "value": "TV Show",
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "boost": 1
+                                        }
+                                    },
+                                    {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "term": {
+                                                        "type.keyword": {
+                                                            "value": "Movie",
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "boost": 1
+                                        }
+                                    }
+                                ],
+                                "boost": 1
+                            }
+                        },
+                        "num_candidates": 1000,
+                        "boost": 1
+                    }
+                ],
+                "highlight": {
+                    "require_field_match": false,
+                    "no_match_size": 100,
+                    "fields": []
+                },
+                "track_total_hits": true
+            }
+        },
+        "vector": {
+            "query": "secret agent undercover spy mission",
+            "mode": "vector",
+            "filters": "type:\"TV Show\" OR type:\"Movie\"",
+            "engine": "Elasticsearch",
+            "total": 15,
+            "results": [
+                {
+                    "_id": "s544",
+                    "_score": 0.899,
+                    "title": "Undercover",
+                    "description": "Undercover agents infiltrate a drug kingpin's operation by posing as a couple at the campground where he spends his weekends. Inspired by real events.",
+                    "type": "TV Show",
+                    "release_year": "2020",
+                    "director": ""
+                },
+                {
+                    "_id": "s8661",
+                    "_score": 0.892,
+                    "title": "Undercover: How to Operate Behind Enemy Lines",
+                    "description": "This World War II-era training film dramatizes how secret agents should act while undercover and how to avoid capture by enemies.",
+                    "type": "Movie",
+                    "release_year": "1943",
+                    "director": "John Ford"
+                },
+                {
+                    "_id": "s3535",
+                    "_score": 0.891,
+                    "title": "The Spy",
+                    "description": "In the 1960s, Israeli clerk-turned-secret agent Eli Cohen goes deep undercover inside Syria on a perilous, years-long mission to spy for Mossad.",
+                    "type": "TV Show",
+                    "release_year": "2019",
+                    "director": ""
+                },
+                {
+                    "_id": "s8516",
+                    "_score": 0.889,
+                    "title": "The Spy Next Door",
+                    "description": "While babysitting, an undercover agent is thrust back into the world of top-secret adventure when one his young charges downloads a classified file.",
+                    "type": "Movie",
+                    "release_year": "2010",
+                    "director": "Brian Levant"
+                },
+                {
+                    "_id": "s5436",
+                    "_score": 0.877,
+                    "title": "Man to Man",
+                    "description": "Disguised as a bodyguard, a special agent must complete his national secret tasks while pandering to the whims of his ill-tempered world star.",
+                    "type": "TV Show",
+                    "release_year": "2017",
+                    "director": "Chang-Min Lee"
+                }
+            ],
+            "dsl": {
+                "query": {
+                    "bool": {
+                        "must": [
+                            {
+                                "bool": {
+                                    "filter": [
+                                        {
+                                            "bool": {
+                                                "should": [
+                                                    {
+                                                        "bool": {
+                                                            "must": [
+                                                                {
+                                                                    "term": {
+                                                                        "type.keyword": {
+                                                                            "value": "TV Show",
+                                                                            "boost": 1
+                                                                        }
+                                                                    }
+                                                                }
+                                                            ],
+                                                            "boost": 1
+                                                        }
+                                                    },
+                                                    {
+                                                        "bool": {
+                                                            "must": [
+                                                                {
+                                                                    "term": {
+                                                                        "type.keyword": {
+                                                                            "value": "Movie",
+                                                                            "boost": 1
+                                                                        }
+                                                                    }
+                                                                }
+                                                            ],
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                ],
+                                                "boost": 1
+                                            }
+                                        }
+                                    ],
+                                    "boost": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "bool": {
+                                                "should": [
+                                                    {
+                                                        "match_none": {
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                ],
+                                                "boost": 1
+                                            }
+                                        }
+                                    ],
+                                    "boost": 1
+                                }
+                            }
+                        ],
+                        "boost": 1
+                    }
+                },
+                "from": 0,
+                "size": 5,
+                "min_score": 0,
+                "sort": [
+                    "_score"
+                ],
+                "aggs": {
+                    "type": {
+                        "filter": {
+                            "bool": {
+                                "must": [
+                                    {
+                                        "match_all": {
+                                            "boost": 1
+                                        }
+                                    }
+                                ],
+                                "boost": 1
+                            }
+                        },
+                        "aggs": {
+                            "type": {
+                                "terms": {
+                                    "field": "type.keyword",
+                                    "size": 10
+                                }
+                            }
+                        }
+                    }
+                },
+                "_source": [
+                    "title",
+                    "description",
+                    "type",
+                    "release_year",
+                    "director"
+                ],
+                "knn": [
+                    {
+                        "field": "_embeddings.type.m59_efc490_dims384_cosine_avg",
+                        "query_vector": "[384-dim float vector]",
+                        "k": 5,
+                        "filter": {
+                            "bool": {
+                                "should": [
+                                    {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "term": {
+                                                        "type.keyword": {
+                                                            "value": "TV Show",
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "boost": 1
+                                        }
+                                    },
+                                    {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "term": {
+                                                        "type.keyword": {
+                                                            "value": "Movie",
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "boost": 1
+                                        }
+                                    }
+                                ],
+                                "boost": 1
+                            }
+                        },
+                        "num_candidates": 1000,
+                        "boost": 1
+                    },
+                    {
+                        "field": "_embeddings.title.m59_efc490_dims384_cosine_avg",
+                        "query_vector": "[384-dim float vector]",
+                        "k": 5,
+                        "filter": {
+                            "bool": {
+                                "should": [
+                                    {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "term": {
+                                                        "type.keyword": {
+                                                            "value": "TV Show",
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "boost": 1
+                                        }
+                                    },
+                                    {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "term": {
+                                                        "type.keyword": {
+                                                            "value": "Movie",
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "boost": 1
+                                        }
+                                    }
+                                ],
+                                "boost": 1
+                            }
+                        },
+                        "num_candidates": 1000,
+                        "boost": 1
+                    },
+                    {
+                        "field": "_embeddings.description.m59_efc490_dims384_cosine_avg",
+                        "query_vector": "[384-dim float vector]",
+                        "k": 5,
+                        "filter": {
+                            "bool": {
+                                "should": [
+                                    {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "term": {
+                                                        "type.keyword": {
+                                                            "value": "TV Show",
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "boost": 1
+                                        }
+                                    },
+                                    {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "term": {
+                                                        "type.keyword": {
+                                                            "value": "Movie",
+                                                            "boost": 1
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "boost": 1
+                                        }
+                                    }
+                                ],
+                                "boost": 1
+                            }
+                        },
+                        "num_candidates": 1000,
+                        "boost": 1
+                    }
+                ],
+                "highlight": {
+                    "require_field_match": false,
+                    "no_match_size": 100,
+                    "fields": []
+                },
+                "track_total_hits": true
+            }
+        }
+    },
+    "mcp": [
+        {
+            "query": "hybrid semantic search",
+            "title": "Add semantic search",
+            "url": "/docs/v2/search#add-semantic-search",
+            "page": "search",
+            "content": "Call semantic() to match by vector as well as by keyword:\n\n$sigmie->newSearch('articles')\n    ->properties($props)\n    ->semantic() // [tl! highlight]\n    ->queryString('artificial intelligence')\n    ->get();\n\nTo match by vector only, also call disableKeywordSearch():\n\n->semantic()->disableKeywordSearch()\n\nSee Semantic Search to set up embeddings.",
+            "total": 10
+        },
+        {
+            "query": "filter parser range",
+            "title": "Filters",
+            "url": "/docs/v2/analytics#filters",
+            "page": "analytics",
+            "content": "filters() applies a filter-parser string to every widget. filterQuery() adds a query object with AND, like NewSearch::filterQuery().\n\nuse Sigmie\\Query\\Queries\\Term\\Range;\n\n$orders->analytics('created_at')\n    ->filters(\"status:'paid'\")\n    ->filterQuery(new Range('amount', ['>=' => 100]))\n    ->kpi('big_orders', Metric::Sum, 'amount')\n    ->get();",
+            "total": 10
+        },
+        {
+            "query": "laravel scout",
+            "title": "Install the driver",
+            "url": "/docs/v2/laravel-scout#install-the-driver",
+            "page": "laravel-scout",
+            "content": "Install Scout:\ncomposer require laravel/scout\n\n\n\nPublish the Scout config:\nphp artisan vendor:publish --provider=\"Laravel\\Scout\\ScoutServiceProvider\"\n\n\n\nInstall the Sigmie driver:\ncomposer require sigmie/elasticsearch-scout\n\n\n\nSet the Scout driver in .env:\nSCOUT_DRIVER=elasticsearch\n\n\n\nTo change the connection or the index settings, publish the driver config:\nphp artisan vendor:publish --provider=\"Sigmie\\ElasticsearchScout\\ElasticsearchScoutServiceProvider\"\n\nThis creates config/elasticsearch-scout.php. See Configuration reference for its keys.",
+            "total": 10
+        }
+    ],
+    "clip": {
+        "query": "Owl",
+        "results": [
+            {
+                "_id": "185.jpg",
+                "image": "/images/clip-owl/185.jpg"
+            },
+            {
+                "_id": "675.jpg",
+                "image": "/images/clip-owl/675.jpg"
+            },
+            {
+                "_id": "853.jpg",
+                "image": "/images/clip-owl/853.jpg"
+            },
+            {
+                "_id": "688.jpg",
+                "image": "/images/clip-owl/688.jpg"
+            }
+        ]
+    }
+}

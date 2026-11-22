@@ -37,21 +37,26 @@ Route::get('/llms.txt', LlmsController::class);
 Route::get('/llms-full.txt', LlmsFullController::class);
 
 Route::get('/', function () {
+    $presetPath = resource_path('data/landing-presets.json');
+    $presets = is_file($presetPath)
+        ? json_decode((string) file_get_contents($presetPath), true)
+        : [];
+
     return Inertia::render('Welcome', [
-        'title' => 'A modern Elasticsearch library for PHP',
-        'description' => 'Sigmie is a modern, developer-friendly Elasticsearch and OpenSearch library for PHP and Laravel. Fluent search, semantic and hybrid retrieval, AI-ready, no boilerplate.',
+        'title' => 'Fluent Elasticsearch and OpenSearch for PHP',
+        'description' => 'Sigmie is a fluent Elasticsearch and OpenSearch library for PHP and Laravel. Compare keyword, hybrid, and vector search live, inspect the generated DSL, and query CLIP images.',
         'href' => config('app.url') . '/',
         'card' => config('app.url') . '/og-image.png',
+        'initialRelevance' => $presets['relevance'] ?? [],
+        'initialClip' => $presets['clip'] ?? ['query' => 'Owl', 'results' => []],
+        'initialMcp' => $presets['mcp'] ?? [],
         'navigation' => [
             [
                 'title' => 'On this page',
                 'links' => [
-                    ['title' => 'Examples', 'href' => '/#examples'],
-                    ['title' => 'Live semantic search', 'href' => '/#semantic-search'],
-                    ['title' => 'Image search', 'href' => '/#image-search'],
-                    ['title' => 'Capabilities', 'href' => '/#capabilities'],
-                    ['title' => 'MCP', 'href' => '/#mcp'],
-                    ['title' => 'About', 'href' => '/#about'],
+                    ['title' => 'Playground', 'href' => '/#playground'],
+                    ['title' => 'CLIP Gallery', 'href' => '/#image-search'],
+                    ['title' => 'Platform & MCP', 'href' => '/#platform'],
                 ],
             ],
             [
@@ -61,7 +66,7 @@ Route::get('/', function () {
                     ['title' => 'Quick start', 'href' => '/docs/v2/quick-start'],
                 ],
             ],
-        ]
+        ],
     ]);
 });
 

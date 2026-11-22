@@ -42,7 +42,7 @@ class ImageSearchController extends Controller
             'image' => 'required|string'
         ]);
 
-        $imageData = $request->input('image');
+        $imageData = $this->resolveImageInput((string) $request->input('image'));
 
         $cacheKey = 'images:image:' . md5($imageData);
 
@@ -53,6 +53,19 @@ class ImageSearchController extends Controller
         );
 
         return response()->json($payload);
+    }
+
+    private function resolveImageInput(string $input): string
+    {
+        if (str_starts_with($input, '/images/clip-owl/')) {
+            $filename = basename($input);
+            $path = public_path('images/clip-owl/' . $filename);
+            if (is_file($path)) {
+                return 'data:image/jpeg;base64,' . base64_encode((string) file_get_contents($path));
+            }
+        }
+
+        return $input;
     }
 
     private function runTextSearch(string $query): array

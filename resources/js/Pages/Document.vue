@@ -1,14 +1,11 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3";
 import { computed, onMounted, onUnmounted, nextTick, ref } from "vue";
-import Navbar from "../Navbar.vue";
+import AppLayout from "../Layouts/AppLayout.vue";
 import LeftSidebar from "../components/LeftSidebar.vue";
 import RightSidebar from "../components/RightSidebar.vue";
-import ChatWidget from "../components/ChatWidget.vue";
 import TableOfContents from "../TableOfContents.vue";
 import { useTheme } from "../composables/useTheme";
-import { useChatPanel } from "../composables/useChatPanel";
-import SiteFooter from "../components/Footer.vue";
 
 const props = defineProps({
     html: String,
@@ -43,7 +40,6 @@ const nextLink = computed(() => {
 const showMobileToc = ref(false);
 
 const { initTheme } = useTheme();
-const { showColumn } = useChatPanel();
 initTheme();
 
 const copiedMarkdown = ref(false);
@@ -271,149 +267,141 @@ onUnmounted(() => {
 <template>
     <Head :title="title" />
 
-    <div class="min-h-screen bg-canvas-white dark:bg-black font-sans text-graphite dark:text-white">
-        <Navbar :navigation="navigation" />
+    <AppLayout :navigation="navigation">
+        <div class="mx-auto max-w-site border-x border-[#eaeaea] px-6 sm:px-10 dark:border-white/[0.1]">
+            <div class="flex gap-10">
+                <LeftSidebar
+                    v-if="navigation"
+                    :navigation="navigation"
+                    :current-path="$page.url"
+                />
 
-        <div class="pt-16" :class="{ 'xl:pr-[400px]': showColumn }">
-            <div class="max-w-[88rem] mx-auto px-6 lg:px-8">
-                <div class="flex gap-10 xl:gap-14">
-                    <LeftSidebar
-                        v-if="navigation"
-                        :navigation="navigation"
-                        :current-path="$page.url"
-                    />
+                <main class="flex-1 min-w-0 py-10">
+                    <article class="max-w-2xl">
+                        <div class="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 mb-6">
+                            <h1 class="min-w-0 flex-1 basis-[16rem] break-words text-[30px] leading-[1.15] font-semibold tracking-tight text-graphite sm:text-[36px] dark:text-white">
+                                {{ pageHeading || title }}
+                            </h1>
 
-                    <main class="flex-1 min-w-0 py-10">
-                        <article class="max-w-2xl">
-                            <div class="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 mb-6">
-                                <h1 class="min-w-0 flex-1 basis-[16rem] break-words text-[30px] leading-[1.15] font-semibold tracking-tight text-graphite sm:text-[36px] dark:text-white">
-                                    {{ pageHeading || title }}
-                                </h1>
-
-                                <div ref="dropdownRef" class="relative flex-shrink-0">
-                                    <div class="flex items-center border border-light-steel dark:border-gray-700 rounded-full overflow-hidden bg-canvas-white dark:bg-gray-900">
-                                        <button
-                                            @click="copyPageAsMarkdown"
-                                            :class="[
-                                                'flex items-center gap-2 px-4 py-2 text-[13px] font-medium transition-colors',
-                                                copiedMarkdown
-                                                    ? 'bg-magic-green/15 text-magic-green'
-                                                    : 'text-charcoal hover:text-graphite hover:bg-ghostly-gray dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800'
-                                            ]"
-                                        >
-                                            <svg v-if="!copiedMarkdown" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                            </svg>
-                                            <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                            </svg>
-                                            <span>{{ copiedMarkdown ? 'Copied' : 'Copy page' }}</span>
-                                        </button>
-
-                                        <button
-                                            @click="showActionsDropdown = !showActionsDropdown"
-                                            aria-label="More page actions"
-                                            class="px-2.5 py-2 text-charcoal hover:text-graphite hover:bg-ghostly-gray dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800 border-l border-light-steel dark:border-gray-700 transition-colors"
-                                        >
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </button>
-                                    </div>
-
-                                    <div
-                                        v-if="showActionsDropdown"
-                                        class="absolute right-0 mt-2 w-56 bg-canvas-white dark:bg-gray-900 border border-light-steel dark:border-gray-800 rounded-xl shadow-xl py-2 z-10"
+                            <div ref="dropdownRef" class="relative flex-shrink-0">
+                                <div class="flex items-center border border-light-steel dark:border-gray-700 rounded-full overflow-hidden bg-canvas-white dark:bg-gray-900">
+                                    <button
+                                        @click="copyPageAsMarkdown"
+                                        :class="[
+                                            'flex items-center gap-2 px-4 py-2 text-[13px] font-medium transition-colors',
+                                            copiedMarkdown
+                                                ? 'bg-magic-green/15 text-magic-green'
+                                                : 'text-charcoal hover:text-graphite hover:bg-ghostly-gray dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800'
+                                        ]"
                                     >
-                                        <a
-                                            :href="githubMarkdownUrl"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            class="flex items-center gap-3 px-4 py-2 text-[13px] text-charcoal dark:text-gray-300 hover:bg-ghostly-gray dark:hover:bg-gray-800 transition-colors"
-                                            @click="showActionsDropdown = false"
-                                        >
-                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                                            </svg>
-                                            <span>View markdown</span>
-                                        </a>
-                                    </div>
+                                        <svg v-if="!copiedMarkdown" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        </svg>
+                                        <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span>{{ copiedMarkdown ? 'Copied' : 'Copy page' }}</span>
+                                    </button>
+
+                                    <button
+                                        @click="showActionsDropdown = !showActionsDropdown"
+                                        aria-label="More page actions"
+                                        class="px-2.5 py-2 text-charcoal hover:text-graphite hover:bg-ghostly-gray dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800 border-l border-light-steel dark:border-gray-700 transition-colors"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div
+                                    v-if="showActionsDropdown"
+                                    class="absolute right-0 mt-2 w-56 bg-canvas-white dark:bg-gray-900 border border-light-steel dark:border-gray-800 rounded-xl shadow-xl py-2 z-10"
+                                >
+                                    <a
+                                        :href="githubMarkdownUrl"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="flex items-center gap-3 px-4 py-2 text-[13px] text-charcoal dark:text-gray-300 hover:bg-ghostly-gray dark:hover:bg-gray-800 transition-colors"
+                                        @click="showActionsDropdown = false"
+                                    >
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                                        </svg>
+                                        <span>View markdown</span>
+                                    </a>
                                 </div>
                             </div>
+                        </div>
 
-                            <p v-if="description" class="text-[16px] leading-[1.55] text-charcoal dark:text-gray-400 mb-10 -mt-2">
-                                {{ description }}
-                            </p>
+                        <p v-if="description" class="text-[16px] leading-[1.55] text-charcoal dark:text-gray-400 mb-10 -mt-2">
+                            {{ description }}
+                        </p>
 
-                            <details class="xl:hidden mb-8 rounded-lg border border-light-steel dark:border-gray-800 bg-ghostly-gray dark:bg-gray-900 [&[open]>summary>svg]:rotate-180" @toggle="(e) => showMobileToc = e.target.open">
-                                <summary class="flex items-center justify-between gap-2 px-4 py-3 cursor-pointer text-[13px] font-semibold text-graphite dark:text-white list-none">
-                                    On this page
-                                    <svg class="w-4 h-4 text-subtle-gray transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </summary>
-                                <div class="px-4 pb-3 border-t border-light-steel dark:border-gray-800 pt-3">
-                                    <TableOfContents :html="cleanedHtml" />
-                                </div>
-                            </details>
+                        <details class="xl:hidden mb-8 rounded-lg border border-light-steel dark:border-gray-800 bg-ghostly-gray dark:bg-gray-900 [&[open]>summary>svg]:rotate-180" @toggle="(e) => showMobileToc = e.target.open">
+                            <summary class="flex items-center justify-between gap-2 px-4 py-3 cursor-pointer text-[13px] font-semibold text-graphite dark:text-white list-none">
+                                On this page
+                                <svg class="w-4 h-4 text-subtle-gray transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </summary>
+                            <div class="px-4 pb-3 border-t border-light-steel dark:border-gray-800 pt-3">
+                                <TableOfContents :html="cleanedHtml" />
+                            </div>
+                        </details>
 
-                            <div v-html="cleanedHtml" class="doc-content"></div>
+                        <div v-html="cleanedHtml" class="doc-content"></div>
 
-                            <footer class="mt-16 pt-8 border-t border-light-steel dark:border-gray-800">
-                                <a
-                                    :href="githubMarkdownUrl"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="inline-flex items-center gap-2 text-[13px] font-medium text-subtle-gray hover:text-graphite dark:hover:text-white transition-colors mb-10"
+                        <footer class="mt-16 pt-8 border-t border-light-steel dark:border-gray-800">
+                            <a
+                                :href="githubMarkdownUrl"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="inline-flex items-center gap-2 text-[13px] font-medium text-subtle-gray hover:text-graphite dark:hover:text-white transition-colors mb-10"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Edit this page on GitHub
+                            </a>
+
+                            <nav v-if="prevLink || nextLink" class="grid grid-cols-2 gap-4">
+                                <Link
+                                    v-if="prevLink"
+                                    :href="prevLink.href"
+                                    class="group flex flex-col items-start gap-1 p-4 rounded-xl border border-light-steel dark:border-gray-800 hover:border-graphite dark:hover:border-white transition-colors"
                                 >
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                    Edit this page on GitHub
-                                </a>
+                                    <span class="text-[12px] text-subtle-gray">Previous</span>
+                                    <span class="inline-flex items-center gap-2 text-[14px] font-semibold text-graphite dark:text-white group-hover:text-magic-orange transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                        {{ prevLink.title }}
+                                    </span>
+                                </Link>
+                                <div v-else></div>
+                                <Link
+                                    v-if="nextLink"
+                                    :href="nextLink.href"
+                                    class="group flex flex-col items-end gap-1 p-4 rounded-xl border border-light-steel dark:border-gray-800 hover:border-graphite dark:hover:border-white transition-colors text-right"
+                                >
+                                    <span class="text-[12px] text-subtle-gray">Next</span>
+                                    <span class="inline-flex items-center gap-2 text-[14px] font-semibold text-graphite dark:text-white group-hover:text-magic-orange transition-colors">
+                                        {{ nextLink.title }}
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </span>
+                                </Link>
+                            </nav>
+                        </footer>
+                    </article>
+                </main>
 
-                                <nav v-if="prevLink || nextLink" class="grid grid-cols-2 gap-4">
-                                    <Link
-                                        v-if="prevLink"
-                                        :href="prevLink.href"
-                                        class="group flex flex-col items-start gap-1 p-4 rounded-xl border border-light-steel dark:border-gray-800 hover:border-graphite dark:hover:border-white transition-colors"
-                                    >
-                                        <span class="text-[12px] text-subtle-gray">Previous</span>
-                                        <span class="inline-flex items-center gap-2 text-[14px] font-semibold text-graphite dark:text-white group-hover:text-magic-orange transition-colors">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                                            </svg>
-                                            {{ prevLink.title }}
-                                        </span>
-                                    </Link>
-                                    <div v-else></div>
-                                    <Link
-                                        v-if="nextLink"
-                                        :href="nextLink.href"
-                                        class="group flex flex-col items-end gap-1 p-4 rounded-xl border border-light-steel dark:border-gray-800 hover:border-graphite dark:hover:border-white transition-colors text-right"
-                                    >
-                                        <span class="text-[12px] text-subtle-gray">Next</span>
-                                        <span class="inline-flex items-center gap-2 text-[14px] font-semibold text-graphite dark:text-white group-hover:text-magic-orange transition-colors">
-                                            {{ nextLink.title }}
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                            </svg>
-                                        </span>
-                                    </Link>
-                                </nav>
-                            </footer>
-                        </article>
-                    </main>
-
-                    <RightSidebar :html="cleanedHtml" />
-                </div>
+                <RightSidebar :html="cleanedHtml" />
             </div>
         </div>
-
-        <SiteFooter />
-
-        <ChatWidget />
-    </div>
+    </AppLayout>
 </template>
 
 <style type="text/css">

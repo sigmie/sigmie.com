@@ -9,6 +9,9 @@
 @source "../../app/Services/Documentation.php";
 
 @theme {
+  /* One frame for the navbar, landing sections, docs and footer. */
+  --container-site: 1280px;
+
   /* DESIGN.md — Colors */
   --color-canvas-white: #ffffff;
   --color-ghostly-gray: #faf9f7;

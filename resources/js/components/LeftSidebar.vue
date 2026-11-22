@@ -36,8 +36,8 @@ onMounted(() => {
 </script>
 
 <template>
-    <aside class="hidden lg:block w-64 flex-shrink-0 font-sans">
-        <div class="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto py-10 pr-6 scrollbar-thin">
+    <aside class="hidden lg:block w-56 flex-shrink-0 font-sans">
+        <div class="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto py-10 pr-4 scrollbar-thin">
             <nav class="space-y-7">
                 <div v-for="(section, index) in navigation" :key="index">
                     <button

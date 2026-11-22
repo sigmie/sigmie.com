@@ -29,7 +29,7 @@ defineProps({
 
     <AppLayout>
         <div class="bg-white dark:bg-black">
-            <div class="mx-auto max-w-[1120px] border-x border-[#eaeaea] dark:border-white/[0.1]">
+            <div class="mx-auto max-w-site border-x border-[#eaeaea] dark:border-white/[0.1]">
                 <RelevanceStudio :initial="initialRelevance" />
                 <ImageSearchDemo :initial="initialClip" />
                 <PlatformAndMcp :initial-mcp="initialMcp" />

@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3';
 
 <template>
     <footer class="mt-0 border-t border-[#eaeaea] bg-white dark:border-white/[0.1] dark:bg-black">
-        <div class="mx-auto max-w-[1120px] px-5 py-14 sm:px-6">
+        <div class="mx-auto max-w-site px-6 py-14 sm:px-10">
             <div class="mb-10 grid grid-cols-2 gap-10 md:grid-cols-4">
                 <div class="col-span-2 md:col-span-1">
                     <h2 class="mb-4 text-[13px] font-semibold uppercase tracking-wider text-muted-ink dark:text-[#9ca3af]">Sigmie</h2>

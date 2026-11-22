@@ -1,10 +1,23 @@
 <script setup>
-import { Link, router as Inertia } from '@inertiajs/vue3';
+import { Link, router as Inertia, usePage } from '@inertiajs/vue3';
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import axios from 'axios';
 import Logo from './Logo.vue';
 import { useTheme } from '../composables/useTheme';
 import { useChatPanel } from '../composables/useChatPanel';
+
+// Docs pages pass their page list; phones get it in the menu, since the
+// docs sidebar shows from lg up.
+const props = defineProps({
+    navigation: {
+        type: Array,
+        default: null,
+    },
+});
+
+const page = usePage();
+const inDocs = computed(() => page.url.startsWith('/docs'));
+const menuBreakpoint = computed(() => (props.navigation ? 'lg:hidden' : 'md:hidden'));
 
 const { toggleTheme } = useTheme();
 const { enabled, showColumn, openChat } = useChatPanel();
@@ -123,7 +136,7 @@ const headerClass = computed(() => ({
         class="fixed top-0 left-0 right-0 z-40 h-16 border-b border-[#eaeaea] bg-white/85 backdrop-blur-xl dark:border-white/[0.1] dark:bg-black/85"
         :class="headerClass"
     >
-        <div class="mx-auto flex h-full w-full max-w-[1120px] items-center justify-between gap-4 px-5 sm:px-6">
+        <div class="mx-auto flex h-full w-full max-w-site items-center justify-between gap-4 px-6 sm:px-10">
             <div class="flex items-center gap-8">
                 <Link href="/" aria-label="Sigmie home" class="shrink-0" @click="closeMenu">
                     <Logo :height="24" />
@@ -132,7 +145,9 @@ const headerClass = computed(() => ({
                 <nav class="hidden items-center gap-6 md:flex" aria-label="Primary">
                     <Link
                         href="/docs"
-                        class="text-[14px] font-medium text-charcoal/80 transition-colors hover:text-graphite dark:text-[#a3a3a0] dark:hover:text-white"
+                        class="text-[14px] font-medium transition-colors hover:text-graphite dark:hover:text-white"
+                        :class="inDocs ? 'text-graphite dark:text-white' : 'text-charcoal/80 dark:text-[#a3a3a0]'"
+                        :aria-current="inDocs ? 'page' : undefined"
                     >
                         Docs
                     </Link>
@@ -215,7 +230,8 @@ const headerClass = computed(() => ({
 
                 <button
                     type="button"
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-full text-charcoal hover:bg-ghostly-gray md:hidden dark:text-[#a3a3a0] dark:hover:bg-[#141413]"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full text-charcoal hover:bg-ghostly-gray dark:text-[#a3a3a0] dark:hover:bg-[#141413]"
+                    :class="menuBreakpoint"
                     :aria-expanded="menuOpen"
                     :aria-label="menuOpen ? 'Close menu' : 'Open menu'"
                     @click="menuOpen = !menuOpen"
@@ -233,10 +249,10 @@ const headerClass = computed(() => ({
 
     <div
         v-if="menuOpen"
-        class="fixed inset-x-0 top-16 z-40 border-b border-light-steel bg-canvas-white/95 backdrop-blur-xl md:hidden dark:border-white/10 dark:bg-black/95"
-        :class="{ 'xl:right-[400px]': showColumn }"
+        class="fixed inset-x-0 top-16 z-40 max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-light-steel bg-canvas-white dark:border-white/10 dark:bg-black"
+        :class="[menuBreakpoint, { 'xl:right-[400px]': showColumn }]"
     >
-        <nav class="mx-auto flex max-w-6xl flex-col gap-1 px-5 py-4 sm:px-6" aria-label="Mobile">
+        <nav class="mx-auto flex max-w-site flex-col gap-1 px-3 py-4 sm:px-7" aria-label="Mobile">
             <Link href="/docs" class="rounded-xl px-3 py-2.5 text-[15px] font-medium text-graphite hover:bg-ghostly-gray dark:text-[#f5f5f4] dark:hover:bg-[#141413]" @click="closeMenu">
                 Docs
             </Link>
@@ -252,6 +268,20 @@ const headerClass = computed(() => ({
             >
                 GitHub
             </a>
+            <template v-for="section in navigation" :key="section.title">
+                <p class="mt-5 mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-subtle-gray">{{ section.title }}</p>
+                <Link
+                    v-for="link in section.links"
+                    :key="link.href"
+                    :href="link.href"
+                    class="rounded-xl px-3 py-2 text-[15px] hover:bg-ghostly-gray dark:hover:bg-[#141413]"
+                    :class="page.url === link.href ? 'bg-ghostly-gray font-medium text-graphite dark:bg-[#141413] dark:text-white' : 'text-charcoal dark:text-[#a3a3a0]'"
+                    :aria-current="page.url === link.href ? 'page' : undefined"
+                    @click="closeMenu"
+                >
+                    {{ link.title }}
+                </Link>
+            </template>
             <div class="my-2 border-t border-light-steel dark:border-[#242422]"></div>
             <button
                 type="button"
@@ -313,6 +343,7 @@ const headerClass = computed(() => ({
                     >
                         <span class="block text-[14px] font-medium text-graphite dark:text-[#f5f5f4]">{{ result.title }}</span>
                         <span class="mt-0.5 block truncate text-[12px] text-subtle-gray">{{ result.url }}</span>
+                        <span v-if="result.content" class="mt-1 line-clamp-2 block text-[13px] leading-relaxed text-charcoal dark:text-[#a3a3a0]">{{ result.content }}</span>
                     </button>
                 </div>
                 <p v-else class="px-5 py-8 text-[14px] text-subtle-gray">No documentation pages matched.</p>

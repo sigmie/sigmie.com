@@ -120,9 +120,9 @@ return [
     |
     */
 
-    'embeddings_doc_api' => env('SIGMIE_AGENT_EMBEDDINGS_DOC_API', 'cohere-doc'),
+    'embeddings_doc_api' => env('SIGMIE_AGENT_EMBEDDINGS_DOC_API', 'infinity-embeddings'),
 
-    'embeddings_query_api' => env('SIGMIE_AGENT_EMBEDDINGS_QUERY_API', 'cohere-query'),
+    'embeddings_query_api' => env('SIGMIE_AGENT_EMBEDDINGS_QUERY_API', 'infinity-embeddings'),
 
     /*
     |--------------------------------------------------------------------------
@@ -136,7 +136,7 @@ return [
     |
     */
 
-    'auto_register_sigmie_apis' => env('SIGMIE_AGENT_AUTO_REGISTER_APIS', true),
+    'auto_register_sigmie_apis' => env('SIGMIE_AGENT_AUTO_REGISTER_APIS', false),
 
     /**
      * Provider for embeddings + rerank auto-registration. Supported: cohere.
@@ -200,7 +200,7 @@ return [
     |
     */
 
-    'rerank_api' => env('SIGMIE_AGENT_RERANK_API', 'cohere-rerank'),
+    'rerank_api' => env('SIGMIE_AGENT_RERANK_API', ''),
 
     'rerank_top_k' => max(1, min(100, (int) env('SIGMIE_AGENT_RERANK_TOP_K', '30'))),
 

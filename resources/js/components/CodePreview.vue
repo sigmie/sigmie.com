@@ -331,13 +331,13 @@ const getTokenClass = (token) => {
         case 'filter-field':
             return 'text-[#e9d5ff]';
         case 'comment':
-            return 'text-[#6b7280] italic';
+            return 'text-[#8b8b93] italic';
         case 'comma':
         case 'semicolon':
         case 'bracket':
         case 'punctuation':
         case 'filter-bracket':
-            return 'text-[#71717a]';
+            return 'text-[#8b8b93]';
         default:
             return 'text-[#e4e4e7]';
     }
@@ -405,7 +405,7 @@ onUnmounted(() => clearTimeout(copyTimer));
                 class="no-ligatures flex min-w-max font-mono whitespace-pre"
                 :class="compact ? 'px-3.5 py-3 text-[12px] leading-[1.6]' : 'px-4 py-4 text-[13px] leading-[1.7] sm:px-5 sm:py-5'"
             >
-                <div class="select-none pr-4 text-right text-[#71717a]">
+                <div class="select-none pr-4 text-right text-[#8b8b93]">
                     <div
                         v-for="(line, index) in parsedLines"
                         :key="`n-${index}`"

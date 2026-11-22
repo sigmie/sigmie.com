@@ -1,8 +1,27 @@
-<script setup>
-import { ref, computed, nextTick, watch, onMounted } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+<script>
+import { ref } from 'vue';
 import { Chat } from '@ai-sdk/vue';
 import { DefaultChatTransport } from 'ai';
+
+// One conversation per visit, outside the component: Inertia page visits
+// remount the layout, and closing the panel must not end a reply mid-stream.
+const limitReached = ref(false);
+const input = ref('');
+
+const chat = new Chat({
+    transport: new DefaultChatTransport({
+        api: '/api/agent/chat',
+    }),
+    onError: (err) => {
+        if (typeof err?.message === 'string' && err.message.includes('429')) {
+            limitReached.value = true;
+        }
+    },
+});
+</script>
+
+<script setup>
+import { computed, nextTick, watch, onMounted } from 'vue';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js/lib/common';
@@ -21,27 +40,9 @@ const md = new Marked(
     })
 );
 
-// Opt-in panel state shared with the topbar "Ask AI" button + layouts.
-const { enabled, open, focusSignal, hydrate, openChat, closeChat } = useChatPanel();
-const input = ref('');
+const { open, focusRequested, closeChat } = useChatPanel();
 const inputRef = ref(null);
 const scrollRef = ref(null);
-const limitReached = ref(false);
-
-const page = usePage();
-hydrate(page.props.agentChat?.enabled);
-onMounted(() => hydrate(page.props.agentChat?.enabled));
-
-const chat = new Chat({
-    transport: new DefaultChatTransport({
-        api: '/api/agent/chat',
-    }),
-    onError: (err) => {
-        if (typeof err?.message === 'string' && err.message.includes('429')) {
-            limitReached.value = true;
-        }
-    },
-});
 
 const messages = computed(() => chat.messages);
 const status = computed(() => chat.status);
@@ -105,25 +106,18 @@ watch(isStreaming, (streaming, was) => {
     if (was && ! streaming) focusInput();
 });
 
-// Topbar "Ask AI" button bumps focusSignal → open (handled by composable) + focus.
-watch(focusSignal, () => focusInput());
+// "Ask AI" asks for focus; on the first open this component is still loading,
+// so the request waits here until it mounts.
+watch(focusRequested, (requested) => {
+    if (! requested) return;
+    focusRequested.value = false;
+    focusInput();
+}, { immediate: true });
+
+onMounted(scrollToBottom);
 </script>
 
 <template>
-    <template v-if="enabled">
-    <!-- Launcher (shown whenever the chat is closed) -->
-    <button
-        v-if="!open"
-        @click="openChat"
-        class="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-graphite px-5 py-3 text-sm font-medium text-white shadow-lg transition hover:bg-black dark:bg-white dark:text-graphite dark:hover:bg-gray-100"
-        aria-label="Open documentation chat"
-    >
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.949L3 20l1.395-3.72A8.97 8.97 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
-        Ask AI
-    </button>
-
     <!-- Backdrop (tablet / mobile only, when open) -->
     <div
         v-if="open"
@@ -133,6 +127,9 @@ watch(focusSignal, () => focusInput());
 
     <!-- Chat column: reserves space on xl+ when open, slide-over below -->
     <aside
+        aria-label="Documentation chat"
+        :inert="!open"
+        @keydown.esc="closeChat"
         class="fixed top-0 right-0 z-50 flex h-screen w-full max-w-[420px] flex-col border-l border-light-steel bg-canvas-white transition-transform duration-300 dark:border-gray-800 dark:bg-black xl:z-30 xl:w-[400px]"
         :class="open ? 'translate-x-0' : 'translate-x-full'"
     >
@@ -238,7 +235,6 @@ watch(focusSignal, () => focusInput());
             </div>
         </form>
     </aside>
-    </template>
 </template>
 
 <style>

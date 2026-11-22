@@ -84,6 +84,16 @@ class Documentation
         return $path === null ? null : $this->agentMarkdown($version, file_get_contents($path));
     }
 
+    /**
+     * When the page's source last changed, as its last commit date, or null
+     * when git does not know the file. A file's mtime is the deploy's
+     * checkout time, so it is never used.
+     */
+    public function lastModified(string $version, string $slug): ?string
+    {
+        return config('docs-dates')["docs/{$version}/{$slug}.md"] ?? null;
+    }
+
     public function getPageMetadata(string $version, string $slug): ?array
     {
         $path = $this->pagePath($version, $slug);
@@ -251,9 +261,13 @@ class Documentation
             }
         }
 
-        $html = $this->converter->convert($markdown);
+        $html = $this->converter->convert($markdown)->getContent();
 
-        $html = str_replace('¶', '#', $html->getContent());
+        $html = preg_replace(
+            '/<a href="#([^"]+)" class="heading-permalink"/',
+            '<a id="content-$1" href="#$1" class="heading-permalink"',
+            $html
+        );
 
         // The source links pages as `facets.md` (right on GitHub and for
         // agents). On the site that URL serves raw markdown, so the HTML
@@ -261,6 +275,23 @@ class Documentation
         return preg_replace('/href="([a-z0-9][a-z0-9-]*)\.md(#[^"]*)?"/', 'href="$1$2"', $html);
     }
 
+
+    /**
+     * The page's "On this page" entries, read from the rendered HTML so the
+     * TOC links the exact ids the headings carry.
+     *
+     * @return list<array{id: string, text: string, level: int}>
+     */
+    public function headings(string $html): array
+    {
+        preg_match_all('/<h([234]) id="([^"]+)">(.*?)<\/h\1>/s', $html, $matches, PREG_SET_ORDER);
+
+        return array_map(fn (array $m) => [
+            'id' => $m[2],
+            'text' => trim(html_entity_decode(strip_tags(preg_replace('/<a [^>]*class="heading-permalink"[^>]*>.*?<\/a>/s', '', $m[3])))),
+            'level' => (int) $m[1],
+        ], $matches);
+    }
 
     private function getTextBetweenTags(string $string, string $tagname)
     {

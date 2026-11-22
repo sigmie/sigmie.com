@@ -84,25 +84,24 @@ Route::get('/docs', function () {
 });
 
 // Catch docs links without version and redirect to default version
+// `/docs/search.md` keeps asking for markdown: it lands on `/docs/v2/search.md`,
+// and `/docs/v2.md` on `/docs/v2/introduction.md`.
 Route::get('/docs/{endpoint}', function ($endpoint) {
-    // Strip .md extension if present
-    $endpoint = preg_replace('/\.md$/', '', $endpoint);
+    $extension = str_ends_with($endpoint, '.md') ? '.md' : '';
+    $endpoint = substr($endpoint, 0, strlen($endpoint) - strlen($extension));
 
-    // Check if this is actually a version by looking at available versions
     $versions = collect(config('docs.versions', []))->pluck('value')->toArray();
 
-    if (in_array($endpoint, $versions)) {
-        // This is a version, redirect to its introduction page
-        return redirect("/docs/{$endpoint}/introduction");
+    if (in_array($endpoint, $versions, true)) {
+        return redirect("/docs/{$endpoint}/introduction{$extension}");
     }
 
-    // This is an endpoint without version, redirect to default version
     $defaultVersion = collect(config('docs.versions', []))
         ->firstWhere('default', true);
 
     $version = $defaultVersion['value'] ?? 'v2';
 
-    return redirect("/docs/{$version}/{$endpoint}");
+    return redirect("/docs/{$version}/{$endpoint}{$extension}");
 })->where('endpoint', '[^/]+');
 
 // Serve page markdown for LLM/agent consumption (llms.txt spec convention).
@@ -137,14 +136,14 @@ Route::any('/docs/{version}/{endpoint?}', function ($version, $endpoint, Markdow
     $description = $metadata['description'] ?? config('app.description');
     $card = config('app.url') . '/og-image.png';
 
-    $sourcePath = base_path("docs/{$version}/{$endpoint}.md");
-    $updatedAt = file_exists($sourcePath) ? date('c', (int) filemtime($sourcePath)) : null;
+    $updatedAt = $documentation->lastModified($version, $endpoint);
 
     return Inertia::render('Document', [
         'navigation' => $navigation,
         'title' => $title,
         'pageHeading' => $heading,
         'html' => $html,
+        'headings' => $documentation->headings($html),
         'card' => $card,
         'href' => config('app.url') . "/docs/{$version}/{$endpoint}",
         'description' => $description,

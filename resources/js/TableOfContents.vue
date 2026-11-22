@@ -1,83 +1,39 @@
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
+// Headings come from the server (Documentation::headings), so the list is in
+// the SSR markup. Links are plain fragments: the browser scrolls, honours the
+// headings' scroll-margin-top and records the hash in history.
 const props = defineProps({
-    html: String,
+    headings: {
+        type: Array,
+        default: () => [],
+    },
 });
 
-const headings = ref([]);
 const activeId = ref('');
 
-const extractHeadings = () => {
-    if (typeof document === 'undefined') return;
-    
-    nextTick(() => {
-        const article = document.querySelector('article');
-        if (!article) return;
-        
-        const elements = article.querySelectorAll('h2, h3, h4');
-        const items = [];
-        
-        elements.forEach((element) => {
-            const id = element.id || element.textContent.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
-            if (!element.id) {
-                element.id = id;
-            }
-            
-            // Remove leading # symbols from the text
-            let cleanText = element.textContent.replace(/^#+\s*/, '');
-            
-            items.push({
-                id,
-                text: cleanText,
-                level: parseInt(element.tagName.charAt(1)),
-            });
-        });
-        
-        headings.value = items;
-    });
-};
-
 const handleScroll = () => {
-    if (typeof document === 'undefined') return;
-    
     const scrollPosition = window.scrollY + 100;
     let currentActiveId = '';
-    
-    for (const heading of headings.value) {
+
+    for (const heading of props.headings) {
         const element = document.getElementById(heading.id);
         if (element && element.offsetTop <= scrollPosition) {
             currentActiveId = heading.id;
         }
     }
-    
+
     activeId.value = currentActiveId;
 };
 
-const scrollToHeading = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-        const offset = 80; // Account for fixed header
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - offset;
-        
-        window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-        });
-    }
-};
-
 onMounted(() => {
-    extractHeadings();
     handleScroll();
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
 });
 
 onUnmounted(() => {
-    if (typeof window !== 'undefined') {
-        window.removeEventListener('scroll', handleScroll);
-    }
+    window.removeEventListener('scroll', handleScroll);
 });
 </script>
 
@@ -94,7 +50,7 @@ onUnmounted(() => {
                             ? 'border-orange-ink font-medium text-[#171717] dark:border-[#ff7b47] dark:text-[#fafafa]'
                             : 'border-transparent text-[#737373] hover:text-[#171717] dark:text-[#8b8b93] dark:hover:text-white',
                     ]"
-                    @click.prevent="scrollToHeading(heading.id)"
+                    :aria-current="activeId === heading.id ? 'location' : undefined"
                 >
                     {{ heading.text }}
                 </a>

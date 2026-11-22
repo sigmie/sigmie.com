@@ -48,7 +48,18 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(MarkdownConverter::class, function () {
-            $environment = new Environment();
+            // Headings carry their own id (`search`), the fragment the docs
+            // link to and the search index stores. The permalink anchor keeps
+            // the old `content-search` id, so links copied before 2026-11-22
+            // still land (Documentation::buildPage adds it).
+            $environment = new Environment([
+                'heading_permalink' => [
+                    'apply_id_to_heading' => true,
+                    'id_prefix' => '',
+                    'fragment_prefix' => '',
+                    'symbol' => '#',
+                ],
+            ]);
             $environment->addExtension(new CommonMarkCoreExtension);
             $environment->addExtension(new TableExtension);
             $environment->addExtension(new HeadingPermalinkExtension);

@@ -57,6 +57,75 @@ class DocsMarkdownTest extends TestCase
         $this->assertContains('Accept', $response->headers->all('vary'));
     }
 
+    public function test_headings_carry_stable_ids_and_keep_the_old_content_fragments(): void
+    {
+        $props = $this->get('/docs/v2/search')->assertOk()->viewData('page')['props'];
+
+        $this->assertStringContainsString('<h2 id="filter"><a id="content-filter" href="#filter" class="heading-permalink"', $props['html']);
+        $this->assertStringNotContainsString('¶', $props['html']);
+        $this->assertContains(['id' => 'filter', 'text' => 'Filter', 'level' => 2], $props['headings']);
+        $this->assertSame([], array_filter($props['headings'], fn (array $h) => str_starts_with($h['text'], '#')));
+    }
+
+    public function test_every_fragment_the_docs_link_lands_on_a_heading(): void
+    {
+        $documentation = app(Documentation::class);
+        $missing = [];
+
+        foreach (glob(base_path('docs/v2/*.md')) as $file) {
+            preg_match_all('/\]\(([a-z0-9-]*)(?:\.md)?#([^)]+)\)/', file_get_contents($file), $links, PREG_SET_ORDER);
+
+            foreach ($links as [, $page, $fragment]) {
+                $page = $page ?: basename($file, '.md');
+                $ids = array_column($documentation->headings($documentation->get('v2', $page)), 'id');
+
+                in_array($fragment, $ids, true) || $missing[] = "{$page}#{$fragment}";
+            }
+        }
+
+        $this->assertSame([], $missing);
+    }
+
+    public function test_repeated_headings_get_unique_ids(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'doc');
+        file_put_contents($path, "## Setup\n\nOne.\n\n## Setup\n\nTwo.\n");
+
+        $documentation = app(Documentation::class);
+        $ids = array_column($documentation->headings($documentation->buildPage($path)), 'id');
+        unlink($path);
+
+        $this->assertSame(['setup', 'setup-1'], $ids);
+    }
+
+    public function test_unversioned_links_keep_their_representation(): void
+    {
+        $this->get('/docs/search')->assertRedirect('/docs/v2/search');
+        $this->get('/docs/search.md')->assertRedirect('/docs/v2/search.md');
+        $this->get('/docs/v2')->assertRedirect('/docs/v2/introduction');
+        $this->get('/docs/v2.md')->assertRedirect('/docs/v2/introduction.md');
+    }
+
+    public function test_sitemap_lists_each_canonical_page_once_with_its_commit_date(): void
+    {
+        $xml = simplexml_load_string($this->get('/sitemap.xml')->assertOk()->getContent());
+        $base = rtrim((string) config('app.url'), '/');
+        $urls = [];
+        foreach ($xml->url as $url) {
+            $urls[] = [(string) $url->loc, isset($url->lastmod) ? (string) $url->lastmod : null];
+        }
+        $locs = array_column($urls, 0);
+        $urls = collect(array_column($urls, 1, 0));
+
+        $this->assertSame(array_unique($locs), $locs, 'a page is listed twice');
+        $this->assertFalse($urls->has("{$base}/docs"), '/docs is a redirect, not a page');
+        $this->assertNull($urls["{$base}/"], 'the home page has no known date');
+
+        $committed = trim(shell_exec('git -C ' . escapeshellarg(base_path()) . ' log -1 --format=%cI -- docs/v2/search.md'));
+        $this->assertSame($committed, $urls["{$base}/docs/v2/search"]);
+        $this->assertNull(app(Documentation::class)->lastModified('v2', 'not-a-page'));
+    }
+
     public function test_home_answers_llms_txt_when_the_client_prefers_markdown(): void
     {
         $response = $this->get('/', ['Accept' => 'text/markdown'])->assertOk();

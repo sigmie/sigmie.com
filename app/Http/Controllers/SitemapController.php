@@ -4,43 +4,40 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Services\Documentation;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 
+/**
+ * Canonical pages only, each once. Redirects such as `/docs` stay out, and a
+ * page's <lastmod> is its source's last commit date: it is left out when that
+ * date is unknown (the home page has no single source).
+ */
 class SitemapController extends Controller
 {
-    public function __invoke(): Response
+    public function __invoke(Documentation $documentation): Response
     {
         $baseUrl = rtrim((string) config('app.url'), '/');
 
-        $urls = [
-            ...$this->staticPages(),
-            ...$this->docsPages(),
-        ];
+        $urls = collect([
+            ['loc' => '/', 'lastmod' => null, 'changefreq' => 'weekly', 'priority' => '1.0'],
+            ...$this->docsPages($documentation),
+        ])->unique('loc');
 
         return response($this->buildXml($baseUrl, $urls), 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',
         ]);
     }
 
-    private function staticPages(): array
-    {
-        $today = date('Y-m-d');
-
-        return [
-            ['loc' => '/',     'lastmod' => $today, 'changefreq' => 'weekly', 'priority' => '1.0'],
-            ['loc' => '/docs', 'lastmod' => $today, 'changefreq' => 'weekly', 'priority' => '0.9'],
-        ];
-    }
-
-    private function docsPages(): array
+    private function docsPages(Documentation $documentation): array
     {
         return collect(config('docs.versions', []))
             ->pluck('value')
             ->flatMap(fn (string $version) => $this->markdownFiles(base_path("docs/{$version}"))
-                ->map(fn (string $file) => [
-                    'loc' => "/docs/{$version}/" . basename($file, '.md'),
-                    'lastmod' => date('Y-m-d', (int) filemtime($file)),
+                ->map(fn (string $file) => basename($file, '.md'))
+                ->map(fn (string $slug) => [
+                    'loc' => "/docs/{$version}/{$slug}",
+                    'lastmod' => $documentation->lastModified($version, $slug),
                     'changefreq' => 'weekly',
                     'priority' => '0.7',
                 ]))
@@ -55,17 +52,15 @@ class SitemapController extends Controller
             ->reject(fn (string $file) => strtoupper(basename($file, '.md')) === 'README');
     }
 
-    private function buildXml(string $baseUrl, array $urls): string
+    private function buildXml(string $baseUrl, Collection $urls): string
     {
-        $entries = collect($urls)
-            ->map(fn (array $url) => sprintf(
-                "  <url>\n    <loc>%s%s</loc>\n    <lastmod>%s</lastmod>\n    <changefreq>%s</changefreq>\n    <priority>%s</priority>\n  </url>",
-                $baseUrl,
-                htmlspecialchars($url['loc'], ENT_XML1 | ENT_QUOTES, 'UTF-8'),
-                $url['lastmod'],
-                $url['changefreq'],
-                $url['priority'],
-            ))
+        $entries = $urls
+            ->map(fn (array $url) => "  <url>\n"
+                . '    <loc>' . htmlspecialchars($baseUrl . $url['loc'], ENT_XML1 | ENT_QUOTES, 'UTF-8') . "</loc>\n"
+                . ($url['lastmod'] === null ? '' : '    <lastmod>' . $url['lastmod'] . "</lastmod>\n")
+                . "    <changefreq>{$url['changefreq']}</changefreq>\n"
+                . "    <priority>{$url['priority']}</priority>\n"
+                . '  </url>')
             ->implode("\n");
 
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

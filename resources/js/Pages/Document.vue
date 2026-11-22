@@ -10,6 +10,7 @@ import { useTheme } from "../composables/useTheme";
 
 const props = defineProps({
     html: String,
+    headings: Array,
     title: String,
     pageHeading: String,
     description: String,
@@ -51,10 +52,8 @@ const copiedMarkdown = ref(false);
 
 const cleanedHtml = computed(() => {
     if (!props.html) return '';
-    // Strip leading # characters that leak through from the markdown heading anchors
-    let html = props.html.replace(/>(\s*)#+ /g, '>$1');
     // Strip the leading <h1>...</h1> — the page wrapper already renders the title
-    html = html.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, '');
+    let html = props.html.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, '');
     // Downgrade any further <h1> in the body to <h2> so the page has a single H1
     html = html.replace(/<(\/?)h1(\b[^>]*)>/gi, '<$1h2$2>');
     // Wide tables scroll inside their own box instead of widening the page on
@@ -239,13 +238,6 @@ const addCopyButtonsToCodeBlocks = () => {
 
 onMounted(() => {
     nextTick(() => {
-        const headings = document.querySelectorAll('article h1, article h2, article h3, article h4');
-        headings.forEach(heading => {
-            if (heading.textContent.startsWith('#')) {
-                heading.textContent = heading.textContent.replace(/^#+\s*/, '');
-            }
-        });
-
         addCopyButtonsToCodeBlocks();
         highlightFilterBlocks();
     });
@@ -317,7 +309,7 @@ onMounted(() => {
                                 </svg>
                             </summary>
                             <div class="border-t border-[#eaeaea] px-4 py-3 dark:border-white/[0.1]">
-                                <TableOfContents :html="cleanedHtml" />
+                                <TableOfContents :headings="headings" />
                             </div>
                         </details>
 
@@ -363,7 +355,7 @@ onMounted(() => {
                 </nav>
             </main>
 
-            <RightSidebar :html="cleanedHtml" />
+            <RightSidebar :headings="headings" />
         </div>
     </AppLayout>
 </template>

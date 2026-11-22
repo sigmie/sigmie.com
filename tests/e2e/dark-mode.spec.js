@@ -6,7 +6,7 @@ test.describe('Dark mode toggle', () => {
 
         const startState = await page.evaluate(() => document.documentElement.classList.contains('dark'));
 
-        await page.getByTitle(/Switch to (light|dark) mode/i).click();
+        await page.getByRole('button', { name: /Switch to (light|dark) mode/i }).click();
 
         const afterState = await page.evaluate(() => document.documentElement.classList.contains('dark'));
         expect(afterState).not.toBe(startState);

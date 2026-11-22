@@ -9,7 +9,7 @@ test.describe('Page navigation', () => {
 
     test('docs page loads with sidebar + content', async ({ page }) => {
         await page.goto('/docs/v2/introduction');
-        await expect(page.locator('article h1').first()).toBeVisible();
+        await expect(page.locator('main h1')).toBeVisible();
         await expect(page.locator('article')).toBeVisible();
         await expect(page.getByRole('button', { name: /Copy page/i })).toBeVisible();
     });

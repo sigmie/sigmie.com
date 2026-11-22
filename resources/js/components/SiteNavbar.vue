@@ -1,8 +1,8 @@
 <script setup>
-import { Link, router as Inertia, usePage } from '@inertiajs/vue3';
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
-import axios from 'axios';
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import Logo from './Logo.vue';
+import SearchDialog from './SearchDialog.vue';
 import { useTheme } from '../composables/useTheme';
 import { useChatPanel } from '../composables/useChatPanel';
 
@@ -23,108 +23,29 @@ const { toggleTheme } = useTheme();
 const { enabled, showColumn, openChat } = useChatPanel();
 
 const menuOpen = ref(false);
-const showSearchModal = ref(false);
-const modalSearchQuery = ref('');
-const modalSearchInput = ref(null);
-const searchResults = ref([]);
-const isSearching = ref(false);
-const selectedResultIndex = ref(0);
-let searchTimeout = null;
-
-const popularTopics = ['semantic search', 'mappings', 'aggregations', 'filters', 'RAG', 'Laravel Scout', 'analysis'];
+const searchOpen = ref(false);
 
 const closeMenu = () => {
     menuOpen.value = false;
 };
 
 const openSearchModal = () => {
-    showSearchModal.value = true;
     menuOpen.value = false;
-    modalSearchQuery.value = '';
-    searchResults.value = [];
-    selectedResultIndex.value = 0;
-    nextTick(() => modalSearchInput.value?.focus());
+    searchOpen.value = true;
 };
-
-const closeSearchModal = () => {
-    showSearchModal.value = false;
-    searchResults.value = [];
-    if (searchTimeout) {
-        clearTimeout(searchTimeout);
-        searchTimeout = null;
-    }
-};
-
-const searchDocs = async () => {
-    if (!modalSearchQuery.value.trim()) {
-        searchResults.value = [];
-        selectedResultIndex.value = 0;
-        return;
-    }
-
-    isSearching.value = true;
-
-    try {
-        const response = await axios.post('/api/search/docs', { query: modalSearchQuery.value });
-        searchResults.value = response.data.results || [];
-        selectedResultIndex.value = 0;
-    } catch {
-        searchResults.value = [];
-        selectedResultIndex.value = 0;
-    } finally {
-        isSearching.value = false;
-    }
-};
-
-const handleModalSearch = (result = null) => {
-    const target = result || searchResults.value[selectedResultIndex.value];
-    if (!target?.url) return;
-    Inertia.visit(target.url);
-    closeSearchModal();
-};
-
-const handleKeyboardNavigation = (event) => {
-    if (!showSearchModal.value || searchResults.value.length === 0) return;
-
-    if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        selectedResultIndex.value = Math.min(selectedResultIndex.value + 1, searchResults.value.length - 1);
-    } else if (event.key === 'ArrowUp') {
-        event.preventDefault();
-        selectedResultIndex.value = Math.max(selectedResultIndex.value - 1, 0);
-    }
-};
-
-watch(modalSearchQuery, () => {
-    if (searchTimeout) clearTimeout(searchTimeout);
-
-    if (!modalSearchQuery.value.trim()) {
-        searchResults.value = [];
-        isSearching.value = false;
-        return;
-    }
-
-    isSearching.value = true;
-    searchTimeout = setTimeout(searchDocs, 300);
-});
 
 const onKeyDown = (event) => {
     if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
         event.preventDefault();
-        showSearchModal.value ? closeSearchModal() : openSearchModal();
+        searchOpen.value ? (searchOpen.value = false) : openSearchModal();
         return;
     }
 
-    if (event.key === 'Escape' && showSearchModal.value) closeSearchModal();
     if (event.key === 'Escape' && menuOpen.value) closeMenu();
-    handleKeyboardNavigation(event);
 };
 
 onMounted(() => window.addEventListener('keydown', onKeyDown));
-onUnmounted(() => {
-    window.removeEventListener('keydown', onKeyDown);
-    if (searchTimeout) clearTimeout(searchTimeout);
-});
+onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
 
 const headerClass = computed(() => ({
     'xl:right-[400px]': showColumn.value,
@@ -163,14 +84,14 @@ const headerClass = computed(() => ({
             <div class="flex items-center gap-2">
                 <button
                     type="button"
-                    class="hidden items-center gap-2.5 rounded-full border border-light-steel bg-ghostly-gray py-1.5 pr-2 pl-3.5 text-[13px] text-muted-ink transition-colors hover:border-graphite/30 hover:text-graphite md:inline-flex dark:border-[#242422] dark:bg-[#111113] dark:text-[#9ca3af] dark:hover:border-white/20 dark:hover:text-[#f5f5f4]"
+                    class="press hidden items-center gap-2.5 rounded-full border border-[#e5e5e5] bg-white py-1.5 pr-2 pl-3.5 text-[13px] text-[#737373] hover:border-[#171717]/40 hover:text-[#171717] md:inline-flex dark:border-white/[0.14] dark:bg-[#0a0a0a] dark:text-[#8b8b93] dark:hover:text-white"
                     @click="openSearchModal"
                 >
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <span>Search docs</span>
-                    <kbd class="rounded-full border border-light-steel bg-canvas-white px-1.5 py-0.5 font-mono text-[10px] text-charcoal dark:border-[#242422] dark:bg-black dark:text-[#a3a3a0]">⌘K</kbd>
+                    <kbd class="rounded-md border border-[#eaeaea] bg-[#fafafa] px-1.5 py-0.5 font-mono text-[10.5px] text-[#525252] dark:border-white/[0.12] dark:bg-white/[0.04] dark:text-[#a1a1aa]">⌘K</kbd>
                 </button>
 
                 <button
@@ -300,69 +221,5 @@ const headerClass = computed(() => ({
         </nav>
     </div>
 
-    <div
-        v-if="showSearchModal"
-        class="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4 pt-20 backdrop-blur-sm"
-        @click.self="closeSearchModal"
-    >
-        <div class="flex max-h-[calc(100vh-8rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-light-steel bg-canvas-white shadow-2xl dark:border-[#242422] dark:bg-[#0c0c0b]">
-            <div class="flex items-center gap-3 border-b border-light-steel px-5 py-4 dark:border-[#242422]">
-                <svg class="h-4 w-4 shrink-0 text-subtle-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <input
-                    ref="modalSearchInput"
-                    v-model="modalSearchQuery"
-                    type="text"
-                    placeholder="Search documentation..."
-                    aria-label="Search documentation"
-                    class="min-w-0 flex-1 border-0 bg-transparent py-1 text-[16px] text-graphite placeholder:text-subtle-gray focus:ring-0 focus:outline-none dark:text-[#f5f5f4]"
-                    @keyup.enter="handleModalSearch()"
-                />
-                <button
-                    type="button"
-                    class="rounded-md border border-light-steel px-2 py-0.5 font-mono text-[11px] text-subtle-gray hover:text-graphite dark:border-[#242422] dark:hover:text-white"
-                    aria-label="Close search"
-                    @click="closeSearchModal"
-                >
-                    Esc
-                </button>
-            </div>
-
-            <div v-if="modalSearchQuery.trim()" class="min-h-0 flex-1 overflow-y-auto">
-                <p v-if="isSearching" class="px-5 py-8 text-[14px] text-subtle-gray">Searching...</p>
-                <div v-else-if="searchResults.length" class="py-2">
-                    <button
-                        v-for="(result, index) in searchResults"
-                        :key="result._id || index"
-                        type="button"
-                        class="block w-full px-5 py-3 text-left transition-colors"
-                        :class="selectedResultIndex === index ? 'bg-ghostly-gray dark:bg-[#141413]' : ''"
-                        @click="handleModalSearch(result)"
-                        @mouseenter="selectedResultIndex = index"
-                    >
-                        <span class="block text-[14px] font-medium text-graphite dark:text-[#f5f5f4]">{{ result.title }}</span>
-                        <span class="mt-0.5 block truncate text-[12px] text-subtle-gray">{{ result.url }}</span>
-                        <span v-if="result.content" class="mt-1 line-clamp-2 block text-[13px] leading-relaxed text-charcoal dark:text-[#a3a3a0]">{{ result.content }}</span>
-                    </button>
-                </div>
-                <p v-else class="px-5 py-8 text-[14px] text-subtle-gray">No documentation pages matched.</p>
-            </div>
-
-            <div v-else class="px-5 py-5">
-                <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-subtle-gray">Popular topics</p>
-                <div class="mt-3 flex flex-wrap gap-2">
-                    <button
-                        v-for="topic in popularTopics"
-                        :key="topic"
-                        type="button"
-                        class="rounded-full border border-light-steel px-3 py-1.5 text-[13px] text-charcoal transition-colors hover:border-graphite hover:text-graphite dark:border-[#242422] dark:text-[#a3a3a0] dark:hover:border-white/30 dark:hover:text-white"
-                        @click="modalSearchQuery = topic"
-                    >
-                        {{ topic }}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <SearchDialog v-model:open="searchOpen" />
 </template>

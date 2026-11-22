@@ -6,6 +6,7 @@ namespace App\Services;
 
 use DOMDocument;
 use League\CommonMark\MarkdownConverter;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 class Documentation
@@ -20,7 +21,19 @@ class Documentation
             return ['frontmatter' => [], 'content' => $markdown];
         }
 
-        $frontmatter = Yaml::parse($matches[1]) ?? [];
+        $rawYaml = $matches[1];
+
+        try {
+            $frontmatter = Yaml::parse($rawYaml) ?? [];
+        } catch (ParseException) {
+            $sanitized = preg_replace_callback(
+                '/^([A-Za-z0-9_-]+):\s+([^"\'\[\{].*:\s.*)$/m',
+                fn (array $m) => $m[1].': "'.str_replace('"', '\\"', trim($m[2])).'"',
+                $rawYaml
+            );
+            $frontmatter = Yaml::parse($sanitized) ?? [];
+        }
+
         $content = substr($markdown, strlen($matches[0]));
 
         return [

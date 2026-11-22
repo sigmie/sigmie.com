@@ -66,10 +66,9 @@ import { Link } from '@inertiajs/vue3';
                 </div>
             </div>
 
-            <div class="flex flex-col justify-between gap-2 border-t border-light-steel pt-8 text-[13px] text-muted-ink sm:flex-row dark:border-gray-800 dark:text-[#9ca3af]">
-                <p>© {{ new Date().getFullYear() }} Sigmie. MIT licensed.</p>
-                <p>Built with PHP, Laravel, Inertia.js and Vue.</p>
-            </div>
+            <p class="border-t border-light-steel pt-8 text-[13px] text-muted-ink dark:border-gray-800 dark:text-[#9ca3af]">
+                © {{ new Date().getFullYear() }} Sigmie. MIT licensed.
+            </p>
         </div>
     </footer>
 </template>

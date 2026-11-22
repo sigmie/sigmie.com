@@ -16,7 +16,6 @@ const props = defineProps({
 });
 
 const page = usePage();
-const inDocs = computed(() => page.url.startsWith('/docs'));
 const menuBreakpoint = computed(() => (props.navigation ? 'lg:hidden' : 'md:hidden'));
 
 const { toggleTheme } = useTheme();
@@ -58,28 +57,9 @@ const headerClass = computed(() => ({
         :class="headerClass"
     >
         <div class="mx-auto flex h-full w-full max-w-site items-center justify-between gap-4 px-6 sm:px-10">
-            <div class="flex items-center gap-8">
-                <Link href="/" aria-label="Sigmie home" class="shrink-0" @click="closeMenu">
-                    <Logo :height="24" />
-                </Link>
-
-                <nav class="hidden items-center gap-6 md:flex" aria-label="Primary">
-                    <Link
-                        href="/docs"
-                        class="text-[14px] font-medium transition-colors hover:text-graphite dark:hover:text-white"
-                        :class="inDocs ? 'text-graphite dark:text-white' : 'text-charcoal/80 dark:text-[#a3a3a0]'"
-                        :aria-current="inDocs ? 'page' : undefined"
-                    >
-                        Docs
-                    </Link>
-                    <Link
-                        href="/docs/v2/quick-start"
-                        class="text-[14px] font-medium text-charcoal/80 transition-colors hover:text-graphite dark:text-[#a3a3a0] dark:hover:text-white"
-                    >
-                        Quick start
-                    </Link>
-                </nav>
-            </div>
+            <Link href="/" aria-label="Sigmie home" class="shrink-0" @click="closeMenu">
+                <Logo :height="24" />
+            </Link>
 
             <div class="flex items-center gap-2">
                 <button
@@ -174,12 +154,6 @@ const headerClass = computed(() => ({
         :class="[menuBreakpoint, { 'xl:right-[400px]': showColumn }]"
     >
         <nav class="mx-auto flex max-w-site flex-col gap-1 px-3 py-4 sm:px-7" aria-label="Mobile">
-            <Link href="/docs" class="rounded-xl px-3 py-2.5 text-[15px] font-medium text-graphite hover:bg-ghostly-gray dark:text-[#f5f5f4] dark:hover:bg-[#141413]" @click="closeMenu">
-                Docs
-            </Link>
-            <Link href="/docs/v2/quick-start" class="rounded-xl px-3 py-2.5 text-[15px] font-medium text-graphite hover:bg-ghostly-gray dark:text-[#f5f5f4] dark:hover:bg-[#141413]" @click="closeMenu">
-                Quick start
-            </Link>
             <a
                 href="https://github.com/sigmie/sigmie"
                 target="_blank"

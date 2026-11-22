@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import AppLayout from '../Layouts/AppLayout.vue';
 import CopyCommand from '../components/CopyCommand.vue';
+import GridCrosshairs from '../components/GridCrosshairs.vue';
 import RelevanceStudio from '../components/RelevanceStudio.vue';
 import ImageSearchDemo from '../components/ImageSearchDemo.vue';
 import PlatformAndMcp from '../components/PlatformAndMcp.vue';
@@ -28,32 +29,37 @@ defineProps({
     <Head :title="title" />
 
     <AppLayout :navigation="navigation">
-        <RelevanceStudio :initial="initialRelevance" />
-        <ImageSearchDemo :initial="initialClip" />
-        <PlatformAndMcp :initial-mcp="initialMcp" />
+        <div class="bg-white dark:bg-black">
+            <div class="mx-auto max-w-[1120px] border-x border-[#eaeaea] dark:border-white/[0.1]">
+                <RelevanceStudio :initial="initialRelevance" />
+                <ImageSearchDemo :initial="initialClip" />
+                <PlatformAndMcp :initial-mcp="initialMcp" />
 
-        <section class="border-t border-light-steel bg-ghostly-gray py-14 sm:py-16 dark:border-[#242422] dark:bg-[#0c0c0e]">
-            <div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-5 sm:px-6 md:flex-row md:items-center lg:px-8">
-                <div>
-                    <h2 class="text-[24px] leading-[1.15] font-semibold tracking-[-0.03em] text-graphite sm:text-[30px] dark:text-[#f5f5f4]">
-                        Ship fluent search on your own cluster.
-                    </h2>
-                    <p class="mt-1.5 text-[14.5px] text-charcoal dark:text-[#a3a3a0]">
-                        MIT licensed. PHP 8.1+. Works with Elasticsearch 7–9 and OpenSearch 2–3.
-                    </p>
-                </div>
+                <section class="relative overflow-hidden border-t border-[#eaeaea] bg-white py-16 text-center sm:py-20 dark:border-white/[0.1] dark:bg-black">
+                    <GridCrosshairs />
+                    <div class="vercel-prism-glow pointer-events-none absolute inset-0 opacity-75" aria-hidden="true"></div>
 
-                <div class="flex flex-wrap items-center gap-2.5">
-                    <Link
-                        href="/docs/v2/quick-start"
-                        class="group inline-flex items-center gap-1.5 rounded-full bg-graphite px-5 py-2 text-[13.5px] font-medium text-white transition-colors hover:bg-black dark:bg-[#f5f5f4] dark:text-graphite dark:hover:bg-white"
-                    >
-                        <span>Quick start</span>
-                        <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
-                    </Link>
-                    <CopyCommand command="composer require sigmie/sigmie" />
-                </div>
+                    <div class="relative mx-auto max-w-2xl px-6">
+                        <h2 class="text-balance text-[30px] leading-[1.08] font-semibold tracking-[-0.04em] text-[#171717] sm:text-[42px] dark:text-[#fafafa]">
+                            Ready to ship better search?
+                        </h2>
+                        <p class="mt-3 text-[16px] leading-relaxed text-[#525252] dark:text-[#a1a1aa]">
+                            Install via Composer and query your own Elasticsearch or OpenSearch cluster in minutes.
+                        </p>
+
+                        <div class="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                            <Link
+                                href="/docs/v2/quick-start"
+                                class="group inline-flex items-center gap-2 rounded-full bg-[#171717] px-5 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-black dark:bg-[#fafafa] dark:text-[#171717] dark:hover:bg-white"
+                            >
+                                <span>Quick start</span>
+                                <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
+                            </Link>
+                            <CopyCommand command="composer require sigmie/sigmie" />
+                        </div>
+                    </div>
+                </section>
             </div>
-        </section>
+        </div>
     </AppLayout>
 </template>

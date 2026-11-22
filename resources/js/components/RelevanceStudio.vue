@@ -4,6 +4,7 @@ import { Link } from '@inertiajs/vue3';
 import axios from 'axios';
 import CodePreview from './CodePreview.vue';
 import CopyCommand from './CopyCommand.vue';
+import GridCrosshairs from './GridCrosshairs.vue';
 import OrbitalRelevancePlot from './OrbitalRelevancePlot.vue';
 import { RELEVANCE_MODES, RELEVANCE_PRESETS, TYPE_FILTERS } from '../data/landingExamples';
 
@@ -261,280 +262,291 @@ const onResultKeyDown = (event, index) => {
 
 const deltaLabel = (id) => {
     const delta = rankDeltas.value[id];
-    if (delta === undefined || delta === null) return null;
+    if (delta === undefined || delta === null || delta === 0) return null;
     if (delta === 'new') return { text: 'new', tone: 'up' };
     if (delta > 0) return { text: `↑ ${delta}`, tone: 'up' };
-    if (delta < 0) return { text: `↓ ${Math.abs(delta)}`, tone: 'down' };
-    return { text: '· same', tone: 'flat' };
+    return { text: `↓ ${Math.abs(delta)}`, tone: 'down' };
 };
 </script>
 
 <template>
-    <section id="playground" class="scroll-mt-20 bg-canvas-white pt-5 pb-12 sm:pt-7 sm:pb-16 lg:pt-8 lg:pb-18 dark:bg-[#08080a]">
-        <div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-            <div class="grid gap-7 lg:grid-cols-12 lg:items-start lg:gap-8">
-                <div class="flex min-w-0 flex-col lg:col-span-5">
-                    <h1 class="text-[36px] leading-[1.02] font-semibold tracking-[-0.04em] text-graphite sm:text-[44px] lg:text-[46px] dark:text-[#f5f5f4]">
-                        See what makes<br />a result rank
-                    </h1>
+    <section class="relative overflow-hidden bg-white dark:bg-black">
+        <div class="vercel-hero-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
+        <div class="vercel-prism-glow pointer-events-none absolute inset-0" aria-hidden="true"></div>
 
-                    <p class="mt-3 text-[15.5px] leading-[1.5] text-charcoal dark:text-[#b4b4b0]">
-                        Fluent search for PHP on Elasticsearch and OpenSearch. Change one line of PHP and watch live rankings reorganize.
-                    </p>
+        <div class="relative mx-auto max-w-3xl px-6 pt-12 pb-11 text-center sm:px-10 sm:pt-16 sm:pb-14">
+            <p class="font-mono text-[11.5px] font-medium uppercase tracking-[0.14em] text-muted-ink dark:text-[#a1a1aa]">
+                Elasticsearch 7–9 · OpenSearch 2–3 · PHP 8.1+
+            </p>
 
-                    <div class="mt-4 flex flex-wrap items-center gap-2">
-                        <Link
-                            href="/docs/v2/quick-start"
-                            class="group inline-flex shrink-0 items-center gap-1.5 rounded-full bg-graphite px-4 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-black dark:bg-[#f5f5f4] dark:text-graphite dark:hover:bg-white"
-                        >
-                            <span>Quick start</span>
-                            <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
-                        </Link>
-                        <CopyCommand command="composer require sigmie/sigmie" :compact="true" />
-                    </div>
+            <h1 class="mt-4 text-balance text-[40px] leading-[1.03] font-semibold tracking-[-0.045em] text-[#171717] sm:text-[54px] lg:text-[62px] dark:text-[#fafafa]">
+                See what makes a result rank.
+            </h1>
 
-                    <div class="mt-5 rounded-2xl border border-light-steel bg-ghostly-gray/85 p-3.5 dark:border-[#242422] dark:bg-[#111113]">
-                        <form class="flex items-center gap-2" @submit.prevent="submitQuery">
-                            <label for="relevance-query" class="sr-only">Search movie and TV titles</label>
-                            <div class="relative flex-1">
-                                <svg
-                                    class="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-ink dark:text-[#9ca3af]"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="1.8"
-                                    viewBox="0 0 24 24"
-                                    aria-hidden="true"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.2-5.2m1.7-4.3a6 6 0 11-12 0 6 6 0 0112 0z" />
-                                </svg>
-                                <input
-                                    id="relevance-query"
-                                    v-model="searchQuery"
-                                    type="text"
-                                    placeholder="Describe a plot or mood..."
-                                    class="w-full rounded-xl border border-light-steel bg-canvas-white py-1.5 pr-3 pl-9 text-[13.5px] text-graphite placeholder:text-muted-ink focus:border-graphite focus:ring-0 focus:outline-none dark:border-[#2c2c2a] dark:bg-black dark:text-[#f5f5f4] dark:placeholder:text-[#9ca3af] dark:focus:border-white/40"
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                :disabled="isLoading"
-                                class="shrink-0 rounded-xl bg-graphite px-3.5 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-black disabled:opacity-50 dark:bg-[#f5f5f4] dark:text-graphite dark:hover:bg-white"
-                            >
-                                Run
-                            </button>
-                        </form>
+            <p class="mx-auto mt-4 max-w-2xl text-balance text-[16.5px] leading-[1.55] text-[#525252] sm:text-[18px] dark:text-[#a1a1aa]">
+                Fluent keyword, semantic, and hybrid search for PHP. Change one line in the builder and watch live rankings reorganize below.
+            </p>
 
-                        <div class="mt-2 flex flex-wrap gap-1.5">
-                            <button
-                                v-for="preset in RELEVANCE_PRESETS"
-                                :key="preset.query"
-                                type="button"
-                                class="rounded-full border px-2.5 py-0.5 text-[11.5px] font-medium transition-colors"
-                                :class="searchQuery.trim() === preset.query
-                                    ? 'border-graphite bg-graphite text-white dark:border-[#f5f5f4] dark:bg-[#f5f5f4] dark:text-graphite'
-                                    : 'border-light-steel bg-canvas-white text-charcoal hover:border-graphite/40 dark:border-[#2c2c2a] dark:bg-black/60 dark:text-[#d4d4d8] dark:hover:text-white'"
-                                @click="selectPreset(preset.query)"
-                            >
-                                {{ preset.label }}
-                            </button>
-                        </div>
+            <div class="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <Link
+                    href="/docs/v2/quick-start"
+                    class="group inline-flex items-center gap-2 rounded-full bg-[#171717] px-5 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-black dark:bg-[#fafafa] dark:text-[#171717] dark:hover:bg-white"
+                >
+                    <span>Start building</span>
+                    <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
+                </Link>
+                <CopyCommand command="composer require sigmie/sigmie" />
+            </div>
+        </div>
+    </section>
 
-                        <div class="mt-3 border-t border-light-steel/80 pt-3 dark:border-[#242422]">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="font-mono text-[11px] uppercase tracking-[0.06em] text-muted-ink dark:text-[#9ca3af]">
-                                    Scoring mode
-                                </span>
-                                <span class="font-mono text-[11px] text-charcoal dark:text-[#d4d4d8]">
-                                    {{ activeModeMeta.short }}
-                                </span>
-                            </div>
+    <section id="playground" class="relative scroll-mt-16 border-t border-[#eaeaea] bg-white dark:border-white/[0.1] dark:bg-black">
+        <GridCrosshairs />
 
-                            <div
-                                class="mt-1.5 grid grid-cols-3 gap-1 rounded-xl border border-light-steel bg-canvas-white p-1 dark:border-[#242422] dark:bg-black"
-                                role="radiogroup"
-                                aria-label="Search relevance mode"
-                            >
-                                <button
-                                    v-for="mode in RELEVANCE_MODES"
-                                    :key="mode.id"
-                                    type="button"
-                                    role="radio"
-                                    :aria-checked="activeMode === mode.id"
-                                    class="inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors"
-                                    :class="activeMode === mode.id
-                                        ? 'bg-graphite text-white shadow-xs dark:bg-[#f5f5f4] dark:text-graphite'
-                                        : 'text-charcoal hover:text-graphite dark:text-[#b4b4b0] dark:hover:text-white'"
-                                    @click="selectMode(mode.id)"
-                                >
-                                    <span
-                                        v-if="activeMode === mode.id"
-                                        class="h-1.5 w-1.5 rounded-full bg-magic-orange"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span>{{ mode.label }}</span>
-                                </button>
-                            </div>
+        <div class="flex flex-col gap-3 border-b border-[#eaeaea] bg-[#fafafa] px-5 py-3.5 sm:px-6 lg:flex-row lg:items-center lg:justify-between dark:border-white/[0.1] dark:bg-[#0a0a0a]">
+            <form class="flex min-w-0 flex-1 items-center gap-2" @submit.prevent="submitQuery">
+                <label for="relevance-query" class="sr-only">Search movie and TV titles</label>
+                <div class="relative min-w-0 flex-1">
+                    <svg
+                        class="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-ink dark:text-[#a1a1aa]"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.2-5.2m1.7-4.3a6 6 0 11-12 0 6 6 0 0112 0z" />
+                    </svg>
+                    <input
+                        id="relevance-query"
+                        v-model="searchQuery"
+                        type="text"
+                        placeholder="Describe a plot or mood..."
+                        class="w-full rounded-full border border-[#e5e5e5] bg-white py-1.5 pr-3 pl-9 text-[13.5px] text-[#171717] placeholder:text-muted-ink focus:border-[#171717] focus:ring-0 focus:outline-none dark:border-white/[0.14] dark:bg-black dark:text-[#fafafa] dark:placeholder:text-[#a1a1aa] dark:focus:border-white/40"
+                    />
+                </div>
+                <button
+                    type="submit"
+                    :disabled="isLoading"
+                    class="shrink-0 rounded-full bg-[#171717] px-4 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-black disabled:opacity-50 dark:bg-[#fafafa] dark:text-[#171717] dark:hover:bg-white"
+                >
+                    Run
+                </button>
+            </form>
 
-                            <div class="mt-2.5 flex flex-wrap items-center justify-between gap-2">
-                                <div class="inline-flex items-center gap-1" role="radiogroup" aria-label="Filter by title type">
-                                    <button
-                                        v-for="opt in TYPE_FILTERS"
-                                        :key="opt.id"
-                                        type="button"
-                                        role="radio"
-                                        :aria-checked="activeFilterId === opt.id"
-                                        class="rounded-full border px-2.5 py-0.5 text-[11.5px] font-medium transition-colors"
-                                        :class="activeFilterId === opt.id
-                                            ? 'border-graphite bg-canvas-white text-graphite dark:border-white/40 dark:bg-[#1c1c1e] dark:text-white'
-                                            : 'border-transparent text-muted-ink hover:text-graphite dark:text-[#9ca3af] dark:hover:text-white'"
-                                        @click="selectFilter(opt.id)"
-                                    >
-                                        {{ opt.label }}
-                                    </button>
-                                </div>
-
-                                <span class="font-mono text-[11px] text-muted-ink dark:text-[#9ca3af]">
-                                    {{ statusSource }}<template v-if="latencyMs !== null"> · {{ engineName }} · {{ latencyMs }}ms</template>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-3.5 min-w-0">
-                        <CodePreview
-                            :code="phpCode"
-                            filename="Search.php"
-                            language="php"
-                            :compact="true"
-                            :highlight-lines="highlightedPhpLines"
-                        >
-                            <template #badge>
-                                <button
-                                    type="button"
-                                    class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[11px] transition-colors"
-                                    :class="inspectOpen
-                                        ? 'border-magic-orange/60 bg-magic-orange/15 text-[#ff8f61]'
-                                        : 'border-white/15 bg-white/[0.04] text-[#e4e4e7] hover:border-white/30 hover:text-white'"
-                                    :aria-expanded="inspectOpen"
-                                    aria-controls="request-inspector-panel"
-                                    @click="inspectOpen = !inspectOpen"
-                                >
-                                    <span>Inspect request</span>
-                                    <span class="text-[#a1a1aa]">{{ dslLineCount }}L</span>
-                                </button>
-                            </template>
-                        </CodePreview>
-                    </div>
+            <div class="flex flex-wrap items-center justify-between gap-2.5 lg:justify-end">
+                <div
+                    class="inline-flex rounded-full border border-[#e5e5e5] bg-white p-0.5 dark:border-white/[0.14] dark:bg-black"
+                    role="radiogroup"
+                    aria-label="Search relevance mode"
+                >
+                    <button
+                        v-for="mode in RELEVANCE_MODES"
+                        :key="mode.id"
+                        type="button"
+                        role="radio"
+                        :aria-checked="activeMode === mode.id"
+                        class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[12.5px] font-medium transition-colors"
+                        :class="activeMode === mode.id
+                            ? 'bg-[#171717] text-white dark:bg-[#fafafa] dark:text-[#171717]'
+                            : 'text-[#525252] hover:text-[#171717] dark:text-[#a1a1aa] dark:hover:text-white'"
+                        @click="selectMode(mode.id)"
+                    >
+                        <span
+                            v-if="activeMode === mode.id"
+                            class="h-1.5 w-1.5 rounded-full bg-magic-orange"
+                            aria-hidden="true"
+                        ></span>
+                        <span>{{ mode.label }}</span>
+                    </button>
                 </div>
 
-                <div class="min-w-0 lg:col-span-7">
-                    <div class="overflow-hidden rounded-2xl border border-light-steel bg-ghostly-gray/60 dark:border-[#242422] dark:bg-[#111113]">
-                        <div class="flex items-center justify-between gap-3 border-b border-light-steel/80 px-4 py-2.5 sm:px-5 dark:border-[#242422]">
-                            <div class="flex items-center gap-2">
-                                <span class="h-2 w-2 rounded-full bg-magic-orange" aria-hidden="true"></span>
-                                <span class="font-mono text-[11.5px] font-medium text-graphite dark:text-[#f5f5f4]">
-                                    Rank orbit · {{ activeModeMeta.label }}
-                                </span>
-                            </div>
-                            <span class="font-mono text-[11px] text-muted-ink dark:text-[#9ca3af]">
-                                {{ hitCountLabel }} · inner ring = #1
-                            </span>
-                        </div>
+                <div
+                    class="inline-flex items-center gap-0.5 rounded-full border border-[#e5e5e5] bg-white p-0.5 dark:border-white/[0.14] dark:bg-black"
+                    role="radiogroup"
+                    aria-label="Filter by title type"
+                >
+                    <button
+                        v-for="opt in TYPE_FILTERS"
+                        :key="opt.id"
+                        type="button"
+                        role="radio"
+                        :aria-checked="activeFilterId === opt.id"
+                        class="rounded-full px-2.5 py-1 text-[12px] font-medium transition-colors"
+                        :class="activeFilterId === opt.id
+                            ? 'bg-[#f4f4f5] text-[#171717] dark:bg-white/[0.14] dark:text-white'
+                            : 'text-muted-ink hover:text-[#171717] dark:text-[#a1a1aa] dark:hover:text-white'"
+                        @click="selectFilter(opt.id)"
+                    >
+                        {{ opt.label }}
+                    </button>
+                </div>
+            </div>
+        </div>
 
-                        <div class="border-b border-light-steel/80 bg-canvas-white px-2 py-1.5 sm:px-4 dark:border-[#242422] dark:bg-[#0c0c0e]">
-                            <OrbitalRelevancePlot
-                                :query="searchQuery"
-                                :mode="activeMode"
-                                :items="results"
-                                :active-index="activeIndex"
-                                :pulse-key="pulseKey"
-                                :deltas="rankDeltas"
-                                :loading="isLoading"
-                                @select="(idx) => { activeIndex = idx; }"
-                            />
-                        </div>
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#eaeaea] bg-white px-5 py-2 sm:px-6 dark:border-white/[0.1] dark:bg-black">
+            <div class="flex flex-wrap items-center gap-1.5">
+                <span class="mr-1 font-mono text-[11px] uppercase tracking-[0.06em] text-muted-ink dark:text-[#a1a1aa]">
+                    Presets
+                </span>
+                <button
+                    v-for="preset in RELEVANCE_PRESETS"
+                    :key="preset.query"
+                    type="button"
+                    class="rounded-full border px-2.5 py-0.5 text-[11.5px] font-medium transition-colors"
+                    :class="searchQuery.trim() === preset.query
+                        ? 'border-[#171717] bg-[#171717] text-white dark:border-[#fafafa] dark:bg-[#fafafa] dark:text-[#171717]'
+                        : 'border-[#e5e5e5] bg-white text-[#404040] hover:border-[#171717]/40 dark:border-white/[0.12] dark:bg-[#0a0a0a] dark:text-[#d4d4d8] dark:hover:text-white'"
+                    @click="selectPreset(preset.query)"
+                >
+                    {{ preset.label }}
+                </button>
+            </div>
 
-                        <div class="sr-only" aria-live="polite" aria-atomic="true">
-                            {{ liveAnnouncement }}
-                        </div>
+            <span class="font-mono text-[11px] text-muted-ink dark:text-[#a1a1aa]">
+                {{ activeModeMeta.short }} · {{ statusSource }}<template v-if="latencyMs !== null"> · {{ engineName }} · {{ latencyMs }}ms</template>
+            </span>
+        </div>
 
-                        <div v-if="errorMessage" class="px-5 py-6 text-[14px] text-charcoal dark:text-[#b4b4b0]">
-                            {{ errorMessage }}
-                        </div>
-
-                        <ol
-                            v-else
-                            class="divide-y divide-light-steel/75 dark:divide-[#20201f]"
-                            aria-label="Ranked search results"
-                        >
-                            <li
-                                v-for="(item, index) in results"
-                                :key="item._id || index"
-                            >
-                                <button
-                                    type="button"
-                                    class="group flex w-full items-start gap-3.5 px-4 py-2.5 text-left transition-colors sm:px-5"
-                                    :class="activeIndex === index
-                                        ? 'bg-canvas-white dark:bg-[#18181b]'
-                                        : 'hover:bg-canvas-white/70 dark:hover:bg-white/[0.02]'"
-                                    :aria-current="activeIndex === index ? 'true' : undefined"
-                                    @mouseenter="activeIndex = index"
-                                    @focus="activeIndex = index"
-                                    @click="activeIndex = index"
-                                    @keydown="onResultKeyDown($event, index)"
-                                >
-                                    <span
-                                        class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-colors"
-                                        :class="activeIndex === index
-                                            ? 'bg-graphite text-white ring-2 ring-magic-orange/70 dark:bg-[#f5f5f4] dark:text-graphite'
-                                            : index === 0
-                                                ? 'bg-graphite text-white dark:bg-[#f5f5f4] dark:text-graphite'
-                                                : 'border border-light-steel bg-canvas-white text-charcoal dark:border-[#2e2e2c] dark:bg-black dark:text-[#d4d4d8]'"
-                                    >
-                                        {{ index + 1 }}
-                                    </span>
-
-                                    <div class="min-w-0 flex-1">
-                                        <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                                            <span class="text-[14.5px] font-semibold text-graphite dark:text-[#f5f5f4]">
-                                                {{ item.title }}
-                                            </span>
-                                            <span class="font-mono text-[11px] text-muted-ink dark:text-[#9ca3af]">
-                                                {{ item.type }} · {{ item.release_year }}
-                                            </span>
-                                            <span
-                                                v-if="deltaLabel(item._id)"
-                                                class="rounded px-1.5 py-0.2 font-mono text-[10.5px] font-medium"
-                                                :class="deltaLabel(item._id).tone === 'up'
-                                                    ? 'bg-magic-orange/12 text-orange-ink dark:text-[#ff7b47]'
-                                                    : deltaLabel(item._id).tone === 'down'
-                                                        ? 'bg-graphite/[0.06] text-charcoal dark:bg-white/10 dark:text-[#d4d4d8]'
-                                                        : 'text-muted-ink dark:text-[#9ca3af]'"
-                                            >
-                                                {{ deltaLabel(item._id).text }}
-                                            </span>
-                                        </div>
-                                        <p class="mt-0.5 line-clamp-1 text-[13px] leading-snug text-charcoal/85 dark:text-[#b4b4b0]">
-                                            {{ item.description }}
-                                        </p>
-                                    </div>
-
-                                    <span class="mt-0.5 shrink-0 font-mono text-[11.5px] tabular-nums text-muted-ink dark:text-[#9ca3af]">
-                                        {{ Number(item._score ?? 0).toFixed(2) }}
-                                    </span>
-                                </button>
-                            </li>
-                        </ol>
+        <div class="grid divide-y divide-[#eaeaea] lg:grid-cols-12 lg:divide-x lg:divide-y-0 dark:divide-white/[0.1]">
+            <div class="flex min-w-0 flex-col bg-white lg:col-span-6 dark:bg-[#050505]">
+                <div class="flex items-center justify-between border-b border-[#eaeaea] px-5 py-2.5 sm:px-6 dark:border-white/[0.08]">
+                    <div class="flex items-center gap-2">
+                        <span class="h-1.5 w-1.5 rounded-full bg-magic-orange" aria-hidden="true"></span>
+                        <span class="font-mono text-[11.5px] font-medium text-[#171717] dark:text-[#fafafa]">
+                            Rank orbit · {{ activeModeMeta.label }}
+                        </span>
                     </div>
+                    <span class="font-mono text-[11px] text-muted-ink dark:text-[#a1a1aa]">
+                        Inner ring = #1
+                    </span>
+                </div>
+
+                <div class="flex flex-1 items-center justify-center px-3 py-4 sm:px-5">
+                    <OrbitalRelevancePlot
+                        :query="searchQuery"
+                        :mode="activeMode"
+                        :items="results"
+                        :active-index="activeIndex"
+                        :pulse-key="pulseKey"
+                        :deltas="rankDeltas"
+                        :loading="isLoading"
+                        @select="(idx) => { activeIndex = idx; }"
+                    />
                 </div>
             </div>
 
-            <div
-                v-if="inspectOpen"
-                id="request-inspector-panel"
-                class="mt-8 overflow-hidden rounded-2xl border border-black/15 bg-[#0b0d11] text-[#e4e4e7] shadow-[0_28px_60px_-28px_rgba(0,0,0,0.35)] dark:border-white/[0.1]"
-            >
-                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] bg-[#111318] px-5 py-3">
+            <div class="flex min-w-0 flex-col bg-white lg:col-span-6 dark:bg-black">
+                <div class="flex items-center justify-between border-b border-[#eaeaea] px-5 py-2.5 sm:px-6 dark:border-white/[0.08]">
+                    <span class="font-mono text-[11.5px] font-medium text-[#171717] dark:text-[#fafafa]">
+                        Top 5 ranked titles
+                    </span>
+                    <span class="font-mono text-[11px] text-muted-ink dark:text-[#a1a1aa]">
+                        {{ hitCountLabel }}
+                    </span>
+                </div>
+
+                <div class="sr-only" aria-live="polite" aria-atomic="true">
+                    {{ liveAnnouncement }}
+                </div>
+
+                <div v-if="errorMessage" class="p-6 text-[14px] text-[#525252] dark:text-[#a1a1aa]">
+                    {{ errorMessage }}
+                </div>
+
+                <ol
+                    v-else
+                    class="flex-1 divide-y divide-[#eaeaea] dark:divide-white/[0.08]"
+                    aria-label="Ranked search results"
+                >
+                    <li
+                        v-for="(item, index) in results"
+                        :key="item._id || index"
+                    >
+                        <button
+                            type="button"
+                            class="group flex w-full items-start gap-3.5 px-5 py-3.5 text-left transition-colors sm:px-6"
+                            :class="activeIndex === index
+                                ? 'bg-[#fafafa] dark:bg-white/[0.04]'
+                                : 'hover:bg-[#fafafa]/70 dark:hover:bg-white/[0.02]'"
+                            :aria-current="activeIndex === index ? 'true' : undefined"
+                            @mouseenter="activeIndex = index"
+                            @focus="activeIndex = index"
+                            @click="activeIndex = index"
+                            @keydown="onResultKeyDown($event, index)"
+                        >
+                            <span
+                                class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-colors"
+                                :class="activeIndex === index
+                                    ? 'bg-[#171717] text-white ring-2 ring-magic-orange/75 dark:bg-[#fafafa] dark:text-[#171717]'
+                                    : index === 0
+                                        ? 'bg-[#171717] text-white dark:bg-[#fafafa] dark:text-[#171717]'
+                                        : 'border border-[#e5e5e5] bg-white text-[#404040] dark:border-white/[0.16] dark:bg-black dark:text-[#d4d4d8]'"
+                            >
+                                {{ index + 1 }}
+                            </span>
+
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                                    <span class="text-[14.5px] font-semibold text-[#171717] dark:text-[#fafafa]">
+                                        {{ item.title }}
+                                    </span>
+                                    <span class="font-mono text-[11px] text-muted-ink dark:text-[#a1a1aa]">
+                                        {{ item.type }} · {{ item.release_year }}
+                                    </span>
+                                    <span
+                                        v-if="deltaLabel(item._id)"
+                                        class="rounded px-1.5 py-0.2 font-mono text-[10.5px] font-medium"
+                                        :class="deltaLabel(item._id).tone === 'up'
+                                            ? 'bg-magic-orange/12 text-orange-ink dark:text-[#ff7b47]'
+                                            : deltaLabel(item._id).tone === 'down'
+                                                ? 'bg-black/[0.06] text-[#404040] dark:bg-white/10 dark:text-[#d4d4d8]'
+                                                : 'text-muted-ink dark:text-[#a1a1aa]'"
+                                    >
+                                        {{ deltaLabel(item._id).text }}
+                                    </span>
+                                </div>
+                                <p class="mt-0.5 line-clamp-1 text-[13px] leading-snug text-[#525252] dark:text-[#a1a1aa]">
+                                    {{ item.description }}
+                                </p>
+                            </div>
+
+                            <span class="mt-0.5 shrink-0 font-mono text-[11.5px] tabular-nums text-muted-ink dark:text-[#a1a1aa]">
+                                {{ Number(item._score ?? 0).toFixed(2) }}
+                            </span>
+                        </button>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="border-t border-[#eaeaea] bg-[#0b0d11] dark:border-white/[0.1]">
+            <div v-if="!inspectOpen">
+                <CodePreview
+                    :code="phpCode"
+                    filename="Search.php"
+                    language="php"
+                    :flat="true"
+                    :compact="true"
+                    :highlight-lines="highlightedPhpLines"
+                >
+                    <template #badge>
+                        <button
+                            type="button"
+                            class="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-3 py-1 font-mono text-[11px] text-[#e4e4e7] transition-colors hover:border-white/30 hover:text-white"
+                            :aria-expanded="inspectOpen"
+                            aria-controls="request-inspector-panel"
+                            @click="inspectOpen = true"
+                        >
+                            <span>Inspect {{ engineName }} JSON</span>
+                            <span class="text-[#a1a1aa]">{{ dslLineCount }} lines</span>
+                        </button>
+                    </template>
+                </CodePreview>
+            </div>
+
+            <div v-else id="request-inspector-panel">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] bg-[#111318] px-5 py-2.5">
                     <div class="flex flex-wrap items-center gap-2.5">
                         <span class="font-mono text-[12px] font-medium text-white">
                             Request inspector
@@ -551,7 +563,7 @@ const deltaLabel = (id) => {
                         class="rounded-full border border-white/15 px-3 py-1 font-mono text-[11px] text-[#d4d4d8] transition-colors hover:border-white/30 hover:text-white"
                         @click="inspectOpen = false"
                     >
-                        Close
+                        Hide JSON
                     </button>
                 </div>
 
@@ -574,7 +586,7 @@ const deltaLabel = (id) => {
                             :flat="true"
                             :compact="true"
                             :highlight-lines="dslHighlightLines"
-                            max-height-class="max-h-[360px] overflow-y-auto"
+                            max-height-class="max-h-[340px] overflow-y-auto"
                         />
                     </div>
                 </div>

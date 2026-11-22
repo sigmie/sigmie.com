@@ -120,10 +120,10 @@ const headerClass = computed(() => ({
 
 <template>
     <header
-        class="fixed top-0 left-0 right-0 z-40 h-16 border-b border-light-steel/80 bg-canvas-white/85 backdrop-blur-xl dark:border-white/[0.08] dark:bg-[#08080a]/85"
+        class="fixed top-0 left-0 right-0 z-40 h-16 border-b border-[#eaeaea] bg-white/85 backdrop-blur-xl dark:border-white/[0.1] dark:bg-black/85"
         :class="headerClass"
     >
-        <div class="mx-auto flex h-full w-full max-w-6xl items-center justify-between gap-4 px-5 sm:px-6 lg:px-8">
+        <div class="mx-auto flex h-full w-full max-w-[1120px] items-center justify-between gap-4 px-5 sm:px-6">
             <div class="flex items-center gap-8">
                 <Link href="/" aria-label="Sigmie home" class="shrink-0" @click="closeMenu">
                     <Logo :height="24" />

@@ -34,39 +34,39 @@ const props = defineProps({
 
 const emit = defineEmits(['select']);
 
-const CX = 270;
-const CY = 136;
+const CX = 280;
+const CY = 152;
 
 const RINGS = [
-    { r: 46, label: '#1' },
-    { r: 84, label: '#2–3' },
-    { r: 118, label: '#4–5' },
+    { r: 50, label: '#1' },
+    { r: 92, label: '#2–3' },
+    { r: 130, label: '#4–5' },
 ];
 
 const SLOTS = [
-    { r: 46, deg: -26, side: 'right' },
-    { r: 84, deg: -152, side: 'left' },
-    { r: 84, deg: 28, side: 'right' },
-    { r: 118, deg: 154, side: 'left' },
-    { r: 118, deg: -34, side: 'right' },
+    { r: 50, deg: -26, side: 'right' },
+    { r: 92, deg: -152, side: 'left' },
+    { r: 92, deg: 28, side: 'right' },
+    { r: 130, deg: 154, side: 'left' },
+    { r: 130, deg: -34, side: 'right' },
 ];
 
-const TICKS = Array.from({ length: 24 }, (_, idx) => {
-    const rad = (idx * 15 * Math.PI) / 180;
-    const inner = 114;
-    const outer = idx % 6 === 0 ? 124 : 120;
+const TICKS = Array.from({ length: 36 }, (_, idx) => {
+    const rad = (idx * 10 * Math.PI) / 180;
+    const inner = 126;
+    const outer = idx % 9 === 0 ? 136 : 131;
     return {
         x1: CX + Math.cos(rad) * inner,
         y1: CY + Math.sin(rad) * inner,
         x2: CX + Math.cos(rad) * outer,
         y2: CY + Math.sin(rad) * outer,
-        major: idx % 6 === 0,
+        major: idx % 9 === 0,
     };
 });
 
 const shortTitle = (title) => {
     const clean = String(title || '').trim();
-    return clean.length > 20 ? `${clean.slice(0, 19)}…` : clean;
+    return clean.length > 22 ? `${clean.slice(0, 21)}…` : clean;
 };
 
 const nodes = computed(() => (
@@ -104,27 +104,37 @@ const formatDelta = (delta) => {
 </script>
 
 <template>
-    <div class="relative select-none" :class="loading ? 'opacity-65 transition-opacity duration-200' : ''">
+    <div class="relative w-full select-none" :class="loading ? 'opacity-65 transition-opacity duration-200' : ''">
         <svg
-            viewBox="0 0 540 272"
+            viewBox="0 0 560 304"
             class="block h-auto w-full"
             role="img"
             :aria-label="`Orbital rank bands for ${mode} search query ${query}. Rank 1 is on the inner ring.`"
         >
+            <defs>
+                <radialGradient id="sigmieOrbitAura" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#ff5310" stop-opacity="0.16" />
+                    <stop offset="48%" stop-color="#ff5310" stop-opacity="0.04" />
+                    <stop offset="100%" stop-color="#ff5310" stop-opacity="0" />
+                </radialGradient>
+            </defs>
+
+            <circle :cx="CX" :cy="CY" r="118" fill="url(#sigmieOrbitAura)" aria-hidden="true" />
+
             <line
-                x1="28"
+                x1="24"
                 :y1="CY"
-                x2="512"
+                x2="536"
                 :y2="CY"
-                class="stroke-graphite/[0.06] dark:stroke-white/[0.06]"
+                class="stroke-black/[0.06] dark:stroke-white/[0.07]"
                 stroke-width="1"
             />
             <line
                 :x1="CX"
-                y1="10"
+                y1="12"
                 :x2="CX"
-                y2="262"
-                class="stroke-graphite/[0.06] dark:stroke-white/[0.06]"
+                y2="292"
+                class="stroke-black/[0.06] dark:stroke-white/[0.07]"
                 stroke-width="1"
             />
 
@@ -136,7 +146,7 @@ const formatDelta = (delta) => {
                     :y1="tick.y1"
                     :x2="tick.x2"
                     :y2="tick.y2"
-                    :class="tick.major ? 'stroke-graphite/20 dark:stroke-white/20' : 'stroke-graphite/10 dark:stroke-white/10'"
+                    :class="tick.major ? 'stroke-black/22 dark:stroke-white/25' : 'stroke-black/10 dark:stroke-white/10'"
                     stroke-width="1"
                 />
             </g>
@@ -147,17 +157,17 @@ const formatDelta = (delta) => {
                     :cy="CY"
                     :r="ring.r"
                     fill="none"
-                    :stroke-dasharray="idx === 2 ? '3 4' : undefined"
+                    :stroke-dasharray="idx === 2 ? '2 4' : undefined"
                     :class="idx === 0
-                        ? 'stroke-graphite/22 dark:stroke-white/24'
-                        : 'stroke-graphite/12 dark:stroke-white/12'"
+                        ? 'stroke-black/22 dark:stroke-white/24'
+                        : 'stroke-black/12 dark:stroke-white/12'"
                     :stroke-width="idx === 0 ? 1.25 : 1"
                 />
                 <text
                     :x="CX"
                     :y="CY + ring.r + 12"
                     text-anchor="middle"
-                    class="fill-muted-ink font-mono text-[9.5px] dark:fill-[#9ca3af]"
+                    class="fill-muted-ink font-mono text-[9.5px] dark:fill-[#a1a1aa]"
                 >
                     {{ ring.label }}
                 </text>
@@ -172,10 +182,10 @@ const formatDelta = (delta) => {
                     :x2="node.x"
                     :y2="node.y"
                     :class="node.isActive
-                        ? 'stroke-magic-orange/75'
+                        ? 'stroke-magic-orange/80'
                         : node.isTop
-                            ? 'stroke-graphite/25 dark:stroke-white/25'
-                            : 'stroke-graphite/10 dark:stroke-white/10'"
+                            ? 'stroke-black/22 dark:stroke-white/24'
+                            : 'stroke-black/10 dark:stroke-white/10'"
                     :stroke-width="node.isActive ? 1.4 : 1"
                     :stroke-dasharray="node.isActive ? undefined : '2 3'"
                 />
@@ -186,7 +196,7 @@ const formatDelta = (delta) => {
                     v-if="pulseKey > 0"
                     :cx="CX"
                     :cy="CY"
-                    r="24"
+                    r="26"
                     fill="none"
                     class="orbital-pulse stroke-magic-orange"
                     stroke-width="1.5"
@@ -194,24 +204,9 @@ const formatDelta = (delta) => {
             </g>
 
             <g aria-hidden="true">
-                <circle
-                    :cx="CX"
-                    :cy="CY"
-                    r="16"
-                    class="fill-magic-orange/12"
-                />
-                <circle
-                    :cx="CX"
-                    :cy="CY"
-                    r="9.5"
-                    class="fill-magic-orange"
-                />
-                <circle
-                    :cx="CX"
-                    :cy="CY"
-                    r="3"
-                    class="fill-white"
-                />
+                <circle :cx="CX" :cy="CY" r="17" class="fill-magic-orange/14" />
+                <circle :cx="CX" :cy="CY" r="9.5" class="fill-magic-orange" />
+                <circle :cx="CX" :cy="CY" r="3" class="fill-white" />
             </g>
 
             <g
@@ -226,20 +221,20 @@ const formatDelta = (delta) => {
                     v-if="node.isActive || (typeof node.delta === 'number' && node.delta > 0)"
                     cx="0"
                     cy="0"
-                    r="15"
+                    r="15.5"
                     fill="none"
-                    :class="node.isActive ? 'stroke-magic-orange/55' : 'stroke-magic-orange/35'"
+                    :class="node.isActive ? 'stroke-magic-orange/60' : 'stroke-magic-orange/35'"
                     stroke-width="1.25"
                 />
                 <circle
                     cx="0"
                     cy="0"
-                    :r="node.isTop || node.isActive ? 10.5 : 9"
+                    :r="node.isTop || node.isActive ? 11 : 9.5"
                     :class="node.isActive
-                        ? 'fill-magic-orange stroke-canvas-white dark:stroke-[#111113]'
+                        ? 'fill-magic-orange stroke-white dark:stroke-[#0a0a0a]'
                         : node.isTop
-                            ? 'fill-graphite stroke-canvas-white dark:fill-[#f5f5f4] dark:stroke-[#111113]'
-                            : 'fill-canvas-white stroke-graphite/45 dark:fill-[#161618] dark:stroke-white/40'"
+                            ? 'fill-[#171717] stroke-white dark:fill-[#fafafa] dark:stroke-[#0a0a0a]'
+                            : 'fill-white stroke-[#171717]/40 dark:fill-[#141414] dark:stroke-white/40'"
                     stroke-width="1.75"
                 />
                 <text
@@ -250,35 +245,33 @@ const formatDelta = (delta) => {
                     :class="node.isActive
                         ? 'fill-white'
                         : node.isTop
-                            ? 'fill-white dark:fill-graphite'
-                            : 'fill-graphite dark:fill-[#e4e4e7]'"
+                            ? 'fill-white dark:fill-[#171717]'
+                            : 'fill-[#171717] dark:fill-[#fafafa]'"
                 >
                     {{ node.rank }}
                 </text>
 
                 <text
-                    :x="node.side === 'right' ? 16 : -16"
+                    :x="node.side === 'right' ? 17 : -17"
                     y="-1"
                     :text-anchor="node.side === 'right' ? 'start' : 'end'"
-                    class="text-[11px] font-medium transition-colors"
+                    class="text-[11.5px] font-medium"
                     :class="node.isActive
-                        ? 'fill-graphite font-semibold dark:fill-white'
+                        ? 'fill-[#171717] font-semibold dark:fill-white'
                         : node.isTop
-                            ? 'fill-graphite dark:fill-[#f5f5f4]'
-                            : 'fill-charcoal/85 dark:fill-[#a3a3a0]'"
+                            ? 'fill-[#171717] dark:fill-[#fafafa]'
+                            : 'fill-[#404040] dark:fill-[#a1a1aa]'"
                 >
                     {{ node.short }}
                 </text>
                 <text
-                    :x="node.side === 'right' ? 16 : -16"
-                    y="11"
+                    :x="node.side === 'right' ? 17 : -17"
+                    y="12"
                     :text-anchor="node.side === 'right' ? 'start' : 'end'"
                     class="font-mono text-[9.5px]"
-                    :class="typeof node.delta === 'number' && node.delta > 0
+                    :class="(typeof node.delta === 'number' && node.delta > 0) || node.delta === 'new'
                         ? 'fill-orange-ink dark:fill-[#ff7b47]'
-                        : node.delta === 'new'
-                            ? 'fill-orange-ink dark:fill-[#ff7b47]'
-                            : 'fill-muted-ink dark:fill-[#9ca3af]'"
+                        : 'fill-muted-ink dark:fill-[#a1a1aa]'"
                 >
                     {{ node.score !== undefined ? Number(node.score).toFixed(2) : '' }}{{ formatDelta(node.delta) ? ` · ${formatDelta(node.delta)}` : '' }}
                 </text>

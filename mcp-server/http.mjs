@@ -6,19 +6,13 @@ const PORT = process.env.MCP_PORT || 3100;
 
 const httpServer = createHttpServer(async (req, res) => {
   if (req.method === "POST" && req.url === "/mcp") {
-    const body = await new Promise((resolve) => {
-      let data = "";
-      req.on("data", (chunk) => (data += chunk));
-      req.on("end", () => resolve(JSON.parse(data)));
-    });
-
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
     });
 
     const server = createServer();
     await server.connect(transport);
-    await transport.handleRequest(req, res, body);
+    await transport.handleRequest(req, res);
     return;
   }
 
